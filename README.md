@@ -1,12 +1,7 @@
 This is a library built ontop of the GNU MP library, intended to enable mass-parallelized GPU computation of arbitrary precision numbers.
 
 
-
-
-
-
-LICENSE:
-
+```
 The GPGMP Library is free software; you can redistribute it and/or modify
 it under any terms that also adhere to the GNU MP library's terms - as of the time of writing these are:
 
@@ -26,3 +21,4 @@ The GPGMP Library is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
+```

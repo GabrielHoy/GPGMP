@@ -1,6 +1,6 @@
 This is a library built ontop of the GNU MP library, intended to enable mass-parallelized GPU computation of arbitrary precision numbers.
 
-I will write a better README if and when I flesh out this library to a point where I feel comfortable publishing it as "production usable" code...
+I will write a better README(and docs) if and when I flesh out this library to a point where I feel comfortable publishing it as "production usable" code...
 
 ```
 The GPGMP Library is free software; you can redistribute it and/or modify

@@ -1,0 +1,17 @@
+[
+    {
+        "key": "ctrl+shift+b",
+        "command": "workbench.action.tasks.runTask",
+        "args": "CMake Build: Ninja (Debug)"
+    },
+    {
+        "key": "ctrl+shift+r",
+        "command": "workbench.action.tasks.runTask",
+        "args": "CMake Build and Run: Ninja (Debug)"
+    },
+    {
+        "key": "ctrl+shift+d",
+        "command": "workbench.action.debug.start",
+        "args": "FractalRendererTest: Ninja (Debug)"
+    }
+]

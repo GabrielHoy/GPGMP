@@ -3,13 +3,16 @@ cmake_minimum_required(VERSION 3.18)
 # -*-*-*-*-*-*-*- OPERATING SYSTEM SPECIFIC PATHS - OVERWRITE THESE WITH YOUR LOCATIONS OR YOU MAY BE ROYALLY FUCKED -*-*-*-*-*-*-*-
 
 # Wish I knew why CMake can't find pkgconfig on its own, you can try removing this line but you may need to point it to your pkgconf executable as well - I imagine I'm doing something wrong but I don't know what.
-# set(PKG_CONFIG_EXECUTABLE "C:/Users/gbhy2/Desktop/repos/vcpkg/installed/x64-windows-static/tools/pkgconf/pkgconf.exe")
+set(PKG_CONFIG_EXECUTABLE "C:/Users/gbhy2/Desktop/repos/vcpkg/installed/x64-windows-static/tools/pkgconf/pkgconf.exe")
 
 # set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};C:/dev/cpp")
+
 
 # -*-*-*-*-*-*-*- END OF OPERATING SYSTEM SPECIFIC PATHS -*-*-*-*-*-*-*-
 
 project(GPGMP VERSION 1.0 LANGUAGES C CXX CUDA)
+
+#list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 # A few quick build type checks
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
@@ -34,7 +37,6 @@ endif()
 # Output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -70,6 +72,9 @@ include_directories(
   ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
 )
 
+
+
+
 # Collect C/++ source files
 file(GLOB_RECURSE PROJECT_SOURCES
   "src/*.cpp"
@@ -79,31 +84,16 @@ file(GLOB_RECURSE PROJECT_SOURCES
 # Collect CUDA source files
 file(GLOB_RECURSE CUDA_SOURCES "src/*.cu")
 
-# Windows-specific definitions for DLL export/import
-if(WIN32)
-  add_definitions(-DGPGMP_EXPORTS)
-  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
 
-# Create library target
-add_library(GPGMP SHARED ${PROJECT_SOURCES} ${CUDA_SOURCES})
+
+
+# Create executable
+add_executable(GPGMP ${PROJECT_SOURCES} ${CUDA_SOURCES})
 
 # Set CUDA properties
 set_target_properties(GPGMP PROPERTIES
   CUDA_SEPARABLE_COMPILATION ON
   CUDA_ARCHITECTURES "60"
-  VERSION ${PROJECT_VERSION}
-  SOVERSION ${PROJECT_VERSION_MAJOR}
-  EXPORT_NAME GPGMP
-  PREFIX ""  # Remove lib prefix on Windows
-  WINDOWS_EXPORT_ALL_SYMBOLS ON
-)
-
-# Generate and configure export header
-include(GenerateExportHeader)
-generate_export_header(GPGMP
-  BASE_NAME GPGMP
-  EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/include/GPGMP_export.h
 )
 
 # Base compiler options that apply to all configurations - MSVC Specific
@@ -120,7 +110,7 @@ else()
   )
 endif()
 
-# Per-configuration compiler/linker options
+# Per-configuration compiler/linker options - MSVC Specific
 if(MSVC)
   target_compile_options(GPGMP PRIVATE
     $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CXX>>:/O2 /Ob2 /Oi /Ot /GL>
@@ -139,50 +129,3 @@ target_link_libraries(GPGMP PRIVATE
   PkgConfig::gmpxx
 )
 
-# Installation rules
-include(GNUInstallDirs)
-install(TARGETS GPGMP
-  EXPORT GPGMPTargets
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-# Install headers
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/GPGMP
-  FILES_MATCHING PATTERN "*.h*"
-)
-
-# Install export header
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/GPGMP_export.h
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/GPGMP
-)
-
-# Export targets
-install(EXPORT GPGMPTargets
-  FILE GPGMPTargets.cmake
-  NAMESPACE GPGMP::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GPGMP
-)
-
-# Generate and install config files
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/GPGMPConfigVersion.cmake"
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY SameMajorVersion
-)
-
-configure_package_config_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GPGMPConfig.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/GPGMPConfig.cmake"
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GPGMP
-)
-
-install(FILES
-  "${CMAKE_CURRENT_BINARY_DIR}/GPGMPConfig.cmake"
-  "${CMAKE_CURRENT_BINARY_DIR}/GPGMPConfigVersion.cmake"
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GPGMP
-)

@@ -12,6 +12,6 @@
     {
         "key": "ctrl+shift+d",
         "command": "workbench.action.debug.start",
-        "args": "FractalRendererTest: Ninja (Debug)"
+        "args": "Test: Ninja (Debug)"
     }
 ]

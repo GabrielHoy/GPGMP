@@ -4,7 +4,6 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}",
-                "${workspaceFolder}/include",
                 "${workspaceFolder}/src",
                 "${workspaceFolder}/src/**",
                 "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.8/include",

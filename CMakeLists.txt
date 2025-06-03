@@ -39,7 +39,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Set C++ standard
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set CUDA standard and architectures
@@ -51,6 +51,9 @@ set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -t0")  # Use all available threads for
 
 # Template depth limits for compilation? What are those? :)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -ftemplate-depth=4096")
+
+# Suppress deprecated GPU targets warning
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
 
 # Enable CUDA debugging for Debug configuration only
 if(MSVC)

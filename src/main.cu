@@ -1,6 +1,4 @@
 #include <iostream>
-#include <bit>
-#include "gmp.h"
 #include "gpgmp.cuh"
 
 double ConvertBackToDouble(mpf_t val) {
@@ -14,10 +12,10 @@ double ConvertBackToDouble(mpf_t val) {
     //  The mp_exp variable can be thought about as a number representing how many limbs to the LEFT the decimal point is. This means that FractionalPart's last index is at mp_size - mp_exp. MP_EXP CAN BE NEGATIVE! If it is, then the decimal point is even further to the right than the last limb by mp_exp limbs - this is used for values < 1 that are very, small in the fractional part - thus if mp_exp < 0 then there will never be an integer part.
 
     int integerArraySize = val->_mp_exp;
-    int numLimbsUsed = abs(val->_mp_size);
+    int numLimbsUsed = ABS(val->_mp_size);
     int fractionalArraySize = numLimbsUsed - val->_mp_exp;
 
-    int fractionalArrayBeginningIdxInTotalArray = 0;
+    //int fractionalArrayBeginningIdxInTotalArray = 0;
     int integerArrayBeginningIdxInTotalArray = numLimbsUsed - integerArraySize;
 
     mp_limb_t* fractionalSubArray = val->_mp_d; //simply mp_d since the fractional part comes first.
@@ -57,51 +55,91 @@ double ConvertBackToDouble(mpf_t val) {
         fracPart += fracPartRepresentedByThisLimb;
     }
 
-    return fracPart + static_cast<double>(intPart);
+    return (fracPart + static_cast<double>(intPart)) * SGN(val->_mp_size);
 }
 
+ANYCALLER void PrintDataAboutMPNArray(gpgmp::mpn_array* array) {
+    printf("Array data(%d integers in array, %d limbs allocated per integer):\n", array->numIntegersInArray, array->numLimbsPerInteger);
+    for (int i = 0; i < array->numIntegersInArray; i++) {
+        printf("    Integer #%d", i);
+        if (MPN_ARRAY_SIZES(array)[i] < 0) {
+            printf("(NEGATIVE)");
+        }
+        printf(":\n");
+        for (int limbIdx = 0; limbIdx < array->numLimbsPerInteger; limbIdx++) {
+            printf("        Limb #%d: %llu\n", limbIdx, MPN_ARRAY_DATA(array)[i * array->numLimbsPerInteger + limbIdx]);
+        }
+    }
+}
+
+__global__ void testKernel(gpgmp::mpn_device_array deviceArray) {
+    printf("Hello, world! I'm a kernel with a thread index of %d!\n", threadIdx.x);
+
+    PrintDataAboutMPNArray(deviceArray);
+}
+
+#define CHECK_CUDA_ERROR(err) do { \
+    if (err != cudaSuccess) { \
+        printf("CUDA error: %s\nError detected during check on line %d\n", cudaGetErrorString(err), __LINE__); \
+        exit(1); \
+    } \
+} while (0)
+
+
+#define NUM_INTEGERS_IN_ARRAY 5
+#define PRECISION_PER_INTEGER 64*2
 int main(int argc, char** argv) {
     __gmpf_set_default_prec(64*5);
+    cudaError_t err;
 
-    mpf_t test;
-    mpf_init(test);
-    mpf_t test2;
-    mpf_init(test2);
+    gpgmp::mpn_device_array testArray;
+    printf("Allocating array on GPU...\n");
 
-    mpf_set_str(test, "0.1", 10);
-    //mpf_set_str(test, "0.0100000000001", 10);
+    err = gpgmp::host::mpn_array_allocate_on_device(testArray, NUM_INTEGERS_IN_ARRAY, PRECISION_PER_INTEGER);
+    CHECK_CUDA_ERROR(err);
 
+    printf("Array allocated!\n");
 
-    //mpf_set_str(test2, "18446744073709551615", 10);
-    //mpf_set_str(test2, "18446744073709551618", 10);
-    //mpf_set_str(test2, "36893488147419103230", 10);
-    //mpf_set_ui(test2, std::numeric_limits<uint64_t>::max()); //gets truncated or bounded or something at UINT32_MAX for some reason
-    //mpf_set_ui(test2, 100000000000000); //10000000 is max before losing that last 1
-
-
-    mpf_add(test, test, test2);
-
-    gmp_printf("test: %F.14f\n", test);
-    printf("MPF breakdown:\n");
-    std::cout << "    Precision: " << test->_mp_prec << std::endl;
-    std::cout << "    Size: " << test->_mp_size << std::endl;
-    std::cout << "    Exponent: " << test->_mp_exp << std::endl;
-    std::cout << "    Data:" << std::endl;
-    mp_limb_t* limbs = test->_mp_d;
-
-    for (mp_limb_t i = 0; i < test->_mp_size; i++) {
-        std::cout << "       Limb " << i << ": " << limbs[i] << std::endl;
+    printf("Initializing array on GPU from CPU...\n");
+    mpz_t mpzArray[NUM_INTEGERS_IN_ARRAY];
+    for (int i = 0; i < NUM_INTEGERS_IN_ARRAY; i++) {
+        mpz_init_set_si(mpzArray[i], i);
     }
+    mpz_init_set_d(mpzArray[0], UINT64_MAX);
+    mpz_init_set_d(mpzArray[1], UINT64_MAX);
+    mpz_init_set_d(mpzArray[2], UINT64_MAX);
 
-    printf("\n\n\n\n");
-    std::cout << "Bit size of mp_limb_t: " << sizeof(mp_limb_t) * 8 << std::endl;
-    std::cout << "UINT32_MAX: " << UINT32_MAX << std::endl;
-    std::cout << "UINT64_MAX: " << UINT64_MAX << std::endl;
-    printf("\n\n\n\n");
+    err = gpgmp::host::mpn_array_init_on_device_from_mpz_array(testArray, mpzArray, NUM_INTEGERS_IN_ARRAY, PRECISION_PER_INTEGER, 5);
+    CHECK_CUDA_ERROR(err);
+    printf("Array initialized!\n");
 
-    printf("Double value of test: ");
-    double doubleVerOfTest = ConvertBackToDouble(test);
-    printf("%.13f\n", doubleVerOfTest);
+    printf("Launching kernel...\n");
+
+    testKernel<<<1, 1>>>(testArray);
+    cudaDeviceSynchronize();
+    printf("Kernel finished!\n");
+
+
+    printf("Testing custom mpn_add_n...\n");
+    mpz_t mpzResult, mpzTest1, mpzTest2;
+    mpz_init(mpzResult);
+    mpz_init(mpzTest1);
+    mpz_init(mpzTest2);
+    mpz_set_d(mpzResult, UINT64_MAX);
+    mpz_set_d(mpzTest1, UINT64_MAX);
+    mpz_set_d(mpzTest2, UINT64_MAX);
+
+    mp_srcptr operand1_ptr = mpzTest1->_mp_d;
+    mp_srcptr operand2_ptr = mpzTest2->_mp_d;
+    mp_size_t size = mpzTest1->_mp_size;
+
+    mp_limb_t carry = gpgmp::mpnRoutines::mpn_add_n(mpzResult->_mp_d, operand1_ptr, operand2_ptr, size);
+    printf("(Final Carry = %llu)\n", carry);
+
+    printf("(CPU) mpzTest1 = (%llu*(2^64)) + %llu\n", mpzTest1->_mp_d[1], mpzTest1->_mp_d[0]);
+    printf("(CPU) mpzTest2 = (%llu*(2^64)) + %llu\n", mpzTest2->_mp_d[1], mpzTest2->_mp_d[0]);
+    printf("(CPU) Result = (%llu*(2^64)) + %llu\n", mpzResult->_mp_d[1], mpzResult->_mp_d[0]);
+
 
     return 0;
 }

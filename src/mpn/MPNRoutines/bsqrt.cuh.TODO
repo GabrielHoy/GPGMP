@@ -1,9 +1,6 @@
-/* Const tables shared among combinatoric functions.
+/* mpn_bsqrt, a^{1/2} (mod 2^n).
 
-   THE CONTENTS OF THIS FILE ARE FOR INTERNAL USE AND ARE ALMOST CERTAIN TO
-   BE SUBJECT TO INCOMPATIBLE CHANGES IN FUTURE GNU MP RELEASES.
-
-Copyright 2012 Free Software Foundation, Inc.
+Copyright 2009, 2010, 2012, 2015 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -30,19 +27,27 @@ for more details.
 You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
-
 #pragma once
 #include "gpgmp.cuh"
 
-/* Entry i contains (i!/2^t) where t is chosen such that the parenthesis
-   is an odd integer. */
-const mp_limb_t __gmp_oddfac_table[] = { ONE_LIMB_ODD_FACTORIAL_TABLE, ONE_LIMB_ODD_FACTORIAL_EXTTABLE };
+namespace gpgmp {
 
-/* Entry i contains ((2i+1)!!/2^t) where t is chosen such that the parenthesis
-   is an odd integer. */
-const mp_limb_t __gmp_odd2fac_table[] = { ONE_LIMB_ODD_DOUBLEFACTORIAL_TABLE };
 
-/* Entry i contains 2i-popc(2i). */
-const unsigned char __gmp_fac2cnt_table[] = { TABLE_2N_MINUS_POPC_2N };
+	namespace mpnRoutines {
 
-const mp_limb_t __gmp_limbroots_table[] = { NTH_ROOT_NUMB_MASK_TABLE };
+		ANYCALLER void mpn_bsqrt (mp_ptr rp, mp_srcptr ap, mp_bitcnt_t nb, mp_ptr tp)
+    {
+      mp_ptr sp;
+      mp_size_t n;
+
+      ASSERT (nb > 0);
+
+      n = nb / GMP_NUMB_BITS;
+      sp = tp + n;
+
+      gpgmp::mpnRoutines::mpn_bsqrtinv (tp, ap, nb, sp);
+      gpgmp::mpnRoutines::mpn_mullo_n (rp, tp, ap, n);
+    }
+
+  }
+}

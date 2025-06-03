@@ -1,6 +1,6 @@
-/* mpn_zero_p (x,xsize) -- Return 1 if X is zero, 0 if it is non-zero.
+/* mpn_copyi
 
-Copyright 2015 Free Software Foundation, Inc.
+Copyright 2009 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -27,7 +27,22 @@ for more details.
 You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
+#pragma once
+#include "gpgmp.cuh"
 
-#define __GMP_FORCE_mpn_zero_p 1
+namespace gpgmp {
 
-#include "gmp-impl.h"
+	namespace mpnRoutines {
+
+		ANYCALLER void mpn_copyi (mp_ptr result_ptr, mp_srcptr operand_ptr, mp_size_t size)
+    {
+      mp_size_t limbIdx;
+
+      operand_ptr += size;
+      result_ptr += size;
+      for (limbIdx = -size; limbIdx != 0; limbIdx--)
+        result_ptr[limbIdx] = operand_ptr[limbIdx];
+    }
+
+  }
+}

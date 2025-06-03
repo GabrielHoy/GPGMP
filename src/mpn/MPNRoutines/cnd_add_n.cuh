@@ -32,38 +32,39 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
-#include "gmp-impl.h"
+#pragma once
+#include "gpgmp.cuh"
 
-mp_limb_t
-mpn_cnd_add_n (mp_limb_t cnd, mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
-{
-  mp_limb_t ul, vl, sl, rl, cy, cy1, cy2, mask;
+namespace gpgmp {
 
-  ASSERT (n >= 1);
-  ASSERT (MPN_SAME_OR_SEPARATE_P (rp, up, n));
-  ASSERT (MPN_SAME_OR_SEPARATE_P (rp, vp, n));
+	namespace mpnRoutines {
 
-  mask = -(mp_limb_t) (cnd != 0);
-  cy = 0;
-  do
+		ANYCALLER mp_limb_t mpn_cnd_add_n (mp_limb_t condition, mp_ptr return_ptr, mp_srcptr operand1_ptr, mp_srcptr operand2_ptr, mp_size_t size)
     {
-      ul = *up++;
-      vl = *vp++ & mask;
-#if GMP_NAIL_BITS == 0
-      sl = ul + vl;
-      cy1 = sl < ul;
-      rl = sl + cy;
-      cy2 = rl < sl;
-      cy = cy1 | cy2;
-      *rp++ = rl;
-#else
-      rl = ul + vl;
-      rl += cy;
-      cy = rl >> GMP_NUMB_BITS;
-      *rp++ = rl & GMP_NUMB_MASK;
-#endif
-    }
-  while (--n != 0);
+      mp_limb_t operand1_limb, operand2_limb, sum_limb, result_limb, carry, carry1, carry2, mask;
 
-  return cy;
+      ASSERT (size >= 1);
+      ASSERT (MPN_SAME_OR_SEPARATE_P (return_ptr, operand1_ptr, size));
+      ASSERT (MPN_SAME_OR_SEPARATE_P (return_ptr, operand2_ptr, size));
+
+      mask = -(mp_limb_t) (condition != 0);
+      carry = 0;
+      do
+        {
+          operand1_limb = *operand1_ptr++;
+          operand2_limb = *operand2_ptr++ & mask;
+
+          sum_limb = operand1_limb + operand2_limb;
+          carry1 = sum_limb < operand1_limb;
+          result_limb = sum_limb + carry;
+          carry2 = result_limb < sum_limb;
+          carry = carry1 | carry2;
+          *return_ptr++ = result_limb;
+        }
+      while (--size != 0);
+
+      return carry;
+    }
+
+  }
 }

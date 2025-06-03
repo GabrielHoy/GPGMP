@@ -27,7 +27,7 @@ for more details.
 You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
-
+#pragma once
 #define __GMP_FORCE_mpn_add_1 1
 
 #include "gpgmp.cuh"

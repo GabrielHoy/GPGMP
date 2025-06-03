@@ -1,6 +1,6 @@
-/* mpn_neg - negate an mpn.
+/* mpn_add - add mpn to mpn.
 
-Copyright 2001, 2009 Free Software Foundation, Inc.
+Copyright 2001 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -27,7 +27,7 @@ for more details.
 You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
+#pragma once
+#define __GMP_FORCE_mpn_add 1
 
-#define __GMP_FORCE_mpn_neg 1
-
-#include "gmp-impl.h"
+#include "gpgmp.cuh"

@@ -2,6 +2,8 @@
 
 #define WANT_ASSERT true
 
+/* BEGIN MPN INTERNALS PORTING VOMIT */
+
 //Useful macros ported over from GMP
 #define SGN(x)       ((x)<0 ? -1 : (x) != 0)
 #define ABS(x)       ((x)>=0 ? (x) : -(x))
@@ -53,6 +55,74 @@
   MPN_SAME_OR_DECR2_P(dst, size, src, size)
 
 
+#ifndef GMP_LIMB_BYTES
+#define GMP_LIMB_BYTES sizeof(mp_limb_t)//SIZEOF_MP_LIMB_T
+#endif
+typedef mp_limb_t UWtype;
+typedef unsigned int UHWtype;
+#define W_TYPE_SIZE GMP_LIMB_BITS
+
+
+
+
+
+//Useful routines involving numbers/limbs, inlined completely - ported over from GMP
+#if ! defined (MPN_COPY_INCR)
+#define MPN_COPY_INCR(dst, src, n)					\
+  do {									\
+    ASSERT ((n) >= 0);							\
+    ASSERT (MPN_SAME_OR_INCR_P (dst, src, n));				\
+    if ((n) != 0)							\
+      {									\
+	mp_size_t __n = (n) - 1;					\
+	mp_ptr __dst = (dst);						\
+	mp_srcptr __src = (src);					\
+	mp_limb_t __x;							\
+	__x = *__src++;							\
+	if (__n != 0)							\
+	  {								\
+	    do								\
+	      {								\
+		*__dst++ = __x;						\
+		__x = *__src++;						\
+	      }								\
+	    while (--__n);						\
+	  }								\
+	*__dst++ = __x;							\
+      }									\
+  } while (0)
+#endif
+
+#ifndef MPN_COPY
+#define MPN_COPY(d,s,n)							\
+  do {									\
+    ASSERT (MPN_SAME_OR_SEPARATE_P (d, s, n));				\
+    MPN_COPY_INCR (d, s, n);						\
+  } while (0)
+#endif
+
+#define ADDC_LIMB(cout, w, x, y)					\
+  do {									\
+    mp_limb_t  __x = (x);						\
+    mp_limb_t  __y = (y);						\
+    mp_limb_t  __w = __x + __y;						\
+    (w) = __w;								\
+    (cout) = __w < __x;							\
+  } while (0)
+
+#define SUBC_LIMB(cout, w, x, y)					\
+  do {									\
+    mp_limb_t  __x = (x);						\
+    mp_limb_t  __y = (y);						\
+    mp_limb_t  __w = __x - __y;						\
+    (w) = __w;								\
+    (cout) = __w > __x;							\
+  } while (0)
+
+
+
+
+
 
 #if WANT_ASSERT
 #include <intrin.h>
@@ -82,7 +152,7 @@
 
 
 
-
+/* END MPN INTERNALS PORTING VOMIT */
 
 
 

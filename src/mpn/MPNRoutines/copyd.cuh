@@ -1,8 +1,6 @@
-/* mpn_cnd_swap
+/* mpn_copyd
 
-   Contributed to the GNU project by Niels Möller
-
-Copyright 2013, 2015 Free Software Foundation, Inc.
+Copyright 2009 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -29,22 +27,22 @@ for more details.
 You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
+#pragma once
+#include "gpgmp.cuh"
 
-#include "gmp-impl.h"
 
-void
-mpn_cnd_swap (mp_limb_t cnd, volatile mp_limb_t *ap, volatile mp_limb_t *bp,
-	      mp_size_t n)
-{
-  volatile mp_limb_t mask = - (mp_limb_t) (cnd != 0);
-  mp_size_t i;
-  for (i = 0; i < n; i++)
+
+namespace gpgmp {
+
+	namespace mpnRoutines {
+
+		ANYCALLER void mpn_copyd (mp_ptr result_ptr, mp_srcptr operand_ptr, mp_size_t size)
     {
-      mp_limb_t a, b, t;
-      a = ap[i];
-      b = bp[i];
-      t = (a ^ b) & mask;
-      ap[i] = a ^ t;
-      bp[i] = b ^ t;
+      mp_size_t limbIdx;
+
+      for (limbIdx = size - 1; limbIdx >= 0; limbIdx--)
+        result_ptr[limbIdx] = operand_ptr[limbIdx];
     }
+
+  }
 }

@@ -1,6 +1,8 @@
-/* mpn_copyd
+/* mpn_cnd_swap
 
-Copyright 2009 Free Software Foundation, Inc.
+   Contributed to the GNU project by Niels Möller
+
+Copyright 2013, 2015 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -27,14 +29,28 @@ for more details.
 You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
+#pragma once
+#include "gpgmp.cuh"
 
-#include "gmp-impl.h"
+namespace gpgmp {
 
-void
-mpn_copyd (mp_ptr rp, mp_srcptr up, mp_size_t n)
-{
-  mp_size_t i;
+	namespace mpnRoutines {
 
-  for (i = n - 1; i >= 0; i--)
-    rp[i] = up[i];
+    //Conditional swap of two mp_limb_t arrays using bitwise operations to protect against timing attacks.
+		ANYCALLER void mpn_cnd_swap (mp_limb_t cnd, volatile mp_limb_t *ap, volatile mp_limb_t *bp, mp_size_t size)
+    {
+      volatile mp_limb_t mask = - (mp_limb_t) (cnd != 0);
+      mp_size_t limbIdx;
+      for (limbIdx = 0; limbIdx < size; limbIdx++)
+        {
+          mp_limb_t a, b, t;
+          a = ap[limbIdx];
+          b = bp[limbIdx];
+          t = (a ^ b) & mask;
+          ap[limbIdx] = a ^ t;
+          bp[limbIdx] = b ^ t;
+        }
+    }
+
+  }
 }

@@ -1,6 +1,6 @@
-/* mpn_copyi
+/* mpn_cmp -- Compare two low-level natural-number integers.
 
-Copyright 2009 Free Software Foundation, Inc.
+Copyright 1991, 1993, 1994, 1996, 2000, 2001 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -27,16 +27,8 @@ for more details.
 You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
+#pragma once
 
-#include "gmp-impl.h"
+#define __GMP_FORCE_mpn_cmp 1
 
-void
-mpn_copyi (mp_ptr rp, mp_srcptr up, mp_size_t n)
-{
-  mp_size_t i;
-
-  up += n;
-  rp += n;
-  for (i = -n; i != 0; i++)
-    rp[i] = up[i];
-}
+#include "gpgmp.cuh"

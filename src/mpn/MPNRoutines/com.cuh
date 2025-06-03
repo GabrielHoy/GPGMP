@@ -27,18 +27,24 @@ for more details.
 You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
-
-#include "gmp-impl.h"
+#pragma once
+#include "gpgmp.cuh"
 
 #undef mpn_com
 #define mpn_com __MPN(com)
 
-void
-mpn_com (mp_ptr rp, mp_srcptr up, mp_size_t n)
-{
-  mp_limb_t ul;
-  do {
-      ul = *up++;
-      *rp++ = ~ul & GMP_NUMB_MASK;
-  } while (--n != 0);
+namespace gpgmp {
+
+	namespace mpnRoutines {
+
+		ANYCALLER void mpn_com (mp_ptr result_ptr, mp_srcptr operand_ptr, mp_size_t size)
+    {
+      mp_limb_t operand_limb;
+      do {
+          operand_limb = *operand_ptr++;
+          *result_ptr++ = ~operand_limb & GMP_NUMB_MASK;
+      } while (--size != 0);
+    }
+
+  }
 }

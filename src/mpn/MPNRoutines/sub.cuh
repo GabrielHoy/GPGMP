@@ -1,6 +1,6 @@
-/* mpn_bsqrt, a^{1/2} (mod 2^n).
+/* mpn_sub - subtract mpn from mpn.
 
-Copyright 2009, 2010, 2012, 2015 Free Software Foundation, Inc.
+Copyright 2001 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -27,21 +27,8 @@ for more details.
 You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
+#pragma once
 
-#include "gmp-impl.h"
+#define __GMP_FORCE_mpn_sub 1
 
-
-void
-mpn_bsqrt (mp_ptr rp, mp_srcptr ap, mp_bitcnt_t nb, mp_ptr tp)
-{
-  mp_ptr sp;
-  mp_size_t n;
-
-  ASSERT (nb > 0);
-
-  n = nb / GMP_NUMB_BITS;
-  sp = tp + n;
-
-  mpn_bsqrtinv (tp, ap, nb, sp);
-  mpn_mullo_n (rp, tp, ap, n);
-}
+#include "gpgmp.cuh"

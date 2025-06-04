@@ -39,3 +39,4 @@
 #include "MPNRoutines/rshift.cuh"
 #include "MPNRoutines/lshift.cuh"
 #include "MPNRoutines/lshiftc.cuh"
+#include "MPNRoutines/dump.cuh"

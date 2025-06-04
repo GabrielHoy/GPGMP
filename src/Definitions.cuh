@@ -119,7 +119,31 @@ typedef unsigned int UHWtype;
     (cout) = __w > __x;							\
   } while (0)
 
-
+#ifndef MPN_NORMALIZE
+//TODO: This seems like it could cause warp divergence.
+#define MPN_NORMALIZE(DST, NLIMBS) \
+  do {									\
+    while ((NLIMBS) > 0)						\
+      {									\
+	if ((DST)[(NLIMBS) - 1] != 0)					\
+	  break;							\
+	(NLIMBS)--;							\
+      }									\
+  } while (0)
+#endif
+#ifndef MPN_NORMALIZE_NOT_ZERO
+//TODO: This seems like it could cause warp divergence.
+#define MPN_NORMALIZE_NOT_ZERO(DST, NLIMBS)				\
+  do {									\
+    while (1)								\
+      {									\
+	ASSERT ((NLIMBS) >= 1);						\
+	if ((DST)[(NLIMBS) - 1] != 0)					\
+	  break;							\
+	(NLIMBS)--;							\
+      }									\
+  } while (0)
+#endif
 
 
 

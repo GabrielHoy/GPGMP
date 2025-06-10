@@ -1,4 +1,4 @@
-# GPGMP: GPU-Accelerated GNU Multiple Precision Arithmetic Library
+# GPGMP: The GPU-Accelerated GNU Multiple Precision Arithmetic Library
 
 ## This is a library built ontop of the GNU MP library, intended to enable mass-parallelized GPU computation of arbitrary precision numbers.
 

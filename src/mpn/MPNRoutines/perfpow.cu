@@ -30,7 +30,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
 namespace gpgmp
@@ -184,7 +184,7 @@ namespace gpgmp
       ASSERT(ub > 0);
 
       TMP_MARK;
-      gmp_init_primesieve(&ps);
+      gpgmp_init_primesieve(&ps);
       b = (f + 3) >> 1;
 
       TMP_ALLOC_LIMBS_3(ip, n, rp, n, tp, 5 * n);
@@ -202,13 +202,13 @@ namespace gpgmp
         ip[(b - 1) / GMP_LIMB_BITS] &= (CNST_LIMB(1) << (b % GMP_LIMB_BITS)) - 1;
 
       if (neg)
-        gmp_nextprime(&ps);
+        gpgmp_nextprime(&ps);
 
       ans = 0;
       if (g > 0)
       {
         ub = MIN(ub, g + 1);
-        while ((k = gmp_nextprime(&ps)) < ub)
+        while ((k = gpgmp_nextprime(&ps)) < ub)
         {
           if ((g % k) == 0)
           {
@@ -222,7 +222,7 @@ namespace gpgmp
       }
       else
       {
-        while ((k = gmp_nextprime(&ps)) < ub)
+        while ((k = gpgmp_nextprime(&ps)) < ub)
         {
           if (is_kth_power(rp, np, k, ip, n, f, tp) != 0)
           {
@@ -236,12 +236,22 @@ namespace gpgmp
       return ans;
     }
 
+    #ifdef __CUDA_ARCH__
+    __device__ static const unsigned short nrtrial[] = {100, 500, 1000};
+
+    /* Table of (log_{p_i} 2) values, where p_i is the (nrtrial[i] + 1)'th prime
+       number.  */
+    __device__ static const double logs[] =
+        {0.1099457228193620, 0.0847016403115322, 0.0772048195144415};
+    #else
     static const unsigned short nrtrial[] = {100, 500, 1000};
 
     /* Table of (log_{p_i} 2) values, where p_i is the (nrtrial[i] + 1)'th prime
        number.  */
     static const double logs[] =
         {0.1099457228193620, 0.0847016403115322, 0.0772048195144415};
+    #endif
+
 
     ANYCALLER int
     mpn_perfect_power_p(mp_srcptr np, mp_size_t n)

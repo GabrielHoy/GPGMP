@@ -34,7 +34,7 @@ see https://www.gnu.org/licenses/.  */
 
 #include <stdlib.h>		/* for NULL */
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
 namespace gpgmp {

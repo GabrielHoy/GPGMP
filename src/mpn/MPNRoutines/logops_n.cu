@@ -28,56 +28,50 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 
 namespace gpgmp
 {
   namespace mpnRoutines
   {
-
-#ifdef OPERATION_and_n
-#define func __MPN(and_n)
-#define call mpn_and_n
-#endif
-
-#ifdef OPERATION_andn_n
-#define func __MPN(andn_n)
-#define call mpn_andn_n
-#endif
-
-#ifdef OPERATION_nand_n
-#define func __MPN(nand_n)
-#define call mpn_nand_n
-#endif
-
-#ifdef OPERATION_ior_n
-#define func __MPN(ior_n)
-#define call mpn_ior_n
-#endif
-
-#ifdef OPERATION_iorn_n
-#define func __MPN(iorn_n)
-#define call mpn_iorn_n
-#endif
-
-#ifdef OPERATION_nior_n
-#define func __MPN(nior_n)
-#define call mpn_nior_n
-#endif
-
-#ifdef OPERATION_xor_n
-#define func __MPN(xor_n)
-#define call mpn_xor_n
-#endif
-
-#ifdef OPERATION_xnor_n
-#define func __MPN(xnor_n)
-#define call mpn_xnor_n
-#endif
-
-    ANYCALLER void func(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
+    ANYCALLER void __MPN(and_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
     {
-      call(rp, up, vp, n);
+      mpn_and_n(rp, up, vp, n);
+    }
+
+    ANYCALLER void __MPN(andn_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
+    {
+      mpn_andn_n(rp, up, vp, n);
+    }
+
+    ANYCALLER void __MPN(nand_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
+    {
+      mpn_nand_n(rp, up, vp, n);
+    }
+
+    ANYCALLER void __MPN(ior_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
+    {
+      mpn_ior_n(rp, up, vp, n);
+    }
+
+    ANYCALLER void __MPN(iorn_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
+    {
+      mpn_iorn_n(rp, up, vp, n);
+    }
+
+    ANYCALLER void __MPN(nior_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
+    {
+      mpn_nior_n(rp, up, vp, n);
+    }
+
+    ANYCALLER void __MPN(xor_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
+    {
+      mpn_xor_n(rp, up, vp, n);
+    }
+
+    ANYCALLER void __MPN(xnor_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
+    {
+      mpn_xnor_n(rp, up, vp, n);
     }
 
   }

@@ -32,7 +32,7 @@ GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
 #include <stdio.h>
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 
 namespace gpgmp {
 

@@ -66,7 +66,7 @@ see https://www.gnu.org/licenses/.  */
 #define TRACE(x)
 #endif
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
 namespace gpgmp
@@ -80,10 +80,10 @@ namespace gpgmp
 #endif
 
     ANYCALLER static mp_limb_t mpn_mul_fft_internal(mp_ptr, mp_size_t, int, mp_ptr *,
-                                          mp_ptr *, mp_ptr, mp_ptr, mp_size_t,
-                                          mp_size_t, mp_size_t, int **, mp_ptr, int);
+                                                    mp_ptr *, mp_ptr, mp_ptr, mp_size_t,
+                                                    mp_size_t, mp_size_t, int **, mp_ptr, int);
     ANYCALLER static void mpn_mul_fft_decompose(mp_ptr, mp_ptr *, mp_size_t, mp_size_t, mp_srcptr,
-                                      mp_size_t, mp_size_t, mp_size_t, mp_ptr);
+                                                mp_size_t, mp_size_t, mp_size_t, mp_ptr);
 
     /* Find the best k to use for a mod 2^(m*GMP_NUMB_BITS)+1 FFT for m >= n.
        We have sqr=0 if for a multiply, sqr=1 for a square.
@@ -139,10 +139,19 @@ namespace gpgmp
     /*****************************************************************************/
 
 #if !defined(MPN_FFT_BEST_READY)
+  #ifdef __CUDA_ARCH__
+    __device__ FFT_TABLE_ATTRS mp_size_t mpn_fft_table[2][MPN_FFT_TABLE_SIZE] =
+        {
+            MUL_FFT_TABLE,
+            SQR_FFT_TABLE
+        };
+  #else
     FFT_TABLE_ATTRS mp_size_t mpn_fft_table[2][MPN_FFT_TABLE_SIZE] =
         {
             MUL_FFT_TABLE,
-            SQR_FFT_TABLE};
+            SQR_FFT_TABLE
+        };
+  #endif
 
     ANYCALLER int
     mpn_fft_best_k(mp_size_t n, int sqr)

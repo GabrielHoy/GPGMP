@@ -58,7 +58,7 @@ see https://www.gnu.org/licenses/.  */
      slowdown.
 */
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
 namespace gpgmp

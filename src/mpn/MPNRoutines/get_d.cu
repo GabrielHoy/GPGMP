@@ -39,7 +39,7 @@ see https://www.gnu.org/licenses/.  */
 #include <float.h>  /* for DBL_MANT_DIG and FLT_RADIX */
 #endif
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
 namespace gpgmp {

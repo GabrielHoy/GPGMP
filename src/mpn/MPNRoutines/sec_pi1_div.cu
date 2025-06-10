@@ -36,7 +36,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
 namespace gpgmp {
@@ -64,12 +64,120 @@ namespace gpgmp {
    partial remainder, we use an inverse which is slightly smaller than usually.
 */
 
+#define OPERATION_sec_pi1_div_qr 1
 #if OPERATION_sec_pi1_div_qr
 /* Needs (dn + 1) + (nn - dn) + (nn - dn) = 2nn - dn + 1 limbs at tp. */
 #define FNAME mpn_sec_pi1_div_qr
 #define Q(q) q,
 #define RETTYPE mp_limb_t
 #endif
+
+
+RETTYPE
+FNAME (Q(mp_ptr qp)
+       mp_ptr np, mp_size_t nn,
+       mp_srcptr dp, mp_size_t dn,
+       mp_limb_t dinv,
+       mp_ptr tp)
+{
+  mp_limb_t nh, cy, q1h, q0h, dummy, cnd;
+  mp_size_t i;
+  mp_ptr hp;
+#if OPERATION_sec_pi1_div_qr
+  mp_limb_t qh;
+  mp_ptr qlp, qhp;
+#endif
+
+  ASSERT (dn >= 1);
+  ASSERT (nn >= dn);
+  ASSERT ((dp[dn - 1] & GMP_NUMB_HIGHBIT) != 0);
+
+  if (nn == dn)
+    {
+      cy = mpn_sub_n (np, np, dp, dn);
+      mpn_cnd_add_n (cy, np, np, dp, dn);
+#if OPERATION_sec_pi1_div_qr
+      return 1 - cy;
+#else
+      return;
+#endif
+    }
+
+  /* Create a divisor copy shifted half a limb.  */
+  hp = tp;					/* (dn + 1) limbs */
+  hp[dn] = mpn_lshift (hp, dp, dn, GMP_NUMB_BITS / 2);
+
+#if OPERATION_sec_pi1_div_qr
+  qlp = tp + (dn + 1);				/* (nn - dn) limbs */
+  qhp = tp + (nn + 1);				/* (nn - dn) limbs */
+#endif
+
+  np += nn - dn;
+  nh = 0;
+
+  for (i = nn - dn - 1; i >= 0; i--)
+    {
+      np--;
+
+      nh = (nh << GMP_NUMB_BITS/2) + (np[dn] >> GMP_NUMB_BITS/2);
+      umul_ppmm (q1h, dummy, nh, dinv);
+      q1h += nh;
+#if OPERATION_sec_pi1_div_qr
+      qhp[i] = q1h;
+#endif
+      mpn_submul_1 (np, hp, dn + 1, q1h);
+
+      nh = np[dn];
+      umul_ppmm (q0h, dummy, nh, dinv);
+      q0h += nh;
+#if OPERATION_sec_pi1_div_qr
+      qlp[i] = q0h;
+#endif
+      nh -= mpn_submul_1 (np, dp, dn, q0h);
+    }
+
+  /* 1st adjustment depends on extra high remainder limb.  */
+  cnd = nh != 0;				/* FIXME: cmp-to-int */
+#if OPERATION_sec_pi1_div_qr
+  qlp[0] += cnd;
+#endif
+  nh -= mpn_cnd_sub_n (cnd, np, np, dp, dn);
+
+  /* 2nd adjustment depends on remainder/divisor comparison as well as whether
+     extra remainder limb was nullified by previous subtract.  */
+  cy = mpn_sub_n (np, np, dp, dn);
+  cy = cy - nh;
+#if OPERATION_sec_pi1_div_qr
+  qlp[0] += 1 - cy;
+#endif
+  mpn_cnd_add_n (cy, np, np, dp, dn);
+
+  /* 3rd adjustment depends on remainder/divisor comparison.  */
+  cy = mpn_sub_n (np, np, dp, dn);
+#if OPERATION_sec_pi1_div_qr
+  qlp[0] += 1 - cy;
+#endif
+  mpn_cnd_add_n (cy, np, np, dp, dn);
+
+#if OPERATION_sec_pi1_div_qr
+  /* Combine quotient halves into final quotient.  */
+  qh = mpn_lshift (qhp, qhp, nn - dn, GMP_NUMB_BITS/2);
+  qh += mpn_add_n (qp, qhp, qlp, nn - dn);
+
+  return qh;
+#else
+  return;
+#endif
+}
+
+#undef OPERATION_sec_pi1_div_qr
+#undef FNAME
+#undef Q
+#undef RETTYPE
+
+
+
+#define OPERATION_sec_pi1_div_r 1
 #if OPERATION_sec_pi1_div_r
 /* Needs (dn + 1) limbs at tp.  */
 #define FNAME mpn_sec_pi1_div_r
@@ -173,6 +281,11 @@ FNAME (Q(mp_ptr qp)
   return;
 #endif
 }
+
+#undef OPERATION_sec_pi1_div_r
+#undef FNAME
+#undef Q
+#undef RETTYPE
 
   }
 }

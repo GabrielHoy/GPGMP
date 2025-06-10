@@ -44,7 +44,7 @@ see https://www.gnu.org/licenses/.  */
     if exptab is suppressed.
 */
 #pragma once
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 #include "gmp.h"
 

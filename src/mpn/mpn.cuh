@@ -11,6 +11,7 @@
 // Mass forward declarations for GPGMP's versions of GMP functions
 
 //TODO: This namespace is currently filled with mass copy-pasted function declarations from GMP's gmp-impl.h file - find which ones we don't already declare in GPGMP and remove them accordingly
+/*
 namespace gpgmp
 {
     namespace mpnRoutines
@@ -27,7 +28,7 @@ namespace gpgmp
         #define mpn_addmul_1c __GPGMP_MPN(addmul_1c)
         __GPGMP_DECLSPEC mp_limb_t mpn_addmul_1c (mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
 
-        #ifndef mpn_addmul_2  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_addmul_2  // if not done with cpuvec in a fat binary //
         #define mpn_addmul_2 __GPGMP_MPN(addmul_2)
         __GPGMP_DECLSPEC mp_limb_t mpn_addmul_2 (mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
         #endif
@@ -50,7 +51,7 @@ namespace gpgmp
         #define mpn_addmul_8 __GPGMP_MPN(addmul_8)
         __GPGMP_DECLSPEC mp_limb_t mpn_addmul_8 (mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-        /* Alternative entry point in mpn_addmul_2 for the benefit of mpn_sqr_basecase.  */
+        // Alternative entry point in mpn_addmul_2 for the benefit of mpn_sqr_basecase.  //
         #define mpn_addmul_2s __GPGMP_MPN(addmul_2s)
         __GPGMP_DECLSPEC mp_limb_t mpn_addmul_2s (mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
@@ -65,7 +66,7 @@ namespace gpgmp
 
 
 
-        #ifndef mpn_lshiftc  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_lshiftc  // if not done with cpuvec in a fat binary //
         #define mpn_lshiftc __GPGMP_MPN(lshiftc)
         __GPGMP_DECLSPEC mp_limb_t mpn_lshiftc (mp_ptr, mp_srcptr, mp_size_t, unsigned int);
         #endif
@@ -122,7 +123,7 @@ namespace gpgmp
 
 
 
-        /* Remap names of internal mpn functions.  */
+        // Remap names of internal mpn functions.  //
         #define __clz_tab               __GPGMP_MPN(clz_tab)
         #define mpn_udiv_w_sdiv		__GPGMP_MPN(udiv_w_sdiv)
 
@@ -156,7 +157,7 @@ namespace gpgmp
         #define mpn_mul_6 __GPGMP_MPN(mul_6)
         __GPGMP_DECLSPEC mp_limb_t mpn_mul_6 (mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-        #ifndef mpn_mul_basecase  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_mul_basecase  // if not done with cpuvec in a fat binary //
         #define mpn_mul_basecase __GPGMP_MPN(mul_basecase)
         __GPGMP_DECLSPEC void mpn_mul_basecase (mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
         #endif
@@ -164,12 +165,12 @@ namespace gpgmp
         #define mpn_mullo_n __GPGMP_MPN(mullo_n)
         __GPGMP_DECLSPEC void mpn_mullo_n (mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
 
-        #ifndef mpn_mullo_basecase  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_mullo_basecase  // if not done with cpuvec in a fat binary //
         #define mpn_mullo_basecase __GPGMP_MPN(mullo_basecase)
         __GPGMP_DECLSPEC void mpn_mullo_basecase (mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
         #endif
 
-        #ifndef mpn_sqr_basecase  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_sqr_basecase  // if not done with cpuvec in a fat binary //
         #define mpn_sqr_basecase __GPGMP_MPN(sqr_basecase)
         __GPGMP_DECLSPEC void mpn_sqr_basecase (mp_ptr, mp_srcptr, mp_size_t);
         #endif
@@ -192,12 +193,12 @@ namespace gpgmp
         #define mpn_submul_1c __GPGMP_MPN(submul_1c)
         __GPGMP_DECLSPEC mp_limb_t mpn_submul_1c (mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
 
-        #ifndef mpn_redc_1  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_redc_1  // if not done with cpuvec in a fat binary //
         #define mpn_redc_1 __GPGMP_MPN(redc_1)
         __GPGMP_DECLSPEC mp_limb_t mpn_redc_1 (mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
         #endif
 
-        #ifndef mpn_redc_2  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_redc_2  // if not done with cpuvec in a fat binary //
         #define mpn_redc_2 __GPGMP_MPN(redc_2)
         __GPGMP_DECLSPEC mp_limb_t mpn_redc_2 (mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
         #endif
@@ -213,38 +214,38 @@ namespace gpgmp
 
 
 
-        #ifndef mpn_mod_1_1p_cps  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_mod_1_1p_cps  // if not done with cpuvec in a fat binary //
         #define mpn_mod_1_1p_cps __GPGMP_MPN(mod_1_1p_cps)
         __GPGMP_DECLSPEC void mpn_mod_1_1p_cps (mp_limb_t [4], mp_limb_t);
         #endif
-        #ifndef mpn_mod_1_1p  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_mod_1_1p  // if not done with cpuvec in a fat binary //
         #define mpn_mod_1_1p __GPGMP_MPN(mod_1_1p)
         __GPGMP_DECLSPEC mp_limb_t mpn_mod_1_1p (mp_srcptr, mp_size_t, mp_limb_t, const mp_limb_t [4]) __GMP_ATTRIBUTE_PURE;
         #endif
 
-        #ifndef mpn_mod_1s_2p_cps  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_mod_1s_2p_cps  // if not done with cpuvec in a fat binary //
         #define mpn_mod_1s_2p_cps __GPGMP_MPN(mod_1s_2p_cps)
         __GPGMP_DECLSPEC void mpn_mod_1s_2p_cps (mp_limb_t [5], mp_limb_t);
         #endif
-        #ifndef mpn_mod_1s_2p  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_mod_1s_2p  // if not done with cpuvec in a fat binary //
         #define mpn_mod_1s_2p __GPGMP_MPN(mod_1s_2p)
         __GPGMP_DECLSPEC mp_limb_t mpn_mod_1s_2p (mp_srcptr, mp_size_t, mp_limb_t, const mp_limb_t [5]) __GMP_ATTRIBUTE_PURE;
         #endif
 
-        #ifndef mpn_mod_1s_3p_cps  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_mod_1s_3p_cps  // if not done with cpuvec in a fat binary //
         #define mpn_mod_1s_3p_cps __GPGMP_MPN(mod_1s_3p_cps)
         __GPGMP_DECLSPEC void mpn_mod_1s_3p_cps (mp_limb_t [6], mp_limb_t);
         #endif
-        #ifndef mpn_mod_1s_3p  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_mod_1s_3p  // if not done with cpuvec in a fat binary //
         #define mpn_mod_1s_3p __GPGMP_MPN(mod_1s_3p)
         __GPGMP_DECLSPEC mp_limb_t mpn_mod_1s_3p (mp_srcptr, mp_size_t, mp_limb_t, const mp_limb_t [6]) __GMP_ATTRIBUTE_PURE;
         #endif
 
-        #ifndef mpn_mod_1s_4p_cps  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_mod_1s_4p_cps  // if not done with cpuvec in a fat binary //
         #define mpn_mod_1s_4p_cps __GPGMP_MPN(mod_1s_4p_cps)
         __GPGMP_DECLSPEC void mpn_mod_1s_4p_cps (mp_limb_t [7], mp_limb_t);
         #endif
-        #ifndef mpn_mod_1s_4p  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_mod_1s_4p  // if not done with cpuvec in a fat binary //
         #define mpn_mod_1s_4p __GPGMP_MPN(mod_1s_4p)
         __GPGMP_DECLSPEC mp_limb_t mpn_mod_1s_4p (mp_srcptr, mp_size_t, mp_limb_t, const mp_limb_t [7]) __GMP_ATTRIBUTE_PURE;
         #endif
@@ -515,7 +516,7 @@ namespace gpgmp
         #define   mpn_divexact_itch __GPGMP_MPN(divexact_itch)
         __GPGMP_DECLSPEC mp_size_t mpn_divexact_itch (mp_size_t, mp_size_t) ATTRIBUTE_CONST;
 
-        #ifndef mpn_bdiv_dbm1c  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_bdiv_dbm1c  // if not done with cpuvec in a fat binary //
         #define   mpn_bdiv_dbm1c __GPGMP_MPN(bdiv_dbm1c)
         __GPGMP_DECLSPEC mp_limb_t mpn_bdiv_dbm1c (mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
         #endif
@@ -555,7 +556,7 @@ namespace gpgmp
 
         #ifndef DIVEXACT_BY3_METHOD
         #if GMP_NUMB_BITS % 2 == 0 && ! defined (HAVE_NATIVE_mpn_divexact_by3c)
-        #define DIVEXACT_BY3_METHOD 0	/* default to using mpn_bdiv_dbm1c */
+        #define DIVEXACT_BY3_METHOD 0	// default to using mpn_bdiv_dbm1c
         #else
         #define DIVEXACT_BY3_METHOD 1
         #endif
@@ -565,12 +566,12 @@ namespace gpgmp
         #undef mpn_divexact_by3
         #define mpn_divexact_by3(dst,src,size) \
         (3 & mpn_bdiv_dbm1 (dst, src, size, __GMP_CAST (mp_limb_t, GMP_NUMB_MASK / 3)))
-        /* override mpn_divexact_by3c defined in gmp.h */
-        /*
-        #undef mpn_divexact_by3c
-        #define mpn_divexact_by3c(dst,src,size,cy) \
-        (3 & mpn_bdiv_dbm1c (dst, src, size, __GMP_CAST (mp_limb_t, GMP_NUMB_MASK / 3, GMP_NUMB_MASK / 3 * cy)))
-        */
+        // override mpn_divexact_by3c defined in gmp.h
+
+        //#undef mpn_divexact_by3c
+        //#define mpn_divexact_by3c(dst,src,size,cy) \
+        //(3 & mpn_bdiv_dbm1c (dst, src, size, __GMP_CAST (mp_limb_t, GMP_NUMB_MASK / 3, GMP_NUMB_MASK / 3 * cy)))
+
         #endif
 
         #if GMP_NUMB_BITS % 4 == 0
@@ -614,26 +615,26 @@ namespace gpgmp
 
 
 
-        /*
-        #define mpz_divexact_gcd  __gmpz_divexact_gcd
-        __GPGMP_DECLSPEC void    mpz_divexact_gcd (mpz_ptr, mpz_srcptr, mpz_srcptr);
 
-        #define mpz_prodlimbs  __gmpz_prodlimbs
-        __GPGMP_DECLSPEC mp_size_t mpz_prodlimbs (mpz_ptr, mp_ptr, mp_size_t);
-
-        #define mpz_oddfac_1  __gmpz_oddfac_1
-        __GPGMP_DECLSPEC void mpz_oddfac_1 (mpz_ptr, mp_limb_t, unsigned);
-
-        #define mpz_stronglucas  __gmpz_stronglucas
-        __GPGMP_DECLSPEC int mpz_stronglucas (mpz_srcptr, mpz_ptr, mpz_ptr);
-
-        #define mpz_lucas_mod  __gmpz_lucas_mod
-        __GPGMP_DECLSPEC int mpz_lucas_mod (mpz_ptr, mpz_ptr, long, mp_bitcnt_t, mpz_srcptr, mpz_ptr, mpz_ptr);
-
-        #define mpz_inp_str_nowhite __gmpz_inp_str_nowhite
-        #ifdef _GMP_H_HAVE_FILE
-        __GPGMP_DECLSPEC size_t  mpz_inp_str_nowhite (mpz_ptr, FILE *, int, int, size_t);
-        #endif*/
+        //#define mpz_divexact_gcd  __gmpz_divexact_gcd
+        //__GPGMP_DECLSPEC void    mpz_divexact_gcd (mpz_ptr, mpz_srcptr, mpz_srcptr);
+//
+        //#define mpz_prodlimbs  __gmpz_prodlimbs
+        //__GPGMP_DECLSPEC mp_size_t mpz_prodlimbs (mpz_ptr, mp_ptr, mp_size_t);
+//
+        //#define mpz_oddfac_1  __gmpz_oddfac_1
+        //__GPGMP_DECLSPEC void mpz_oddfac_1 (mpz_ptr, mp_limb_t, unsigned);
+//
+        //#define mpz_stronglucas  __gmpz_stronglucas
+        //__GPGMP_DECLSPEC int mpz_stronglucas (mpz_srcptr, mpz_ptr, mpz_ptr);
+//
+        //#define mpz_lucas_mod  __gmpz_lucas_mod
+        //__GPGMP_DECLSPEC int mpz_lucas_mod (mpz_ptr, mpz_ptr, long, mp_bitcnt_t, mpz_srcptr, mpz_ptr, mpz_ptr);
+//
+        //#define mpz_inp_str_nowhite __gmpz_inp_str_nowhite
+        //#ifdef _GMP_H_HAVE_FILE
+        //__GPGMP_DECLSPEC size_t  mpz_inp_str_nowhite (mpz_ptr, FILE *, int, int, size_t);
+        //#endif
 
         #define mpn_divisible_p __GPGMP_MPN(divisible_p)
         __GPGMP_DECLSPEC int     mpn_divisible_p (mp_srcptr, mp_size_t, mp_srcptr, mp_size_t) __GMP_ATTRIBUTE_PURE;
@@ -662,7 +663,7 @@ namespace gpgmp
 
 
 
-        #ifndef mpn_modexact_1c_odd  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_modexact_1c_odd  // if not done with cpuvec in a fat binary //
         #define mpn_modexact_1c_odd __GPGMP_MPN(modexact_1c_odd)
         __GPGMP_DECLSPEC mp_limb_t mpn_modexact_1c_odd (mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t) __GMP_ATTRIBUTE_PURE;
         #endif
@@ -760,14 +761,14 @@ namespace gpgmp
 
 
 
-        #ifndef mpn_mod_34lsub1  /* if not done with cpuvec in a fat binary */
+        #ifndef mpn_mod_34lsub1  // if not done with cpuvec in a fat binary *
         #define mpn_mod_34lsub1 __GPGMP_MPN(mod_34lsub1)
         __GPGMP_DECLSPEC mp_limb_t mpn_mod_34lsub1 (mp_srcptr, mp_size_t) __GMP_ATTRIBUTE_PURE;
         #endif
     }
 }
 
-
+*/
 
 
 
@@ -1028,4 +1029,4 @@ refactor note dump...
 
 */
 
-#include "gmp-mparam.h" //Seemingly useless
+//#include "gmp-mparam.h" //Seemingly useless

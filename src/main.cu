@@ -1,6 +1,8 @@
 #include <iostream>
 #include "gpgmp.cuh"
 
+#define ABS(x) ((x) >= 0 ? (x) : -(x))
+#define SGN(x) ((x)<0 ? -1 : (x) != 0)
 double ConvertBackToDouble(mpf_t val) {
     uint64_t intPart = 0;
     double fracPart = 0;
@@ -133,8 +135,8 @@ int main(int argc, char** argv) {
     mp_srcptr operand2_ptr = mpzTest2->_mp_d;
     mp_size_t size = mpzTest1->_mp_size;
 
-    mp_limb_t carry = gpgmp::mpnRoutines::mpn_add_n(mpzResult->_mp_d, operand1_ptr, operand2_ptr, size);
-    printf("(Final Carry = %llu)\n", carry);
+    //mp_limb_t carry = gpgmp::mpnRoutines::mpn_add_n(mpzResult->_mp_d, operand1_ptr, operand2_ptr, size);
+    //printf("(Final Carry = %llu)\n", carry);
 
     printf("(CPU) mpzTest1 = (%llu*(2^64)) + %llu\n", mpzTest1->_mp_d[1], mpzTest1->_mp_d[0]);
     printf("(CPU) mpzTest2 = (%llu*(2^64)) + %llu\n", mpzTest2->_mp_d[1], mpzTest2->_mp_d[0]);

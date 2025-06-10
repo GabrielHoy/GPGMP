@@ -31,4 +31,4 @@ see https://www.gnu.org/licenses/.  */
 
 #define __GMP_FORCE_mpn_sub_1 1
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"

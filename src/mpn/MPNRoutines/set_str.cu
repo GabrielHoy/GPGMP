@@ -62,7 +62,7 @@ see https://www.gnu.org/licenses/.  */
       cubes, not squares.
 */
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
 namespace gpgmp

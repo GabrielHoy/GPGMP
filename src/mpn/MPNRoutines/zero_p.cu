@@ -30,4 +30,4 @@ see https://www.gnu.org/licenses/.  */
 #pragma once
 #define __GMP_FORCE_mpn_zero_p 1
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"

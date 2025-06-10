@@ -1,6 +1,6 @@
 /* mpn_add_n -- Add equal length limb vectors.  */
 #pragma once
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 
 namespace gpgmp {
 

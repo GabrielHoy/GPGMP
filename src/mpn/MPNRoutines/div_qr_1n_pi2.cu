@@ -42,7 +42,7 @@ see https://www.gnu.org/licenses/.  */
    * Not yet adequately tested.
 */
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
 namespace gpgmp {

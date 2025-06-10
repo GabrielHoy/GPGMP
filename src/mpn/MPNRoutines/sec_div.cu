@@ -50,7 +50,7 @@ see https://www.gnu.org/licenses/.  */
 
 
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 #include "gmp.h"
 

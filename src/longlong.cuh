@@ -52,6 +52,7 @@ see https://www.gnu.org/licenses/.  */
    need to include gmp.h and gmp-impl.h, or certain things might not work as
    expected.
 */
+#pragma once
 
 #define __BITS4 (W_TYPE_SIZE / 4)
 #define __ll_B ((UWtype) 1 << (W_TYPE_SIZE / 2))
@@ -150,6 +151,9 @@ see https://www.gnu.org/licenses/.  */
    it's not used (for count_leading_zeros) because it generally gives extra
    code to ensure the result is 0 when the input is 0, which we don't need
    or want.  */
+
+
+
 
 #ifdef _LONG_LONG_LIMB
 #define count_leading_zeros_gcc_clz(count,x)	\
@@ -2238,7 +2242,27 @@ __GMP_DECLSPEC UWtype __MPN(udiv_w_sdiv) (UWtype *, UWtype, UWtype, UWtype);
 #endif
 
 #ifdef COUNT_LEADING_ZEROS_NEED_CLZ_TAB
-extern const unsigned char __GMP_DECLSPEC __clz_tab[129];
+#ifdef COUNT_LEADING_ZEROS_NEED_CLZ_TAB
+
+#ifdef __CUDA_ARCH__
+__device__ const unsigned char __clz_tab[129] = {
+  1,2,3,3,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
+  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+  8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+  8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+  9
+};
+#else
+const unsigned char __clz_tab[129] = {
+  1,2,3,3,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
+  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+  8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+  8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+  9
+};
+#endif
+
+#endif
 #endif
 
 #if !defined (count_trailing_zeros)

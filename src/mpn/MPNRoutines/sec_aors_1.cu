@@ -30,7 +30,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
 namespace gpgmp
@@ -38,16 +38,10 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-#if OPERATION_sec_add_1
+
 #define FNAME mpn_sec_add_1
 #define FNAME_itch mpn_sec_add_1_itch
 #define OP_N mpn_add_n
-#endif
-#if OPERATION_sec_sub_1
-#define FNAME mpn_sec_sub_1
-#define FNAME_itch mpn_sec_sub_1_itch
-#define OP_N mpn_sub_n
-#endif
 
     /* It's annoying to that we need scratch space */
     ANYCALLER mp_size_t FNAME_itch(mp_size_t n)
@@ -61,6 +55,33 @@ namespace gpgmp
       MPN_ZERO(scratch + 1, n - 1);
       return OP_N(rp, ap, scratch, n);
     }
+
+#undef FNAME
+#undef FNAME_itch
+#undef OP_N
+
+
+
+#define FNAME mpn_sec_sub_1
+#define FNAME_itch mpn_sec_sub_1_itch
+#define OP_N mpn_sub_n
+
+    /* It's annoying to that we need scratch space */
+    ANYCALLER mp_size_t FNAME_itch(mp_size_t n)
+    {
+      return n;
+    }
+
+    ANYCALLER mp_limb_t FNAME(mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t b, mp_ptr scratch)
+    {
+      scratch[0] = b;
+      MPN_ZERO(scratch + 1, n - 1);
+      return OP_N(rp, ap, scratch, n);
+    }
+
+    #undef FNAME
+    #undef FNAME_itch
+    #undef OP_N
 
   }
 }

@@ -33,7 +33,7 @@ GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
 #pragma once
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 
 #ifndef L1_CACHE_SIZE
 #define L1_CACHE_SIZE 8192	/* only 68040 has less than this */ //TODO: Find out if this holds true for all "recent-ish" GPU architectures as well
@@ -51,7 +51,7 @@ namespace gpgmp {
       r2[] = s1[] - s2[]
       All operands have n limbs.
       In-place operations allowed.  */
-    mp_limb_t mpn_add_n_sub_n (mp_ptr r1p, mp_ptr r2p, mp_srcptr s1p, mp_srcptr s2p, mp_size_t n)
+    ANYCALLER mp_limb_t mpn_add_n_sub_n (mp_ptr r1p, mp_ptr r2p, mp_srcptr s1p, mp_srcptr s2p, mp_size_t n)
     {
       mp_limb_t acyn, acyo;		/* carry for add */
       mp_limb_t scyn, scyo;		/* carry for subtract */

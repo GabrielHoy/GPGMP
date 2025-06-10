@@ -71,7 +71,7 @@ see https://www.gnu.org/licenses/.  */
 #endif
 
 #include <stdlib.h> /* for NULL */
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
 namespace gpgmp

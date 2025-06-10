@@ -33,9 +33,9 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
-#include "gpgmp.cuh"
+#include "gpgmp-impl.cuh"
 #include "longlong.cuh"
-#include "MPNRoutines/hgcd2-div.cuh"
+#include "mpn/MPNRoutines/hgcd2-div.cuh"
 
 namespace gpgmp {
   namespace mpnRoutines {

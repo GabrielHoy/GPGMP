@@ -1,6 +1,12 @@
-This is a library built ontop of the GNU MP library, intended to enable mass-parallelized GPU computation of arbitrary precision numbers.
+# GPGMP: GPU-Accelerated GNU Multiple Precision Arithmetic Library
+
+## This is a library built ontop of the GNU MP library, intended to enable mass-parallelized GPU computation of arbitrary precision numbers.
 
 I will write a better README(and docs) if and when I flesh out this library to a point where I feel comfortable publishing it as "production usable" code...
+
+Current functionality:
+- GPU-Compatible `mpn` routines, under `gpgmp::mpnRoutines::gpmpn_<normal_mpn_routine_name>` *(As of 06/10/2025 These have not been optimized for Warp Divergence, Memory Coalescence or Dynamic Allocations. I have only ported them to CUDA C; there are many optimizations to be had yet.)*
+- `gpgmp::mpn_device_array` and `gpgmp::mpn_host_array` types which operate similarly to mpz_t[] array's, with the benefit of optimized Memory Coalescence and GPU compatibility.
 
 ```
 The GPGMP Library is free software; you can redistribute it and/or modify

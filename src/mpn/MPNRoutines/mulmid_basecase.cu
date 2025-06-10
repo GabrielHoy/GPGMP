@@ -1,4 +1,4 @@
-/* mpn_mulmid_basecase -- classical middle product algorithm
+/* gpmpn_mulmid_basecase -- classical middle product algorithm
 
    Contributed by David Harvey.
 
@@ -48,7 +48,7 @@ namespace gpgmp
        Neither input buffer may overlap with the output buffer. */
 
     ANYCALLER void
-    mpn_mulmid_basecase(mp_ptr rp,
+    gpmpn_mulmid_basecase(mp_ptr rp,
                         mp_srcptr up, mp_size_t un,
                         mp_srcptr vp, mp_size_t vn)
     {
@@ -64,14 +64,14 @@ namespace gpgmp
       un -= vn - 1;
 
       /* multiply by first limb, store result */
-      lo = mpn_mul_1(rp, up, un, vp[0]);
+      lo = gpmpn_mul_1(rp, up, un, vp[0]);
       hi = 0;
 
       /* accumulate remaining rows */
       for (vn--; vn; vn--)
       {
         up--, vp++;
-        cy = mpn_addmul_1(rp, up, un, vp[0]);
+        cy = gpmpn_addmul_1(rp, up, un, vp[0]);
         add_ssaaaa(hi, lo, hi, lo, CNST_LIMB(0), cy);
       }
 

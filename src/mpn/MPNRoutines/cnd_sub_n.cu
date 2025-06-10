@@ -1,4 +1,4 @@
-/* mpn_cnd_sub_n -- Compute R = U - V if CND != 0 or R = U if CND == 0.
+/* gpmpn_cnd_sub_n -- Compute R = U - V if CND != 0 or R = U if CND == 0.
    Both cases should take the same time and perform the exact same memory
    accesses, since this function is intended to be used where side-channel
    attack resilience is relevant.
@@ -39,7 +39,7 @@ namespace gpgmp {
 
 	namespace mpnRoutines {
 
-		ANYCALLER mp_limb_t mpn_cnd_sub_n (mp_limb_t cnd, mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
+		ANYCALLER mp_limb_t gpmpn_cnd_sub_n (mp_limb_t cnd, mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
     {
       mp_limb_t ul, vl, sl, rl, cy, cy1, cy2, mask;
 

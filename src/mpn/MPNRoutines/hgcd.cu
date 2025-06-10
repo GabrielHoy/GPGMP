@@ -58,7 +58,7 @@ namespace gpgmp {
       <= 20 ceil(n/4) + 22k + S(ceil(n/2^k))
     */
 
-    ANYCALLER mp_size_t mpn_hgcd_itch (mp_size_t n)
+    ANYCALLER mp_size_t gpmpn_hgcd_itch (mp_size_t n)
     {
       unsigned k;
       int count;
@@ -79,7 +79,7 @@ namespace gpgmp {
       with elements of size at most (n+1)/2 - 1. Returns new size of a,
       b, or zero if no reduction is possible. */
 
-    ANYCALLER mp_size_t mpn_hgcd (mp_ptr ap, mp_ptr bp, mp_size_t n, struct hgcd_matrix *M, mp_ptr tp)
+    ANYCALLER mp_size_t gpmpn_hgcd (mp_ptr ap, mp_ptr bp, mp_size_t n, struct hgcd_matrix *M, mp_ptr tp)
     {
       mp_size_t s = n/2 + 1;
 
@@ -100,7 +100,7 @@ namespace gpgmp {
           mp_size_t n2 = (3*n)/4 + 1;
           mp_size_t p = n/2;
 
-          nn = mpn_hgcd_reduce (M, ap, bp, n, p, tp);
+          nn = gpmpn_hgcd_reduce (M, ap, bp, n, p, tp);
           if (nn)
       {
         n = nn;
@@ -112,7 +112,7 @@ namespace gpgmp {
           while (n > n2)
       {
         /* Needs n + 1 storage */
-        nn = mpn_hgcd_step (n, ap, bp, s, M, tp);
+        nn = gpmpn_hgcd_step (n, ap, bp, s, M, tp);
         if (!nn)
           return success ? n : 0;
 
@@ -128,12 +128,12 @@ namespace gpgmp {
         p = 2*s - n + 1;
         scratch = MPN_HGCD_MATRIX_INIT_ITCH (n-p);
 
-        mpn_hgcd_matrix_init(&M1, n - p, tp);
+        gpmpn_hgcd_matrix_init(&M1, n - p, tp);
 
         /* FIXME: Should use hgcd_reduce, but that may require more
           scratch space, which requires review. */
 
-        nn = mpn_hgcd (ap + p, bp + p, n - p, &M1, tp + scratch);
+        nn = gpmpn_hgcd (ap + p, bp + p, n - p, &M1, tp + scratch);
         if (nn > 0)
           {
             /* We always have max(M) > 2^{-(GMP_NUMB_BITS + 1)} max(M1) */
@@ -149,7 +149,7 @@ namespace gpgmp {
 
             /* Needs 2 (p + M->n) <= 2 (2*s - n2 + 1 + n2 - s - 1)
         = 2*s <= 2*(floor(n/2) + 1) <= n + 2. */
-            n = mpn_hgcd_matrix_adjust (&M1, p + nn, ap, bp, p, tp + scratch);
+            n = gpmpn_hgcd_matrix_adjust (&M1, p + nn, ap, bp, p, tp + scratch);
 
             /* We need a bound for of M->n + M1.n. Let n be the original
         input size. Then
@@ -162,7 +162,7 @@ namespace gpgmp {
 
         Then 3*(M.n + M1.n) + 5 <= 3 * ceil(n/2) + 8 is the
         amount of needed scratch space. */
-            mpn_hgcd_matrix_mul (M, &M1, tp + scratch);
+            gpmpn_hgcd_matrix_mul (M, &M1, tp + scratch);
             success = 1;
           }
       }
@@ -171,7 +171,7 @@ namespace gpgmp {
       for (;;)
         {
           /* Needs s+3 < n */
-          nn = mpn_hgcd_step (n, ap, bp, s, M, tp);
+          nn = gpmpn_hgcd_step (n, ap, bp, s, M, tp);
           if (!nn)
       return success ? n : 0;
 

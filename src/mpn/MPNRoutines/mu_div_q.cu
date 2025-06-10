@@ -1,4 +1,4 @@
-/* mpn_mu_div_q.
+/* gpmpn_mu_div_q.
 
    Contributed to the GNU project by Torbjorn Granlund and Marco Bodrato.
 
@@ -44,13 +44,13 @@ see https://www.gnu.org/licenses/.  */
 /*
   Things to work on:
 
-  1. This is a rudimentary implementation of mpn_mu_div_q.  The algorithm is
-     probably close to optimal, except when mpn_mu_divappr_q fails.
+  1. This is a rudimentary implementation of gpmpn_mu_div_q.  The algorithm is
+     probably close to optimal, except when gpmpn_mu_divappr_q fails.
 
-  2. We used to fall back to mpn_mu_div_qr when we detect a possible
-     mpn_mu_divappr_q rounding problem, now we multiply and compare.
-     Unfortunately, since mpn_mu_divappr_q does not return the partial
-     remainder, this also doesn't become optimal.  A mpn_mu_divappr_qr could
+  2. We used to fall back to gpmpn_mu_div_qr when we detect a possible
+     gpmpn_mu_divappr_q rounding problem, now we multiply and compare.
+     Unfortunately, since gpmpn_mu_divappr_q does not return the partial
+     remainder, this also doesn't become optimal.  A gpmpn_mu_divappr_qr could
      solve that.
 
   3. The allocations done here should be made from the scratch area, which
@@ -67,7 +67,7 @@ namespace gpgmp
   {
 
     ANYCALLER mp_limb_t
-    mpn_mu_div_q(mp_ptr qp,
+    gpmpn_mu_div_q(mp_ptr qp,
                  mp_srcptr np, mp_size_t nn,
                  mp_srcptr dp, mp_size_t dn,
                  mp_ptr scratch)
@@ -92,15 +92,15 @@ namespace gpgmp
         MPN_COPY(rp + 1, np, nn);
         rp[0] = 0;
 
-        qh = mpn_cmp(rp + 1 + nn - dn, dp, dn) >= 0;
+        qh = gpmpn_cmp(rp + 1 + nn - dn, dp, dn) >= 0;
         if (qh != 0)
-          mpn_sub_n(rp + 1 + nn - dn, rp + 1 + nn - dn, dp, dn);
+          gpmpn_sub_n(rp + 1 + nn - dn, rp + 1 + nn - dn, dp, dn);
 
-        cy = mpn_mu_divappr_q(tp, rp, nn + 1, dp, dn, scratch);
+        cy = gpmpn_mu_divappr_q(tp, rp, nn + 1, dp, dn, scratch);
 
         if (UNLIKELY(cy != 0))
         {
-          /* Since the partial remainder fed to mpn_preinv_mu_divappr_q was
+          /* Since the partial remainder fed to gpmpn_preinv_mu_divappr_q was
              canonically reduced, replace the returned value of B^(qn-dn)+eps
              by the largest possible value.  */
           mp_size_t i;
@@ -108,7 +108,7 @@ namespace gpgmp
             tp[i] = GMP_NUMB_MAX;
         }
 
-        /* The max error of mpn_mu_divappr_q is +4.  If the low quotient limb is
+        /* The max error of gpmpn_mu_divappr_q is +4.  If the low quotient limb is
      smaller than the max error, we cannot trust the quotient.  */
         if (tp[0] > 4)
         {
@@ -120,12 +120,12 @@ namespace gpgmp
           mp_ptr pp;
 
           pp = rp;
-          mpn_mul(pp, tp + 1, qn, dp, dn);
+          gpmpn_mul(pp, tp + 1, qn, dp, dn);
 
-          cy = (qh != 0) ? mpn_add_n(pp + qn, pp + qn, dp, dn) : 0;
+          cy = (qh != 0) ? gpmpn_add_n(pp + qn, pp + qn, dp, dn) : 0;
 
-          if (cy || mpn_cmp(pp, np, nn) > 0) /* At most is wrong by one, no cycle. */
-            qh -= mpn_sub_1(qp, tp + 1, qn, 1);
+          if (cy || gpmpn_cmp(pp, np, nn) > 0) /* At most is wrong by one, no cycle. */
+            qh -= gpmpn_sub_1(qp, tp + 1, qn, 1);
           else /* Same as above */
             MPN_COPY(qp, tp + 1, qn);
         }
@@ -140,10 +140,10 @@ namespace gpgmp
      the most significant dn-1 limbs will actually be read, but it is not
      pretty.  */
 
-        qh = mpn_mu_divappr_q(tp, np + nn - (2 * qn + 2), 2 * qn + 2,
+        qh = gpmpn_mu_divappr_q(tp, np + nn - (2 * qn + 2), 2 * qn + 2,
                               dp + dn - (qn + 1), qn + 1, scratch);
 
-        /* The max error of mpn_mu_divappr_q is +4, but we get an additional
+        /* The max error of gpmpn_mu_divappr_q is +4, but we get an additional
            error from the divisor truncation.  */
         if (tp[0] > 6)
         {
@@ -156,12 +156,12 @@ namespace gpgmp
           /* FIXME: a shorter product should be enough; we may use already
              allocated space... */
           rp = TMP_BALLOC_LIMBS(nn);
-          mpn_mul(rp, dp, dn, tp + 1, qn);
+          gpmpn_mul(rp, dp, dn, tp + 1, qn);
 
-          cy = (qh != 0) ? mpn_add_n(rp + qn, rp + qn, dp, dn) : 0;
+          cy = (qh != 0) ? gpmpn_add_n(rp + qn, rp + qn, dp, dn) : 0;
 
-          if (cy || mpn_cmp(rp, np, nn) > 0) /* At most is wrong by one, no cycle. */
-            qh -= mpn_sub_1(qp, tp + 1, qn, 1);
+          if (cy || gpmpn_cmp(rp, np, nn) > 0) /* At most is wrong by one, no cycle. */
+            qh -= gpmpn_sub_1(qp, tp + 1, qn, 1);
           else /* Same as above */
             MPN_COPY(qp, tp + 1, qn);
         }
@@ -172,18 +172,18 @@ namespace gpgmp
     }
 
     ANYCALLER mp_size_t
-    mpn_mu_div_q_itch(mp_size_t nn, mp_size_t dn, int mua_k)
+    gpmpn_mu_div_q_itch(mp_size_t nn, mp_size_t dn, int mua_k)
     {
       mp_size_t qn;
 
       qn = nn - dn;
       if (qn >= dn)
       {
-        return mpn_mu_divappr_q_itch(nn + 1, dn, mua_k);
+        return gpmpn_mu_divappr_q_itch(nn + 1, dn, mua_k);
       }
       else
       {
-        return mpn_mu_divappr_q_itch(2 * qn + 2, qn + 1, mua_k);
+        return gpmpn_mu_divappr_q_itch(2 * qn + 2, qn + 1, mua_k);
       }
     }
 

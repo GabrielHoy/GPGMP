@@ -1,4 +1,4 @@
-/* mpn_divisible_p -- mpn by mpn divisibility test
+/* gpmpn_divisible_p -- mpn by mpn divisibility test
 
    THE FUNCTIONS IN THIS FILE ARE FOR INTERNAL USE ONLY.  THEY'RE ALMOST
    CERTAIN TO BE SUBJECT TO INCOMPATIBLE CHANGES OR DISAPPEAR COMPLETELY IN
@@ -60,7 +60,7 @@ namespace gpgmp
       suppress the bit-shifting of A down, as long as it's already been checked
       that A has at least as many trailing zero bits as D.  */
 
-    ANYCALLER int mpn_divisible_p(mp_srcptr ap, mp_size_t an,
+    ANYCALLER int gpmpn_divisible_p(mp_srcptr ap, mp_size_t an,
                                   mp_srcptr dp, mp_size_t dn)
     {
       mp_limb_t alow, dlow, dmask;
@@ -111,11 +111,11 @@ namespace gpgmp
       if (dn == 1)
       {
         if (ABOVE_THRESHOLD(an, BMOD_1_TO_MOD_1_THRESHOLD))
-          return mpn_mod_1(ap, an, dlow) == 0;
+          return gpmpn_mod_1(ap, an, dlow) == 0;
 
         count_trailing_zeros(twos, dlow);
         dlow >>= twos;
-        return mpn_modexact_1_odd(ap, an, dlow) == 0;
+        return gpmpn_modexact_1_odd(ap, an, dlow) == 0;
       }
 
       count_trailing_zeros(twos, dlow);
@@ -146,10 +146,10 @@ namespace gpgmp
       if (twos != 0)
       {
         tp = TMP_ALLOC_LIMBS(dn);
-        ASSERT_NOCARRY(mpn_rshift(tp, dp, dn, twos));
+        ASSERT_NOCARRY(gpmpn_rshift(tp, dp, dn, twos));
         dp = tp;
 
-        ASSERT_NOCARRY(mpn_rshift(rp, ap, an, twos));
+        ASSERT_NOCARRY(gpmpn_rshift(rp, ap, an, twos));
       }
       else
       {
@@ -172,19 +172,19 @@ namespace gpgmp
           BELOW_THRESHOLD(an - dn, DC_BDIV_QR_THRESHOLD))
       {
         binvert_limb(di, dp[0]);
-        mpn_sbpi1_bdiv_qr(qp, rp, an, dp, dn, -di);
+        gpmpn_sbpi1_bdiv_qr(qp, rp, an, dp, dn, -di);
         rp += an - dn;
       }
       else if (BELOW_THRESHOLD(dn, MU_BDIV_QR_THRESHOLD))
       {
         binvert_limb(di, dp[0]);
-        mpn_dcpi1_bdiv_qr(qp, rp, an, dp, dn, -di);
+        gpmpn_dcpi1_bdiv_qr(qp, rp, an, dp, dn, -di);
         rp += an - dn;
       }
       else
       {
-        tp = TMP_ALLOC_LIMBS(mpn_mu_bdiv_qr_itch(an, dn));
-        mpn_mu_bdiv_qr(qp, rp, rp, an, dp, dn, tp);
+        tp = TMP_ALLOC_LIMBS(gpmpn_mu_bdiv_qr_itch(an, dn));
+        gpmpn_mu_bdiv_qr(qp, rp, rp, an, dp, dn, tp);
       }
 
       /* In general, bdiv may return either R = 0 or R = D when D divides

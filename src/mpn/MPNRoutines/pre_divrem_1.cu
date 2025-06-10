@@ -1,4 +1,4 @@
-/* mpn_preinv_divrem_1 -- mpn by limb division with pre-inverted divisor.
+/* gpmpn_preinv_divrem_1 -- mpn by limb division with pre-inverted divisor.
 
    THE FUNCTIONS IN THIS FILE ARE FOR INTERNAL USE ONLY.  THEY'RE ALMOST
    CERTAIN TO BE SUBJECT TO INCOMPATIBLE CHANGES OR DISAPPEAR COMPLETELY IN
@@ -43,26 +43,26 @@ namespace gpgmp
 /* Don't bloat a shared library with unused code. */
 #if USE_PREINV_DIVREM_1
 
-    /* Same test here for skipping one divide step as in mpn_divrem_1.
+    /* Same test here for skipping one divide step as in gpmpn_divrem_1.
 
        The main reason for a separate shift==0 case is that not all CPUs give
        zero for "n0 >> GMP_LIMB_BITS" which would arise in the general case
        code used on shift==0.  shift==0 is also reasonably common in mp_bases
        big_base, for instance base==10 on a 64-bit limb.
 
-       Under shift!=0 it would be possible to call mpn_lshift to adjust the
+       Under shift!=0 it would be possible to call gpmpn_lshift to adjust the
        dividend all in one go (into the quotient space say), rather than
-       limb-by-limb in the loop.  This might help if mpn_lshift is a lot faster
+       limb-by-limb in the loop.  This might help if gpmpn_lshift is a lot faster
        than what the compiler can generate for EXTRACT.  But this is left to CPU
        specific implementations to consider, especially since EXTRACT isn't on
        the dependent chain.
 
        If size==0 then the result is simply xsize limbs of zeros, but nothing
        special is done for that, since it wouldn't be a usual call, and
-       certainly never arises from mpn_get_str which is our main caller.  */
+       certainly never arises from gpmpn_get_str which is our main caller.  */
 
     ANYCALLER mp_limb_t
-    mpn_preinv_divrem_1(mp_ptr qp, mp_size_t xsize,
+    gpmpn_preinv_divrem_1(mp_ptr qp, mp_size_t xsize,
                         mp_srcptr ap, mp_size_t size, mp_limb_t d_unnorm,
                         mp_limb_t dinv, int shift)
     {

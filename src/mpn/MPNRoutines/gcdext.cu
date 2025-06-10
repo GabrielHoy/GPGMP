@@ -1,4 +1,4 @@
-/* mpn_gcdext -- Extended Greatest Common Divisor.
+/* gpmpn_gcdext -- Extended Greatest Common Divisor.
 
 Copyright 1996, 1998, 2000-2005, 2008, 2009, 2012 Free Software Foundation,
 Inc.
@@ -57,28 +57,28 @@ namespace gpgmp {
 
       if (M->n >= n)
         {
-          mpn_mul (tp, M->p[0][0], M->n, ap, n);
-          mpn_mul (rp, M->p[1][0], M->n, bp, n);
+          gpmpn_mul (tp, M->p[0][0], M->n, ap, n);
+          gpmpn_mul (rp, M->p[1][0], M->n, bp, n);
         }
       else
         {
-          mpn_mul (tp, ap, n, M->p[0][0], M->n);
-          mpn_mul (rp, bp, n, M->p[1][0], M->n);
+          gpmpn_mul (tp, ap, n, M->p[0][0], M->n);
+          gpmpn_mul (rp, bp, n, M->p[1][0], M->n);
         }
 
-      ah = mpn_add_n (rp, rp, tp, n + M->n);
+      ah = gpmpn_add_n (rp, rp, tp, n + M->n);
 
       if (M->n >= n)
         {
-          mpn_mul (tp, M->p[1][1], M->n, bp, n);
-          mpn_mul (bp, M->p[0][1], M->n, ap, n);
+          gpmpn_mul (tp, M->p[1][1], M->n, bp, n);
+          gpmpn_mul (bp, M->p[0][1], M->n, ap, n);
         }
       else
         {
-          mpn_mul (tp, bp, n, M->p[1][1], M->n);
-          mpn_mul (bp, ap, n, M->p[0][1], M->n);
+          gpmpn_mul (tp, bp, n, M->p[1][1], M->n);
+          gpmpn_mul (bp, ap, n, M->p[0][1], M->n);
         }
-      bh = mpn_add_n (bp, bp, tp, n + M->n);
+      bh = gpmpn_add_n (bp, bp, tp, n + M->n);
 
       n += M->n;
       if ( (ah | bh) > 0)
@@ -122,9 +122,9 @@ namespace gpgmp {
       ASSERT (gn <= an);
 
       if (an >= size)
-        mpn_mul (tp, ap, an, up, size);
+        gpmpn_mul (tp, ap, an, up, size);
       else
-        mpn_mul (tp, up, size, ap, an);
+        gpmpn_mul (tp, up, size, ap, an);
 
       size += an;
 
@@ -132,7 +132,7 @@ namespace gpgmp {
         {
           /* |v| = -v = (u a - g) / b */
 
-          ASSERT_NOCARRY (mpn_sub (tp, tp, size, gp, gn));
+          ASSERT_NOCARRY (gpmpn_sub (tp, tp, size, gp, gn));
           MPN_NORMALIZE (tp, size);
           if (size == 0)
       return 0;
@@ -141,7 +141,7 @@ namespace gpgmp {
         { /* |v| = v = (g - u a) / b = (g + |u| a) / b. Since g <= a,
       (g + |u| a) always fits in (|usize| + an) limbs. */
 
-          ASSERT_NOCARRY (mpn_add (tp, tp, size, gp, gn));
+          ASSERT_NOCARRY (gpmpn_add (tp, tp, size, gp, gn));
           size -= (tp[size - 1] == 0);
         }
 
@@ -153,7 +153,7 @@ namespace gpgmp {
       vn = size + 1 - bn;
       ASSERT (vn <= n + 1);
 
-      mpn_divexact (vp, tp, size, bp, bn);
+      gpmpn_divexact (vp, tp, size, bp, bn);
       vn -= (vp[vn-1] == 0);
 
       return vn;
@@ -171,7 +171,7 @@ namespace gpgmp {
 
       When hgcd succeeds: 1 + floor(3n/2) for adjusting a and b, and 2(n+1) for the cofactors.
 
-      When hgcd fails: 2n + 1 for mpn_gcdext_subdiv_step, which is less.
+      When hgcd fails: 2n + 1 for gpmpn_gcdext_subdiv_step, which is less.
 
       For the lehmer call after the loop, Let T denote
       GCDEXT_DC_THRESHOLD. For the gcdext_lehmer call, we need T each for
@@ -191,7 +191,7 @@ namespace gpgmp {
     #define CHOOSE_P_1(n) ((n) / 2)
     #define CHOOSE_P_2(n) ((n) / 3)
 
-    ANYCALLER mp_size_t mpn_gcdext (mp_ptr gp, mp_ptr up, mp_size_t *usizep, mp_ptr ap, mp_size_t an, mp_ptr bp, mp_size_t n)
+    ANYCALLER mp_size_t gpmpn_gcdext (mp_ptr gp, mp_ptr up, mp_size_t *usizep, mp_ptr ap, mp_size_t an, mp_ptr bp, mp_size_t n)
     {
       mp_size_t talloc;
       mp_size_t scratch;
@@ -232,14 +232,14 @@ namespace gpgmp {
           mp_size_t min_p = MIN(p1, p2);
           mp_size_t max_p = MAX(p1, p2);
           matrix_scratch = MPN_HGCD_MATRIX_INIT_ITCH (n - min_p);
-          hgcd_scratch = mpn_hgcd_itch (n - min_p);
+          hgcd_scratch = gpmpn_hgcd_itch (n - min_p);
           update_scratch = max_p + n - 1;
 
           scratch = matrix_scratch + MAX(hgcd_scratch, update_scratch);
           if (scratch > talloc)
       talloc = scratch;
 
-          /* Final mpn_gcdext_lehmer_n call. Need space for u and for
+          /* Final gpmpn_gcdext_lehmer_n call. Need space for u and for
       copies of a and b. */
           scratch = MPN_GCDEXT_LEHMER_N_ITCH (GCDEXT_DC_THRESHOLD)
       + 3*GCDEXT_DC_THRESHOLD;
@@ -255,9 +255,9 @@ namespace gpgmp {
 
       if (an > n)
         {
-          mpn_tdiv_qr (tp, ap, 0, ap, an, bp, n);
+          gpmpn_tdiv_qr (tp, ap, 0, ap, an, bp, n);
 
-          if (mpn_zero_p (ap, n))
+          if (gpmpn_zero_p (ap, n))
       {
         MPN_COPY (gp, bp, n);
         *usizep = 0;
@@ -268,7 +268,7 @@ namespace gpgmp {
 
       if (BELOW_THRESHOLD (n, GCDEXT_DC_THRESHOLD))
         {
-          mp_size_t gn = mpn_gcdext_lehmer_n(gp, up, usizep, ap, bp, n, tp);
+          mp_size_t gn = gpmpn_gcdext_lehmer_n(gp, up, usizep, ap, bp, n, tp);
 
           TMP_FREE;
           return gn;
@@ -294,15 +294,15 @@ namespace gpgmp {
         mp_size_t p = CHOOSE_P_1 (n);
         mp_size_t nn;
 
-        mpn_hgcd_matrix_init (&M, n - p, tp);
-        nn = mpn_hgcd (ap + p, bp + p, n - p, &M, tp + matrix_scratch);
+        gpmpn_hgcd_matrix_init (&M, n - p, tp);
+        nn = gpmpn_hgcd (ap + p, bp + p, n - p, &M, tp + matrix_scratch);
         if (nn > 0)
           {
       ASSERT (M.n <= (n - p - 1)/2);
       ASSERT (M.n + p <= (p + n - 1) / 2);
 
       /* Temporary storage 2 (p + M->n) <= p + n - 1 */
-      n = mpn_hgcd_matrix_adjust (&M, p + nn, ap, bp, p, tp + matrix_scratch);
+      n = gpmpn_hgcd_matrix_adjust (&M, p + nn, ap, bp, p, tp + matrix_scratch);
 
       MPN_COPY (u0, M.p[1][0], M.n);
       MPN_COPY (u1, M.p[1][1], M.n);
@@ -312,7 +312,7 @@ namespace gpgmp {
           }
         else
           {
-      /* mpn_hgcd has failed. Then either one of a or b is very
+      /* gpmpn_hgcd has failed. Then either one of a or b is very
         small, or the difference is very small. Perform one
         subtraction followed by one division. */
       u1[0] = 1;
@@ -323,7 +323,7 @@ namespace gpgmp {
       ctx.un = 1;
 
       /* Temporary storage n */
-      n = mpn_gcd_subdiv_step (ap, bp, n, 0, mpn_gcdext_hook, &ctx, tp);
+      n = gpmpn_gcd_subdiv_step (ap, bp, n, 0, gpmpn_gcdext_hook, &ctx, tp);
       if (n == 0)
         {
           TMP_FREE;
@@ -341,8 +341,8 @@ namespace gpgmp {
           mp_size_t p = CHOOSE_P_2 (n);
           mp_size_t nn;
 
-          mpn_hgcd_matrix_init (&M, n - p, tp);
-          nn = mpn_hgcd (ap + p, bp + p, n - p, &M, tp + matrix_scratch);
+          gpmpn_hgcd_matrix_init (&M, n - p, tp);
+          nn = gpmpn_hgcd (ap + p, bp + p, n - p, &M, tp + matrix_scratch);
           if (nn > 0)
       {
         mp_ptr t0;
@@ -352,9 +352,9 @@ namespace gpgmp {
         ASSERT (M.n + p <= (p + n - 1) / 2);
 
         /* Temporary storage 2 (p + M->n) <= p + n - 1 */
-        n = mpn_hgcd_matrix_adjust (&M, p + nn, ap, bp, p, t0);
+        n = gpmpn_hgcd_matrix_adjust (&M, p + nn, ap, bp, p, t0);
 
-        /* By the same analysis as for mpn_hgcd_matrix_mul */
+        /* By the same analysis as for gpmpn_hgcd_matrix_mul */
         ASSERT (M.n + un <= ualloc);
 
         /* FIXME: This copying could be avoided by some swapping of
@@ -369,7 +369,7 @@ namespace gpgmp {
       }
           else
       {
-        /* mpn_hgcd has failed. Then either one of a or b is very
+        /* gpmpn_hgcd has failed. Then either one of a or b is very
           small, or the difference is very small. Perform one
           subtraction followed by one division. */
         ctx.u0 = u0;
@@ -378,7 +378,7 @@ namespace gpgmp {
         ctx.un = un;
 
         /* Temporary storage n */
-        n = mpn_gcd_subdiv_step (ap, bp, n, 0, mpn_gcdext_hook, &ctx, tp);
+        n = gpmpn_gcd_subdiv_step (ap, bp, n, 0, gpmpn_gcdext_hook, &ctx, tp);
         if (n == 0)
           {
             TMP_FREE;
@@ -412,7 +412,7 @@ namespace gpgmp {
 
       ASSERT ( (ap[n-1] | bp[n-1]) > 0);
 
-      if (UNLIKELY (mpn_cmp (ap, bp, n) == 0))
+      if (UNLIKELY (gpmpn_cmp (ap, bp, n) == 0))
         {
           /* Must return the smallest cofactor, +u1 or -u0 */
           int c;
@@ -446,7 +446,7 @@ namespace gpgmp {
           ASSERT (u1[0] == 1);
 
           /* g = u a + v b = (u u1 - v u0) A + (...) B = u A + (...) B */
-          gn = mpn_gcdext_lehmer_n (gp, up, usizep, ap, bp, n, tp);
+          gn = gpmpn_gcdext_lehmer_n (gp, up, usizep, ap, bp, n, tp);
 
           TMP_FREE;
           return gn;
@@ -465,10 +465,10 @@ namespace gpgmp {
 
           lehmer_up = tp; tp += n;
 
-          /* Call mpn_gcdext_lehmer_n with copies of a and b. */
+          /* Call gpmpn_gcdext_lehmer_n with copies of a and b. */
           MPN_COPY (tp, ap, n);
           MPN_COPY (tp + n, bp, n);
-          gn = mpn_gcdext_lehmer_n (gp, lehmer_up, &lehmer_un, tp, tp + n, n, tp + 2*n);
+          gn = gpmpn_gcdext_lehmer_n (gp, lehmer_up, &lehmer_un, tp, tp + n, n, tp + 2*n);
 
           u0n = un;
           MPN_NORMALIZE (u0, u0n);
@@ -509,9 +509,9 @@ namespace gpgmp {
           /* Compute u u0 */
           if (lehmer_un <= u1n)
       /* Should be the common case */
-      mpn_mul (up, u1, u1n, lehmer_up, lehmer_un);
+      gpmpn_mul (up, u1, u1n, lehmer_up, lehmer_un);
           else
-      mpn_mul (up, lehmer_up, lehmer_un, u1, u1n);
+      gpmpn_mul (up, lehmer_up, lehmer_un, u1, u1n);
 
           un = u1n + lehmer_un;
           un -= (up[un - 1] == 0);
@@ -523,20 +523,20 @@ namespace gpgmp {
         /* Overwrites old u1 value */
         if (lehmer_vn <= u0n)
           /* Should be the common case */
-          mpn_mul (u1, u0, u0n, lehmer_vp, lehmer_vn);
+          gpmpn_mul (u1, u0, u0n, lehmer_vp, lehmer_vn);
         else
-          mpn_mul (u1, lehmer_vp, lehmer_vn, u0, u0n);
+          gpmpn_mul (u1, lehmer_vp, lehmer_vn, u0, u0n);
 
         u1n = u0n + lehmer_vn;
         u1n -= (u1[u1n - 1] == 0);
 
         if (u1n <= un)
           {
-            cy = mpn_add (up, up, un, u1, u1n);
+            cy = gpmpn_add (up, up, un, u1, u1n);
           }
         else
           {
-            cy = mpn_add (up, u1, u1n, up, un);
+            cy = gpmpn_add (up, u1, u1n, up, un);
             un = u1n;
           }
         up[un] = cy;

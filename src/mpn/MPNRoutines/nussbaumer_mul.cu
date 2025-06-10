@@ -1,4 +1,4 @@
-/* mpn_nussbaumer_mul -- Multiply {ap,an} and {bp,bn} using
+/* gpmpn_nussbaumer_mul -- Multiply {ap,an} and {bp,bn} using
    Nussbaumer's negacyclic convolution.
 
    Contributed to the GNU project by Marco Bodrato.
@@ -45,7 +45,7 @@ namespace gpgmp
 
     /* Multiply {ap,an} by {bp,bn}, and put the result in {pp, an+bn} */
     ANYCALLER void
-    mpn_nussbaumer_mul(mp_ptr pp,
+    gpmpn_nussbaumer_mul(mp_ptr pp,
                        mp_srcptr ap, mp_size_t an,
                        mp_srcptr bp, mp_size_t bn)
     {
@@ -60,15 +60,15 @@ namespace gpgmp
 
       if ((ap == bp) && (an == bn))
       {
-        rn = mpn_sqrmod_bnm1_next_size(2 * an);
-        tp = TMP_ALLOC_LIMBS(mpn_sqrmod_bnm1_itch(rn, an));
-        mpn_sqrmod_bnm1(pp, rn, ap, an, tp);
+        rn = gpmpn_sqrmod_bnm1_next_size(2 * an);
+        tp = TMP_ALLOC_LIMBS(gpmpn_sqrmod_bnm1_itch(rn, an));
+        gpmpn_sqrmod_bnm1(pp, rn, ap, an, tp);
       }
       else
       {
-        rn = mpn_mulmod_bnm1_next_size(an + bn);
-        tp = TMP_ALLOC_LIMBS(mpn_mulmod_bnm1_itch(rn, an, bn));
-        mpn_mulmod_bnm1(pp, rn, ap, an, bp, bn, tp);
+        rn = gpmpn_mulmod_bnm1_next_size(an + bn);
+        tp = TMP_ALLOC_LIMBS(gpmpn_mulmod_bnm1_itch(rn, an, bn));
+        gpmpn_mulmod_bnm1(pp, rn, ap, an, bp, bn, tp);
       }
 
       TMP_FREE;

@@ -1,4 +1,4 @@
-/* mpn_toom22_mul -- Multiply {ap,an} and {bp,bn} where an >= bn.  Or more
+/* gpmpn_toom22_mul -- Multiply {ap,an} and {bp,bn} where an >= bn.  Or more
    accurately, bn <= an < 2bn.
 
    Contributed to the GNU project by Torbjorn Granlund.
@@ -67,9 +67,9 @@ namespace gpgmp
   do                                                                   \
   {                                                                    \
     if (!MAYBE_mul_toom22 || BELOW_THRESHOLD(n, MUL_TOOM22_THRESHOLD)) \
-      mpn_mul_basecase(p, a, n, b, n);                                 \
+      gpmpn_mul_basecase(p, a, n, b, n);                                 \
     else                                                               \
-      mpn_toom22_mul(p, a, n, b, n, ws);                               \
+      gpmpn_toom22_mul(p, a, n, b, n, ws);                               \
   } while (0)
 
 /* Normally, this calls mul_basecase or toom22_mul.  But when when the fraction
@@ -82,20 +82,20 @@ namespace gpgmp
   do                                                                    \
   {                                                                     \
     if (!MAYBE_mul_toom22 || BELOW_THRESHOLD(bn, MUL_TOOM22_THRESHOLD)) \
-      mpn_mul_basecase(p, a, an, b, bn);                                \
+      gpmpn_mul_basecase(p, a, an, b, bn);                                \
     else if (4 * an < 5 * bn)                                           \
-      mpn_toom22_mul(p, a, an, b, bn, ws);                              \
+      gpmpn_toom22_mul(p, a, an, b, bn, ws);                              \
     else                                                                \
-      mpn_toom32_mul(p, a, an, b, bn, ws);                              \
+      gpmpn_toom32_mul(p, a, an, b, bn, ws);                              \
   } while (0)
 
     ANYCALLER void
-    mpn_toom22_mul(mp_ptr pp,
+    gpmpn_toom22_mul(mp_ptr pp,
                    mp_srcptr ap, mp_size_t an,
                    mp_srcptr bp, mp_size_t bn,
                    mp_ptr scratch)
     {
-      const int __gmpn_cpuvec_initialized = 1;
+      const int __ggpmpn_cpuvec_initialized = 1;
       mp_size_t n, s, t;
       int vm1_neg;
       mp_limb_t cy, cy2;
@@ -124,54 +124,54 @@ namespace gpgmp
       /* Compute asm1.  */
       if ((an & 1) == 0) /* s == n */
       {
-        if (mpn_cmp(a0, a1, n) < 0)
+        if (gpmpn_cmp(a0, a1, n) < 0)
         {
-          mpn_sub_n(asm1, a1, a0, n);
+          gpmpn_sub_n(asm1, a1, a0, n);
           vm1_neg = 1;
         }
         else
         {
-          mpn_sub_n(asm1, a0, a1, n);
+          gpmpn_sub_n(asm1, a0, a1, n);
         }
       }
       else /* n - s == 1 */
       {
-        if (a0[s] == 0 && mpn_cmp(a0, a1, s) < 0)
+        if (a0[s] == 0 && gpmpn_cmp(a0, a1, s) < 0)
         {
-          mpn_sub_n(asm1, a1, a0, s);
+          gpmpn_sub_n(asm1, a1, a0, s);
           asm1[s] = 0;
           vm1_neg = 1;
         }
         else
         {
-          asm1[s] = a0[s] - mpn_sub_n(asm1, a0, a1, s);
+          asm1[s] = a0[s] - gpmpn_sub_n(asm1, a0, a1, s);
         }
       }
 
       /* Compute bsm1.  */
       if (t == n)
       {
-        if (mpn_cmp(b0, b1, n) < 0)
+        if (gpmpn_cmp(b0, b1, n) < 0)
         {
-          mpn_sub_n(bsm1, b1, b0, n);
+          gpmpn_sub_n(bsm1, b1, b0, n);
           vm1_neg ^= 1;
         }
         else
         {
-          mpn_sub_n(bsm1, b0, b1, n);
+          gpmpn_sub_n(bsm1, b0, b1, n);
         }
       }
       else
       {
-        if (mpn_zero_p(b0 + t, n - t) && mpn_cmp(b0, b1, t) < 0)
+        if (gpmpn_zero_p(b0 + t, n - t) && gpmpn_cmp(b0, b1, t) < 0)
         {
-          mpn_sub_n(bsm1, b1, b0, t);
+          gpmpn_sub_n(bsm1, b1, b0, t);
           MPN_ZERO(bsm1 + t, n - t);
           vm1_neg ^= 1;
         }
         else
         {
-          mpn_sub(bsm1, b0, n, b1, t);
+          gpmpn_sub(bsm1, b0, n, b1, t);
         }
       }
 
@@ -192,31 +192,31 @@ namespace gpgmp
       TOOM22_MUL_N_REC(v0, ap, bp, n, scratch_out);
 
       /* H(v0) + L(vinf) */
-      cy = mpn_add_n(pp + 2 * n, v0 + n, vinf, n);
+      cy = gpmpn_add_n(pp + 2 * n, v0 + n, vinf, n);
 
       /* L(v0) + (H(v0) + L(vinf)) */
-      cy2 = cy + mpn_add_n(pp + n, pp + 2 * n, v0, n);
+      cy2 = cy + gpmpn_add_n(pp + n, pp + 2 * n, v0, n);
 
       /* (H(v0) + L(vinf)) + H(vinf) */
-      cy += mpn_add(pp + 2 * n, pp + 2 * n, n, vinf + n, s + t - n);
+      cy += gpmpn_add(pp + 2 * n, pp + 2 * n, n, vinf + n, s + t - n);
 
       if (vm1_neg)
-        cy += mpn_add_n(pp + n, pp + n, vm1, 2 * n);
+        cy += gpmpn_add_n(pp + n, pp + n, vm1, 2 * n);
       else
       {
-        cy -= mpn_sub_n(pp + n, pp + n, vm1, 2 * n);
+        cy -= gpmpn_sub_n(pp + n, pp + n, vm1, 2 * n);
         if (UNLIKELY(cy + 1 == 0))
         { /* cy is negative */
           /* The total contribution of v0+vinf-vm1 can not be negative. */
 #if WANT_ASSERT
           /* The borrow in cy stops the propagation of the carry cy2, */
           ASSERT(cy2 == 1);
-          cy += mpn_add_1(pp + 2 * n, pp + 2 * n, n, cy2);
+          cy += gpmpn_add_1(pp + 2 * n, pp + 2 * n, n, cy2);
           ASSERT(cy == 0);
 #else
           /* we simply fill the area with zeros. */
           MPN_FILL(pp + 2 * n, n, 0);
-          /* ASSERT (s + t == n || mpn_zero_p (pp + 3 * n, s + t - n)); */
+          /* ASSERT (s + t == n || gpmpn_zero_p (pp + 3 * n, s + t - n)); */
 #endif
           return;
         }

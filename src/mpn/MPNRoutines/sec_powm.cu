@@ -1,4 +1,4 @@
-/* mpn_sec_powm -- Compute R = U^E mod M.  Secure variant, side-channel silent
+/* gpmpn_sec_powm -- Compute R = U^E mod M.  Secure variant, side-channel silent
    under the assumption that the multiply instruction is side channel silent.
 
    Contributed to the GNU project by Torbjörn Granlund.
@@ -67,32 +67,32 @@ namespace gpgmp
   {
 
 #undef MPN_REDC_1_SEC
-#if HAVE_NATIVE_mpn_sbpi1_bdiv_r
+#if HAVE_NATIVE_gpmpn_sbpi1_bdiv_r
 #define MPN_REDC_1_SEC(rp, up, mp, n, invm)        \
   do                                               \
   {                                                \
     mp_limb_t cy;                                  \
-    cy = mpn_sbpi1_bdiv_r(up, 2 * n, mp, n, invm); \
-    mpn_cnd_sub_n(cy, rp, up + n, mp, n);          \
+    cy = gpmpn_sbpi1_bdiv_r(up, 2 * n, mp, n, invm); \
+    gpmpn_cnd_sub_n(cy, rp, up + n, mp, n);          \
   } while (0)
 #else
 #define MPN_REDC_1_SEC(rp, up, mp, n, invm) \
   do                                        \
   {                                         \
     mp_limb_t cy;                           \
-    cy = mpn_redc_1(rp, up, mp, n, invm);   \
-    mpn_cnd_sub_n(cy, rp, rp, mp, n);       \
+    cy = gpmpn_redc_1(rp, up, mp, n, invm);   \
+    gpmpn_cnd_sub_n(cy, rp, rp, mp, n);       \
   } while (0)
 #endif
 
-#if HAVE_NATIVE_mpn_addmul_2 || HAVE_NATIVE_mpn_redc_2
+#if HAVE_NATIVE_gpmpn_addmul_2 || HAVE_NATIVE_gpmpn_redc_2
 #undef MPN_REDC_2_SEC
 #define MPN_REDC_2_SEC(rp, up, mp, n, mip) \
   do                                       \
   {                                        \
     mp_limb_t cy;                          \
-    cy = mpn_redc_2(rp, up, mp, n, mip);   \
-    mpn_cnd_sub_n(cy, rp, rp, mp, n);      \
+    cy = gpmpn_redc_2(rp, up, mp, n, mip);   \
+    gpmpn_cnd_sub_n(cy, rp, rp, mp, n);      \
   } while (0)
 #else
 #define MPN_REDC_2_SEC(rp, up, mp, n, mip) /* empty */
@@ -101,20 +101,20 @@ namespace gpgmp
 #endif
 
     /* Define our own mpn squaring function.  We do this since we cannot use a
-       native mpn_sqr_basecase over TUNE_SQR_TOOM2_MAX, or a non-native one over
+       native gpmpn_sqr_basecase over TUNE_SQR_TOOM2_MAX, or a non-native one over
        SQR_TOOM2_THRESHOLD.  This is so because of fixed size stack allocations
-       made inside mpn_sqr_basecase.  */
+       made inside gpmpn_sqr_basecase.  */
 
-#if !HAVE_NATIVE_mpn_sqr_basecase
+#if !HAVE_NATIVE_gpmpn_sqr_basecase
 /* The limit of the generic code is SQR_TOOM2_THRESHOLD.  */
 #define SQR_BASECASE_LIM SQR_TOOM2_THRESHOLD
 #endif
 
-#if HAVE_NATIVE_mpn_sqr_basecase
+#if HAVE_NATIVE_gpmpn_sqr_basecase
 #ifdef TUNE_SQR_TOOM2_MAX
 /* We slightly abuse TUNE_SQR_TOOM2_MAX here.  If it is set for an assembly
-   mpn_sqr_basecase, it comes from SQR_TOOM2_THRESHOLD_MAX in the assembly
-   file.  An assembly mpn_sqr_basecase that does not define it should allow
+   gpmpn_sqr_basecase, it comes from SQR_TOOM2_THRESHOLD_MAX in the assembly
+   file.  An assembly gpmpn_sqr_basecase that does not define it should allow
    any size.  */
 #define SQR_BASECASE_LIM SQR_TOOM2_THRESHOLD
 #endif
@@ -122,24 +122,24 @@ namespace gpgmp
 
 #ifdef WANT_FAT_BINARY
 /* For fat builds, we use SQR_TOOM2_THRESHOLD which will expand to a read from
-   __gmpn_cpuvec.  Perhaps any possible sqr_basecase.asm allow any size, and we
+   __ggpmpn_cpuvec.  Perhaps any possible sqr_basecase.asm allow any size, and we
    limit the use unnecessarily.  We cannot tell, so play it safe.  FIXME.  */
 #define SQR_BASECASE_LIM SQR_TOOM2_THRESHOLD
 #endif
 
 #ifndef SQR_BASECASE_LIM
-/* If SQR_BASECASE_LIM is now not defined, use mpn_sqr_basecase for any operand
+/* If SQR_BASECASE_LIM is now not defined, use gpmpn_sqr_basecase for any operand
    size.  */
 #define SQR_BASECASE_LIM MP_SIZE_T_MAX
 #endif
 
-#define mpn_local_sqr(rp, up, n)                                                            \
+#define gpmpn_local_sqr(rp, up, n)                                                            \
   do                                                                                        \
   {                                                                                         \
     if (ABOVE_THRESHOLD(n, SQR_BASECASE_THRESHOLD) && BELOW_THRESHOLD(n, SQR_BASECASE_LIM)) \
-      mpn_sqr_basecase(rp, up, n);                                                          \
+      gpmpn_sqr_basecase(rp, up, n);                                                          \
     else                                                                                    \
-      mpn_mul_basecase(rp, up, n, up, n);                                                   \
+      gpmpn_mul_basecase(rp, up, n, up, n);                                                   \
   } while (0)
 
 #define getbit(p, bi) \
@@ -205,7 +205,7 @@ namespace gpgmp
       MPN_ZERO(tp, n);
       MPN_COPY(tp + n, up, un);
 
-      mpn_sec_div_r(tp, un + n, mp, n, tp + un + n);
+      gpmpn_sec_div_r(tp, un + n, mp, n, tp + un + n);
       MPN_COPY(rp, tp, n);
     }
 
@@ -257,8 +257,8 @@ namespace gpgmp
     /* {rp, n} <-- {bp, bn} ^ {ep, en} mod {mp, n},
        where en = ceil (enb / GMP_NUMB_BITS)
        Requires that {mp, n} is odd (and hence also mp[0] odd).
-       Uses scratch space at tp as defined by mpn_sec_powm_itch.  */
-    ANYCALLER void mpn_sec_powm(mp_ptr rp, mp_srcptr bp, mp_size_t bn, mp_srcptr ep, mp_bitcnt_t enb, mp_srcptr mp, mp_size_t n, mp_ptr tp)
+       Uses scratch space at tp as defined by gpmpn_sec_powm_itch.  */
+    ANYCALLER void gpmpn_sec_powm(mp_ptr rp, mp_srcptr bp, mp_size_t bn, mp_srcptr ep, mp_bitcnt_t enb, mp_srcptr mp, mp_size_t n, mp_ptr tp)
     {
       mp_limb_t ip[2], *mip;
       int windowsize, this_windowsize;
@@ -316,12 +316,12 @@ namespace gpgmp
       {
         for (i = (1 << windowsize) - 2; i > 0; i -= 2)
         {
-          mpn_local_sqr(tp, ps, n);
+          gpmpn_local_sqr(tp, ps, n);
           ps += n;
           this_pp += n;
           MPN_REDC_1_SEC(this_pp, tp, mp, n, mip[0]);
 
-          mpn_mul_basecase(tp, this_pp, n, pp + n, n);
+          gpmpn_mul_basecase(tp, this_pp, n, pp + n, n);
           this_pp += n;
           MPN_REDC_1_SEC(this_pp, tp, mp, n, mip[0]);
         }
@@ -330,12 +330,12 @@ namespace gpgmp
       {
         for (i = (1 << windowsize) - 2; i > 0; i -= 2)
         {
-          mpn_local_sqr(tp, ps, n);
+          gpmpn_local_sqr(tp, ps, n);
           ps += n;
           this_pp += n;
           MPN_REDC_2_SEC(this_pp, tp, mp, n, mip);
 
-          mpn_mul_basecase(tp, this_pp, n, pp + n, n);
+          gpmpn_mul_basecase(tp, this_pp, n, pp + n, n);
           this_pp += n;
           MPN_REDC_2_SEC(this_pp, tp, mp, n, mip);
         }
@@ -345,7 +345,7 @@ namespace gpgmp
       ASSERT_ALWAYS(enb >= windowsize);
       enb -= windowsize;
 
-      mpn_sec_tabselect(rp, pp, n, 1 << windowsize, expbits);
+      gpmpn_sec_tabselect(rp, pp, n, 1 << windowsize, expbits);
 
       /* Main exponentiation loop.  */
       /* scratch: |   n   |   n   | ...  |                    |     3n-4n     |  */
@@ -366,13 +366,13 @@ namespace gpgmp
                                                                     \
     do                                                              \
     {                                                               \
-      mpn_local_sqr(tp, rp, n);                                     \
+      gpmpn_local_sqr(tp, rp, n);                                     \
       MPN_REDUCE(rp, tp, mp, n, mip);                               \
       this_windowsize--;                                            \
     } while (this_windowsize != 0);                                 \
                                                                     \
-    mpn_sec_tabselect(tp + 2 * n, pp, n, 1 << windowsize, expbits); \
-    mpn_mul_basecase(tp, rp, n, tp + 2 * n, n);                     \
+    gpmpn_sec_tabselect(tp + 2 * n, pp, n, 1 << windowsize, expbits); \
+    gpmpn_mul_basecase(tp, rp, n, tp + 2 * n, n);                     \
                                                                     \
     MPN_REDUCE(rp, tp, mp, n, mip);                                 \
   }
@@ -398,11 +398,11 @@ namespace gpgmp
       else
         MPN_REDC_2_SEC(rp, tp, mp, n, mip);
 
-      cnd = mpn_sub_n(tp, rp, mp, n); /* we need just retval */
-      mpn_cnd_sub_n(!cnd, rp, rp, mp, n);
+      cnd = gpmpn_sub_n(tp, rp, mp, n); /* we need just retval */
+      gpmpn_cnd_sub_n(!cnd, rp, rp, mp, n);
     }
 
-    ANYCALLER mp_size_t mpn_sec_powm_itch(mp_size_t bn, mp_bitcnt_t enb, mp_size_t n)
+    ANYCALLER mp_size_t gpmpn_sec_powm_itch(mp_size_t bn, mp_bitcnt_t enb, mp_size_t n)
     {
       int windowsize;
       mp_size_t redcify_itch, itch;
@@ -410,14 +410,14 @@ namespace gpgmp
       /* FIXME: no more _local/_basecase difference. */
       /* The top scratch usage will either be when reducing B in the 2nd redcify
          call, or more typically n*2^windowsize + 3n or 4n, in the main loop.  (It
-         is 3n or 4n depending on if we use mpn_local_sqr or a native
-         mpn_sqr_basecase.  We assume 4n always for now.) */
+         is 3n or 4n depending on if we use gpmpn_local_sqr or a native
+         gpmpn_sqr_basecase.  We assume 4n always for now.) */
 
       windowsize = win_size(enb);
 
       /* The 2n term is due to pp[0] and pp[1] at the time of the 2nd redcify call,
          the (bn + n) term is due to redcify's own usage, and the rest is due to
-         mpn_sec_div_r's usage when called from redcify.  */
+         gpmpn_sec_div_r's usage when called from redcify.  */
       redcify_itch = (2 * n) + (bn + n) + ((bn + n) + 2 * n + 2);
 
       /* The n * 2^windowsize term is due to the power table, the 4n term is due to

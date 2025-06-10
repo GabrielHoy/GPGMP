@@ -1,4 +1,4 @@
-/* mpn_fib2m -- calculate Fibonacci numbers, modulo m.
+/* gpmpn_fib2m -- calculate Fibonacci numbers, modulo m.
 
 Contributed to the GNU project by Marco Bodrato.
 
@@ -43,7 +43,7 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-#if !HAVE_NATIVE_mpn_rsblsh1_n && !HAVE_NATIVE_mpn_sublsh1_n
+#if !HAVE_NATIVE_gpmpn_rsblsh1_n && !HAVE_NATIVE_gpmpn_sublsh1_n
     /* Stores |{ap,n}-{bp,n}| in {rp,n},
        returns the sign of {ap,n}-{bp,n}. */
     ANYCALLER static int abs_sub_n(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t n)
@@ -58,12 +58,12 @@ namespace gpgmp
           ++n;
           if (x > y)
           {
-            ASSERT_NOCARRY(mpn_sub_n(rp, ap, bp, n));
+            ASSERT_NOCARRY(gpmpn_sub_n(rp, ap, bp, n));
             return 1;
           }
           else
           {
-            ASSERT_NOCARRY(mpn_sub_n(rp, bp, ap, n));
+            ASSERT_NOCARRY(gpmpn_sub_n(rp, bp, ap, n));
             return -1;
           }
         }
@@ -87,16 +87,16 @@ namespace gpgmp
        Note: (+/-2)^2-2=2, (+/-1)^2-2=-1, 0^2-2=-2
      */
 
-    ANYCALLER static mp_bitcnt_t mpn_llriter(mp_ptr lp, mp_srcptr mp, mp_size_t mn, mp_bitcnt_t count, mp_ptr sp)
+    ANYCALLER static mp_bitcnt_t gpmpn_llriter(mp_ptr lp, mp_srcptr mp, mp_size_t mn, mp_bitcnt_t count, mp_ptr sp)
     {
       do
       {
-        mpn_sqr(sp, lp, mn);
-        mpn_tdiv_qr(sp + 2 * mn, lp, 0, sp, 2 * mn, mp, mn);
+        gpmpn_sqr(sp, lp, mn);
+        gpmpn_tdiv_qr(sp + 2 * mn, lp, 0, sp, 2 * mn, mp, mn);
         if (lp[0] < 5)
         {
           /* If L^2 % M < 5, |L^2 % M - 2| <= 2 */
-          if (mn == 1 || mpn_zero_p(lp + 1, mn - 1))
+          if (mn == 1 || gpmpn_zero_p(lp + 1, mn - 1))
             return (lp[0] == 2) ? count : 0;
           else
             MPN_DECR_U(lp, mn, 2);
@@ -116,7 +116,7 @@ namespace gpgmp
        undefined.
     */
 
-    ANYCALLER static mp_size_t mpn_lucm(mp_ptr lp, mp_srcptr np, mp_size_t nn, mp_srcptr mp, mp_size_t mn, mp_ptr scratch)
+    ANYCALLER static mp_size_t gpmpn_lucm(mp_ptr lp, mp_srcptr np, mp_size_t nn, mp_srcptr mp, mp_size_t mn, mp_ptr scratch)
     {
       int neg;
       mp_limb_t cy;
@@ -124,28 +124,28 @@ namespace gpgmp
       ASSERT(!MPN_OVERLAP_P(lp, MAX(2 * mn + 1, 5), scratch, MAX(2 * mn + 1, 5)));
       ASSERT(nn > 0);
 
-      neg = mpn_fib2m(lp, scratch, np, nn, mp, mn);
+      neg = gpmpn_fib2m(lp, scratch, np, nn, mp, mn);
 
       /* F[n] = +/-{lp, mn}, F[n-1] = +/-{scratch, mn} */
-      if (mpn_zero_p(lp, mn))
+      if (gpmpn_zero_p(lp, mn))
         return 0;
 
       if (neg) /* One sign is opposite, use sub instead of add. */
       {
-#if HAVE_NATIVE_mpn_rsblsh1_n || HAVE_NATIVE_mpn_sublsh1_n
-#if HAVE_NATIVE_mpn_rsblsh1_n
-        cy = mpn_rsblsh1_n(lp, lp, scratch, mn); /* L[n] = +/-(2F[n-1]-(-F[n])) */
+#if HAVE_NATIVE_gpmpn_rsblsh1_n || HAVE_NATIVE_gpmpn_sublsh1_n
+#if HAVE_NATIVE_gpmpn_rsblsh1_n
+        cy = gpmpn_rsblsh1_n(lp, lp, scratch, mn); /* L[n] = +/-(2F[n-1]-(-F[n])) */
 #else
-        cy = mpn_sublsh1_n(lp, lp, scratch, mn); /* L[n] = -/+(F[n]-(-2F[n-1])) */
+        cy = gpmpn_sublsh1_n(lp, lp, scratch, mn); /* L[n] = -/+(F[n]-(-2F[n-1])) */
         if (cy != 0)
-          cy = mpn_add_n(lp, lp, mp, mn) - cy;
+          cy = gpmpn_add_n(lp, lp, mp, mn) - cy;
 #endif
         if (cy > 1)
-          cy += mpn_add_n(lp, lp, mp, mn);
+          cy += gpmpn_add_n(lp, lp, mp, mn);
 #else
-        cy = mpn_lshift(scratch, scratch, mn, 1); /* 2F[n-1] */
+        cy = gpmpn_lshift(scratch, scratch, mn, 1); /* 2F[n-1] */
         if (UNLIKELY(cy))
-          cy -= mpn_sub_n(lp, scratch, lp, mn); /* L[n] = +/-(2F[n-1]-(-F[n])) */
+          cy -= gpmpn_sub_n(lp, scratch, lp, mn); /* L[n] = +/-(2F[n-1]-(-F[n])) */
         else
           abs_sub_n(lp, lp, scratch, mn);
 #endif
@@ -153,21 +153,21 @@ namespace gpgmp
       }
       else
       {
-#if HAVE_NATIVE_mpn_addlsh1_n
-        cy = mpn_addlsh1_n(lp, lp, scratch, mn); /* L[n] = +/-(2F[n-1]+F[n])) */
+#if HAVE_NATIVE_gpmpn_addlsh1_n
+        cy = gpmpn_addlsh1_n(lp, lp, scratch, mn); /* L[n] = +/-(2F[n-1]+F[n])) */
 #else
-        cy = mpn_lshift(scratch, scratch, mn, 1);
-        cy += mpn_add_n(lp, lp, scratch, mn);
+        cy = gpmpn_lshift(scratch, scratch, mn, 1);
+        cy += gpmpn_add_n(lp, lp, scratch, mn);
 #endif
         ASSERT(cy <= 2);
       }
-      while (cy || mpn_cmp(lp, mp, mn) >= 0)
-        cy -= mpn_sub_n(lp, lp, mp, mn);
+      while (cy || gpmpn_cmp(lp, mp, mn) >= 0)
+        cy -= gpmpn_sub_n(lp, lp, mp, mn);
       MPN_NORMALIZE(lp, mn);
       return mn;
     }
 
-    ANYCALLER int mpn_strongfibo(mp_srcptr mp, mp_size_t mn, mp_ptr scratch)
+    ANYCALLER int gpmpn_strongfibo(mp_srcptr mp, mp_size_t mn, mp_ptr scratch)
     {
       mp_ptr lp, sp;
       mp_size_t en;
@@ -175,7 +175,7 @@ namespace gpgmp
       TMP_DECL;
 
 #if GMP_NUMB_BITS % 4 == 0
-      b0 = mpn_scan0(mp, 0);
+      b0 = gpmpn_scan0(mp, 0);
 #else
       {
         mpz_t m = MPZ_ROINIT_N(mp, mn);
@@ -192,7 +192,7 @@ namespace gpgmp
         int cnt = b0 % GMP_NUMB_BITS;
         en = b0 / GMP_NUMB_BITS;
         if (LIKELY(cnt != 0))
-          mpn_rshift(scratch, mp + en, mn - en, cnt);
+          gpmpn_rshift(scratch, mp + en, mn - en, cnt);
         else
           MPN_COPY(scratch, mp + en, mn - en);
         en = mn - en;
@@ -203,17 +203,17 @@ namespace gpgmp
 
       lp = TMP_ALLOC_LIMBS(4 * mn + 6);
       sp = lp + 2 * mn + 3;
-      en = mpn_lucm(sp, scratch, en, mp, mn, lp);
+      en = gpmpn_lucm(sp, scratch, en, mp, mn, lp);
       if (en != 0 && LIKELY(--b0 != 0))
       {
-        mpn_sqr(lp, sp, en);
+        gpmpn_sqr(lp, sp, en);
         lp[0] |= 2; /* V^2 + 2 */
         if (LIKELY(2 * en >= mn))
-          mpn_tdiv_qr(sp, lp, 0, lp, 2 * en, mp, mn);
+          gpmpn_tdiv_qr(sp, lp, 0, lp, 2 * en, mp, mn);
         else
           MPN_ZERO(lp + 2 * en, mn - 2 * en);
-        if (!mpn_zero_p(lp, mn) && LIKELY(--b0 != 0))
-          b0 = mpn_llriter(lp, mp, mn, b0, lp + mn + 1);
+        if (!gpmpn_zero_p(lp, mn) && LIKELY(--b0 != 0))
+          b0 = gpmpn_llriter(lp, mp, mn, b0, lp + mn + 1);
       }
       TMP_FREE;
       return (b0 != 0);

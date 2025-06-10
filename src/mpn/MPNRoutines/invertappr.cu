@@ -1,4 +1,4 @@
-/* mpn_invertappr and helper functions.  Compute I such that
+/* gpmpn_invertappr and helper functions.  Compute I such that
    floor((B^{2n}-1)/U - 1 <= I + B^n <= floor((B^{2n}-1)/U.
 
    Contributed to the GNU project by Marco Bodrato.
@@ -77,7 +77,7 @@ namespace gpgmp
       following conditions are satisfied by the output:
         0 <= e <= 1;
         {dp,n}*(B^n+{ip,n}) < B^{2n} <= {dp,n}*(B^n+{ip,n}+1+e) .
-      I.e. e=0 means that the result {ip,n} equals the one given by mpn_invert.
+      I.e. e=0 means that the result {ip,n} equals the one given by gpmpn_invert.
       e=1 means that the result _may_ be one less than expected.
 
       The _bc version returns e=1 most of the time.
@@ -86,16 +86,16 @@ namespace gpgmp
 
       When the strict result is needed, i.e., e=0 in the relation above:
         {dp,n}*(B^n+{ip,n}) < B^{2n} <= {dp,n}*(B^n+{ip,n}+1) ;
-      the function mpn_invert (ip, dp, n, scratch) should be used instead.  */
+      the function gpmpn_invert (ip, dp, n, scratch) should be used instead.  */
 
     /* Maximum scratch needed by this branch (at xp): 2*n */
-    ANYCALLER static mp_limb_t mpn_bc_invertappr(mp_ptr ip, mp_srcptr dp, mp_size_t n, mp_ptr xp)
+    ANYCALLER static mp_limb_t gpmpn_bc_invertappr(mp_ptr ip, mp_srcptr dp, mp_size_t n, mp_ptr xp)
     {
       ASSERT(n > 0);
       ASSERT(dp[n - 1] & GMP_NUMB_HIGHBIT);
       ASSERT(!MPN_OVERLAP_P(ip, n, dp, n));
-      ASSERT(!MPN_OVERLAP_P(ip, n, xp, mpn_invertappr_itch(n)));
-      ASSERT(!MPN_OVERLAP_P(dp, n, xp, mpn_invertappr_itch(n)));
+      ASSERT(!MPN_OVERLAP_P(ip, n, xp, gpmpn_invertappr_itch(n)));
+      ASSERT(!MPN_OVERLAP_P(dp, n, xp, gpmpn_invertappr_itch(n)));
 
       /* Compute a base value of r limbs. */
       if (n == 1)
@@ -104,23 +104,23 @@ namespace gpgmp
       {
         /* n > 1 here */
         MPN_FILL(xp, n, GMP_NUMB_MAX);
-        mpn_com(xp + n, dp, n);
+        gpmpn_com(xp + n, dp, n);
 
         /* Now xp contains B^2n - {dp,n}*B^n - 1 */
 
-        /* FIXME: if mpn_*pi1_divappr_q handles n==2, use it! */
+        /* FIXME: if gpmpn_*pi1_divappr_q handles n==2, use it! */
         if (n == 2)
         {
-          mpn_divrem_2(ip, 0, xp, 4, dp);
+          gpmpn_divrem_2(ip, 0, xp, 4, dp);
         }
         else
         {
           gmp_pi1_t inv;
           invert_pi1(inv, dp[n - 1], dp[n - 2]);
           if (!MAYBE_dcpi1_divappr || BELOW_THRESHOLD(n, DC_DIVAPPR_Q_THRESHOLD))
-            mpn_sbpi1_divappr_q(ip, xp, 2 * n, dp, n, inv.inv32);
+            gpmpn_sbpi1_divappr_q(ip, xp, 2 * n, dp, n, inv.inv32);
           else
-            mpn_dcpi1_divappr_q(ip, xp, 2 * n, dp, n, &inv);
+            gpmpn_dcpi1_divappr_q(ip, xp, 2 * n, dp, n, &inv);
           MPN_DECR_U(ip, n, CNST_LIMB(1));
           return 1;
         }
@@ -128,7 +128,7 @@ namespace gpgmp
       return 0;
     }
 
-    /* mpn_ni_invertappr: computes the approximate reciprocal using Newton's
+    /* gpmpn_ni_invertappr: computes the approximate reciprocal using Newton's
       iterations (at least one).
 
       Inspired by Algorithm "ApproximateReciprocal", published in "Modern Computer
@@ -156,7 +156,7 @@ namespace gpgmp
       is allocated apart.
     */
 
-    ANYCALLER mp_limb_t mpn_ni_invertappr(mp_ptr ip, mp_srcptr dp, mp_size_t n, mp_ptr scratch)
+    ANYCALLER mp_limb_t gpmpn_ni_invertappr(mp_ptr ip, mp_srcptr dp, mp_size_t n, mp_ptr scratch)
     {
       mp_limb_t cy;
       mp_size_t rn, mn;
@@ -168,8 +168,8 @@ namespace gpgmp
       ASSERT(n > 4);
       ASSERT(dp[n - 1] & GMP_NUMB_HIGHBIT);
       ASSERT(!MPN_OVERLAP_P(ip, n, dp, n));
-      ASSERT(!MPN_OVERLAP_P(ip, n, scratch, mpn_invertappr_itch(n)));
-      ASSERT(!MPN_OVERLAP_P(dp, n, scratch, mpn_invertappr_itch(n)));
+      ASSERT(!MPN_OVERLAP_P(ip, n, scratch, gpmpn_invertappr_itch(n)));
+      ASSERT(!MPN_OVERLAP_P(dp, n, scratch, gpmpn_invertappr_itch(n)));
 
       /* Compute the computation precisions from highest to lowest, leaving the
         base case size in 'rn'.  */
@@ -187,14 +187,14 @@ namespace gpgmp
       ip += n;
 
       /* Compute a base value of rn limbs. */
-      mpn_bc_invertappr(ip - rn, dp - rn, rn, scratch);
+      gpmpn_bc_invertappr(ip - rn, dp - rn, rn, scratch);
 
       TMP_MARK;
 
       if (ABOVE_THRESHOLD(n, INV_MULMOD_BNM1_THRESHOLD))
       {
-        mn = mpn_mulmod_bnm1_next_size(n + 1);
-        tp = TMP_ALLOC_LIMBS(mpn_mulmod_bnm1_itch(mn, n, (n >> 1) + 1));
+        mn = gpmpn_mulmod_bnm1_next_size(n + 1);
+        tp = TMP_ALLOC_LIMBS(gpmpn_mulmod_bnm1_itch(mn, n, (n >> 1) + 1));
       }
       /* Use Newton's iterations to get the desired precision.*/
 
@@ -208,23 +208,23 @@ namespace gpgmp
         */
 
         /* Compute i_jd . */
-        if (BELOW_THRESHOLD(n, INV_MULMOD_BNM1_THRESHOLD) || ((mn = mpn_mulmod_bnm1_next_size(n + 1)) > (n + rn)))
+        if (BELOW_THRESHOLD(n, INV_MULMOD_BNM1_THRESHOLD) || ((mn = gpmpn_mulmod_bnm1_next_size(n + 1)) > (n + rn)))
         {
           /* FIXME: We do only need {xp,n+1}*/
-          mpn_mul(xp, dp - n, n, ip - rn, rn);
-          mpn_add_n(xp + rn, xp + rn, dp - n, n - rn + 1);
+          gpmpn_mul(xp, dp - n, n, ip - rn, rn);
+          gpmpn_add_n(xp + rn, xp + rn, dp - n, n - rn + 1);
           cy = CNST_LIMB(1); /* Remember we truncated, Mod B^(n+1) */
           /* We computed (truncated) {xp,n+1} <- 1.{ip,rn} * 0.{dp,n} */
         }
         else
         { /* Use B^mn-1 wraparound */
-          mpn_mulmod_bnm1(xp, mn, dp - n, n, ip - rn, rn, tp);
+          gpmpn_mulmod_bnm1(xp, mn, dp - n, n, ip - rn, rn, tp);
           /* We computed {xp,mn} <- {ip,rn} * {dp,n} mod (B^mn-1) */
           /* We know that 2*|ip*dp + dp*B^rn - B^{rn+n}| < B^mn-1 */
           /* Add dp*B^rn mod (B^mn-1) */
           ASSERT(n >= mn - rn);
-          cy = mpn_add_n(xp + rn, xp + rn, dp - n, mn - rn);
-          cy = mpn_add_nc(xp, xp, dp - (n - (mn - rn)), n - (mn - rn), cy);
+          cy = gpmpn_add_n(xp + rn, xp + rn, dp - n, mn - rn);
+          cy = gpmpn_add_nc(xp, xp, dp - (n - (mn - rn)), n - (mn - rn), cy);
           /* Subtract B^{rn+n}, maybe only compensate the carry*/
           xp[mn] = CNST_LIMB(1); /* set a limit for DECR_U */
           MPN_DECR_U(xp + rn + n - mn, 2 * mn + 1 - rn - n, CNST_LIMB(1) - cy);
@@ -235,42 +235,42 @@ namespace gpgmp
         if (xp[n] < CNST_LIMB(2))
         {             /* "positive" residue class */
           cy = xp[n]; /* 0 <= cy <= 1 here. */
-#if HAVE_NATIVE_mpn_sublsh1_n
+#if HAVE_NATIVE_gpmpn_sublsh1_n
           if (cy++)
           {
-            if (mpn_cmp(xp, dp - n, n) > 0)
+            if (gpmpn_cmp(xp, dp - n, n) > 0)
             {
               mp_limb_t chk;
-              chk = mpn_sublsh1_n(xp, xp, dp - n, n);
+              chk = gpmpn_sublsh1_n(xp, xp, dp - n, n);
               ASSERT(chk == xp[n]);
               ++cy;
             }
             else
-              ASSERT_CARRY(mpn_sub_n(xp, xp, dp - n, n));
+              ASSERT_CARRY(gpmpn_sub_n(xp, xp, dp - n, n));
           }
-#else /* no mpn_sublsh1_n*/
-          if (cy++ && !mpn_sub_n(xp, xp, dp - n, n))
+#else /* no gpmpn_sublsh1_n*/
+          if (cy++ && !gpmpn_sub_n(xp, xp, dp - n, n))
           {
-            ASSERT_CARRY(mpn_sub_n(xp, xp, dp - n, n));
+            ASSERT_CARRY(gpmpn_sub_n(xp, xp, dp - n, n));
             ++cy;
           }
 #endif
           /* 1 <= cy <= 3 here. */
-#if HAVE_NATIVE_mpn_rsblsh1_n
-          if (mpn_cmp(xp, dp - n, n) > 0)
+#if HAVE_NATIVE_gpmpn_rsblsh1_n
+          if (gpmpn_cmp(xp, dp - n, n) > 0)
           {
-            ASSERT_NOCARRY(mpn_rsblsh1_n(xp + n, xp, dp - n, n));
+            ASSERT_NOCARRY(gpmpn_rsblsh1_n(xp + n, xp, dp - n, n));
             ++cy;
           }
           else
-            ASSERT_NOCARRY(mpn_sub_nc(xp + 2 * n - rn, dp - rn, xp + n - rn, rn, mpn_cmp(xp, dp - n, n - rn) > 0));
-#else /* no mpn_rsblsh1_n*/
-          if (mpn_cmp(xp, dp - n, n) > 0)
+            ASSERT_NOCARRY(gpmpn_sub_nc(xp + 2 * n - rn, dp - rn, xp + n - rn, rn, gpmpn_cmp(xp, dp - n, n - rn) > 0));
+#else /* no gpmpn_rsblsh1_n*/
+          if (gpmpn_cmp(xp, dp - n, n) > 0)
           {
-            ASSERT_NOCARRY(mpn_sub_n(xp, xp, dp - n, n));
+            ASSERT_NOCARRY(gpmpn_sub_n(xp, xp, dp - n, n));
             ++cy;
           }
-          ASSERT_NOCARRY(mpn_sub_nc(xp + 2 * n - rn, dp - rn, xp + n - rn, rn, mpn_cmp(xp, dp - n, n - rn) > 0));
+          ASSERT_NOCARRY(gpmpn_sub_nc(xp + 2 * n - rn, dp - rn, xp + n - rn, rn, gpmpn_cmp(xp, dp - n, n - rn) > 0));
 #endif
           MPN_DECR_U(ip - rn, rn, cy); /* 1 <= cy <= 4 here. */
         }
@@ -281,21 +281,21 @@ namespace gpgmp
           if (xp[n] != GMP_NUMB_MAX)
           {
             MPN_INCR_U(ip - rn, rn, CNST_LIMB(1));
-            ASSERT_CARRY(mpn_add_n(xp, xp, dp - n, n));
+            ASSERT_CARRY(gpmpn_add_n(xp, xp, dp - n, n));
           }
-          mpn_com(xp + 2 * n - rn, xp + n - rn, rn);
+          gpmpn_com(xp + 2 * n - rn, xp + n - rn, rn);
         }
 
         /* Compute x_ju_j. FIXME:We need {xp+rn,rn}, mulhi? */
-        mpn_mul_n(xp, xp + 2 * n - rn, ip - rn, rn);
-        cy = mpn_add_n(xp + rn, xp + rn, xp + 2 * n - rn, 2 * rn - n);
-        cy = mpn_add_nc(ip - n, xp + 3 * rn - n, xp + n + rn, n - rn, cy);
+        gpmpn_mul_n(xp, xp + 2 * n - rn, ip - rn, rn);
+        cy = gpmpn_add_n(xp + rn, xp + rn, xp + 2 * n - rn, 2 * rn - n);
+        cy = gpmpn_add_nc(ip - n, xp + 3 * rn - n, xp + n + rn, n - rn, cy);
         MPN_INCR_U(ip - rn, rn, cy);
         if (sizp == sizes)
         { /* Get out of the cycle */
           /* Check for possible carry propagation from below. */
           cy = xp[3 * rn - n - 1] > GMP_NUMB_MAX - CNST_LIMB(7); /* Be conservative. */
-          /*    cy = mpn_add_1 (xp + rn, xp + rn, 2*rn - n, 4); */
+          /*    cy = gpmpn_add_1 (xp + rn, xp + rn, 2*rn - n, 4); */
           break;
         }
         rn = n;
@@ -306,18 +306,18 @@ namespace gpgmp
 #undef xp
     }
 
-    ANYCALLER mp_limb_t mpn_invertappr(mp_ptr ip, mp_srcptr dp, mp_size_t n, mp_ptr scratch)
+    ANYCALLER mp_limb_t gpmpn_invertappr(mp_ptr ip, mp_srcptr dp, mp_size_t n, mp_ptr scratch)
     {
       ASSERT(n > 0);
       ASSERT(dp[n - 1] & GMP_NUMB_HIGHBIT);
       ASSERT(!MPN_OVERLAP_P(ip, n, dp, n));
-      ASSERT(!MPN_OVERLAP_P(ip, n, scratch, mpn_invertappr_itch(n)));
-      ASSERT(!MPN_OVERLAP_P(dp, n, scratch, mpn_invertappr_itch(n)));
+      ASSERT(!MPN_OVERLAP_P(ip, n, scratch, gpmpn_invertappr_itch(n)));
+      ASSERT(!MPN_OVERLAP_P(dp, n, scratch, gpmpn_invertappr_itch(n)));
 
       if (BELOW_THRESHOLD(n, INV_NEWTON_THRESHOLD))
-        return mpn_bc_invertappr(ip, dp, n, scratch);
+        return gpmpn_bc_invertappr(ip, dp, n, scratch);
       else
-        return mpn_ni_invertappr(ip, dp, n, scratch);
+        return gpmpn_ni_invertappr(ip, dp, n, scratch);
     }
 
   }

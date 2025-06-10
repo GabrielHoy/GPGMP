@@ -1,4 +1,4 @@
-/* mpn_divexact_1 -- mpn by limb exact division.
+/* gpmpn_divexact_1 -- mpn by limb exact division.
 
    THE FUNCTIONS IN THIS FILE ARE FOR INTERNAL USE ONLY.  THEY'RE ALMOST
    CERTAIN TO BE SUBJECT TO INCOMPATIBLE CHANGES OR DISAPPEAR COMPLETELY IN
@@ -48,7 +48,7 @@ namespace gpgmp {
 
       Possibilities:
 
-      mpn_divexact_1c could be created, accepting and returning c.  This would
+      gpmpn_divexact_1c could be created, accepting and returning c.  This would
       let a long calculation be done piece by piece.  Currently there's no
       particular need for that, and not returning c means that a final umul can
       be skipped.
@@ -58,7 +58,7 @@ namespace gpgmp {
       "c=(l>s)" and let the caller do a final umul if interested.
 
       When the divisor is even, the factors of two could be handled with a
-      separate mpn_rshift, instead of shifting on the fly.  That might be
+      separate gpmpn_rshift, instead of shifting on the fly.  That might be
       faster on some CPUs and would mean just the shift==0 style loop would be
       needed.
 
@@ -75,7 +75,7 @@ namespace gpgmp {
       even case) might be a good way to do that.  But if this code is often
       used with small divisors then it might not be worth bothering  */
 
-    ANYCALLER void mpn_divexact_1 (mp_ptr dst, mp_srcptr src, mp_size_t size, mp_limb_t divisor)
+    ANYCALLER void gpmpn_divexact_1 (mp_ptr dst, mp_srcptr src, mp_size_t size, mp_limb_t divisor)
     {
       mp_size_t  i;
       mp_limb_t  c, h, l, ls, s, s_next, inverse, dummy;

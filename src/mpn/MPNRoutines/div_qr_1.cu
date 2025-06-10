@@ -1,4 +1,4 @@
-/* mpn_div_qr_1 -- mpn by limb division.
+/* gpmpn_div_qr_1 -- mpn by limb division.
 
    Contributed to the GNU project by Niels Möller and Torbjörn Granlund
 
@@ -51,7 +51,7 @@ namespace gpgmp {
 
     /* Divides {up, n} by d. Writes the n-1 low quotient limbs at {qp,
     * n-1}, and the high quotient limb at *qh. Returns remainder. */
-    ANYCALLER mp_limb_t mpn_div_qr_1 (mp_ptr qp, mp_limb_t *qh, mp_srcptr up, mp_size_t n, mp_limb_t d)
+    ANYCALLER mp_limb_t gpmpn_div_qr_1 (mp_ptr qp, mp_limb_t *qh, mp_srcptr up, mp_size_t n, mp_limb_t d)
     {
       unsigned cnt;
       mp_limb_t uh;
@@ -82,7 +82,7 @@ namespace gpgmp {
         return uh >> cnt;
       }
           invert_limb (dinv, d);
-          return mpn_div_qr_1n_pi1 (qp, up, n, uh, d, dinv);
+          return gpmpn_div_qr_1n_pi1 (qp, up, n, uh, d, dinv);
         }
       else
         {
@@ -101,7 +101,7 @@ namespace gpgmp {
           count_leading_zeros (cnt, d);
           d <<= cnt;
 
-    #if HAVE_NATIVE_mpn_div_qr_1u_pi1
+    #if HAVE_NATIVE_gpmpn_div_qr_1u_pi1
           /* FIXME: Call loop doing on-the-fly normalization */
     #endif
 
@@ -109,7 +109,7 @@ namespace gpgmp {
       since we have only n-1 limbs available, and shift the high
       limb manually. */
           uh = up[--n];
-          ul = (uh << cnt) | mpn_lshift (qp, up, n, cnt);
+          ul = (uh << cnt) | gpmpn_lshift (qp, up, n, cnt);
           uh >>= (GMP_LIMB_BITS - cnt);
 
           if (UDIV_NEEDS_NORMALIZATION
@@ -122,7 +122,7 @@ namespace gpgmp {
           invert_limb (dinv, d);
 
           udiv_qrnnd_preinv (*qh, uh, uh, ul, d, dinv);
-          return mpn_div_qr_1n_pi1 (qp, qp, n, uh, d, dinv) >> cnt;
+          return gpmpn_div_qr_1n_pi1 (qp, qp, n, uh, d, dinv) >> cnt;
         }
     }
 

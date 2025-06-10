@@ -76,13 +76,13 @@ namespace gpgmp
 
 #ifdef WANT_ADDSUB
 #include "generic/add_n_sub_n.c"
-#define HAVE_NATIVE_mpn_add_n_sub_n 1
+#define HAVE_NATIVE_gpmpn_add_n_sub_n 1
 #endif
 
-    ANYCALLER static mp_limb_t mpn_mul_fft_internal(mp_ptr, mp_size_t, int, mp_ptr *,
+    ANYCALLER static mp_limb_t gpmpn_mul_fft_internal(mp_ptr, mp_size_t, int, mp_ptr *,
                                                     mp_ptr *, mp_ptr, mp_ptr, mp_size_t,
                                                     mp_size_t, mp_size_t, int **, mp_ptr, int);
-    ANYCALLER static void mpn_mul_fft_decompose(mp_ptr, mp_ptr *, mp_size_t, mp_size_t, mp_srcptr,
+    ANYCALLER static void gpmpn_mul_fft_decompose(mp_ptr, mp_ptr *, mp_size_t, mp_size_t, mp_srcptr,
                                                 mp_size_t, mp_size_t, mp_size_t, mp_ptr);
 
     /* Find the best k to use for a mod 2^(m*GMP_NUMB_BITS)+1 FFT for m >= n.
@@ -108,19 +108,19 @@ namespace gpgmp
 #define FFT_TABLE3_SIZE 200
 #endif
 
-    FFT_TABLE_ATTRS struct fft_table_nk mpn_fft_table3[2][FFT_TABLE3_SIZE] =
+    FFT_TABLE_ATTRS struct fft_table_nk gpmpn_fft_table3[2][FFT_TABLE3_SIZE] =
         {
             MUL_FFT_TABLE3,
             SQR_FFT_TABLE3};
 
     int
-    mpn_fft_best_k(mp_size_t n, int sqr)
+    gpmpn_fft_best_k(mp_size_t n, int sqr)
     {
       const struct fft_table_nk *fft_tab, *tab;
       mp_size_t tab_n, thres;
       int last_k;
 
-      fft_tab = mpn_fft_table3[sqr];
+      fft_tab = gpmpn_fft_table3[sqr];
       last_k = fft_tab->k;
       for (tab = fft_tab + 1;; tab++)
       {
@@ -140,13 +140,13 @@ namespace gpgmp
 
 #if !defined(MPN_FFT_BEST_READY)
   #ifdef __CUDA_ARCH__
-    __device__ FFT_TABLE_ATTRS mp_size_t mpn_fft_table[2][MPN_FFT_TABLE_SIZE] =
+    __device__ FFT_TABLE_ATTRS mp_size_t gpmpn_fft_table[2][MPN_FFT_TABLE_SIZE] =
         {
             MUL_FFT_TABLE,
             SQR_FFT_TABLE
         };
   #else
-    FFT_TABLE_ATTRS mp_size_t mpn_fft_table[2][MPN_FFT_TABLE_SIZE] =
+    FFT_TABLE_ATTRS mp_size_t gpmpn_fft_table[2][MPN_FFT_TABLE_SIZE] =
         {
             MUL_FFT_TABLE,
             SQR_FFT_TABLE
@@ -154,16 +154,16 @@ namespace gpgmp
   #endif
 
     ANYCALLER int
-    mpn_fft_best_k(mp_size_t n, int sqr)
+    gpmpn_fft_best_k(mp_size_t n, int sqr)
     {
       int i;
 
-      for (i = 0; mpn_fft_table[sqr][i] != 0; i++)
-        if (n < mpn_fft_table[sqr][i])
+      for (i = 0; gpmpn_fft_table[sqr][i] != 0; i++)
+        if (n < gpmpn_fft_table[sqr][i])
           return i + FFT_FIRST_K;
 
       /* treat 4*last as one further entry */
-      if (i == 0 || n < 4 * mpn_fft_table[sqr][i - 1])
+      if (i == 0 || n < 4 * gpmpn_fft_table[sqr][i - 1])
         return i + FFT_FIRST_K;
       else
         return i + FFT_FIRST_K + 1;
@@ -179,7 +179,7 @@ namespace gpgmp
     */
 
     ANYCALLER mp_size_t
-    mpn_fft_next_size(mp_size_t pl, int k)
+    gpmpn_fft_next_size(mp_size_t pl, int k)
     {
       pl = 1 + ((pl - 1) >> k); /* ceil (pl/2^k) */
       return pl << k;
@@ -187,7 +187,7 @@ namespace gpgmp
 
     /* Initialize l[i][j] with bitrev(j) */
     ANYCALLER static void
-    mpn_fft_initl(int **l, int k)
+    gpmpn_fft_initl(int **l, int k)
     {
       int i, j, K;
       int *li;
@@ -209,7 +209,7 @@ namespace gpgmp
        r and a must have n+1 limbs, and not overlap.
     */
     ANYCALLER static void
-    mpn_fft_mul_2exp_modF(mp_ptr r, mp_srcptr a, mp_bitcnt_t d, mp_size_t n)
+    gpmpn_fft_mul_2exp_modF(mp_ptr r, mp_srcptr a, mp_bitcnt_t d, mp_size_t n)
     {
       unsigned int sh;
       mp_size_t m;
@@ -227,15 +227,15 @@ namespace gpgmp
         if (sh != 0)
         {
           /* no out shift below since a[n] <= 1 */
-          mpn_lshift(r, a + n - m, m + 1, sh);
+          gpmpn_lshift(r, a + n - m, m + 1, sh);
           rd = r[m];
-          cc = mpn_lshiftc(r + m, a, n - m, sh);
+          cc = gpmpn_lshiftc(r + m, a, n - m, sh);
         }
         else
         {
           MPN_COPY(r, a + n - m, m);
           rd = a[n];
-          mpn_com(r + m, a, n - m);
+          gpmpn_com(r + m, a, n - m);
           cc = 0;
         }
 
@@ -261,15 +261,15 @@ namespace gpgmp
         if (sh != 0)
         {
           /* no out bits below since a[n] <= 1 */
-          mpn_lshiftc(r, a + n - m, m + 1, sh);
+          gpmpn_lshiftc(r, a + n - m, m + 1, sh);
           rd = ~r[m];
           /* {r, m+1} = {a+n-m, m+1} << sh */
-          cc = mpn_lshift(r + m, a, n - m, sh); /* {r+m, n-m} = {a, n-m}<<sh */
+          cc = gpmpn_lshift(r + m, a, n - m, sh); /* {r+m, n-m} = {a, n-m}<<sh */
         }
         else
         {
           /* r[m] is not used below, but we save a test for m=0 */
-          mpn_com(r, a + n - m, m + 1);
+          gpmpn_com(r, a + n - m, m + 1);
           rd = a[n];
           MPN_COPY(r + m, a, n - m);
           cc = 0;
@@ -282,8 +282,8 @@ namespace gpgmp
         {
           /* now add 1 in r[0], subtract 1 in r[m] */
           if (cc-- == 0) /* then add 1 to r[0] */
-            cc = mpn_add_1(r, r, n, CNST_LIMB(1));
-          cc = mpn_sub_1(r, r, m, cc) + 1;
+            cc = gpmpn_add_1(r, r, n, CNST_LIMB(1));
+          cc = gpmpn_sub_1(r, r, m, cc) + 1;
           /* add 1 to cc instead of rd since rd might overflow */
         }
 
@@ -305,13 +305,13 @@ namespace gpgmp
       }
     }
 
-#if HAVE_NATIVE_mpn_add_n_sub_n
+#if HAVE_NATIVE_gpmpn_add_n_sub_n
     static inline void
-    mpn_fft_add_sub_modF(mp_ptr A0, mp_ptr Ai, mp_srcptr tp, mp_size_t n)
+    gpmpn_fft_add_sub_modF(mp_ptr A0, mp_ptr Ai, mp_srcptr tp, mp_size_t n)
     {
       mp_limb_t cyas, c, x;
 
-      cyas = mpn_add_n_sub_n(A0, Ai, A0, tp, n);
+      cyas = gpmpn_add_n_sub_n(A0, Ai, A0, tp, n);
 
       c = A0[n] - tp[n] - (cyas & 1);
       x = (-c) & -((c & GMP_LIMB_HIGHBIT) != 0);
@@ -324,17 +324,17 @@ namespace gpgmp
       MPN_DECR_U(A0, n + 1, x);
     }
 
-#else /* ! HAVE_NATIVE_mpn_add_n_sub_n  */
+#else /* ! HAVE_NATIVE_gpmpn_add_n_sub_n  */
 
     /* r <- a+b mod 2^(n*GMP_NUMB_BITS)+1.
        Assumes a and b are semi-normalized.
     */
     ANYCALLER static inline void
-    mpn_fft_add_modF(mp_ptr r, mp_srcptr a, mp_srcptr b, mp_size_t n)
+    gpmpn_fft_add_modF(mp_ptr r, mp_srcptr a, mp_srcptr b, mp_size_t n)
     {
       mp_limb_t c, x;
 
-      c = a[n] + b[n] + mpn_add_n(r, a, b, n);
+      c = a[n] + b[n] + gpmpn_add_n(r, a, b, n);
       /* 0 <= c <= 3 */
 
 #if 1
@@ -361,11 +361,11 @@ namespace gpgmp
        Assumes a and b are semi-normalized.
     */
     ANYCALLER static inline void
-    mpn_fft_sub_modF(mp_ptr r, mp_srcptr a, mp_srcptr b, mp_size_t n)
+    gpmpn_fft_sub_modF(mp_ptr r, mp_srcptr a, mp_srcptr b, mp_size_t n)
     {
       mp_limb_t c, x;
 
-      c = a[n] - b[n] - mpn_sub_n(r, a, b, n);
+      c = a[n] - b[n] - gpmpn_sub_n(r, a, b, n);
       /* -2 <= c <= 1 */
 
 #if 1
@@ -387,34 +387,34 @@ namespace gpgmp
     }
 #endif
     }
-#endif /* HAVE_NATIVE_mpn_add_n_sub_n */
+#endif /* HAVE_NATIVE_gpmpn_add_n_sub_n */
 
     /* input: A[0] ... A[inc*(K-1)] are residues mod 2^N+1 where
         N=n*GMP_NUMB_BITS, and 2^omega is a primitive root mod 2^N+1
        output: A[inc*l[k][i]] <- \sum (2^omega)^(ij) A[inc*j] mod 2^N+1 */
 
     ANYCALLER static void
-    mpn_fft_fft(mp_ptr *Ap, mp_size_t K, int **ll,
+    gpmpn_fft_fft(mp_ptr *Ap, mp_size_t K, int **ll,
                 mp_size_t omega, mp_size_t n, mp_size_t inc, mp_ptr tp)
     {
       if (K == 2)
       {
         mp_limb_t cy;
-#if HAVE_NATIVE_mpn_add_n_sub_n
-        cy = mpn_add_n_sub_n(Ap[0], Ap[inc], Ap[0], Ap[inc], n + 1) & 1;
+#if HAVE_NATIVE_gpmpn_add_n_sub_n
+        cy = gpmpn_add_n_sub_n(Ap[0], Ap[inc], Ap[0], Ap[inc], n + 1) & 1;
 #else
         MPN_COPY(tp, Ap[0], n + 1);
-        mpn_add_n(Ap[0], Ap[0], Ap[inc], n + 1);
-        cy = mpn_sub_n(Ap[inc], tp, Ap[inc], n + 1);
+        gpmpn_add_n(Ap[0], Ap[0], Ap[inc], n + 1);
+        cy = gpmpn_sub_n(Ap[inc], tp, Ap[inc], n + 1);
 #endif
         if (Ap[0][n] > 1) /* can be 2 or 3 */
-        {                 /* Ap[0][n] = 1 - mpn_sub_1 (Ap[0], Ap[0], n, Ap[0][n] - 1); */
+        {                 /* Ap[0][n] = 1 - gpmpn_sub_1 (Ap[0], Ap[0], n, Ap[0][n] - 1); */
           mp_limb_t cc = Ap[0][n] - 1;
           Ap[0][n] = 1;
           MPN_DECR_U(Ap[0], n + 1, cc);
         }
         if (cy) /* Ap[inc][n] can be -1 or -2 */
-        {       /* Ap[inc][n] = mpn_add_1 (Ap[inc], Ap[inc], n, ~Ap[inc][n] + 1); */
+        {       /* Ap[inc][n] = gpmpn_add_1 (Ap[inc], Ap[inc], n, ~Ap[inc][n] + 1); */
           mp_limb_t cc = ~Ap[inc][n] + 1;
           Ap[inc][n] = 0;
           MPN_INCR_U(Ap[inc], n + 1, cc);
@@ -425,20 +425,20 @@ namespace gpgmp
         mp_size_t j, K2 = K >> 1;
         int *lk = *ll;
 
-        mpn_fft_fft(Ap, K2, ll - 1, 2 * omega, n, inc * 2, tp);
-        mpn_fft_fft(Ap + inc, K2, ll - 1, 2 * omega, n, inc * 2, tp);
+        gpmpn_fft_fft(Ap, K2, ll - 1, 2 * omega, n, inc * 2, tp);
+        gpmpn_fft_fft(Ap + inc, K2, ll - 1, 2 * omega, n, inc * 2, tp);
         /* A[2*j*inc]   <- A[2*j*inc] + omega^l[k][2*j*inc] A[(2j+1)inc]
      A[(2j+1)inc] <- A[2*j*inc] + omega^l[k][(2j+1)inc] A[(2j+1)inc] */
         for (j = 0; j < K2; j++, lk += 2, Ap += 2 * inc)
         {
           /* Ap[inc] <- Ap[0] + Ap[inc] * 2^(lk[1] * omega)
              Ap[0]   <- Ap[0] + Ap[inc] * 2^(lk[0] * omega) */
-          mpn_fft_mul_2exp_modF(tp, Ap[inc], lk[0] * omega, n);
-#if HAVE_NATIVE_mpn_add_n_sub_n
-          mpn_fft_add_sub_modF(Ap[0], Ap[inc], tp, n);
+          gpmpn_fft_mul_2exp_modF(tp, Ap[inc], lk[0] * omega, n);
+#if HAVE_NATIVE_gpmpn_add_n_sub_n
+          gpmpn_fft_add_sub_modF(Ap[0], Ap[inc], tp, n);
 #else
-          mpn_fft_sub_modF(Ap[inc], Ap[0], tp, n);
-          mpn_fft_add_modF(Ap[0], Ap[0], tp, n);
+          gpmpn_fft_sub_modF(Ap[inc], Ap[0], tp, n);
+          gpmpn_fft_add_modF(Ap[0], Ap[0], tp, n);
 #endif
         }
       }
@@ -453,12 +453,12 @@ namespace gpgmp
     /* Given ap[0..n] with ap[n]<=1, reduce it modulo 2^(n*GMP_NUMB_BITS)+1,
        by subtracting that modulus if necessary.
 
-       If ap[0..n] is exactly 2^(n*GMP_NUMB_BITS) then mpn_sub_1 produces a
+       If ap[0..n] is exactly 2^(n*GMP_NUMB_BITS) then gpmpn_sub_1 produces a
        borrow and the limbs must be zeroed out again.  This will occur very
        infrequently.  */
 
     ANYCALLER static inline void
-    mpn_fft_normalize(mp_ptr ap, mp_size_t n)
+    gpmpn_fft_normalize(mp_ptr ap, mp_size_t n)
     {
       if (ap[n] != 0)
       {
@@ -477,7 +477,7 @@ namespace gpgmp
 
     /* a[i] <- a[i]*b[i] mod 2^(n*GMP_NUMB_BITS)+1 for 0 <= i < K */
     ANYCALLER static void
-    mpn_fft_mul_modF_K(mp_ptr *ap, mp_ptr *bp, mp_size_t n, mp_size_t K)
+    gpmpn_fft_mul_modF_K(mp_ptr *ap, mp_ptr *bp, mp_size_t n, mp_size_t K)
     {
       int i;
       unsigned k;
@@ -493,7 +493,7 @@ namespace gpgmp
         int **fft_l, *tmp;
         mp_ptr *Ap, *Bp, A, B, T;
 
-        k = mpn_fft_best_k(n, sqr);
+        k = gpmpn_fft_best_k(n, sqr);
         K2 = (mp_size_t)1 << k;
         ASSERT_ALWAYS((n & (K2 - 1)) == 0);
         maxLK = (K2 > GMP_NUMB_BITS) ? K2 : GMP_NUMB_BITS;
@@ -509,7 +509,7 @@ namespace gpgmp
           mp_size_t K3;
           for (;;)
           {
-            K3 = (mp_size_t)1 << mpn_fft_best_k(nprime2, sqr);
+            K3 = (mp_size_t)1 << gpmpn_fft_best_k(nprime2, sqr);
             if ((nprime2 & (K3 - 1)) == 0)
               break;
             nprime2 = (nprime2 + K3 - 1) & -K3;
@@ -534,22 +534,22 @@ namespace gpgmp
           tmp += (mp_size_t)1 << i;
         }
 
-        mpn_fft_initl(fft_l, k);
+        gpmpn_fft_initl(fft_l, k);
 
         TRACE(printf("recurse: %ldx%ld limbs -> %ld times %ldx%ld (%1.2f)\n", n,
                      n, K2, nprime2, nprime2, 2.0 * (double)n / nprime2 / K2));
         for (i = 0; i < K; i++, ap++, bp++)
         {
           mp_limb_t cy;
-          mpn_fft_normalize(*ap, n);
+          gpmpn_fft_normalize(*ap, n);
           if (!sqr)
-            mpn_fft_normalize(*bp, n);
+            gpmpn_fft_normalize(*bp, n);
 
-          mpn_mul_fft_decompose(A, Ap, K2, nprime2, *ap, (l << k) + 1, l, Mp2, T);
+          gpmpn_mul_fft_decompose(A, Ap, K2, nprime2, *ap, (l << k) + 1, l, Mp2, T);
           if (!sqr)
-            mpn_mul_fft_decompose(B, Bp, K2, nprime2, *bp, (l << k) + 1, l, Mp2, T);
+            gpmpn_mul_fft_decompose(B, Bp, K2, nprime2, *bp, (l << k) + 1, l, Mp2, T);
 
-          cy = mpn_mul_fft_internal(*ap, n, k, Ap, Bp, A, B, nprime2,
+          cy = gpmpn_mul_fft_internal(*ap, n, k, Ap, Bp, A, B, nprime2,
                                     l, Mp2, fft_l, T, sqr);
           (*ap)[n] = cy;
         }
@@ -562,21 +562,21 @@ namespace gpgmp
 
         if (sqr)
         {
-          mp_ptr tp = TMP_SALLOC_LIMBS(mpn_sqrmod_bknp1_itch(n));
+          mp_ptr tp = TMP_SALLOC_LIMBS(gpmpn_sqrmod_bknp1_itch(n));
           for (i = 0; i < K; i++)
           {
             a = *ap++;
-            mpn_sqrmod_bknp1(a, a, n_k, k, tp);
+            gpmpn_sqrmod_bknp1(a, a, n_k, k, tp);
           }
         }
         else
         {
-          mp_ptr b, tp = TMP_SALLOC_LIMBS(mpn_mulmod_bknp1_itch(n));
+          mp_ptr b, tp = TMP_SALLOC_LIMBS(gpmpn_mulmod_bknp1_itch(n));
           for (i = 0; i < K; i++)
           {
             a = *ap++;
             b = *bp++;
-            mpn_mulmod_bknp1(a, a, b, n_k, k, tp);
+            gpmpn_mulmod_bknp1(a, a, b, n_k, k, tp);
           }
         }
       }
@@ -588,31 +588,31 @@ namespace gpgmp
         mp_size_t n2 = 2 * n;
         tp = TMP_BALLOC_LIMBS(n2);
         tpn = tp + n;
-        TRACE(printf("  mpn_mul_n %ld of %ld limbs\n", K, n));
+        TRACE(printf("  gpmpn_mul_n %ld of %ld limbs\n", K, n));
         for (i = 0; i < K; i++)
         {
           a = *ap++;
           b = *bp++;
           if (sqr)
-            mpn_sqr(tp, a, n);
+            gpmpn_sqr(tp, a, n);
           else
-            mpn_mul_n(tp, b, a, n);
+            gpmpn_mul_n(tp, b, a, n);
           if (a[n] != 0)
-            cc = mpn_add_n(tpn, tpn, b, n);
+            cc = gpmpn_add_n(tpn, tpn, b, n);
           else
             cc = 0;
           if (b[n] != 0)
-            cc += mpn_add_n(tpn, tpn, a, n) + a[n];
+            cc += gpmpn_add_n(tpn, tpn, a, n) + a[n];
           if (cc != 0)
           {
-            cc = mpn_add_1(tp, tp, n2, cc);
-            /* If mpn_add_1 give a carry (cc != 0),
+            cc = gpmpn_add_1(tp, tp, n2, cc);
+            /* If gpmpn_add_1 give a carry (cc != 0),
          the result (tp) is at most GMP_NUMB_MAX - 1,
          so the following addition can't overflow.
             */
             tp[0] += cc;
           }
-          cc = mpn_sub_n(a, tp, tpn, n);
+          cc = gpmpn_sub_n(a, tp, tpn, n);
           a[n] = 0;
           MPN_INCR_U(a, n + 1, cc);
         }
@@ -626,26 +626,26 @@ namespace gpgmp
        This condition is also fulfilled at exit.
     */
     ANYCALLER static void
-    mpn_fft_fftinv(mp_ptr *Ap, mp_size_t K, mp_size_t omega, mp_size_t n, mp_ptr tp)
+    gpmpn_fft_fftinv(mp_ptr *Ap, mp_size_t K, mp_size_t omega, mp_size_t n, mp_ptr tp)
     {
       if (K == 2)
       {
         mp_limb_t cy;
-#if HAVE_NATIVE_mpn_add_n_sub_n
-        cy = mpn_add_n_sub_n(Ap[0], Ap[1], Ap[0], Ap[1], n + 1) & 1;
+#if HAVE_NATIVE_gpmpn_add_n_sub_n
+        cy = gpmpn_add_n_sub_n(Ap[0], Ap[1], Ap[0], Ap[1], n + 1) & 1;
 #else
         MPN_COPY(tp, Ap[0], n + 1);
-        mpn_add_n(Ap[0], Ap[0], Ap[1], n + 1);
-        cy = mpn_sub_n(Ap[1], tp, Ap[1], n + 1);
+        gpmpn_add_n(Ap[0], Ap[0], Ap[1], n + 1);
+        cy = gpmpn_sub_n(Ap[1], tp, Ap[1], n + 1);
 #endif
         if (Ap[0][n] > 1) /* can be 2 or 3 */
-        {                 /* Ap[0][n] = 1 - mpn_sub_1 (Ap[0], Ap[0], n, Ap[0][n] - 1); */
+        {                 /* Ap[0][n] = 1 - gpmpn_sub_1 (Ap[0], Ap[0], n, Ap[0][n] - 1); */
           mp_limb_t cc = Ap[0][n] - 1;
           Ap[0][n] = 1;
           MPN_DECR_U(Ap[0], n + 1, cc);
         }
         if (cy) /* Ap[1][n] can be -1 or -2 */
-        {       /* Ap[1][n] = mpn_add_1 (Ap[1], Ap[1], n, ~Ap[1][n] + 1); */
+        {       /* Ap[1][n] = gpmpn_add_1 (Ap[1], Ap[1], n, ~Ap[1][n] + 1); */
           mp_limb_t cc = ~Ap[1][n] + 1;
           Ap[1][n] = 0;
           MPN_INCR_U(Ap[1], n + 1, cc);
@@ -655,20 +655,20 @@ namespace gpgmp
       {
         mp_size_t j, K2 = K >> 1;
 
-        mpn_fft_fftinv(Ap, K2, 2 * omega, n, tp);
-        mpn_fft_fftinv(Ap + K2, K2, 2 * omega, n, tp);
+        gpmpn_fft_fftinv(Ap, K2, 2 * omega, n, tp);
+        gpmpn_fft_fftinv(Ap + K2, K2, 2 * omega, n, tp);
         /* A[j]     <- A[j] + omega^j A[j+K/2]
      A[j+K/2] <- A[j] + omega^(j+K/2) A[j+K/2] */
         for (j = 0; j < K2; j++, Ap++)
         {
           /* Ap[K2] <- Ap[0] + Ap[K2] * 2^((j + K2) * omega)
              Ap[0]  <- Ap[0] + Ap[K2] * 2^(j * omega) */
-          mpn_fft_mul_2exp_modF(tp, Ap[K2], j * omega, n);
-#if HAVE_NATIVE_mpn_add_n_sub_n
-          mpn_fft_add_sub_modF(Ap[0], Ap[K2], tp, n);
+          gpmpn_fft_mul_2exp_modF(tp, Ap[K2], j * omega, n);
+#if HAVE_NATIVE_gpmpn_add_n_sub_n
+          gpmpn_fft_add_sub_modF(Ap[0], Ap[K2], tp, n);
 #else
-          mpn_fft_sub_modF(Ap[K2], Ap[0], tp, n);
-          mpn_fft_add_modF(Ap[0], Ap[0], tp, n);
+          gpmpn_fft_sub_modF(Ap[K2], Ap[0], tp, n);
+          gpmpn_fft_add_modF(Ap[0], Ap[0], tp, n);
 #endif
         }
       }
@@ -676,16 +676,16 @@ namespace gpgmp
 
     /* R <- A/2^k mod 2^(n*GMP_NUMB_BITS)+1 */
     ANYCALLER static void
-    mpn_fft_div_2exp_modF(mp_ptr r, mp_srcptr a, mp_bitcnt_t k, mp_size_t n)
+    gpmpn_fft_div_2exp_modF(mp_ptr r, mp_srcptr a, mp_bitcnt_t k, mp_size_t n)
     {
       mp_bitcnt_t i;
 
       ASSERT(r != a);
       i = (mp_bitcnt_t)2 * n * GMP_NUMB_BITS - k;
-      mpn_fft_mul_2exp_modF(r, a, i, n);
+      gpmpn_fft_mul_2exp_modF(r, a, i, n);
       /* 1/2^k = 2^(2nL-k) mod 2^(n*GMP_NUMB_BITS)+1 */
       /* normalize so that R < 2^(n*GMP_NUMB_BITS)+1 */
-      mpn_fft_normalize(r, n);
+      gpmpn_fft_normalize(r, n);
     }
 
     /* {rp,n} <- {ap,an} mod 2^(n*GMP_NUMB_BITS)+1, n <= an <= 3*n.
@@ -693,7 +693,7 @@ namespace gpgmp
        then {rp,n}=0.
     */
     ANYCALLER static mp_size_t
-    mpn_fft_norm_modF(mp_ptr rp, mp_size_t n, mp_ptr ap, mp_size_t an)
+    gpmpn_fft_norm_modF(mp_ptr rp, mp_size_t n, mp_ptr ap, mp_size_t an)
     {
       mp_size_t l, m, rpn;
       mp_limb_t cc;
@@ -704,9 +704,9 @@ namespace gpgmp
       {
         l = n;
         /* add {ap, m} and {ap+2n, m} in {rp, m} */
-        cc = mpn_add_n(rp, ap, ap + 2 * n, m);
+        cc = gpmpn_add_n(rp, ap, ap + 2 * n, m);
         /* copy {ap+m, n-m} to {rp+m, n-m} */
-        rpn = mpn_add_1(rp + m, ap + m, n - m, cc);
+        rpn = gpmpn_add_1(rp + m, ap + m, n - m, cc);
       }
       else
       {
@@ -716,9 +716,9 @@ namespace gpgmp
       }
 
       /* remains to subtract {ap+n, l} from {rp, n+1} */
-      rpn -= mpn_sub(rp, rp, n, ap + n, l);
+      rpn -= gpmpn_sub(rp, rp, n, ap + n, l);
       if (rpn < 0) /* necessarily rpn = -1 */
-        rpn = mpn_add_1(rp, rp, n, CNST_LIMB(1));
+        rpn = gpmpn_add_1(rp, rp, n, CNST_LIMB(1));
       return rpn;
     }
 
@@ -729,7 +729,7 @@ namespace gpgmp
        We must have nl <= 2*K*l.
     */
     ANYCALLER static void
-    mpn_mul_fft_decompose(mp_ptr A, mp_ptr *Ap, mp_size_t K, mp_size_t nprime,
+    gpmpn_mul_fft_decompose(mp_ptr A, mp_ptr *Ap, mp_size_t K, mp_size_t nprime,
                           mp_srcptr n, mp_size_t nl, mp_size_t l, mp_size_t Mp,
                           mp_ptr T)
     {
@@ -756,7 +756,7 @@ namespace gpgmp
           mp_limb_signed_t cy;
           int subp = 0;
 
-          cy = mpn_sub_n(tmp, n, n + Kl, Kl);
+          cy = gpmpn_sub_n(tmp, n, n + Kl, Kl);
           n += 2 * Kl;
           dif -= Kl;
 
@@ -764,18 +764,18 @@ namespace gpgmp
           while (dif > Kl)
           {
             if (subp)
-              cy += mpn_sub_n(tmp, tmp, n, Kl);
+              cy += gpmpn_sub_n(tmp, tmp, n, Kl);
             else
-              cy -= mpn_add_n(tmp, tmp, n, Kl);
+              cy -= gpmpn_add_n(tmp, tmp, n, Kl);
             subp ^= 1;
             n += Kl;
             dif -= Kl;
           }
           /* now dif <= Kl */
           if (subp)
-            cy += mpn_sub(tmp, tmp, Kl, n, dif);
+            cy += gpmpn_sub(tmp, tmp, Kl, n, dif);
           else
-            cy -= mpn_add(tmp, tmp, Kl, n, dif);
+            cy -= gpmpn_add(tmp, tmp, Kl, n, dif);
           if (cy >= 0)
             MPN_INCR_U(tmp, Kl + 1, cy);
           else
@@ -788,7 +788,7 @@ namespace gpgmp
 #endif
         {
           mp_limb_t cy;
-          cy = mpn_sub(tmp, n, Kl, n + Kl, dif);
+          cy = gpmpn_sub(tmp, n, Kl, n + Kl, dif);
           MPN_INCR_U(tmp, Kl + 1, cy);
         }
         nl = Kl + 1;
@@ -805,7 +805,7 @@ namespace gpgmp
           MPN_COPY(T, n, j);
           MPN_ZERO(T + j, nprime + 1 - j);
           n += l;
-          mpn_fft_mul_2exp_modF(A, T, i * Mp, nprime);
+          gpmpn_fft_mul_2exp_modF(A, T, i * Mp, nprime);
         }
         else
           MPN_ZERO(A, nprime + 1);
@@ -817,12 +817,12 @@ namespace gpgmp
 
     /* op <- n*m mod 2^N+1 with fft of size 2^k where N=pl*GMP_NUMB_BITS
        op is pl limbs, its high bit is returned.
-       One must have pl = mpn_fft_next_size (pl, k).
+       One must have pl = gpmpn_fft_next_size (pl, k).
        T must have space for 2 * (nprime + 1) limbs.
     */
 
     ANYCALLER static mp_limb_t
-    mpn_mul_fft_internal(mp_ptr op, mp_size_t pl, int k,
+    gpmpn_mul_fft_internal(mp_ptr op, mp_size_t pl, int k,
                          mp_ptr *Ap, mp_ptr *Bp, mp_ptr unusedA, mp_ptr B,
                          mp_size_t nprime, mp_size_t l, mp_size_t Mp,
                          int **fft_l, mp_ptr T, int sqr)
@@ -834,23 +834,23 @@ namespace gpgmp
       K = (mp_size_t)1 << k;
 
       /* direct fft's */
-      mpn_fft_fft(Ap, K, fft_l + k, 2 * Mp, nprime, 1, T);
+      gpmpn_fft_fft(Ap, K, fft_l + k, 2 * Mp, nprime, 1, T);
       if (!sqr)
-        mpn_fft_fft(Bp, K, fft_l + k, 2 * Mp, nprime, 1, T);
+        gpmpn_fft_fft(Bp, K, fft_l + k, 2 * Mp, nprime, 1, T);
 
       /* term to term multiplications */
-      mpn_fft_mul_modF_K(Ap, sqr ? Ap : Bp, nprime, K);
+      gpmpn_fft_mul_modF_K(Ap, sqr ? Ap : Bp, nprime, K);
 
       /* inverse fft's */
-      mpn_fft_fftinv(Ap, K, 2 * Mp, nprime, T);
+      gpmpn_fft_fftinv(Ap, K, 2 * Mp, nprime, T);
 
       /* division of terms after inverse fft */
       Bp[0] = T + nprime + 1;
-      mpn_fft_div_2exp_modF(Bp[0], Ap[0], k, nprime);
+      gpmpn_fft_div_2exp_modF(Bp[0], Ap[0], k, nprime);
       for (i = 1; i < K; i++)
       {
         Bp[i] = Ap[i - 1];
-        mpn_fft_div_2exp_modF(Bp[i], Ap[i], k + (K - i) * Mp, nprime);
+        gpmpn_fft_div_2exp_modF(Bp[i], Ap[i], k + (K - i) * Mp, nprime);
       }
 
       /* addition of terms in result p */
@@ -865,28 +865,28 @@ namespace gpgmp
 
         j = (K - i) & (K - 1);
 
-        cc += mpn_add(n, n, pla - sh, Bp[j], nprime + 1);
+        cc += gpmpn_add(n, n, pla - sh, Bp[j], nprime + 1);
         T[2 * l] = i + 1; /* T = (i + 1)*2^(2*M) */
-        if (mpn_cmp(Bp[j], T, nprime + 1) > 0)
+        if (gpmpn_cmp(Bp[j], T, nprime + 1) > 0)
         { /* subtract 2^N'+1 */
-          cc -= mpn_sub_1(n, n, pla - sh, CNST_LIMB(1));
-          cc -= mpn_sub_1(p + lo, p + lo, pla - lo, CNST_LIMB(1));
+          cc -= gpmpn_sub_1(n, n, pla - sh, CNST_LIMB(1));
+          cc -= gpmpn_sub_1(p + lo, p + lo, pla - lo, CNST_LIMB(1));
         }
       }
       if (cc == -CNST_LIMB(1))
       {
-        if ((cc = mpn_add_1(p + pla - pl, p + pla - pl, pl, CNST_LIMB(1))))
+        if ((cc = gpmpn_add_1(p + pla - pl, p + pla - pl, pl, CNST_LIMB(1))))
         {
           /* p[pla-pl]...p[pla-1] are all zero */
-          mpn_sub_1(p + pla - pl - 1, p + pla - pl - 1, pl + 1, CNST_LIMB(1));
-          mpn_sub_1(p + pla - 1, p + pla - 1, 1, CNST_LIMB(1));
+          gpmpn_sub_1(p + pla - pl - 1, p + pla - pl - 1, pl + 1, CNST_LIMB(1));
+          gpmpn_sub_1(p + pla - 1, p + pla - 1, 1, CNST_LIMB(1));
         }
       }
       else if (cc == 1)
       {
         if (pla >= 2 * pl)
         {
-          while ((cc = mpn_add_1(p + pla - 2 * pl, p + pla - 2 * pl, 2 * pl, cc)))
+          while ((cc = gpmpn_add_1(p + pla - 2 * pl, p + pla - 2 * pl, 2 * pl, cc)))
             ;
         }
         else
@@ -900,12 +900,12 @@ namespace gpgmp
       /* here p < 2^(2M) [K 2^(M(K-1)) + (K-1) 2^(M(K-2)) + ... ]
          < K 2^(2M) [2^(M(K-1)) + 2^(M(K-2)) + ... ]
          < K 2^(2M) 2^(M(K-1))*2 = 2^(M*K+M+k+1) */
-      return mpn_fft_norm_modF(op, pl, p, pla);
+      return gpmpn_fft_norm_modF(op, pl, p, pla);
     }
 
     /* return the lcm of a and 2^k */
     ANYCALLER static mp_bitcnt_t
-    mpn_mul_fft_lcm(mp_bitcnt_t a, int k)
+    gpmpn_mul_fft_lcm(mp_bitcnt_t a, int k)
     {
       mp_bitcnt_t l = k;
 
@@ -918,7 +918,7 @@ namespace gpgmp
     }
 
     ANYCALLER mp_limb_t
-    mpn_mul_fft(mp_ptr op, mp_size_t pl,
+    gpmpn_mul_fft(mp_ptr op, mp_size_t pl,
                 mp_srcptr n, mp_size_t nl,
                 mp_srcptr m, mp_size_t ml,
                 int k)
@@ -932,8 +932,8 @@ namespace gpgmp
       mp_limb_t h;
       TMP_DECL;
 
-      TRACE(printf("\nmpn_mul_fft pl=%ld nl=%ld ml=%ld k=%d\n", pl, nl, ml, k));
-      ASSERT_ALWAYS(mpn_fft_next_size(pl, k) == pl);
+      TRACE(printf("\ngpmpn_mul_fft pl=%ld nl=%ld ml=%ld k=%d\n", pl, nl, ml, k));
+      ASSERT_ALWAYS(gpmpn_fft_next_size(pl, k) == pl);
 
       TMP_MARK;
       N = pl * GMP_NUMB_BITS;
@@ -945,11 +945,11 @@ namespace gpgmp
         tmp += (mp_size_t)1 << i;
       }
 
-      mpn_fft_initl(fft_l, k);
+      gpmpn_fft_initl(fft_l, k);
       K = (mp_size_t)1 << k;
       M = N >> k; /* N = 2^k M */
       l = 1 + (M - 1) / GMP_NUMB_BITS;
-      maxLK = mpn_mul_fft_lcm(GMP_NUMB_BITS, k); /* lcm (GMP_NUMB_BITS, 2^k) */
+      maxLK = gpmpn_mul_fft_lcm(GMP_NUMB_BITS, k); /* lcm (GMP_NUMB_BITS, 2^k) */
 
       Nprime = (1 + (2 * M + k + 2) / maxLK) * maxLK;
       /* Nprime = ceil((2*M+k+3)/maxLK)*maxLK; */
@@ -962,7 +962,7 @@ namespace gpgmp
         mp_size_t K2;
         for (;;)
         {
-          K2 = (mp_size_t)1 << mpn_fft_best_k(nprime, sqr);
+          K2 = (mp_size_t)1 << gpmpn_fft_best_k(nprime, sqr);
           if ((nprime & (K2 - 1)) == 0)
             break;
           nprime = (nprime + K2 - 1) & -K2;
@@ -983,7 +983,7 @@ namespace gpgmp
       A = TMP_BALLOC_LIMBS(K * (nprime + 1));
       Ap = TMP_BALLOC_MP_PTRS(K);
       Bp = TMP_BALLOC_MP_PTRS(K);
-      mpn_mul_fft_decompose(A, Ap, K, nprime, n, nl, l, Mp, T);
+      gpmpn_mul_fft_decompose(A, Ap, K, nprime, n, nl, l, Mp, T);
       if (sqr)
       {
         mp_size_t pla;
@@ -993,9 +993,9 @@ namespace gpgmp
       else
       {
         B = TMP_BALLOC_LIMBS(K * (nprime + 1));
-        mpn_mul_fft_decompose(B, Bp, K, nprime, m, ml, l, Mp, T);
+        gpmpn_mul_fft_decompose(B, Bp, K, nprime, m, ml, l, Mp, T);
       }
-      h = mpn_mul_fft_internal(op, pl, k, Ap, Bp, A, B, nprime, l, Mp, fft_l, T, sqr);
+      h = gpmpn_mul_fft_internal(op, pl, k, Ap, Bp, A, B, nprime, l, Mp, fft_l, T, sqr);
 
       TMP_FREE;
       return h;
@@ -1004,7 +1004,7 @@ namespace gpgmp
 #if WANT_OLD_FFT_FULL
     /* multiply {n, nl} by {m, ml}, and put the result in {op, nl+ml} */
     ANYCALLER void
-    mpn_mul_fft_full(mp_ptr op,
+    gpmpn_mul_fft_full(mp_ptr op,
                      mp_srcptr n, mp_size_t nl,
                      mp_srcptr m, mp_size_t ml)
     {
@@ -1030,35 +1030,35 @@ namespace gpgmp
       do
       {
         pl2++;
-        k2 = mpn_fft_best_k(pl2, sqr); /* best fft size for pl2 limbs */
-        pl2 = mpn_fft_next_size(pl2, k2);
+        k2 = gpmpn_fft_best_k(pl2, sqr); /* best fft size for pl2 limbs */
+        pl2 = gpmpn_fft_next_size(pl2, k2);
         pl3 = 3 * pl2 / 2; /* since k>=FFT_FIRST_K=4, pl2 is a multiple of 2^4,
             thus pl2 / 2 is exact */
-        k3 = mpn_fft_best_k(pl3, sqr);
-      } while (mpn_fft_next_size(pl3, k3) != pl3);
+        k3 = gpmpn_fft_best_k(pl3, sqr);
+      } while (gpmpn_fft_next_size(pl3, k3) != pl3);
 
-      TRACE(printf("mpn_mul_fft_full nl=%ld ml=%ld -> pl2=%ld pl3=%ld k=%d\n",
+      TRACE(printf("gpmpn_mul_fft_full nl=%ld ml=%ld -> pl2=%ld pl3=%ld k=%d\n",
                    nl, ml, pl2, pl3, k2));
 
       ASSERT_ALWAYS(pl3 <= pl);
-      cc = mpn_mul_fft(op, pl3, n, nl, m, ml, k3); /* mu */
+      cc = gpmpn_mul_fft(op, pl3, n, nl, m, ml, k3); /* mu */
       ASSERT(cc == 0);
       pad_op = __GMP_ALLOCATE_FUNC_LIMBS(pl2);
-      cc = mpn_mul_fft(pad_op, pl2, n, nl, m, ml, k2); /* lambda */
-      cc = -cc + mpn_sub_n(pad_op, pad_op, op, pl2);   /* lambda - low(mu) */
+      cc = gpmpn_mul_fft(pad_op, pl2, n, nl, m, ml, k2); /* lambda */
+      cc = -cc + gpmpn_sub_n(pad_op, pad_op, op, pl2);   /* lambda - low(mu) */
       /* 0 <= cc <= 1 */
       ASSERT(0 <= cc && cc <= 1);
       l = pl3 - pl2; /* l = pl2 / 2 since pl3 = 3/2 * pl2 */
-      c2 = mpn_add_n(pad_op, pad_op, op + pl2, l);
-      cc = mpn_add_1(pad_op + l, pad_op + l, l, (mp_limb_t)c2) - cc;
+      c2 = gpmpn_add_n(pad_op, pad_op, op + pl2, l);
+      cc = gpmpn_add_1(pad_op + l, pad_op + l, l, (mp_limb_t)c2) - cc;
       ASSERT(-1 <= cc && cc <= 1);
       if (cc < 0)
-        cc = mpn_add_1(pad_op, pad_op, pl2, (mp_limb_t)-cc);
+        cc = gpmpn_add_1(pad_op, pad_op, pl2, (mp_limb_t)-cc);
       ASSERT(0 <= cc && cc <= 1);
       /* now lambda-mu = {pad_op, pl2} - cc mod 2^(pl2*GMP_NUMB_BITS)+1 */
       oldcc = cc;
-#if HAVE_NATIVE_mpn_add_n_sub_n
-      c2 = mpn_add_n_sub_n(pad_op + l, pad_op, pad_op, pad_op + l, l);
+#if HAVE_NATIVE_gpmpn_add_n_sub_n
+      c2 = gpmpn_add_n_sub_n(pad_op + l, pad_op, pad_op, pad_op + l, l);
       cc += c2 >> 1; /* carry out from high <- low + high */
       c2 = c2 & 1;   /* borrow out from low <- low - high */
 #else
@@ -1069,8 +1069,8 @@ namespace gpgmp
         TMP_MARK;
         tmp = TMP_BALLOC_LIMBS(l);
         MPN_COPY(tmp, pad_op, l);
-        c2 = mpn_sub_n(pad_op, pad_op, pad_op + l, l);
-        cc += mpn_add_n(pad_op + l, tmp, pad_op + l, l);
+        c2 = gpmpn_sub_n(pad_op, pad_op, pad_op + l, l);
+        cc += gpmpn_add_n(pad_op + l, tmp, pad_op + l, l);
         TMP_FREE;
       }
 #endif
@@ -1078,24 +1078,24 @@ namespace gpgmp
       /* first normalize {pad_op, pl2} before dividing by 2: c2 is the borrow
          at pad_op + l, cc is the carry at pad_op + pl2 */
       /* 0 <= cc <= 2 */
-      cc -= mpn_sub_1(pad_op + l, pad_op + l, l, (mp_limb_t)c2);
+      cc -= gpmpn_sub_1(pad_op + l, pad_op + l, l, (mp_limb_t)c2);
       /* -1 <= cc <= 2 */
       if (cc > 0)
-        cc = -mpn_sub_1(pad_op, pad_op, pl2, (mp_limb_t)cc);
+        cc = -gpmpn_sub_1(pad_op, pad_op, pl2, (mp_limb_t)cc);
       /* now -1 <= cc <= 0 */
       if (cc < 0)
-        cc = mpn_add_1(pad_op, pad_op, pl2, (mp_limb_t)-cc);
+        cc = gpmpn_add_1(pad_op, pad_op, pl2, (mp_limb_t)-cc);
       /* now {pad_op, pl2} is normalized, with 0 <= cc <= 1 */
       if (pad_op[0] & 1) /* if odd, add 2^(pl2*GMP_NUMB_BITS)+1 */
-        cc += 1 + mpn_add_1(pad_op, pad_op, pl2, CNST_LIMB(1));
+        cc += 1 + gpmpn_add_1(pad_op, pad_op, pl2, CNST_LIMB(1));
       /* now 0 <= cc <= 2, but cc=2 cannot occur since it would give a carry
          out below */
-      mpn_rshift(pad_op, pad_op, pl2, 1); /* divide by two */
+      gpmpn_rshift(pad_op, pad_op, pl2, 1); /* divide by two */
       if (cc)                             /* then cc=1 */
         pad_op[pl2 - 1] |= (mp_limb_t)1 << (GMP_NUMB_BITS - 1);
       /* now {pad_op,pl2}-cc = (lambda-mu)/(1-2^(l*GMP_NUMB_BITS))
          mod 2^(pl2*GMP_NUMB_BITS) + 1 */
-      c2 = mpn_add_n(op, op, pad_op, pl2); /* no need to add cc (is 0) */
+      c2 = gpmpn_add_n(op, op, pad_op, pl2); /* no need to add cc (is 0) */
       /* since pl2+pl3 >= pl, necessary the extra limbs (including cc) are zero */
       MPN_COPY(op + pl3, pad_op, pl - pl3);
       ASSERT_MPN_ZERO_P(pad_op + pl - pl3, pl2 + pl3 - pl);

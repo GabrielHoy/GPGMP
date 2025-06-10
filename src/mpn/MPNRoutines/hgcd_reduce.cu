@@ -54,9 +54,9 @@ namespace gpgmp {
       TMP_MARK;
       tp = TMP_ALLOC_LIMBS (an + bn);
 
-      mpn_mul (tp, ap, an, bp, bn);
+      gpmpn_mul (tp, ap, an, bp, bn);
       ASSERT ((an + bn <= rn) || (tp[rn] == 0));
-      ASSERT_NOCARRY (mpn_sub (rp, rp, rn, tp, an + bn - (an + bn > rn)));
+      ASSERT_NOCARRY (gpmpn_sub (rp, rp, rn, tp, an + bn - (an + bn > rn)));
       TMP_FREE;
 
       while (rn > an && (rp[rn-1] == 0))
@@ -135,27 +135,27 @@ namespace gpgmp {
 
           nn = MAX (un, vn);
           /* In the range of interest, mulmod_bnm1 should always beat mullo. */
-          modn = mpn_mulmod_bnm1_next_size (nn + 1);
+          modn = gpmpn_mulmod_bnm1_next_size (nn + 1);
 
           TMP_ALLOC_LIMBS_3 (tp, modn,
           sp, modn,
-          scratch, mpn_mulmod_bnm1_itch (modn, modn, M->n));
+          scratch, gpmpn_mulmod_bnm1_itch (modn, modn, M->n));
 
           ASSERT (n <= 2*modn);
 
           if (n > modn)
       {
-        cy = mpn_add (ap, ap, modn, ap + modn, n - modn);
+        cy = gpmpn_add (ap, ap, modn, ap + modn, n - modn);
         MPN_INCR_U (ap, modn, cy);
 
-        cy = mpn_add (bp, bp, modn, bp + modn, n - modn);
+        cy = gpmpn_add (bp, bp, modn, bp + modn, n - modn);
         MPN_INCR_U (bp, modn, cy);
 
         n = modn;
       }
 
-          mpn_mulmod_bnm1 (tp, modn, ap, n, M->p[1][1], mn[1][1], scratch);
-          mpn_mulmod_bnm1 (sp, modn, bp, n, M->p[0][1], mn[0][1], scratch);
+          gpmpn_mulmod_bnm1 (tp, modn, ap, n, M->p[1][1], mn[1][1], scratch);
+          gpmpn_mulmod_bnm1 (sp, modn, bp, n, M->p[0][1], mn[0][1], scratch);
 
           /* FIXME: Handle the small n case in some better way. */
           if (n + mn[1][1] < modn)
@@ -163,24 +163,24 @@ namespace gpgmp {
           if (n + mn[0][1] < modn)
       MPN_ZERO (sp + n + mn[0][1], modn - n - mn[0][1]);
 
-          cy = mpn_sub_n (tp, tp, sp, modn);
+          cy = gpmpn_sub_n (tp, tp, sp, modn);
           MPN_DECR_U (tp, modn, cy);
 
-          ASSERT (mpn_zero_p (tp + nn, modn - nn));
+          ASSERT (gpmpn_zero_p (tp + nn, modn - nn));
 
-          mpn_mulmod_bnm1 (sp, modn, ap, n, M->p[1][0], mn[1][0], scratch);
+          gpmpn_mulmod_bnm1 (sp, modn, ap, n, M->p[1][0], mn[1][0], scratch);
           MPN_COPY (ap, tp, nn);
-          mpn_mulmod_bnm1 (tp, modn, bp, n, M->p[0][0], mn[0][0], scratch);
+          gpmpn_mulmod_bnm1 (tp, modn, bp, n, M->p[0][0], mn[0][0], scratch);
 
           if (n + mn[1][0] < modn)
       MPN_ZERO (sp + n + mn[1][0], modn - n - mn[1][0]);
           if (n + mn[0][0] < modn)
       MPN_ZERO (tp + n + mn[0][0], modn - n - mn[0][0]);
 
-          cy = mpn_sub_n (tp, tp, sp, modn);
+          cy = gpmpn_sub_n (tp, tp, sp, modn);
           MPN_DECR_U (tp, modn, cy);
 
-          ASSERT (mpn_zero_p (tp + nn, modn - nn));
+          ASSERT (gpmpn_zero_p (tp + nn, modn - nn));
           MPN_COPY (bp, tp, nn);
 
           while ( (ap[nn-1] | bp[nn-1]) == 0)
@@ -194,12 +194,12 @@ namespace gpgmp {
       return nn;
     }
 
-    ANYCALLER mp_size_t mpn_hgcd_reduce_itch (mp_size_t n, mp_size_t p)
+    ANYCALLER mp_size_t gpmpn_hgcd_reduce_itch (mp_size_t n, mp_size_t p)
     {
       mp_size_t itch;
       if (BELOW_THRESHOLD (n, HGCD_REDUCE_THRESHOLD))
         {
-          itch = mpn_hgcd_itch (n-p);
+          itch = gpmpn_hgcd_itch (n-p);
 
           /* For arbitrary p, the storage for _adjust is 2*(p + M->n) = 2 *
       (p + ceil((n-p)/2) - 1 <= n + p - 1 */
@@ -208,29 +208,29 @@ namespace gpgmp {
         }
       else
         {
-          itch = 2*(n-p) + mpn_hgcd_itch (n-p);
+          itch = 2*(n-p) + gpmpn_hgcd_itch (n-p);
           /* Currently, hgcd_matrix_apply allocates its own storage. */
         }
       return itch;
     }
 
     /* FIXME: Document storage need. */
-    ANYCALLER mp_size_t mpn_hgcd_reduce (struct hgcd_matrix *M, mp_ptr ap, mp_ptr bp, mp_size_t n, mp_size_t p, mp_ptr tp)
+    ANYCALLER mp_size_t gpmpn_hgcd_reduce (struct hgcd_matrix *M, mp_ptr ap, mp_ptr bp, mp_size_t n, mp_size_t p, mp_ptr tp)
     {
       mp_size_t nn;
       if (BELOW_THRESHOLD (n, HGCD_REDUCE_THRESHOLD))
         {
-          nn = mpn_hgcd (ap + p, bp + p, n - p, M, tp);
+          nn = gpmpn_hgcd (ap + p, bp + p, n - p, M, tp);
           if (nn > 0)
       /* Needs 2*(p + M->n) <= 2*(floor(n/2) + ceil(n/2) - 1)
         = 2 (n - 1) */
-      return mpn_hgcd_matrix_adjust (M, p + nn, ap, bp, p, tp);
+      return gpmpn_hgcd_matrix_adjust (M, p + nn, ap, bp, p, tp);
         }
       else
         {
           MPN_COPY (tp, ap + p, n - p);
           MPN_COPY (tp + n - p, bp + p, n - p);
-          if (mpn_hgcd_appr (tp, tp + n - p, n - p, M, tp + 2*(n-p)))
+          if (gpmpn_hgcd_appr (tp, tp + n - p, n - p, M, tp + 2*(n-p)))
       return hgcd_matrix_apply (M, ap, bp, n);
         }
       return 0;

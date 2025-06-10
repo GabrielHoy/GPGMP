@@ -1,4 +1,4 @@
-/* mpn_toom44_mul -- Multiply {ap,an} and {bp,bn} where an and bn are close in
+/* gpmpn_toom44_mul -- Multiply {ap,an} and {bp,bn} where an and bn are close in
    size.  Or more accurately, bn <= an < (4/3)bn.
 
    Contributed to the GNU project by Torbjorn Granlund and Marco Bodrato.
@@ -77,13 +77,13 @@ namespace gpgmp
   do                                                                        \
   {                                                                         \
     if (MAYBE_mul_basecase && BELOW_THRESHOLD(n, MUL_TOOM22_THRESHOLD))     \
-      mpn_mul_basecase(p, a, n, b, n);                                      \
+      gpmpn_mul_basecase(p, a, n, b, n);                                      \
     else if (MAYBE_mul_toom22 && BELOW_THRESHOLD(n, MUL_TOOM33_THRESHOLD))  \
-      mpn_toom22_mul(p, a, n, b, n, ws);                                    \
+      gpmpn_toom22_mul(p, a, n, b, n, ws);                                    \
     else if (!MAYBE_mul_toom44 || BELOW_THRESHOLD(n, MUL_TOOM44_THRESHOLD)) \
-      mpn_toom33_mul(p, a, n, b, n, ws);                                    \
+      gpmpn_toom33_mul(p, a, n, b, n, ws);                                    \
     else                                                                    \
-      mpn_toom44_mul(p, a, n, b, n, ws);                                    \
+      gpmpn_toom44_mul(p, a, n, b, n, ws);                                    \
   } while (0)
 
     /* Use of scratch space. In the product area, we store
@@ -110,7 +110,7 @@ namespace gpgmp
     */
 
     ANYCALLER void
-    mpn_toom44_mul(mp_ptr pp,
+    gpmpn_toom44_mul(mp_ptr pp,
                    mp_srcptr ap, mp_size_t an,
                    mp_srcptr bp, mp_size_t bn,
                    mp_ptr scratch)
@@ -161,56 +161,56 @@ namespace gpgmp
          gives roughly 32 n/3 + log term. */
 
       /* Compute apx = a0 + 2 a1 + 4 a2 + 8 a3 and amx = a0 - 2 a1 + 4 a2 - 8 a3.  */
-      flags = (enum toom7_flags)(toom7_w1_neg & mpn_toom_eval_dgr3_pm2(apx, amx, ap, n, s, tp));
+      flags = (enum toom7_flags)(toom7_w1_neg & gpmpn_toom_eval_dgr3_pm2(apx, amx, ap, n, s, tp));
 
       /* Compute bpx = b0 + 2 b1 + 4 b2 + 8 b3 and bmx = b0 - 2 b1 + 4 b2 - 8 b3.  */
-      flags = (enum toom7_flags)(flags ^ (toom7_w1_neg & mpn_toom_eval_dgr3_pm2(bpx, bmx, bp, n, t, tp)));
+      flags = (enum toom7_flags)(flags ^ (toom7_w1_neg & gpmpn_toom_eval_dgr3_pm2(bpx, bmx, bp, n, t, tp)));
 
       TOOM44_MUL_N_REC(v2, apx, bpx, n + 1, tp);  /* v2,  2n+1 limbs */
       TOOM44_MUL_N_REC(vm2, amx, bmx, n + 1, tp); /* vm2,  2n+1 limbs */
 
       /* Compute apx = 8 a0 + 4 a1 + 2 a2 + a3 = (((2*a0 + a1) * 2 + a2) * 2 + a3 */
-#if HAVE_NATIVE_mpn_addlsh1_n
-      cy = mpn_addlsh1_n(apx, a1, a0, n);
-      cy = 2 * cy + mpn_addlsh1_n(apx, a2, apx, n);
+#if HAVE_NATIVE_gpmpn_addlsh1_n
+      cy = gpmpn_addlsh1_n(apx, a1, a0, n);
+      cy = 2 * cy + gpmpn_addlsh1_n(apx, a2, apx, n);
       if (s < n)
       {
         mp_limb_t cy2;
-        cy2 = mpn_addlsh1_n(apx, a3, apx, s);
-        apx[n] = 2 * cy + mpn_lshift(apx + s, apx + s, n - s, 1);
+        cy2 = gpmpn_addlsh1_n(apx, a3, apx, s);
+        apx[n] = 2 * cy + gpmpn_lshift(apx + s, apx + s, n - s, 1);
         MPN_INCR_U(apx + s, n + 1 - s, cy2);
       }
       else
-        apx[n] = 2 * cy + mpn_addlsh1_n(apx, a3, apx, n);
+        apx[n] = 2 * cy + gpmpn_addlsh1_n(apx, a3, apx, n);
 #else
-      cy = mpn_lshift(apx, a0, n, 1);
-      cy += mpn_add_n(apx, apx, a1, n);
-      cy = 2 * cy + mpn_lshift(apx, apx, n, 1);
-      cy += mpn_add_n(apx, apx, a2, n);
-      cy = 2 * cy + mpn_lshift(apx, apx, n, 1);
-      apx[n] = cy + mpn_add(apx, apx, n, a3, s);
+      cy = gpmpn_lshift(apx, a0, n, 1);
+      cy += gpmpn_add_n(apx, apx, a1, n);
+      cy = 2 * cy + gpmpn_lshift(apx, apx, n, 1);
+      cy += gpmpn_add_n(apx, apx, a2, n);
+      cy = 2 * cy + gpmpn_lshift(apx, apx, n, 1);
+      apx[n] = cy + gpmpn_add(apx, apx, n, a3, s);
 #endif
 
       /* Compute bpx = 8 b0 + 4 b1 + 2 b2 + b3 = (((2*b0 + b1) * 2 + b2) * 2 + b3 */
-#if HAVE_NATIVE_mpn_addlsh1_n
-      cy = mpn_addlsh1_n(bpx, b1, b0, n);
-      cy = 2 * cy + mpn_addlsh1_n(bpx, b2, bpx, n);
+#if HAVE_NATIVE_gpmpn_addlsh1_n
+      cy = gpmpn_addlsh1_n(bpx, b1, b0, n);
+      cy = 2 * cy + gpmpn_addlsh1_n(bpx, b2, bpx, n);
       if (t < n)
       {
         mp_limb_t cy2;
-        cy2 = mpn_addlsh1_n(bpx, b3, bpx, t);
-        bpx[n] = 2 * cy + mpn_lshift(bpx + t, bpx + t, n - t, 1);
+        cy2 = gpmpn_addlsh1_n(bpx, b3, bpx, t);
+        bpx[n] = 2 * cy + gpmpn_lshift(bpx + t, bpx + t, n - t, 1);
         MPN_INCR_U(bpx + t, n + 1 - t, cy2);
       }
       else
-        bpx[n] = 2 * cy + mpn_addlsh1_n(bpx, b3, bpx, n);
+        bpx[n] = 2 * cy + gpmpn_addlsh1_n(bpx, b3, bpx, n);
 #else
-      cy = mpn_lshift(bpx, b0, n, 1);
-      cy += mpn_add_n(bpx, bpx, b1, n);
-      cy = 2 * cy + mpn_lshift(bpx, bpx, n, 1);
-      cy += mpn_add_n(bpx, bpx, b2, n);
-      cy = 2 * cy + mpn_lshift(bpx, bpx, n, 1);
-      bpx[n] = cy + mpn_add(bpx, bpx, n, b3, t);
+      cy = gpmpn_lshift(bpx, b0, n, 1);
+      cy += gpmpn_add_n(bpx, bpx, b1, n);
+      cy = 2 * cy + gpmpn_lshift(bpx, bpx, n, 1);
+      cy += gpmpn_add_n(bpx, bpx, b2, n);
+      cy = 2 * cy + gpmpn_lshift(bpx, bpx, n, 1);
+      bpx[n] = cy + gpmpn_add(bpx, bpx, n, b3, t);
 #endif
 
       ASSERT(apx[n] < 15);
@@ -219,10 +219,10 @@ namespace gpgmp
       TOOM44_MUL_N_REC(vh, apx, bpx, n + 1, tp); /* vh,  2n+1 limbs */
 
       /* Compute apx = a0 + a1 + a2 + a3 and amx = a0 - a1 + a2 - a3.  */
-      flags = (enum toom7_flags)(flags | (toom7_w3_neg & mpn_toom_eval_dgr3_pm1(apx, amx, ap, n, s, tp)));
+      flags = (enum toom7_flags)(flags | (toom7_w3_neg & gpmpn_toom_eval_dgr3_pm1(apx, amx, ap, n, s, tp)));
 
       /* Compute bpx = b0 + b1 + b2 + b3 and bmx = b0 - b1 + b2 - b3.  */
-      flags = (enum toom7_flags)(flags ^ (toom7_w3_neg & mpn_toom_eval_dgr3_pm1(bpx, bmx, bp, n, t, tp)));
+      flags = (enum toom7_flags)(flags ^ (toom7_w3_neg & gpmpn_toom_eval_dgr3_pm1(bpx, bmx, bp, n, t, tp)));
 
       ASSERT(amx[n] <= 1);
       ASSERT(bmx[n] <= 1);
@@ -234,11 +234,11 @@ namespace gpgmp
 
       TOOM44_MUL_N_REC(v0, a0, b0, n, tp);
       if (s > t)
-        mpn_mul(vinf, a3, s, b3, t);
+        gpmpn_mul(vinf, a3, s, b3, t);
       else
         TOOM44_MUL_N_REC(vinf, a3, b3, s, tp); /* vinf, s+t limbs */
 
-      mpn_toom_interpolate_7pts(pp, n, flags, vm2, vm1, v2, vh, s + t, tp);
+      gpmpn_toom_interpolate_7pts(pp, n, flags, vm2, vm1, v2, vh, s + t, tp);
     }
 
   }

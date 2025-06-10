@@ -1,4 +1,4 @@
-/* mpn_and_n, mpn_ior_n, etc -- mpn logical operations.
+/* gpmpn_and_n, gpmpn_ior_n, etc -- mpn logical operations.
 
 Copyright 2009 Free Software Foundation, Inc.
 
@@ -36,42 +36,42 @@ namespace gpgmp
   {
     ANYCALLER void __MPN(and_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
     {
-      mpn_and_n(rp, up, vp, n);
+      gpmpn_and_n(rp, up, vp, n);
     }
 
     ANYCALLER void __MPN(andn_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
     {
-      mpn_andn_n(rp, up, vp, n);
+      gpmpn_andn_n(rp, up, vp, n);
     }
 
     ANYCALLER void __MPN(nand_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
     {
-      mpn_nand_n(rp, up, vp, n);
+      gpmpn_nand_n(rp, up, vp, n);
     }
 
     ANYCALLER void __MPN(ior_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
     {
-      mpn_ior_n(rp, up, vp, n);
+      gpmpn_ior_n(rp, up, vp, n);
     }
 
     ANYCALLER void __MPN(iorn_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
     {
-      mpn_iorn_n(rp, up, vp, n);
+      gpmpn_iorn_n(rp, up, vp, n);
     }
 
     ANYCALLER void __MPN(nior_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
     {
-      mpn_nior_n(rp, up, vp, n);
+      gpmpn_nior_n(rp, up, vp, n);
     }
 
     ANYCALLER void __MPN(xor_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
     {
-      mpn_xor_n(rp, up, vp, n);
+      gpmpn_xor_n(rp, up, vp, n);
     }
 
     ANYCALLER void __MPN(xnor_n)(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
     {
-      mpn_xnor_n(rp, up, vp, n);
+      gpmpn_xnor_n(rp, up, vp, n);
     }
 
   }

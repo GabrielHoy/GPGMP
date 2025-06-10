@@ -1,4 +1,4 @@
-/* mpn_divexact_by3c -- mpn exact division by 3.
+/* gpmpn_divexact_by3c -- mpn exact division by 3.
 
 Copyright 2000-2003, 2008 Free Software Foundation, Inc.
 
@@ -37,10 +37,10 @@ namespace gpgmp
 
 #if DIVEXACT_BY3_METHOD == 0
 
-    ANYCALLER mp_limb_t mpn_divexact_by3c(mp_ptr rp, mp_srcptr up, mp_size_t un, mp_limb_t c)
+    ANYCALLER mp_limb_t gpmpn_divexact_by3c(mp_ptr rp, mp_srcptr up, mp_size_t un, mp_limb_t c)
     {
       mp_limb_t r;
-      r = mpn_bdiv_dbm1c(rp, up, un, GMP_NUMB_MASK / 3, GMP_NUMB_MASK / 3 * c);
+      r = gpmpn_bdiv_dbm1c(rp, up, un, GMP_NUMB_MASK / 3, GMP_NUMB_MASK / 3 * c);
 
       /* Possible bdiv_dbm1 return values are C * (GMP_NUMB_MASK / 3), 0 <= C < 3.
         We want to return C.  We compute the remainder mod 4 and notice that the
@@ -52,7 +52,7 @@ namespace gpgmp
 
 #if DIVEXACT_BY3_METHOD == 1
 
-    /* The algorithm here is basically the same as mpn_divexact_1, as described
+    /* The algorithm here is basically the same as gpmpn_divexact_1, as described
       in the manual.  Namely at each step q = (src[i]-c)*inverse, and new c =
       borrow(src[i]-c) + high(divisor*q).  But because the divisor is just 3,
       high(divisor*q) can be determined with two comparisons instead of a
@@ -74,7 +74,7 @@ namespace gpgmp
       This implementation has each multiply on the dependent chain, due to
       "l=s-c".  See below for alternative code which avoids that.  */
 
-    ANYCALLER mp_limb_t mpn_divexact_by3c(mp_ptr restrict rp, mp_srcptr restrict up, mp_size_t un, mp_limb_t c)
+    ANYCALLER mp_limb_t gpmpn_divexact_by3c(mp_ptr restrict rp, mp_srcptr restrict up, mp_size_t un, mp_limb_t c)
     {
       mp_limb_t l, q, s;
       mp_size_t i;
@@ -140,7 +140,7 @@ namespace gpgmp
       Itanium is one chip where this algorithm helps though, see
       mpn/ia64/diveby3.asm.  */
 
-    ANYCALLER mp_limb_t mpn_divexact_by3c(mp_ptr restrict rp, mp_srcptr restrict up, mp_size_t un, mp_limb_t cy)
+    ANYCALLER mp_limb_t gpmpn_divexact_by3c(mp_ptr restrict rp, mp_srcptr restrict up, mp_size_t un, mp_limb_t cy)
     {
       mp_limb_t s, sm, cl, q, qx, c2, c3;
       mp_size_t i;

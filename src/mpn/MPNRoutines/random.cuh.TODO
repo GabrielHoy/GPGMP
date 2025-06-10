@@ -1,4 +1,4 @@
-/* mpn_random -- Generate random numbers.
+/* gpmpn_random -- Generate random numbers.
 
 Copyright 2001, 2002 Free Software Foundation, Inc.
 
@@ -37,7 +37,7 @@ namespace gpgmp
   {
 
     ANYCALLER void
-    mpn_random(mp_ptr ptr, mp_size_t size)
+    gpmpn_random(mp_ptr ptr, mp_size_t size)
     {
       gmp_randstate_ptr rands;
 

@@ -1,4 +1,4 @@
-/* mpn_mod_34lsub1 -- remainder modulo 2^(GMP_NUMB_BITS*3/4)-1.
+/* gpmpn_mod_34lsub1 -- remainder modulo 2^(GMP_NUMB_BITS*3/4)-1.
 
    THE FUNCTIONS IN THIS FILE ARE FOR INTERNAL USE ONLY.  THEY'RE ALMOST
    CERTAIN TO BE SUBJECT TO INCOMPATIBLE CHANGES OR DISAPPEAR COMPLETELY IN
@@ -95,7 +95,7 @@ namespace gpgmp {
     (c) += new_c;                       \
   } while (0)
 
-ANYCALLER mp_limb_t mpn_mod_34lsub1 (mp_srcptr p, mp_size_t n)
+ANYCALLER mp_limb_t gpmpn_mod_34lsub1 (mp_srcptr p, mp_size_t n)
 {
   mp_limb_t  c0, c1, c2;
   mp_limb_t  a0, a1, a2;

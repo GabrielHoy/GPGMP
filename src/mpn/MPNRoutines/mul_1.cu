@@ -1,4 +1,4 @@
-/* mpn_mul_1 -- Multiply a limb vector with a single limb and store the
+/* gpmpn_mul_1 -- Multiply a limb vector with a single limb and store the
    product in a second limb vector.
 
 Copyright 1991-1994, 1996, 2000-2002 Free Software Foundation, Inc.
@@ -36,7 +36,7 @@ namespace gpgmp {
 
 	namespace mpnRoutines {
 
-    ANYCALLER mp_limb_t mpn_mul_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t vl)
+    ANYCALLER mp_limb_t gpmpn_mul_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t vl)
     {
       mp_limb_t ul, cl, hpl, lpl;
 

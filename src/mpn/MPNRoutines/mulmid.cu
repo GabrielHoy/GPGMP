@@ -1,4 +1,4 @@
-/* mpn_mulmid -- middle product
+/* gpmpn_mulmid -- middle product
 
    Contributed by David Harvey.
 
@@ -45,7 +45,7 @@ namespace gpgmp
 #define CHUNK (200 + MULMID_TOOM42_THRESHOLD)
 
     ANYCALLER void
-    mpn_mulmid(mp_ptr rp,
+    gpmpn_mulmid(mp_ptr rp,
                mp_srcptr ap, mp_size_t an,
                mp_srcptr bp, mp_size_t bn)
     {
@@ -64,7 +64,7 @@ namespace gpgmp
         if (an < CHUNK)
         {
           /* region not too wide either, just call basecase directly */
-          mpn_mulmid_basecase(rp, ap, an, bp, bn);
+          gpmpn_mulmid_basecase(rp, ap, an, bp, bn);
           return;
         }
 
@@ -78,7 +78,7 @@ namespace gpgmp
         k = CHUNK - bn + 1; /* number of diagonals per chunk */
 
         /* first chunk (marked A in the above diagram) */
-        mpn_mulmid_basecase(rp, ap, CHUNK, bp, bn);
+        gpmpn_mulmid_basecase(rp, ap, CHUNK, bp, bn);
 
         /* remaining chunks (B, C, etc) */
         an -= k;
@@ -88,7 +88,7 @@ namespace gpgmp
           mp_limb_t t0, t1, cy;
           ap += k, rp += k;
           t0 = rp[0], t1 = rp[1];
-          mpn_mulmid_basecase(rp, ap, CHUNK, bp, bn);
+          gpmpn_mulmid_basecase(rp, ap, CHUNK, bp, bn);
           ADDC_LIMB(cy, rp[0], rp[0], t0); /* add back saved limbs */
           MPN_INCR_U(rp + 1, k + 1, t1 + cy);
           an -= k;
@@ -100,7 +100,7 @@ namespace gpgmp
           mp_limb_t t0, t1, cy;
           ap += k, rp += k;
           t0 = rp[0], t1 = rp[1];
-          mpn_mulmid_basecase(rp, ap, an, bp, bn);
+          gpmpn_mulmid_basecase(rp, ap, an, bp, bn);
           ADDC_LIMB(cy, rp[0], rp[0], t0);
           MPN_INCR_U(rp + 1, an - bn + 2, t1 + cy);
         }
@@ -121,7 +121,7 @@ namespace gpgmp
         if (bn < CHUNK)
         {
           /* region not too tall either, just call basecase directly */
-          mpn_mulmid_basecase(rp, ap, an, bp, bn);
+          gpmpn_mulmid_basecase(rp, ap, an, bp, bn);
           return;
         }
 
@@ -140,7 +140,7 @@ namespace gpgmp
 
         /* first chunk (marked A in the above diagram) */
         bp += bn - CHUNK, an -= bn - CHUNK;
-        mpn_mulmid_basecase(rp, ap, an, bp, CHUNK);
+        gpmpn_mulmid_basecase(rp, ap, an, bp, CHUNK);
 
         /* remaining chunks (B, C, etc) */
         bn -= CHUNK;
@@ -148,8 +148,8 @@ namespace gpgmp
         while (bn >= CHUNK)
         {
           ap += CHUNK, bp -= CHUNK;
-          mpn_mulmid_basecase(temp, ap, an, bp, CHUNK);
-          mpn_add_n(rp, rp, temp, rn + 2);
+          gpmpn_mulmid_basecase(temp, ap, an, bp, CHUNK);
+          gpmpn_add_n(rp, rp, temp, rn + 2);
           bn -= CHUNK;
         }
 
@@ -157,8 +157,8 @@ namespace gpgmp
         {
           /* last remaining chunk */
           ap += CHUNK, bp -= bn;
-          mpn_mulmid_basecase(temp, ap, rn + bn - 1, bp, bn);
-          mpn_add_n(rp, rp, temp, rn + 2);
+          gpmpn_mulmid_basecase(temp, ap, rn + bn - 1, bp, bn);
+          gpmpn_add_n(rp, rp, temp, rn + 2);
         }
 
         TMP_FREE;
@@ -182,12 +182,12 @@ namespace gpgmp
         TMP_DECL;
         TMP_MARK;
 
-        temp = TMP_ALLOC_LIMBS(rn + 2 + mpn_toom42_mulmid_itch(rn));
+        temp = TMP_ALLOC_LIMBS(rn + 2 + gpmpn_toom42_mulmid_itch(rn));
         scratch = temp + rn + 2;
 
         /* first chunk (marked A in the above diagram) */
         bp += bn - rn;
-        mpn_toom42_mulmid(rp, ap, bp, rn, scratch);
+        gpmpn_toom42_mulmid(rp, ap, bp, rn, scratch);
 
         /* remaining chunks (B, C, etc) */
         bn -= rn;
@@ -195,8 +195,8 @@ namespace gpgmp
         while (bn >= rn)
         {
           ap += rn, bp -= rn;
-          mpn_toom42_mulmid(temp, ap, bp, rn, scratch);
-          mpn_add_n(rp, rp, temp, rn + 2);
+          gpmpn_toom42_mulmid(temp, ap, bp, rn, scratch);
+          gpmpn_add_n(rp, rp, temp, rn + 2);
           bn -= rn;
         }
 
@@ -204,8 +204,8 @@ namespace gpgmp
         {
           /* last remaining chunk */
           ap += rn, bp -= bn;
-          mpn_mulmid(temp, ap, rn + bn - 1, bp, bn);
-          mpn_add_n(rp, rp, temp, rn + 2);
+          gpmpn_mulmid(temp, ap, rn + bn - 1, bp, bn);
+          gpmpn_add_n(rp, rp, temp, rn + 2);
         }
 
         TMP_FREE;
@@ -223,10 +223,10 @@ namespace gpgmp
         TMP_DECL;
         TMP_MARK;
 
-        scratch = TMP_ALLOC_LIMBS(mpn_toom42_mulmid_itch(bn));
+        scratch = TMP_ALLOC_LIMBS(gpmpn_toom42_mulmid_itch(bn));
 
         /* first chunk (marked A in the above diagram) */
-        mpn_toom42_mulmid(rp, ap, bp, bn, scratch);
+        gpmpn_toom42_mulmid(rp, ap, bp, bn, scratch);
 
         /* remaining chunks (B, C, etc) */
         rn -= bn;
@@ -236,7 +236,7 @@ namespace gpgmp
           mp_limb_t t0, t1, cy;
           ap += bn, rp += bn;
           t0 = rp[0], t1 = rp[1];
-          mpn_toom42_mulmid(rp, ap, bp, bn, scratch);
+          gpmpn_toom42_mulmid(rp, ap, bp, bn, scratch);
           ADDC_LIMB(cy, rp[0], rp[0], t0); /* add back saved limbs */
           MPN_INCR_U(rp + 1, bn + 1, t1 + cy);
           rn -= bn;
@@ -250,7 +250,7 @@ namespace gpgmp
           mp_limb_t t0, t1, cy;
           ap += bn, rp += bn;
           t0 = rp[0], t1 = rp[1];
-          mpn_mulmid(rp, ap, rn + bn - 1, bp, bn);
+          gpmpn_mulmid(rp, ap, rn + bn - 1, bp, bn);
           ADDC_LIMB(cy, rp[0], rp[0], t0);
           MPN_INCR_U(rp + 1, rn + 1, t1 + cy);
         }

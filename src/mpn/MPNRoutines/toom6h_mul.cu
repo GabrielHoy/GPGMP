@@ -67,40 +67,40 @@ namespace gpgmp
   {                                                                         \
     if (MAYBE_mul_basecase && BELOW_THRESHOLD(n, MUL_TOOM22_THRESHOLD))     \
     {                                                                       \
-      mpn_mul_basecase(p, a, n, b, n);                                      \
+      gpmpn_mul_basecase(p, a, n, b, n);                                      \
       if (f)                                                                \
-        mpn_mul_basecase(p2, a2, n, b2, n);                                 \
+        gpmpn_mul_basecase(p2, a2, n, b2, n);                                 \
     }                                                                       \
     else if (MAYBE_mul_toom22 && BELOW_THRESHOLD(n, MUL_TOOM33_THRESHOLD))  \
     {                                                                       \
-      mpn_toom22_mul(p, a, n, b, n, ws);                                    \
+      gpmpn_toom22_mul(p, a, n, b, n, ws);                                    \
       if (f)                                                                \
-        mpn_toom22_mul(p2, a2, n, b2, n, ws);                               \
+        gpmpn_toom22_mul(p2, a2, n, b2, n, ws);                               \
     }                                                                       \
     else if (MAYBE_mul_toom33 && BELOW_THRESHOLD(n, MUL_TOOM44_THRESHOLD))  \
     {                                                                       \
-      mpn_toom33_mul(p, a, n, b, n, ws);                                    \
+      gpmpn_toom33_mul(p, a, n, b, n, ws);                                    \
       if (f)                                                                \
-        mpn_toom33_mul(p2, a2, n, b2, n, ws);                               \
+        gpmpn_toom33_mul(p2, a2, n, b2, n, ws);                               \
     }                                                                       \
     else if (!MAYBE_mul_toom6h || BELOW_THRESHOLD(n, MUL_TOOM6H_THRESHOLD)) \
     {                                                                       \
-      mpn_toom44_mul(p, a, n, b, n, ws);                                    \
+      gpmpn_toom44_mul(p, a, n, b, n, ws);                                    \
       if (f)                                                                \
-        mpn_toom44_mul(p2, a2, n, b2, n, ws);                               \
+        gpmpn_toom44_mul(p2, a2, n, b2, n, ws);                               \
     }                                                                       \
     else                                                                    \
     {                                                                       \
-      mpn_toom6h_mul(p, a, n, b, n, ws);                                    \
+      gpmpn_toom6h_mul(p, a, n, b, n, ws);                                    \
       if (f)                                                                \
-        mpn_toom6h_mul(p2, a2, n, b2, n, ws);                               \
+        gpmpn_toom6h_mul(p2, a2, n, b2, n, ws);                               \
     }                                                                       \
   } while (0)
 
 #define TOOM6H_MUL_REC(p, a, na, b, nb, ws) \
   do                                        \
   {                                         \
-    mpn_mul(p, a, na, b, nb);               \
+    gpmpn_mul(p, a, na, b, nb);               \
   } while (0)
 
     /* Toom-6.5 , compute the product {pp,an+bn} <- {ap,an} * {bp,bn}
@@ -115,7 +115,7 @@ namespace gpgmp
      */
 
     ANYCALLER void
-    mpn_toom6h_mul(mp_ptr pp,
+    gpmpn_toom6h_mul(mp_ptr pp,
                    mp_srcptr ap, mp_size_t an,
                    mp_srcptr bp, mp_size_t bn, mp_ptr scratch)
     {
@@ -222,48 +222,48 @@ namespace gpgmp
       /* Alloc also 3n+1 limbs for wsi... toom_interpolate_12pts may
          need all of them  */
       /*   if (scratch == NULL) */
-      /*     scratch = TMP_SALLOC_LIMBS(mpn_toom6_sqr_itch(n * 6)); */
-      ASSERT(12 * n + 6 <= mpn_toom6h_mul_itch(an, bn));
-      ASSERT(12 * n + 6 <= mpn_toom6_sqr_itch(n * 6));
+      /*     scratch = TMP_SALLOC_LIMBS(gpmpn_toom6_sqr_itch(n * 6)); */
+      ASSERT(12 * n + 6 <= gpmpn_toom6h_mul_itch(an, bn));
+      ASSERT(12 * n + 6 <= gpmpn_toom6_sqr_itch(n * 6));
 
       /********************** evaluation and recursive calls *********************/
       /* $\pm1/2$ */
-      sign = mpn_toom_eval_pm2rexp(v2, v0, p, ap, n, s, 1, pp) ^
-             mpn_toom_eval_pm2rexp(v3, v1, q, bp, n, t, 1, pp);
+      sign = gpmpn_toom_eval_pm2rexp(v2, v0, p, ap, n, s, 1, pp) ^
+             gpmpn_toom_eval_pm2rexp(v3, v1, q, bp, n, t, 1, pp);
       /* A(-1/2)*B(-1/2)*2^. */ /* A(+1/2)*B(+1/2)*2^. */
       TOOM6H_MUL_N_REC(pp, v0, v1, 2, r5, v2, v3, n + 1, wse);
-      mpn_toom_couple_handling(r5, 2 * n + 1, pp, sign, n, 1 + half, half);
+      gpmpn_toom_couple_handling(r5, 2 * n + 1, pp, sign, n, 1 + half, half);
 
       /* $\pm1$ */
-      sign = mpn_toom_eval_pm1(v2, v0, p, ap, n, s, pp);
+      sign = gpmpn_toom_eval_pm1(v2, v0, p, ap, n, s, pp);
       if (UNLIKELY(q == 3))
-        sign ^= mpn_toom_eval_dgr3_pm1(v3, v1, bp, n, t, pp);
+        sign ^= gpmpn_toom_eval_dgr3_pm1(v3, v1, bp, n, t, pp);
       else
-        sign ^= mpn_toom_eval_pm1(v3, v1, q, bp, n, t, pp);
+        sign ^= gpmpn_toom_eval_pm1(v3, v1, q, bp, n, t, pp);
       /* A(-1)*B(-1) */ /* A(1)*B(1) */
       TOOM6H_MUL_N_REC(pp, v0, v1, 2, r3, v2, v3, n + 1, wse);
-      mpn_toom_couple_handling(r3, 2 * n + 1, pp, sign, n, 0, 0);
+      gpmpn_toom_couple_handling(r3, 2 * n + 1, pp, sign, n, 0, 0);
 
       /* $\pm4$ */
-      sign = mpn_toom_eval_pm2exp(v2, v0, p, ap, n, s, 2, pp) ^
-             mpn_toom_eval_pm2exp(v3, v1, q, bp, n, t, 2, pp);
+      sign = gpmpn_toom_eval_pm2exp(v2, v0, p, ap, n, s, 2, pp) ^
+             gpmpn_toom_eval_pm2exp(v3, v1, q, bp, n, t, 2, pp);
       /* A(-4)*B(-4) */
       TOOM6H_MUL_N_REC(pp, v0, v1, 2, r1, v2, v3, n + 1, wse); /* A(+4)*B(+4) */
-      mpn_toom_couple_handling(r1, 2 * n + 1, pp, sign, n, 2, 4);
+      gpmpn_toom_couple_handling(r1, 2 * n + 1, pp, sign, n, 2, 4);
 
       /* $\pm1/4$ */
-      sign = mpn_toom_eval_pm2rexp(v2, v0, p, ap, n, s, 2, pp) ^
-             mpn_toom_eval_pm2rexp(v3, v1, q, bp, n, t, 2, pp);
+      sign = gpmpn_toom_eval_pm2rexp(v2, v0, p, ap, n, s, 2, pp) ^
+             gpmpn_toom_eval_pm2rexp(v3, v1, q, bp, n, t, 2, pp);
       /* A(-1/4)*B(-1/4)*4^. */ /* A(+1/4)*B(+1/4)*4^. */
       TOOM6H_MUL_N_REC(pp, v0, v1, 2, r4, v2, v3, n + 1, wse);
-      mpn_toom_couple_handling(r4, 2 * n + 1, pp, sign, n, 2 * (1 + half), 2 * (half));
+      gpmpn_toom_couple_handling(r4, 2 * n + 1, pp, sign, n, 2 * (1 + half), 2 * (half));
 
       /* $\pm2$ */
-      sign = mpn_toom_eval_pm2(v2, v0, p, ap, n, s, pp) ^
-             mpn_toom_eval_pm2(v3, v1, q, bp, n, t, pp);
+      sign = gpmpn_toom_eval_pm2(v2, v0, p, ap, n, s, pp) ^
+             gpmpn_toom_eval_pm2(v3, v1, q, bp, n, t, pp);
       /* A(-2)*B(-2) */ /* A(+2)*B(+2) */
       TOOM6H_MUL_N_REC(pp, v0, v1, 2, r2, v2, v3, n + 1, wse);
-      mpn_toom_couple_handling(r2, 2 * n + 1, pp, sign, n, 1, 2);
+      gpmpn_toom_couple_handling(r2, 2 * n + 1, pp, sign, n, 1, 2);
 
 #undef v0
 #undef v1
@@ -287,7 +287,7 @@ namespace gpgmp
         };
       };
 
-      mpn_toom_interpolate_12pts(pp, r1, r3, r5, n, s + t, half, wsi);
+      gpmpn_toom_interpolate_12pts(pp, r1, r3, r5, n, s + t, half, wsi);
 
 #undef r0
 #undef r1

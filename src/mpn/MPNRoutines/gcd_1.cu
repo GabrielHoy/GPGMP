@@ -1,4 +1,4 @@
-/* mpn_gcd_1 -- mpn and limb greatest common divisor.
+/* gpmpn_gcd_1 -- mpn and limb greatest common divisor.
 
 Copyright 1994, 1996, 2000, 2001, 2009, 2012, 2019 Free Software Foundation, Inc.
 
@@ -41,7 +41,7 @@ namespace gpgmp {
       the speed of a division and the code generated for the main loop.  Any
       tuning for this is left to a CPU specific implementation.  */
 
-    ANYCALLER mp_limb_t mpn_gcd_1 (mp_srcptr up, mp_size_t size, mp_limb_t vlimb)
+    ANYCALLER mp_limb_t gpmpn_gcd_1 (mp_srcptr up, mp_size_t size, mp_limb_t vlimb)
     {
       mp_limb_t      ulimb;
       unsigned long  zero_bits, u_low_zero_bits;
@@ -98,7 +98,7 @@ namespace gpgmp {
       }
         }
 
-      vlimb = mpn_gcd_11 (ulimb, vlimb);
+      vlimb = gpmpn_gcd_11 (ulimb, vlimb);
 
     done:
       return vlimb << zero_bits;

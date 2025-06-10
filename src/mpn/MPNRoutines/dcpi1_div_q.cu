@@ -1,4 +1,4 @@
-/* mpn_dc_div_q -- divide-and-conquer division, returning exact quotient
+/* gpmpn_dc_div_q -- divide-and-conquer division, returning exact quotient
    only.
 
    Contributed to the GNU project by Torbjorn Granlund and Marco Bodrato.
@@ -41,7 +41,7 @@ namespace gpgmp {
   namespace mpnRoutines {
 
 
-    ANYCALLER mp_limb_t mpn_dcpi1_div_q (mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, gmp_pi1_t *dinv)
+    ANYCALLER mp_limb_t gpmpn_dcpi1_div_q (mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, gmp_pi1_t *dinv)
     {
       mp_ptr tp, wp;
       mp_limb_t qh;
@@ -61,21 +61,21 @@ namespace gpgmp {
       qn = nn - dn;
       wp = TMP_ALLOC_LIMBS (qn + 1);
 
-      qh = mpn_dcpi1_divappr_q (wp, tp, nn + 1, dp, dn, dinv);
+      qh = gpmpn_dcpi1_divappr_q (wp, tp, nn + 1, dp, dn, dinv);
 
       if (wp[0] == 0)
       {
         mp_limb_t cy;
 
         if (qn > dn)
-          mpn_mul (tp, wp + 1, qn, dp, dn);
+          gpmpn_mul (tp, wp + 1, qn, dp, dn);
         else
-          mpn_mul (tp, dp, dn, wp + 1, qn);
+          gpmpn_mul (tp, dp, dn, wp + 1, qn);
 
-        cy = (qh != 0) ? mpn_add_n (tp + qn, tp + qn, dp, dn) : 0;
+        cy = (qh != 0) ? gpmpn_add_n (tp + qn, tp + qn, dp, dn) : 0;
 
-        if (cy || mpn_cmp (tp, np, nn) > 0) /* At most is wrong by one, no cycle. */
-          qh -= mpn_sub_1 (qp, wp + 1, qn, 1);
+        if (cy || gpmpn_cmp (tp, np, nn) > 0) /* At most is wrong by one, no cycle. */
+          qh -= gpmpn_sub_1 (qp, wp + 1, qn, 1);
         else /* Same as below */
           MPN_COPY (qp, wp + 1, qn);
       }

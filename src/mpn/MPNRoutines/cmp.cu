@@ -1,4 +1,4 @@
-/* mpn_cmp -- Compare two low-level natural-number integers.
+/* gpmpn_cmp -- Compare two low-level natural-number integers.
 
 Copyright 1991, 1993, 1994, 1996, 2000, 2001 Free Software Foundation, Inc.
 
@@ -27,8 +27,8 @@ for more details.
 You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
-#pragma once
 
-#define __GMP_FORCE_mpn_cmp 1
+
+#define __GMP_FORCE_gpmpn_cmp 1
 
 #include "gpgmp-impl.cuh"

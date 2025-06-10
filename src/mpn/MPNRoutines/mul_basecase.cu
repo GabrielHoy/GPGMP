@@ -1,4 +1,4 @@
-/* mpn_mul_basecase -- Internal routine to multiply two natural numbers
+/* gpmpn_mul_basecase -- Internal routine to multiply two natural numbers
    of length m and n.
 
    THIS IS AN INTERNAL FUNCTION WITH A MUTABLE INTERFACE.  IT IS ONLY
@@ -55,7 +55,7 @@ namespace gpgmp
        algorithm.  */
 
     ANYCALLER void
-    mpn_mul_basecase(mp_ptr rp,
+    gpmpn_mul_basecase(mp_ptr rp,
                      mp_srcptr up, mp_size_t un,
                      mp_srcptr vp, mp_size_t vn)
     {
@@ -68,19 +68,19 @@ namespace gpgmp
          availability, limbs).  This result can be stored, not added, to rp.  We
          also avoid a loop for zeroing this way.  */
 
-#if HAVE_NATIVE_mpn_mul_2
+#if HAVE_NATIVE_gpmpn_mul_2
       if (vn >= 2)
       {
-        rp[un + 1] = mpn_mul_2(rp, up, un, vp);
+        rp[un + 1] = gpmpn_mul_2(rp, up, un, vp);
         rp += 2, vp += 2, vn -= 2;
       }
       else
       {
-        rp[un] = mpn_mul_1(rp, up, un, vp[0]);
+        rp[un] = gpmpn_mul_1(rp, up, un, vp[0]);
         return;
       }
 #else
-      rp[un] = mpn_mul_1(rp, up, un, vp[0]);
+      rp[un] = gpmpn_mul_1(rp, up, un, vp[0]);
       rp += 1, vp += 1, vn -= 1;
 #endif
 
@@ -89,10 +89,10 @@ namespace gpgmp
 
 #define MAX_LEFT MP_SIZE_T_MAX /* Used to simplify loops into if statements */
 
-#if HAVE_NATIVE_mpn_addmul_6
+#if HAVE_NATIVE_gpmpn_addmul_6
       while (vn >= 6)
       {
-        rp[un + 6 - 1] = mpn_addmul_6(rp, up, un, vp);
+        rp[un + 6 - 1] = gpmpn_addmul_6(rp, up, un, vp);
         if (MAX_LEFT == 6)
           return;
         rp += 6, vp += 6, vn -= 6;
@@ -103,10 +103,10 @@ namespace gpgmp
 #define MAX_LEFT (6 - 1)
 #endif
 
-#if HAVE_NATIVE_mpn_addmul_5
+#if HAVE_NATIVE_gpmpn_addmul_5
       while (vn >= 5)
       {
-        rp[un + 5 - 1] = mpn_addmul_5(rp, up, un, vp);
+        rp[un + 5 - 1] = gpmpn_addmul_5(rp, up, un, vp);
         if (MAX_LEFT == 5)
           return;
         rp += 5, vp += 5, vn -= 5;
@@ -117,10 +117,10 @@ namespace gpgmp
 #define MAX_LEFT (5 - 1)
 #endif
 
-#if HAVE_NATIVE_mpn_addmul_4
+#if HAVE_NATIVE_gpmpn_addmul_4
       while (vn >= 4)
       {
-        rp[un + 4 - 1] = mpn_addmul_4(rp, up, un, vp);
+        rp[un + 4 - 1] = gpmpn_addmul_4(rp, up, un, vp);
         if (MAX_LEFT == 4)
           return;
         rp += 4, vp += 4, vn -= 4;
@@ -131,10 +131,10 @@ namespace gpgmp
 #define MAX_LEFT (4 - 1)
 #endif
 
-#if HAVE_NATIVE_mpn_addmul_3
+#if HAVE_NATIVE_gpmpn_addmul_3
       while (vn >= 3)
       {
-        rp[un + 3 - 1] = mpn_addmul_3(rp, up, un, vp);
+        rp[un + 3 - 1] = gpmpn_addmul_3(rp, up, un, vp);
         if (MAX_LEFT == 3)
           return;
         rp += 3, vp += 3, vn -= 3;
@@ -145,10 +145,10 @@ namespace gpgmp
 #define MAX_LEFT (3 - 1)
 #endif
 
-#if HAVE_NATIVE_mpn_addmul_2
+#if HAVE_NATIVE_gpmpn_addmul_2
       while (vn >= 2)
       {
-        rp[un + 2 - 1] = mpn_addmul_2(rp, up, un, vp);
+        rp[un + 2 - 1] = gpmpn_addmul_2(rp, up, un, vp);
         if (MAX_LEFT == 2)
           return;
         rp += 2, vp += 2, vn -= 2;
@@ -161,7 +161,7 @@ namespace gpgmp
 
       while (vn >= 1)
       {
-        rp[un] = mpn_addmul_1(rp, up, un, vp[0]);
+        rp[un] = gpmpn_addmul_1(rp, up, un, vp[0]);
         if (MAX_LEFT == 1)
           return;
         rp += 1, vp += 1, vn -= 1;

@@ -1,4 +1,4 @@
-/* mpn_bsqrt, a^{1/2} (mod 2^n).
+/* gpmpn_bsqrt, a^{1/2} (mod 2^n).
 
 Copyright 2009, 2010, 2012, 2015 Free Software Foundation, Inc.
 
@@ -35,7 +35,7 @@ namespace gpgmp {
 
 	namespace mpnRoutines {
 
-		ANYCALLER void mpn_bsqrt (mp_ptr rp, mp_srcptr ap, mp_bitcnt_t nb, mp_ptr tp)
+		ANYCALLER void gpmpn_bsqrt (mp_ptr rp, mp_srcptr ap, mp_bitcnt_t nb, mp_ptr tp)
     {
       mp_ptr sp;
       mp_size_t n;
@@ -45,8 +45,8 @@ namespace gpgmp {
       n = nb / GMP_NUMB_BITS;
       sp = tp + n;
 
-      gpgmp::mpnRoutines::mpn_bsqrtinv (tp, ap, nb, sp);
-      gpgmp::mpnRoutines::mpn_mullo_n (rp, tp, ap, n);
+      gpgmp::mpnRoutines::gpmpn_bsqrtinv (tp, ap, nb, sp);
+      gpgmp::mpnRoutines::gpmpn_mullo_n (rp, tp, ap, n);
     }
 
   }

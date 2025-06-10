@@ -41,7 +41,7 @@ namespace gpgmp {
     #if GMP_NUMB_BITS % 4 == 0
 
       void
-      mpn_dump (mp_srcptr ptr, mp_size_t n)
+      gpmpn_dump (mp_srcptr ptr, mp_size_t n)
       {
         MPN_NORMALIZE (ptr, n);
 
@@ -78,20 +78,20 @@ namespace gpgmp {
     #else
 
       static void
-      mpn_recdump (mp_ptr p, mp_size_t n)
+      gpmpn_recdump (mp_ptr p, mp_size_t n)
       {
         mp_limb_t lo;
         if (n != 0)
           {
             lo = p[0] & 0xf;
-            mpn_rshift (p, p, n, 4);
-            mpn_recdump (p, n);
+            gpmpn_rshift (p, p, n, 4);
+            gpmpn_recdump (p, n);
             printf ("%lX", lo);
           }
       }
 
       void
-      mpn_dump (mp_srcptr p, mp_size_t n)
+      gpmpn_dump (mp_srcptr p, mp_size_t n)
       {
         mp_ptr tp;
         TMP_DECL;

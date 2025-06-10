@@ -1,4 +1,4 @@
-/* mpn_dcpi1_div_qr_n -- recursive divide-and-conquer division for arbitrary
+/* gpmpn_dcpi1_div_qr_n -- recursive divide-and-conquer division for arbitrary
    size operands.
 
    Contributed to the GNU project by Torbjorn Granlund.
@@ -41,7 +41,7 @@ see https://www.gnu.org/licenses/.  */
 namespace gpgmp {
   namespace mpnRoutines {
 
-		ANYCALLER mp_limb_t mpn_dcpi1_div_qr_n (mp_ptr qp, mp_ptr np, mp_srcptr dp, mp_size_t n, gmp_pi1_t *dinv, mp_ptr tp)
+		ANYCALLER mp_limb_t gpmpn_dcpi1_div_qr_n (mp_ptr qp, mp_ptr np, mp_srcptr dp, mp_size_t n, gmp_pi1_t *dinv, mp_ptr tp)
 		{
 			mp_size_t lo, hi;
 			mp_limb_t cy, qh, ql;
@@ -50,43 +50,43 @@ namespace gpgmp {
 			hi = n - lo;			/* ceil(n/2) */
 
 			if (BELOW_THRESHOLD (hi, DC_DIV_QR_THRESHOLD))
-				qh = mpn_sbpi1_div_qr (qp + lo, np + 2 * lo, 2 * hi, dp + lo, hi, dinv->inv32);
+				qh = gpmpn_sbpi1_div_qr (qp + lo, np + 2 * lo, 2 * hi, dp + lo, hi, dinv->inv32);
 			else
-				qh = mpn_dcpi1_div_qr_n (qp + lo, np + 2 * lo, dp + lo, hi, dinv, tp);
+				qh = gpmpn_dcpi1_div_qr_n (qp + lo, np + 2 * lo, dp + lo, hi, dinv, tp);
 
-			mpn_mul (tp, qp + lo, hi, dp, lo);
+			gpmpn_mul (tp, qp + lo, hi, dp, lo);
 
-			cy = mpn_sub_n (np + lo, np + lo, tp, n);
+			cy = gpmpn_sub_n (np + lo, np + lo, tp, n);
 			if (qh != 0)
-				cy += mpn_sub_n (np + n, np + n, dp, lo);
+				cy += gpmpn_sub_n (np + n, np + n, dp, lo);
 
 			while (cy != 0)
 				{
-				qh -= mpn_sub_1 (qp + lo, qp + lo, hi, 1);
-				cy -= mpn_add_n (np + lo, np + lo, dp, n);
+				qh -= gpmpn_sub_1 (qp + lo, qp + lo, hi, 1);
+				cy -= gpmpn_add_n (np + lo, np + lo, dp, n);
 				}
 
 			if (BELOW_THRESHOLD (lo, DC_DIV_QR_THRESHOLD))
-				ql = mpn_sbpi1_div_qr (qp, np + hi, 2 * lo, dp + hi, lo, dinv->inv32);
+				ql = gpmpn_sbpi1_div_qr (qp, np + hi, 2 * lo, dp + hi, lo, dinv->inv32);
 			else
-				ql = mpn_dcpi1_div_qr_n (qp, np + hi, dp + hi, lo, dinv, tp);
+				ql = gpmpn_dcpi1_div_qr_n (qp, np + hi, dp + hi, lo, dinv, tp);
 
-			mpn_mul (tp, dp, hi, qp, lo);
+			gpmpn_mul (tp, dp, hi, qp, lo);
 
-			cy = mpn_sub_n (np, np, tp, n);
+			cy = gpmpn_sub_n (np, np, tp, n);
 			if (ql != 0)
-				cy += mpn_sub_n (np + lo, np + lo, dp, hi);
+				cy += gpmpn_sub_n (np + lo, np + lo, dp, hi);
 
 			while (cy != 0)
 				{
-				mpn_sub_1 (qp, qp, lo, 1);
-				cy -= mpn_add_n (np, np, dp, n);
+				gpmpn_sub_1 (qp, qp, lo, 1);
+				cy -= gpmpn_add_n (np, np, dp, n);
 				}
 
 			return qh;
 		}
 
-		ANYCALLER mp_limb_t mpn_dcpi1_div_qr (mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, gmp_pi1_t *dinv)
+		ANYCALLER mp_limb_t gpmpn_dcpi1_div_qr (mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, gmp_pi1_t *dinv)
 		{
 			mp_size_t qn;
 			mp_limb_t qh, cy;
@@ -95,8 +95,8 @@ namespace gpgmp {
 
 			TMP_MARK;
 
-			ASSERT (dn >= 6);		/* to adhere to mpn_sbpi1_div_qr's limits */
-			ASSERT (nn - dn >= 3);	/* to adhere to mpn_sbpi1_div_qr's limits */
+			ASSERT (dn >= 6);		/* to adhere to gpmpn_sbpi1_div_qr's limits */
+			ASSERT (nn - dn >= 3);	/* to adhere to gpmpn_sbpi1_div_qr's limits */
 			ASSERT (dp[dn-1] & GMP_NUMB_HIGHBIT);
 
 			tp = TMP_ALLOC_LIMBS (dn);
@@ -122,9 +122,9 @@ namespace gpgmp {
 					mp_limb_t q, n2, n1, n0, d1, d0;
 
 					/* Handle qh up front, for simplicity. */
-					qh = mpn_cmp (np - dn + 1, dp - dn, dn) >= 0;
+					qh = gpmpn_cmp (np - dn + 1, dp - dn, dn) >= 0;
 					if (qh)
-						ASSERT_NOCARRY (mpn_sub_n (np - dn + 1, np - dn + 1, dp - dn, dn));
+						ASSERT_NOCARRY (gpmpn_sub_n (np - dn + 1, np - dn + 1, dp - dn, dn));
 
 					/* A single iteration of schoolbook: One 3/2 division,
 						followed by the bignum update and adjustment. */
@@ -139,7 +139,7 @@ namespace gpgmp {
 					if (UNLIKELY (n2 == d1) && n1 == d0)
 					{
 						q = GMP_NUMB_MASK;
-						cy = mpn_submul_1 (np - dn, dp - dn, dn, q);
+						cy = gpmpn_submul_1 (np - dn, dp - dn, dn, q);
 						ASSERT (cy == n2);
 					}
 					else
@@ -149,7 +149,7 @@ namespace gpgmp {
 						if (dn > 2)
 						{
 							mp_limb_t cy, cy1;
-							cy = mpn_submul_1 (np - dn, dp - dn, dn - 2, q);
+							cy = gpmpn_submul_1 (np - dn, dp - dn, dn - 2, q);
 
 							cy1 = n0 < cy;
 							n0 = (n0 - cy) & GMP_NUMB_MASK;
@@ -159,7 +159,7 @@ namespace gpgmp {
 
 							if (UNLIKELY (cy != 0))
 							{
-								n1 += d1 + mpn_add_n (np - dn, np - dn, dp - dn, dn - 1);
+								n1 += d1 + gpmpn_add_n (np - dn, np - dn, dp - dn, dn - 1);
 								qh -= (q == 0);
 								q = (q - 1) & GMP_NUMB_MASK;
 							}
@@ -175,27 +175,27 @@ namespace gpgmp {
 				{
 					/* Do a 2qn / qn division */
 					if (qn == 2)
-						qh = mpn_divrem_2 (qp, 0L, np - 2, 4, dp - 2); /* FIXME: obsolete function. Use 5/3 division? */
+						qh = gpmpn_divrem_2 (qp, 0L, np - 2, 4, dp - 2); /* FIXME: obsolete function. Use 5/3 division? */
 					else if (BELOW_THRESHOLD (qn, DC_DIV_QR_THRESHOLD))
-						qh = mpn_sbpi1_div_qr (qp, np - qn, 2 * qn, dp - qn, qn, dinv->inv32);
+						qh = gpmpn_sbpi1_div_qr (qp, np - qn, 2 * qn, dp - qn, qn, dinv->inv32);
 					else
-						qh = mpn_dcpi1_div_qr_n (qp, np - qn, dp - qn, qn, dinv, tp);
+						qh = gpmpn_dcpi1_div_qr_n (qp, np - qn, dp - qn, qn, dinv, tp);
 
 					if (qn != dn)
 					{
 						if (qn > dn - qn)
-							mpn_mul (tp, qp, qn, dp - dn, dn - qn);
+							gpmpn_mul (tp, qp, qn, dp - dn, dn - qn);
 						else
-							mpn_mul (tp, dp - dn, dn - qn, qp, qn);
+							gpmpn_mul (tp, dp - dn, dn - qn, qp, qn);
 
-						cy = mpn_sub_n (np - dn, np - dn, tp, dn);
+						cy = gpmpn_sub_n (np - dn, np - dn, tp, dn);
 						if (qh != 0)
-							cy += mpn_sub_n (np - dn + qn, np - dn + qn, dp - dn, dn - qn);
+							cy += gpmpn_sub_n (np - dn + qn, np - dn + qn, dp - dn, dn - qn);
 
 						while (cy != 0)
 						{
-							qh -= mpn_sub_1 (qp, qp, qn, 1);
-							cy -= mpn_add_n (np - dn, np - dn, dp - dn, dn);
+							qh -= gpmpn_sub_1 (qp, qp, qn, 1);
+							cy -= gpmpn_add_n (np - dn, np - dn, dp - dn, dn);
 						}
 					}
 				}
@@ -205,7 +205,7 @@ namespace gpgmp {
 				{
 					qp -= dn;
 					np -= dn;
-					mpn_dcpi1_div_qr_n (qp, np - dn, dp - dn, dn, dinv, tp);
+					gpmpn_dcpi1_div_qr_n (qp, np - dn, dp - dn, dn, dinv, tp);
 					qn -= dn;
 				}
 				while (qn > 0);
@@ -216,25 +216,25 @@ namespace gpgmp {
 				np -= qn;			/* point in the middle of partial remainder */
 
 				if (BELOW_THRESHOLD (qn, DC_DIV_QR_THRESHOLD))
-				qh = mpn_sbpi1_div_qr (qp, np - qn, 2 * qn, dp - qn, qn, dinv->inv32);
+				qh = gpmpn_sbpi1_div_qr (qp, np - qn, 2 * qn, dp - qn, qn, dinv->inv32);
 				else
-				qh = mpn_dcpi1_div_qr_n (qp, np - qn, dp - qn, qn, dinv, tp);
+				qh = gpmpn_dcpi1_div_qr_n (qp, np - qn, dp - qn, qn, dinv, tp);
 
 				if (qn != dn)
 				{
 				if (qn > dn - qn)
-					mpn_mul (tp, qp, qn, dp - dn, dn - qn);
+					gpmpn_mul (tp, qp, qn, dp - dn, dn - qn);
 				else
-					mpn_mul (tp, dp - dn, dn - qn, qp, qn);
+					gpmpn_mul (tp, dp - dn, dn - qn, qp, qn);
 
-				cy = mpn_sub_n (np - dn, np - dn, tp, dn);
+				cy = gpmpn_sub_n (np - dn, np - dn, tp, dn);
 				if (qh != 0)
-					cy += mpn_sub_n (np - dn + qn, np - dn + qn, dp - dn, dn - qn);
+					cy += gpmpn_sub_n (np - dn + qn, np - dn + qn, dp - dn, dn - qn);
 
 				while (cy != 0)
 					{
-					qh -= mpn_sub_1 (qp, qp, qn, 1);
-					cy -= mpn_add_n (np - dn, np - dn, dp - dn, dn);
+					qh -= gpmpn_sub_1 (qp, qp, qn, 1);
+					cy -= gpmpn_add_n (np - dn, np - dn, dp - dn, dn);
 					}
 				}
 			}

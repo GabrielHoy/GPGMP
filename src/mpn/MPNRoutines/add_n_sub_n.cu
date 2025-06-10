@@ -1,4 +1,4 @@
-/* mpn_add_n_sub_n -- Add and Subtract two limb vectors of equal, non-zero length.
+/* gpmpn_add_n_sub_n -- Add and Subtract two limb vectors of equal, non-zero length.
 
    THE FUNCTION IN THIS FILE IS INTERNAL WITH A MUTABLE INTERFACE.  IT IS ONLY
    SAFE TO REACH IT THROUGH DOCUMENTED INTERFACES.  IN FACT, IT IS ALMOST
@@ -46,12 +46,12 @@ namespace gpgmp {
 	namespace mpnRoutines {
 
 
-    /* mpn_add_n_sub_n.
+    /* gpmpn_add_n_sub_n.
       r1[] = s1[] + s2[]
       r2[] = s1[] - s2[]
       All operands have n limbs.
       In-place operations allowed.  */
-    ANYCALLER mp_limb_t mpn_add_n_sub_n (mp_ptr r1p, mp_ptr r2p, mp_srcptr s1p, mp_srcptr s2p, mp_size_t n)
+    ANYCALLER mp_limb_t gpmpn_add_n_sub_n (mp_ptr r1p, mp_ptr r2p, mp_srcptr s1p, mp_srcptr s2p, mp_size_t n)
     {
       mp_limb_t acyn, acyo;		/* carry for add */
       mp_limb_t scyn, scyo;		/* carry for subtract */
@@ -74,10 +74,10 @@ namespace gpgmp {
         for (off = 0; off < n; off += PART_SIZE)
         {
           this_n = MIN (n - off, PART_SIZE);
-          acyn = mpn_add_n (r1p + off, s1p + off, s2p + off, this_n);
-          acyo = acyn + mpn_add_1 (r1p + off, r1p + off, this_n, acyo);
-          scyn = mpn_sub_n (r2p + off, s1p + off, s2p + off, this_n);
-          scyo = scyn + mpn_sub_1 (r2p + off, r2p + off, this_n, scyo);
+          acyn = gpmpn_add_n (r1p + off, s1p + off, s2p + off, this_n);
+          acyo = acyn + gpmpn_add_1 (r1p + off, r1p + off, this_n, acyo);
+          scyn = gpmpn_sub_n (r2p + off, s1p + off, s2p + off, this_n);
+          scyo = scyn + gpmpn_sub_1 (r2p + off, r2p + off, this_n, scyo);
         }
       }
       else if (r2p != s1p && r2p != s2p)
@@ -89,10 +89,10 @@ namespace gpgmp {
         for (off = 0; off < n; off += PART_SIZE)
         {
           this_n = MIN (n - off, PART_SIZE);
-          scyn = mpn_sub_n (r2p + off, s1p + off, s2p + off, this_n);
-          scyo = scyn + mpn_sub_1 (r2p + off, r2p + off, this_n, scyo);
-          acyn = mpn_add_n (r1p + off, s1p + off, s2p + off, this_n);
-          acyo = acyn + mpn_add_1 (r1p + off, r1p + off, this_n, acyo);
+          scyn = gpmpn_sub_n (r2p + off, s1p + off, s2p + off, this_n);
+          scyo = scyn + gpmpn_sub_1 (r2p + off, r2p + off, this_n, scyo);
+          acyn = gpmpn_add_n (r1p + off, s1p + off, s2p + off, this_n);
+          acyo = acyn + gpmpn_add_1 (r1p + off, r1p + off, this_n, acyo);
         }
       }
       else
@@ -105,10 +105,10 @@ namespace gpgmp {
         for (off = 0; off < n; off += PART_SIZE)
         {
           this_n = MIN (n - off, PART_SIZE);
-          acyn = mpn_add_n (tp, s1p + off, s2p + off, this_n);
-          acyo = acyn + mpn_add_1 (tp, tp, this_n, acyo);
-          scyn = mpn_sub_n (r2p + off, s1p + off, s2p + off, this_n);
-          scyo = scyn + mpn_sub_1 (r2p + off, r2p + off, this_n, scyo);
+          acyn = gpmpn_add_n (tp, s1p + off, s2p + off, this_n);
+          acyo = acyn + gpmpn_add_1 (tp, tp, this_n, acyo);
+          scyn = gpmpn_sub_n (r2p + off, s1p + off, s2p + off, this_n);
+          scyo = scyn + gpmpn_sub_1 (r2p + off, r2p + off, this_n, scyo);
           MPN_COPY (r1p + off, tp, this_n);
         }
       }

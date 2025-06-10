@@ -1,4 +1,4 @@
-/* mpn_sqr_basecase -- Internal routine to square a natural number
+/* gpmpn_sqr_basecase -- Internal routine to square a natural number
    of length n.
 
    THIS IS AN INTERNAL FUNCTION WITH A MUTABLE INTERFACE.  IT IS ONLY
@@ -42,9 +42,9 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-#if HAVE_NATIVE_mpn_sqr_diagonal
+#if HAVE_NATIVE_gpmpn_sqr_diagonal
 #define MPN_SQR_DIAGONAL(rp, up, n) \
-  mpn_sqr_diagonal(rp, up, n)
+  gpmpn_sqr_diagonal(rp, up, n)
 #else
 #define MPN_SQR_DIAGONAL(rp, up, n)                              \
   do                                                             \
@@ -60,17 +60,17 @@ namespace gpgmp
   } while (0)
 #endif
 
-#if HAVE_NATIVE_mpn_sqr_diag_addlsh1
+#if HAVE_NATIVE_gpmpn_sqr_diag_addlsh1
 #define MPN_SQR_DIAG_ADDLSH1(rp, tp, up, n) \
-  mpn_sqr_diag_addlsh1(rp, tp, up, n)
+  gpmpn_sqr_diag_addlsh1(rp, tp, up, n)
 #else
-#if HAVE_NATIVE_mpn_addlsh1_n
+#if HAVE_NATIVE_gpmpn_addlsh1_n
 #define MPN_SQR_DIAG_ADDLSH1(rp, tp, up, n)            \
   do                                                   \
   {                                                    \
     mp_limb_t cy;                                      \
     MPN_SQR_DIAGONAL(rp, up, n);                       \
-    cy = mpn_addlsh1_n(rp + 1, rp + 1, tp, 2 * n - 2); \
+    cy = gpmpn_addlsh1_n(rp + 1, rp + 1, tp, 2 * n - 2); \
     rp[2 * n - 1] += cy;                               \
   } while (0)
 #else
@@ -79,18 +79,18 @@ namespace gpgmp
   {                                                 \
     mp_limb_t cy;                                   \
     MPN_SQR_DIAGONAL(rp, up, n);                    \
-    cy = mpn_lshift(tp, tp, 2 * n - 2, 1);          \
-    cy += mpn_add_n(rp + 1, rp + 1, tp, 2 * n - 2); \
+    cy = gpmpn_lshift(tp, tp, 2 * n - 2, 1);          \
+    cy += gpmpn_add_n(rp + 1, rp + 1, tp, 2 * n - 2); \
     rp[2 * n - 1] += cy;                            \
   } while (0)
 #endif
 #endif
 
-#undef READY_WITH_mpn_sqr_basecase
+#undef READY_WITH_gpmpn_sqr_basecase
 
-#if !defined(READY_WITH_mpn_sqr_basecase) && HAVE_NATIVE_mpn_addmul_2s
+#if !defined(READY_WITH_gpmpn_sqr_basecase) && HAVE_NATIVE_gpmpn_addmul_2s
     ANYCALLER void
-    mpn_sqr_basecase(mp_ptr rp, mp_srcptr up, mp_size_t n)
+    gpmpn_sqr_basecase(mp_ptr rp, mp_srcptr up, mp_size_t n)
     {
       mp_size_t i;
       mp_limb_t tarr[2 * SQR_TOOM2_THRESHOLD];
@@ -115,7 +115,7 @@ namespace gpgmp
 
         for (i = 0; i <= n - 2; i += 2)
         {
-          cy = mpn_addmul_2s(tp + 2 * i, up + i + 1, n - (i + 1), up + i);
+          cy = gpmpn_addmul_2s(tp + 2 * i, up + i + 1, n - (i + 1), up + i);
           tp[n + i] = cy;
         }
       }
@@ -123,12 +123,12 @@ namespace gpgmp
       {
         if (n == 2)
         {
-#if HAVE_NATIVE_mpn_mul_2
-          rp[3] = mpn_mul_2(rp, up, 2, up);
+#if HAVE_NATIVE_gpmpn_mul_2
+          rp[3] = gpmpn_mul_2(rp, up, 2, up);
 #else
           rp[0] = 0;
           rp[1] = 0;
-          rp[3] = mpn_addmul_2(rp, up, 2, up);
+          rp[3] = gpmpn_addmul_2(rp, up, 2, up);
 #endif
           return;
         }
@@ -137,25 +137,25 @@ namespace gpgmp
 
         for (i = 0; i <= n - 4; i += 2)
         {
-          cy = mpn_addmul_2s(tp + 2 * i, up + i + 1, n - (i + 1), up + i);
+          cy = gpmpn_addmul_2s(tp + 2 * i, up + i + 1, n - (i + 1), up + i);
           tp[n + i] = cy;
         }
-        cy = mpn_addmul_1(tp + 2 * n - 4, up + n - 1, 1, up[n - 2]);
+        cy = gpmpn_addmul_1(tp + 2 * n - 4, up + n - 1, 1, up[n - 2]);
         tp[2 * n - 3] = cy;
       }
 
       MPN_SQR_DIAG_ADDLSH1(rp, tp, up, n);
     }
-#define READY_WITH_mpn_sqr_basecase
+#define READY_WITH_gpmpn_sqr_basecase
 #endif
 
-#if !defined(READY_WITH_mpn_sqr_basecase) && HAVE_NATIVE_mpn_addmul_2
+#if !defined(READY_WITH_gpmpn_sqr_basecase) && HAVE_NATIVE_gpmpn_addmul_2
 
-    /* mpn_sqr_basecase using plain mpn_addmul_2.
+    /* gpmpn_sqr_basecase using plain gpmpn_addmul_2.
 
-       This is tricky, since we have to let mpn_addmul_2 make some undesirable
-       multiplies, u[k]*u[k], that we would like to let mpn_sqr_diagonal handle.
-       This forces us to conditionally add or subtract the mpn_sqr_diagonal
+       This is tricky, since we have to let gpmpn_addmul_2 make some undesirable
+       multiplies, u[k]*u[k], that we would like to let gpmpn_sqr_diagonal handle.
+       This forces us to conditionally add or subtract the gpmpn_sqr_diagonal
        results.  Examples of the product we form:
 
        n = 4              n = 5		n = 6
@@ -167,7 +167,7 @@ namespace gpgmp
     */
 
     ANYCALLER void
-    mpn_sqr_basecase(mp_ptr rp, mp_srcptr up, mp_size_t n)
+    gpmpn_sqr_basecase(mp_ptr rp, mp_srcptr up, mp_size_t n)
     {
       mp_size_t i;
       mp_limb_t tarr[2 * SQR_TOOM2_THRESHOLD];
@@ -196,7 +196,7 @@ namespace gpgmp
         {
           rp[2 * n - 2] = 0;
           rp[2 * n - 1] = 0;
-          mpn_sqr_basecase(rp, up, n - 1);
+          gpmpn_sqr_basecase(rp, up, n - 1);
           return;
         }
 
@@ -204,7 +204,7 @@ namespace gpgmp
 
         for (i = 0; i <= n - 2; i += 2)
         {
-          cy = mpn_addmul_2(tp + 2 * i, up + i + 1, n - (i + 1), up + i);
+          cy = gpmpn_addmul_2(tp + 2 * i, up + i + 1, n - (i + 1), up + i);
           tp[n + i] = cy;
         }
 
@@ -219,7 +219,7 @@ namespace gpgmp
           __GMPN_SUB_1(cy, rp + i + 2, rp + i + 2, 2, (x1 | x0) != 0);
           if (i + 4 >= 2 * n)
             break;
-          mpn_incr_u(rp + i + 4, cy);
+          gpmpn_incr_u(rp + i + 4, cy);
         }
       }
       else
@@ -228,12 +228,12 @@ namespace gpgmp
 
         if (n == 2)
         {
-#if HAVE_NATIVE_mpn_mul_2
-          rp[3] = mpn_mul_2(rp, up, 2, up);
+#if HAVE_NATIVE_gpmpn_mul_2
+          rp[3] = gpmpn_mul_2(rp, up, 2, up);
 #else
           rp[0] = 0;
           rp[1] = 0;
-          rp[3] = mpn_addmul_2(rp, up, 2, up);
+          rp[3] = gpmpn_addmul_2(rp, up, 2, up);
 #endif
           return;
         }
@@ -244,7 +244,7 @@ namespace gpgmp
         {
           rp[2 * n - 2] = 0;
           rp[2 * n - 1] = 0;
-          mpn_sqr_basecase(rp, up, n - 1);
+          gpmpn_sqr_basecase(rp, up, n - 1);
           return;
         }
 
@@ -252,10 +252,10 @@ namespace gpgmp
 
         for (i = 0; i <= n - 4; i += 2)
         {
-          cy = mpn_addmul_2(tp + 2 * i, up + i + 1, n - (i + 1), up + i);
+          cy = gpmpn_addmul_2(tp + 2 * i, up + i + 1, n - (i + 1), up + i);
           tp[n + i] = cy;
         }
-        cy = mpn_addmul_1(tp + 2 * n - 4, up + n - 1, 1, up[n - 2]);
+        cy = gpmpn_addmul_1(tp + 2 * n - 4, up + n - 1, 1, up[n - 2]);
         tp[2 * n - 3] = cy;
 
         MPN_SQR_DIAGONAL(rp, up, n);
@@ -269,28 +269,28 @@ namespace gpgmp
           if (i + 6 >= 2 * n)
             break;
           __GMPN_SUB_1(cy, rp + i + 2, rp + i + 2, 2, (x1 | x0) != 0);
-          mpn_incr_u(rp + i + 4, cy);
+          gpmpn_incr_u(rp + i + 4, cy);
         }
-        mpn_decr_u(rp + i + 2, (x1 | x0) != 0);
+        gpmpn_decr_u(rp + i + 2, (x1 | x0) != 0);
       }
 
-#if HAVE_NATIVE_mpn_addlsh1_n
-      cy = mpn_addlsh1_n(rp + 1, rp + 1, tp, 2 * n - 2);
+#if HAVE_NATIVE_gpmpn_addlsh1_n
+      cy = gpmpn_addlsh1_n(rp + 1, rp + 1, tp, 2 * n - 2);
 #else
-      cy = mpn_lshift(tp, tp, 2 * n - 2, 1);
-      cy += mpn_add_n(rp + 1, rp + 1, tp, 2 * n - 2);
+      cy = gpmpn_lshift(tp, tp, 2 * n - 2, 1);
+      cy += gpmpn_add_n(rp + 1, rp + 1, tp, 2 * n - 2);
 #endif
       rp[2 * n - 1] += cy;
     }
-#define READY_WITH_mpn_sqr_basecase
+#define READY_WITH_gpmpn_sqr_basecase
 #endif
 
-#if !defined(READY_WITH_mpn_sqr_basecase) && HAVE_NATIVE_mpn_sqr_diag_addlsh1
+#if !defined(READY_WITH_gpmpn_sqr_basecase) && HAVE_NATIVE_gpmpn_sqr_diag_addlsh1
 
-    /* mpn_sqr_basecase using mpn_addmul_1 and mpn_sqr_diag_addlsh1, avoiding stack
+    /* gpmpn_sqr_basecase using gpmpn_addmul_1 and gpmpn_sqr_diag_addlsh1, avoiding stack
        allocation.  */
     ANYCALLER void
-    mpn_sqr_basecase(mp_ptr rp, mp_srcptr up, mp_size_t n)
+    gpmpn_sqr_basecase(mp_ptr rp, mp_srcptr up, mp_size_t n)
     {
       if (n == 1)
       {
@@ -305,25 +305,25 @@ namespace gpgmp
         mp_ptr xp;
 
         rp += 1;
-        rp[n - 1] = mpn_mul_1(rp, up + 1, n - 1, up[0]);
+        rp[n - 1] = gpmpn_mul_1(rp, up + 1, n - 1, up[0]);
         for (i = n - 2; i != 0; i--)
         {
           up += 1;
           rp += 2;
-          rp[i] = mpn_addmul_1(rp, up + 1, i, up[0]);
+          rp[i] = gpmpn_addmul_1(rp, up + 1, i, up[0]);
         }
 
         xp = rp - 2 * n + 3;
-        mpn_sqr_diag_addlsh1(xp, xp + 1, up - n + 2, n);
+        gpmpn_sqr_diag_addlsh1(xp, xp + 1, up - n + 2, n);
       }
     }
-#define READY_WITH_mpn_sqr_basecase
+#define READY_WITH_gpmpn_sqr_basecase
 #endif
 
-#if !defined(READY_WITH_mpn_sqr_basecase)
+#if !defined(READY_WITH_gpmpn_sqr_basecase)
 
-    /* Default mpn_sqr_basecase using mpn_addmul_1.  */
-    ANYCALLER void mpn_sqr_basecase(mp_ptr rp, mp_srcptr up, mp_size_t n)
+    /* Default gpmpn_sqr_basecase using gpmpn_addmul_1.  */
+    ANYCALLER void gpmpn_sqr_basecase(mp_ptr rp, mp_srcptr up, mp_size_t n)
     {
       mp_size_t i;
 
@@ -346,19 +346,19 @@ namespace gpgmp
         /* must fit 2*n limbs in tarr */
         ASSERT(n <= SQR_TOOM2_THRESHOLD);
 
-        cy = mpn_mul_1(tp, up + 1, n - 1, up[0]);
+        cy = gpmpn_mul_1(tp, up + 1, n - 1, up[0]);
         tp[n - 1] = cy;
         for (i = 2; i < n; i++)
         {
           mp_limb_t cy;
-          cy = mpn_addmul_1(tp + 2 * i - 2, up + i, n - i, up[i - 1]);
+          cy = gpmpn_addmul_1(tp + 2 * i - 2, up + i, n - i, up[i - 1]);
           tp[n + i - 2] = cy;
         }
 
         MPN_SQR_DIAG_ADDLSH1(rp, tp, up, n);
       }
     }
-#define READY_WITH_mpn_sqr_basecase
+#define READY_WITH_gpmpn_sqr_basecase
 #endif
 
   }

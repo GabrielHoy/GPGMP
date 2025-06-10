@@ -55,17 +55,17 @@ namespace gpgmp
 #define TOOM_54_MUL_N_REC(p, a, b, n, ws) \
   do                                      \
   {                                       \
-    mpn_mul_n(p, a, b, n);                \
+    gpmpn_mul_n(p, a, b, n);                \
   } while (0)
 
 #define TOOM_54_MUL_REC(p, a, na, b, nb, ws) \
   do                                         \
   {                                          \
-    mpn_mul(p, a, na, b, nb);                \
+    gpmpn_mul(p, a, na, b, nb);                \
   } while (0)
 
     ANYCALLER void
-    mpn_toom54_mul(mp_ptr pp,
+    gpmpn_toom54_mul(mp_ptr pp,
                    mp_srcptr ap, mp_size_t an,
                    mp_srcptr bp, mp_size_t bn, mp_ptr scratch)
     {
@@ -84,7 +84,7 @@ namespace gpgmp
 
       ASSERT(0 < s && s <= n);
       ASSERT(0 < t && t <= n);
-      /* Required by mpn_toom_interpolate_8pts. */
+      /* Required by gpmpn_toom_interpolate_8pts. */
       ASSERT(s + t >= n);
       ASSERT(s + t > 4);
       ASSERT(n > 2);
@@ -100,26 +100,26 @@ namespace gpgmp
 #define r1 (pp + 7 * n)          /* s+t <= 2*n */
 #define ws (scratch + 6 * n + 2) /* ??? */
 
-      /* Alloc also 3n+1 limbs for ws... mpn_toom_interpolate_8pts may
-         need all of them, when DO_mpn_sublsh_n usea a scratch  */
+      /* Alloc also 3n+1 limbs for ws... gpmpn_toom_interpolate_8pts may
+         need all of them, when DO_gpmpn_sublsh_n usea a scratch  */
       /********************** evaluation and recursive calls *********************/
       /* $\pm4$ */
-      sign = mpn_toom_eval_pm2exp(v2, v0, 4, ap, n, s, 2, pp) ^ mpn_toom_eval_pm2exp(v3, v1, 3, bp, n, t, 2, pp);
+      sign = gpmpn_toom_eval_pm2exp(v2, v0, 4, ap, n, s, 2, pp) ^ gpmpn_toom_eval_pm2exp(v3, v1, 3, bp, n, t, 2, pp);
       TOOM_54_MUL_N_REC(pp, v0, v1, n + 1, ws); /* A(-4)*B(-4) */
       TOOM_54_MUL_N_REC(r3, v2, v3, n + 1, ws); /* A(+4)*B(+4) */
-      mpn_toom_couple_handling(r3, 2 * n + 1, pp, sign, n, 2, 4);
+      gpmpn_toom_couple_handling(r3, 2 * n + 1, pp, sign, n, 2, 4);
 
       /* $\pm1$ */
-      sign = mpn_toom_eval_pm1(v2, v0, 4, ap, n, s, pp) ^ mpn_toom_eval_dgr3_pm1(v3, v1, bp, n, t, pp);
+      sign = gpmpn_toom_eval_pm1(v2, v0, 4, ap, n, s, pp) ^ gpmpn_toom_eval_dgr3_pm1(v3, v1, bp, n, t, pp);
       TOOM_54_MUL_N_REC(pp, v0, v1, n + 1, ws); /* A(-1)*B(-1) */
       TOOM_54_MUL_N_REC(r7, v2, v3, n + 1, ws); /* A(1)*B(1) */
-      mpn_toom_couple_handling(r7, 2 * n + 1, pp, sign, n, 0, 0);
+      gpmpn_toom_couple_handling(r7, 2 * n + 1, pp, sign, n, 0, 0);
 
       /* $\pm2$ */
-      sign = mpn_toom_eval_pm2(v2, v0, 4, ap, n, s, pp) ^ mpn_toom_eval_dgr3_pm2(v3, v1, bp, n, t, pp);
+      sign = gpmpn_toom_eval_pm2(v2, v0, 4, ap, n, s, pp) ^ gpmpn_toom_eval_dgr3_pm2(v3, v1, bp, n, t, pp);
       TOOM_54_MUL_N_REC(pp, v0, v1, n + 1, ws); /* A(-2)*B(-2) */
       TOOM_54_MUL_N_REC(r5, v2, v3, n + 1, ws); /* A(+2)*B(+2) */
-      mpn_toom_couple_handling(r5, 2 * n + 1, pp, sign, n, 1, 2);
+      gpmpn_toom_couple_handling(r5, 2 * n + 1, pp, sign, n, 1, 2);
 
       /* A(0)*B(0) */
       TOOM_54_MUL_N_REC(pp, ap, bp, n, ws);
@@ -134,7 +134,7 @@ namespace gpgmp
         TOOM_54_MUL_REC(r1, b3, t, a4, s, ws);
       };
 
-      mpn_toom_interpolate_8pts(pp, n, r3, r7, s + t, ws);
+      gpmpn_toom_interpolate_8pts(pp, n, r3, r7, s + t, ws);
 
 #undef a4
 #undef b3

@@ -1,8 +1,8 @@
-/* mpn_get_str -- Convert {UP,USIZE} to a base BASE string in STR.
+/* gpmpn_get_str -- Convert {UP,USIZE} to a base BASE string in STR.
 
    Contributed to the GNU project by Torbjorn Granlund.
 
-   THE FUNCTIONS IN THIS FILE, EXCEPT mpn_get_str, ARE INTERNAL WITH MUTABLE
+   THE FUNCTIONS IN THIS FILE, EXCEPT gpmpn_get_str, ARE INTERNAL WITH MUTABLE
    INTERFACES.  IT IS ONLY SAFE TO REACH THEM THROUGH DOCUMENTED INTERFACES.
    IN FACT, IT IS ALMOST GUARANTEED THAT THEY WILL CHANGE OR DISAPPEAR IN A
    FUTURE GNU MP RELEASE.
@@ -43,7 +43,7 @@ see https://www.gnu.org/licenses/.  */
 
   A) Divide U repeatedly by B, generating a quotient and remainder, until the
      quotient becomes zero.  The remainders hold the converted digits.  Digits
-     come out from right to left.  (Used in mpn_bc_get_str.)
+     come out from right to left.  (Used in gpmpn_bc_get_str.)
 
   B) Divide U by b^g, for g such that 1/b <= U/b^g < 1, generating a fraction.
      Then develop digits by multiplying the fraction repeatedly by b.  Digits
@@ -54,7 +54,7 @@ see https://www.gnu.org/licenses/.  */
      sqrt(U).  Then divide U by B^s, generating quotient and remainder.
      Recursively convert the quotient, then the remainder, using the
      precomputed powers.  Digits come out from left to right.  (Used in
-     mpn_dc_get_str.)
+     gpmpn_dc_get_str.)
 
   When using algorithm C, algorithm B might be suitable for basecase code,
   since the required b^g power will be readily accessible.
@@ -73,7 +73,7 @@ see https://www.gnu.org/licenses/.  */
      (This saves on register-starved machines (read x86) and on all machines
      that generate the upper product half using a separate instruction (alpha,
      powerpc, IA-64) or lacks such support altogether (sparc64, hppa64).
-  4. Separate mpn_dc_get_str basecase code from code for small conversions. The
+  4. Separate gpmpn_dc_get_str basecase code from code for small conversions. The
      former code will have the exact right power readily available in the
      powtab parameter for dividing the current number into a fraction.  Convert
      that using algorithm B.
@@ -83,26 +83,26 @@ see https://www.gnu.org/licenses/.  */
      about 30% (1-log(5)/log(10)).
 
   Basic structure of (C):
-    mpn_get_str:
+    gpmpn_get_str:
       if POW2_P (n)
 	...
       else
 	if (un < GET_STR_PRECOMPUTE_THRESHOLD)
-	  mpn_bx_get_str (str, base, up, un);
+	  gpmpn_bx_get_str (str, base, up, un);
 	else
 	  precompute_power_tables
-	  mpn_dc_get_str
+	  gpmpn_dc_get_str
 
-    mpn_dc_get_str:
-	mpn_tdiv_qr
+    gpmpn_dc_get_str:
+	gpmpn_tdiv_qr
 	if (qn < GET_STR_DC_THRESHOLD)
-	  mpn_bc_get_str
+	  gpmpn_bc_get_str
 	else
-	  mpn_dc_get_str
+	  gpmpn_dc_get_str
 	if (rn < GET_STR_DC_THRESHOLD)
-	  mpn_bc_get_str
+	  gpmpn_bc_get_str
 	else
-	  mpn_dc_get_str
+	  gpmpn_dc_get_str
 
 
   The reason for the two threshold values is the cost of
@@ -145,7 +145,7 @@ see https://www.gnu.org/licenses/.  */
    after the last digit of the result string.  Complexity is O(un^2); intended
    for small conversions.  */
 static unsigned char *
-mpn_bc_get_str (unsigned char *str, size_t len,
+gpmpn_bc_get_str (unsigned char *str, size_t len,
 		mp_ptr up, mp_size_t un, int base)
 {
   mp_limb_t rl, ul;
@@ -306,14 +306,14 @@ mpn_bc_get_str (unsigned char *str, size_t len,
    Return a pointer immediately after the last digit of the result string.
    This uses divide-and-conquer and is intended for large conversions.  */
 static unsigned char *
-mpn_dc_get_str (unsigned char *str, size_t len,
+gpmpn_dc_get_str (unsigned char *str, size_t len,
 		mp_ptr up, mp_size_t un,
 		const powers_t *powtab, mp_ptr tmp)
 {
   if (BELOW_THRESHOLD (un, GET_STR_DC_THRESHOLD))
     {
       if (un != 0)
-	str = mpn_bc_get_str (str, len, up, un, powtab->base);
+	str = gpmpn_bc_get_str (str, len, up, un, powtab->base);
       else
 	{
 	  while (len != 0)
@@ -333,25 +333,25 @@ mpn_dc_get_str (unsigned char *str, size_t len,
       pwn = powtab->n;
       sn = powtab->shift;
 
-      if (un < pwn + sn || (un == pwn + sn && mpn_cmp (up + sn, pwp, un - sn) < 0))
+      if (un < pwn + sn || (un == pwn + sn && gpmpn_cmp (up + sn, pwp, un - sn) < 0))
 	{
-	  str = mpn_dc_get_str (str, len, up, un, powtab - 1, tmp);
+	  str = gpmpn_dc_get_str (str, len, up, un, powtab - 1, tmp);
 	}
       else
 	{
 	  qp = tmp;		/* (un - pwn + 1) limbs for qp */
 	  rp = up;		/* pwn limbs for rp; overwrite up area */
 
-	  mpn_tdiv_qr (qp, rp + sn, 0L, up + sn, un - sn, pwp, pwn);
+	  gpmpn_tdiv_qr (qp, rp + sn, 0L, up + sn, un - sn, pwp, pwn);
 	  qn = un - sn - pwn; qn += qp[qn] != 0;		/* quotient size */
 
-	  ASSERT (qn < pwn + sn || (qn == pwn + sn && mpn_cmp (qp + sn, pwp, pwn) < 0));
+	  ASSERT (qn < pwn + sn || (qn == pwn + sn && gpmpn_cmp (qp + sn, pwp, pwn) < 0));
 
 	  if (len != 0)
 	    len = len - powtab->digits_in_base;
 
-	  str = mpn_dc_get_str (str, len, qp, qn, powtab - 1, tmp + qn);
-	  str = mpn_dc_get_str (str, powtab->digits_in_base, rp, pwn + sn, powtab - 1, tmp);
+	  str = gpmpn_dc_get_str (str, len, qp, qn, powtab - 1, tmp + qn);
+	  str = gpmpn_dc_get_str (str, powtab->digits_in_base, rp, pwn + sn, powtab - 1, tmp);
 	}
     }
   return str;
@@ -362,7 +362,7 @@ mpn_dc_get_str (unsigned char *str, size_t len,
    rely on it.  */
 
 size_t
-mpn_get_str (unsigned char *str, int base, mp_ptr up, mp_size_t un)
+gpmpn_get_str (unsigned char *str, int base, mp_ptr up, mp_size_t un)
 {
   mp_ptr powtab_mem;
   powers_t powtab[GMP_LIMB_BITS];
@@ -427,12 +427,12 @@ mpn_get_str (unsigned char *str, int base, mp_ptr up, mp_size_t un)
   /* General case.  The base is not a power of 2.  */
 
   if (BELOW_THRESHOLD (un, GET_STR_PRECOMPUTE_THRESHOLD))
-    return mpn_bc_get_str (str, (size_t) 0, up, un, base) - str;
+    return gpmpn_bc_get_str (str, (size_t) 0, up, un, base) - str;
 
   TMP_MARK;
 
   /* Allocate one large block for the powers of big_base.  */
-  powtab_mem = TMP_BALLOC_LIMBS (mpn_str_powtab_alloc (un));
+  powtab_mem = TMP_BALLOC_LIMBS (gpmpn_str_powtab_alloc (un));
 
   /* Compute a table of powers, were the largest power is >= sqrt(U).  */
   size_t ndig;
@@ -440,11 +440,11 @@ mpn_get_str (unsigned char *str, int base, mp_ptr up, mp_size_t un)
   DIGITS_IN_BASE_PER_LIMB (ndig, un, base);
   xn = 1 + ndig / mp_bases[base].chars_per_limb; /* FIXME: scalar integer division */
 
-  pi = 1 + mpn_compute_powtab (powtab, powtab_mem, xn, base);
+  pi = 1 + gpmpn_compute_powtab (powtab, powtab_mem, xn, base);
 
   /* Using our precomputed powers, now in powtab[], convert our number.  */
-  tmp = TMP_BALLOC_LIMBS (mpn_dc_get_str_itch (un));
-  out_len = mpn_dc_get_str (str, 0, up, un, powtab + (pi - 1), tmp) - str;
+  tmp = TMP_BALLOC_LIMBS (gpmpn_dc_get_str_itch (un));
+  out_len = gpmpn_dc_get_str (str, 0, up, un, powtab + (pi - 1), tmp) - str;
   TMP_FREE;
 
   return out_len;

@@ -53,14 +53,14 @@ namespace gpgmp {
     ((sizeof(mp_size_t) > 6 ? 48 : 8*sizeof(mp_size_t)) - LOG2C (BINV_NEWTON_THRESHOLD))
     #endif
 
-    ANYCALLER mp_size_t mpn_binvert_itch (mp_size_t n)
+    ANYCALLER mp_size_t gpmpn_binvert_itch (mp_size_t n)
     {
-      mp_size_t itch_local = mpn_mulmod_bnm1_next_size (n);
-      mp_size_t itch_out = mpn_mulmod_bnm1_itch (itch_local, n, (n + 1) >> 1);
+      mp_size_t itch_local = gpmpn_mulmod_bnm1_next_size (n);
+      mp_size_t itch_out = gpmpn_mulmod_bnm1_itch (itch_local, n, (n + 1) >> 1);
       return itch_local + itch_out;
     }
 
-    ANYCALLER void mpn_binvert (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_ptr scratch)
+    ANYCALLER void gpmpn_binvert (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_ptr scratch)
     {
       mp_ptr xp;
       mp_size_t rn, newrn;
@@ -80,11 +80,11 @@ namespace gpgmp {
       xp[0] = 1;
       binvert_limb (di, up[0]);
       if (BELOW_THRESHOLD (rn, DC_BDIV_Q_THRESHOLD))
-        mpn_sbpi1_bdiv_q (rp, xp, rn, up, rn, -di);
+        gpmpn_sbpi1_bdiv_q (rp, xp, rn, up, rn, -di);
       else
-        mpn_dcpi1_bdiv_q (rp, xp, rn, up, rn, -di);
+        gpmpn_dcpi1_bdiv_q (rp, xp, rn, up, rn, -di);
 
-      mpn_neg (rp, rp, rn);
+      gpmpn_neg (rp, rp, rn);
 
       /* Use Newton iterations to get the desired precision.  */
       for (; rn < n; rn = newrn)
@@ -93,16 +93,16 @@ namespace gpgmp {
         newrn = *--sizp;
 
         /* X <- UR. */
-        m = mpn_mulmod_bnm1_next_size (newrn);
-        mpn_mulmod_bnm1 (xp, m, up, newrn, rp, rn, xp + m);
+        m = gpmpn_mulmod_bnm1_next_size (newrn);
+        gpmpn_mulmod_bnm1 (xp, m, up, newrn, rp, rn, xp + m);
         /* Only the values in the range xp + rn .. xp + newrn - 1 are
         used by the _mullo_n below.
         Since m >= newrn, we do not need the following. */
-        /* mpn_sub_1 (xp + m, xp, rn - (m - newrn), 1); */
+        /* gpmpn_sub_1 (xp + m, xp, rn - (m - newrn), 1); */
 
         /* R = R(X/B^rn) */
-        mpn_mullo_n (rp + rn, rp, xp + rn, newrn - rn);
-        mpn_neg (rp + rn, rp + rn, newrn - rn);
+        gpmpn_mullo_n (rp + rn, rp, xp + rn, newrn - rn);
+        gpmpn_neg (rp + rn, rp + rn, newrn - rn);
       }
     }
 

@@ -1,4 +1,4 @@
-/* mpn_divexact(qp,np,nn,dp,dn,tp) -- Divide N = {np,nn} by D = {dp,dn} storing
+/* gpmpn_divexact(qp,np,nn,dp,dn,tp) -- Divide N = {np,nn} by D = {dp,dn} storing
    the result in Q = {qp,nn-dn+1} expecting no remainder.  Overlap allowed
    between Q and N; all other overlap disallowed.
 
@@ -43,7 +43,7 @@ see https://www.gnu.org/licenses/.  */
 namespace gpgmp {
   namespace mpnRoutines {
 
-    ANYCALLER void mpn_divexact (mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
+    ANYCALLER void gpmpn_divexact (mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
     {
       unsigned shift;
       mp_size_t qn;
@@ -81,25 +81,25 @@ namespace gpgmp {
           ss = (dn > qn) ? qn + 1 : dn;
 
           tp = TMP_ALLOC_LIMBS (ss);
-          mpn_rshift (tp, dp, ss, shift);
+          gpmpn_rshift (tp, dp, ss, shift);
           dp = tp;
 
           /* Since we have excluded dn == 1, we have nn > qn, and we need
       to shift one limb beyond qn. */
           wp = TMP_ALLOC_LIMBS (qn + 1);
-          mpn_rshift (wp, np, qn + 1, shift);
+          gpmpn_rshift (wp, np, qn + 1, shift);
           np = wp;
         }
 
       if (dn > qn)
         dn = qn;
 
-      tp = TMP_ALLOC_LIMBS (mpn_bdiv_q_itch (qn, dn));
-      mpn_bdiv_q (qp, np, qn, dp, dn, tp);
+      tp = TMP_ALLOC_LIMBS (gpmpn_bdiv_q_itch (qn, dn));
+      gpmpn_bdiv_q (qp, np, qn, dp, dn, tp);
       TMP_FREE;
 
       /* Since bdiv_q computes -N/D (mod B^{qn}), we must negate now. */
-      mpn_neg (qp, qp, qn);
+      gpmpn_neg (qp, qp, qn);
     }
 
   }

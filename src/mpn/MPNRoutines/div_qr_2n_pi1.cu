@@ -1,4 +1,4 @@
-/* mpn_div_qr_2n_pi1
+/* gpmpn_div_qr_2n_pi1
 
    Contributed to the GNU project by Torbjorn Granlund and Niels Möller
 
@@ -44,7 +44,7 @@ namespace gpgmp
   {
 
     /* 3/2 loop, for normalized divisor */
-    ANYCALLER mp_limb_t mpn_div_qr_2n_pi1(mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_limb_t d1, mp_limb_t d0, mp_limb_t di)
+    ANYCALLER mp_limb_t gpmpn_div_qr_2n_pi1(mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_limb_t d1, mp_limb_t d0, mp_limb_t di)
     {
       mp_limb_t qh;
       mp_size_t i;

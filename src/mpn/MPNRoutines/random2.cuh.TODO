@@ -1,4 +1,4 @@
-/* mpn_random2 -- Generate random numbers with relatively long strings
+/* gpmpn_random2 -- Generate random numbers with relatively long strings
    of ones and zeroes.  Suitable for border testing.
 
 Copyright 1992-1994, 1996, 2000-2002, 2004, 2012 Free Software Foundation, Inc.
@@ -49,7 +49,7 @@ namespace gpgmp
 #endif
 
     ANYCALLER void
-    mpn_random2(mp_ptr rp, mp_size_t n)
+    gpmpn_random2(mp_ptr rp, mp_size_t n)
     {
       gmp_randstate_ptr rstate = RANDS;
       int bit_pos;         /* bit number of least significant bit where
@@ -103,7 +103,7 @@ namespace gpgmp
         chunksize = 1 + ranm % cap_chunksize;
         bi = (bi < chunksize) ? 0 : bi - chunksize;
 
-        mpn_incr_u(rp + bi / GMP_NUMB_BITS, CNST_LIMB(1) << bi % GMP_NUMB_BITS);
+        gpmpn_incr_u(rp + bi / GMP_NUMB_BITS, CNST_LIMB(1) << bi % GMP_NUMB_BITS);
 
         if (bi == 0)
           break; /* low chunk is ...0 */

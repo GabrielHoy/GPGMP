@@ -1,4 +1,4 @@
-/* mpn_toom52_mul -- Multiply {ap,an} and {bp,bn} where an is nominally 4/3
+/* gpmpn_toom52_mul -- Multiply {ap,an} and {bp,bn} where an is nominally 4/3
    times as large as bn.  Or more accurately, bn < an < 2 bn.
 
    Contributed to the GNU project by Marco Bodrato.
@@ -67,7 +67,7 @@ namespace gpgmp
     */
 
     ANYCALLER void
-    mpn_toom52_mul(mp_ptr pp,
+    gpmpn_toom52_mul(mp_ptr pp,
                    mp_srcptr ap, mp_size_t an,
                    mp_srcptr bp, mp_size_t bn, mp_ptr scratch)
     {
@@ -117,57 +117,57 @@ namespace gpgmp
 #define a1a3 asm1
 
       /* Compute as2 and asm2.  */
-      flags = (enum toom6_flags)(toom6_vm2_neg & mpn_toom_eval_pm2(as2, asm2, 4, ap, n, s, a1a3));
+      flags = (enum toom6_flags)(toom6_vm2_neg & gpmpn_toom_eval_pm2(as2, asm2, 4, ap, n, s, a1a3));
 
       /* Compute bs1 and bsm1.  */
       if (t == n)
       {
-#if HAVE_NATIVE_mpn_add_n_sub_n
+#if HAVE_NATIVE_gpmpn_add_n_sub_n
         mp_limb_t cy;
 
-        if (mpn_cmp(b0, b1, n) < 0)
+        if (gpmpn_cmp(b0, b1, n) < 0)
         {
-          cy = mpn_add_n_sub_n(bs1, bsm1, b1, b0, n);
+          cy = gpmpn_add_n_sub_n(bs1, bsm1, b1, b0, n);
           flags = (enum toom6_flags)(flags ^ toom6_vm1_neg);
         }
         else
         {
-          cy = mpn_add_n_sub_n(bs1, bsm1, b0, b1, n);
+          cy = gpmpn_add_n_sub_n(bs1, bsm1, b0, b1, n);
         }
         bs1[n] = cy >> 1;
 #else
-        bs1[n] = mpn_add_n(bs1, b0, b1, n);
-        if (mpn_cmp(b0, b1, n) < 0)
+        bs1[n] = gpmpn_add_n(bs1, b0, b1, n);
+        if (gpmpn_cmp(b0, b1, n) < 0)
         {
-          mpn_sub_n(bsm1, b1, b0, n);
+          gpmpn_sub_n(bsm1, b1, b0, n);
           flags = (enum toom6_flags)(flags ^ toom6_vm1_neg);
         }
         else
         {
-          mpn_sub_n(bsm1, b0, b1, n);
+          gpmpn_sub_n(bsm1, b0, b1, n);
         }
 #endif
       }
       else
       {
-        bs1[n] = mpn_add(bs1, b0, n, b1, t);
-        if (mpn_zero_p(b0 + t, n - t) && mpn_cmp(b0, b1, t) < 0)
+        bs1[n] = gpmpn_add(bs1, b0, n, b1, t);
+        if (gpmpn_zero_p(b0 + t, n - t) && gpmpn_cmp(b0, b1, t) < 0)
         {
-          mpn_sub_n(bsm1, b1, b0, t);
+          gpmpn_sub_n(bsm1, b1, b0, t);
           MPN_ZERO(bsm1 + t, n - t);
           flags = (enum toom6_flags)(flags ^ toom6_vm1_neg);
         }
         else
         {
-          mpn_sub(bsm1, b0, n, b1, t);
+          gpmpn_sub(bsm1, b0, n, b1, t);
         }
       }
 
       /* Compute bs2 and bsm2, recycling bs1 and bsm1. bs2=bs1+b1; bsm2=bsm1-b1  */
-      mpn_add(bs2, bs1, n + 1, b1, t);
+      gpmpn_add(bs2, bs1, n + 1, b1, t);
       if (flags & toom6_vm1_neg)
       {
-        bsm2[n] = mpn_add(bsm2, bsm1, n, b1, t);
+        bsm2[n] = gpmpn_add(bsm2, bsm1, n, b1, t);
         flags = (enum toom6_flags)(flags ^ toom6_vm2_neg);
       }
       else
@@ -175,33 +175,33 @@ namespace gpgmp
         bsm2[n] = 0;
         if (t == n)
         {
-          if (mpn_cmp(bsm1, b1, n) < 0)
+          if (gpmpn_cmp(bsm1, b1, n) < 0)
           {
-            mpn_sub_n(bsm2, b1, bsm1, n);
+            gpmpn_sub_n(bsm2, b1, bsm1, n);
             flags = (enum toom6_flags)(flags ^ toom6_vm2_neg);
           }
           else
           {
-            mpn_sub_n(bsm2, bsm1, b1, n);
+            gpmpn_sub_n(bsm2, bsm1, b1, n);
           }
         }
         else
         {
-          if (mpn_zero_p(bsm1 + t, n - t) && mpn_cmp(bsm1, b1, t) < 0)
+          if (gpmpn_zero_p(bsm1 + t, n - t) && gpmpn_cmp(bsm1, b1, t) < 0)
           {
-            mpn_sub_n(bsm2, b1, bsm1, t);
+            gpmpn_sub_n(bsm2, b1, bsm1, t);
             MPN_ZERO(bsm2 + t, n - t);
             flags = (enum toom6_flags)(flags ^ toom6_vm2_neg);
           }
           else
           {
-            mpn_sub(bsm2, bsm1, n, b1, t);
+            gpmpn_sub(bsm2, bsm1, n, b1, t);
           }
         }
       }
 
       /* Compute as1 and asm1.  */
-      flags = (enum toom6_flags)(flags ^ (toom6_vm1_neg & mpn_toom_eval_pm1(as1, asm1, 4, ap, n, s, a0a2)));
+      flags = (enum toom6_flags)(flags ^ (toom6_vm1_neg & gpmpn_toom_eval_pm1(as1, asm1, 4, ap, n, s, a0a2)));
 
       ASSERT(as1[n] <= 4);
       ASSERT(bs1[n] <= 1);
@@ -213,27 +213,27 @@ namespace gpgmp
       ASSERT(bsm2[n] <= 1);
 
       /* vm1, 2n+1 limbs */
-      mpn_mul(vm1, asm1, n + 1, bsm1, n); /* W4 */
+      gpmpn_mul(vm1, asm1, n + 1, bsm1, n); /* W4 */
 
       /* vm2, 2n+1 limbs */
-      mpn_mul_n(vm2, asm2, bsm2, n + 1); /* W2 */
+      gpmpn_mul_n(vm2, asm2, bsm2, n + 1); /* W2 */
 
       /* v2, 2n+1 limbs */
-      mpn_mul_n(v2, as2, bs2, n + 1); /* W1 */
+      gpmpn_mul_n(v2, as2, bs2, n + 1); /* W1 */
 
       /* v1, 2n+1 limbs */
-      mpn_mul_n(v1, as1, bs1, n + 1); /* W3 */
+      gpmpn_mul_n(v1, as1, bs1, n + 1); /* W3 */
 
       /* vinf, s+t limbs */ /* W0 */
       if (s > t)
-        mpn_mul(vinf, a4, s, b1, t);
+        gpmpn_mul(vinf, a4, s, b1, t);
       else
-        mpn_mul(vinf, b1, t, a4, s);
+        gpmpn_mul(vinf, b1, t, a4, s);
 
       /* v0, 2n limbs */
-      mpn_mul_n(v0, ap, bp, n); /* W5 */
+      gpmpn_mul_n(v0, ap, bp, n); /* W5 */
 
-      mpn_toom_interpolate_6pts(pp, n, flags, vm1, vm2, v2, t + s);
+      gpmpn_toom_interpolate_6pts(pp, n, flags, vm1, vm2, v2, t + s);
 
 #undef v0
 #undef vm1

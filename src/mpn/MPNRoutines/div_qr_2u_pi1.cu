@@ -1,4 +1,4 @@
-/* mpn_div_qr_2u_pi1
+/* gpmpn_div_qr_2u_pi1
 
    Contributed to the GNU project by Niels Möller
 
@@ -43,7 +43,7 @@ namespace gpgmp {
 
     /* 3/2 loop, for unnormalized divisor. Caller must pass shifted d1 and
       d0, while {np,nn} is shifted on the fly. */
-    ANYCALLER mp_limb_t mpn_div_qr_2u_pi1 (mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_limb_t d1, mp_limb_t d0, int shift, mp_limb_t di)
+    ANYCALLER mp_limb_t gpmpn_div_qr_2u_pi1 (mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_limb_t d1, mp_limb_t d0, int shift, mp_limb_t di)
     {
       mp_limb_t qh;
       mp_limb_t r2, r1, r0;

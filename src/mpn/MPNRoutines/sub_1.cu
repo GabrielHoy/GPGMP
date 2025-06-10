@@ -1,4 +1,4 @@
-/* mpn_sub_1 - subtract limb from mpn.
+/* gpmpn_sub_1 - subtract limb from mpn.
 
 Copyright 2001 Free Software Foundation, Inc.
 
@@ -27,8 +27,8 @@ for more details.
 You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
-#pragma once
 
-#define __GMP_FORCE_mpn_sub_1 1
+
+#define __GMP_FORCE_gpmpn_sub_1 1
 
 #include "gpgmp-impl.cuh"

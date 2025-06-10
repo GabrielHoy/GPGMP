@@ -1,4 +1,4 @@
-/* mpn_zero
+/* gpmpn_zero
 
 Copyright 2009 Free Software Foundation, Inc.
 
@@ -34,7 +34,7 @@ namespace gpgmp {
 
 	namespace mpnRoutines {
 
-    ANYCALLER void mpn_zero (mp_ptr result_ptr, mp_size_t size)
+    ANYCALLER void gpmpn_zero (mp_ptr result_ptr, mp_size_t size)
     {
       mp_size_t index;
 

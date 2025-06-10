@@ -1,4 +1,4 @@
-/* mpn_mul -- Multiply two natural numbers.
+/* gpmpn_mul -- Multiply two natural numbers.
 
    Contributed to the GNU project by Torbjorn Granlund.
 
@@ -101,7 +101,7 @@ namespace gpgmp
 			similar way?
 
 		  * The toomX3 code is used for the largest non-FFT unbalanced operands.  It
-			therefore calls mpn_mul recursively for certain cases.
+			therefore calls gpmpn_mul recursively for certain cases.
 
 		  * Allocate static temp space using THRESHOLD variables (except for toom44
 			when !WANT_FFT).  That way, we can typically have no TMP_ALLOC at all.
@@ -116,7 +116,7 @@ namespace gpgmp
 		*/
 
 		ANYCALLER mp_limb_t
-		mpn_mul(mp_ptr prodp,
+		gpmpn_mul(mp_ptr prodp,
 				mp_srcptr up, mp_size_t un,
 				mp_srcptr vp, mp_size_t vn)
 		{
@@ -131,25 +131,25 @@ namespace gpgmp
 			   Test un and not vn here not to thwart the un >> vn code below.
 			   This special case is not necessary, but cuts the overhead for the
 			   smallest operands. */
-				mpn_mul_basecase(prodp, up, un, vp, vn);
+				gpmpn_mul_basecase(prodp, up, un, vp, vn);
 			}
 			else if (un == vn)
 			{
-				mpn_mul_n(prodp, up, vp, un);
+				gpmpn_mul_n(prodp, up, vp, un);
 			}
 			else if (vn < MUL_TOOM22_THRESHOLD)
 			{ /* plain schoolbook multiplication */
 
-				/* Unless un is very large, or else if have an applicable mpn_mul_N,
+				/* Unless un is very large, or else if have an applicable gpmpn_mul_N,
 			   perform basecase multiply directly.  */
 				if (un <= MUL_BASECASE_MAX_UN
-#if HAVE_NATIVE_mpn_mul_2
+#if HAVE_NATIVE_gpmpn_mul_2
 					|| vn <= 2
 #else
 					|| vn == 1
 #endif
 				)
-					mpn_mul_basecase(prodp, up, un, vp, vn);
+					gpmpn_mul_basecase(prodp, up, un, vp, vn);
 				else
 				{
 					/* We have un >> MUL_BASECASE_MAX_UN > vn.  For better memory
@@ -180,16 +180,16 @@ namespace gpgmp
 					mp_limb_t cy;
 					ASSERT(MUL_TOOM22_THRESHOLD <= MUL_TOOM22_THRESHOLD_LIMIT);
 
-					mpn_mul_basecase(prodp, up, MUL_BASECASE_MAX_UN, vp, vn);
+					gpmpn_mul_basecase(prodp, up, MUL_BASECASE_MAX_UN, vp, vn);
 					prodp += MUL_BASECASE_MAX_UN;
 					MPN_COPY(tp, prodp, vn); /* preserve high triangle */
 					up += MUL_BASECASE_MAX_UN;
 					un -= MUL_BASECASE_MAX_UN;
 					while (un > MUL_BASECASE_MAX_UN)
 					{
-						mpn_mul_basecase(prodp, up, MUL_BASECASE_MAX_UN, vp, vn);
-						cy = mpn_add_n(prodp, prodp, tp, vn); /* add back preserved triangle */
-						mpn_incr_u(prodp + vn, cy);
+						gpmpn_mul_basecase(prodp, up, MUL_BASECASE_MAX_UN, vp, vn);
+						cy = gpmpn_add_n(prodp, prodp, tp, vn); /* add back preserved triangle */
+						gpmpn_incr_u(prodp + vn, cy);
 						prodp += MUL_BASECASE_MAX_UN;
 						MPN_COPY(tp, prodp, vn); /* preserve high triangle */
 						up += MUL_BASECASE_MAX_UN;
@@ -197,15 +197,15 @@ namespace gpgmp
 					}
 					if (un > vn)
 					{
-						mpn_mul_basecase(prodp, up, un, vp, vn);
+						gpmpn_mul_basecase(prodp, up, un, vp, vn);
 					}
 					else
 					{
 						ASSERT(un > 0);
-						mpn_mul_basecase(prodp, vp, vn, up, un);
+						gpmpn_mul_basecase(prodp, vp, vn, up, un);
 					}
-					cy = mpn_add_n(prodp, prodp, tp, vn); /* add back preserved triangle */
-					mpn_incr_u(prodp + vn, cy);
+					cy = gpmpn_add_n(prodp, prodp, tp, vn); /* add back preserved triangle */
+					gpmpn_incr_u(prodp + vn, cy);
 				}
 			}
 			else if (BELOW_THRESHOLD(vn, MUL_TOOM33_THRESHOLD))
@@ -217,9 +217,9 @@ namespace gpgmp
 
 #define ITCH_TOOMX2 (9 * vn / 2 + GMP_NUMB_BITS * 2)
 				scratch = TMP_SALLOC_LIMBS(ITCH_TOOMX2);
-				ASSERT(mpn_toom22_mul_itch((5 * vn - 1) / 4, vn) <= ITCH_TOOMX2); /* 5vn/2+ */
-				ASSERT(mpn_toom32_mul_itch((7 * vn - 1) / 4, vn) <= ITCH_TOOMX2); /* 7vn/6+ */
-				ASSERT(mpn_toom42_mul_itch(3 * vn - 1, vn) <= ITCH_TOOMX2);		  /* 9vn/2+ */
+				ASSERT(gpmpn_toom22_mul_itch((5 * vn - 1) / 4, vn) <= ITCH_TOOMX2); /* 5vn/2+ */
+				ASSERT(gpmpn_toom32_mul_itch((7 * vn - 1) / 4, vn) <= ITCH_TOOMX2); /* 7vn/6+ */
+				ASSERT(gpmpn_toom42_mul_itch(3 * vn - 1, vn) <= ITCH_TOOMX2);		  /* 9vn/2+ */
 #undef ITCH_TOOMX2
 
 				/* FIXME: This condition (repeated in the loop below) leaves from a vn*vn
@@ -231,46 +231,46 @@ namespace gpgmp
 					mp_limb_t cy;
 					mp_ptr ws;
 
-					/* The maximum ws usage is for the mpn_mul result.  */
+					/* The maximum ws usage is for the gpmpn_mul result.  */
 					ws = TMP_SALLOC_LIMBS(4 * vn);
 
-					mpn_toom42_mul(prodp, up, 2 * vn, vp, vn, scratch);
+					gpmpn_toom42_mul(prodp, up, 2 * vn, vp, vn, scratch);
 					un -= 2 * vn;
 					up += 2 * vn;
 					prodp += 2 * vn;
 
 					while (un >= 3 * vn)
 					{
-						mpn_toom42_mul(ws, up, 2 * vn, vp, vn, scratch);
+						gpmpn_toom42_mul(ws, up, 2 * vn, vp, vn, scratch);
 						un -= 2 * vn;
 						up += 2 * vn;
-						cy = mpn_add_n(prodp, prodp, ws, vn);
+						cy = gpmpn_add_n(prodp, prodp, ws, vn);
 						MPN_COPY(prodp + vn, ws + vn, 2 * vn);
-						mpn_incr_u(prodp + vn, cy);
+						gpmpn_incr_u(prodp + vn, cy);
 						prodp += 2 * vn;
 					}
 
 					/* vn <= un < 3vn */
 
 					if (4 * un < 5 * vn)
-						mpn_toom22_mul(ws, up, un, vp, vn, scratch);
+						gpmpn_toom22_mul(ws, up, un, vp, vn, scratch);
 					else if (4 * un < 7 * vn)
-						mpn_toom32_mul(ws, up, un, vp, vn, scratch);
+						gpmpn_toom32_mul(ws, up, un, vp, vn, scratch);
 					else
-						mpn_toom42_mul(ws, up, un, vp, vn, scratch);
+						gpmpn_toom42_mul(ws, up, un, vp, vn, scratch);
 
-					cy = mpn_add_n(prodp, prodp, ws, vn);
+					cy = gpmpn_add_n(prodp, prodp, ws, vn);
 					MPN_COPY(prodp + vn, ws + vn, un);
-					mpn_incr_u(prodp + vn, cy);
+					gpmpn_incr_u(prodp + vn, cy);
 				}
 				else
 				{
 					if (4 * un < 5 * vn)
-						mpn_toom22_mul(prodp, up, un, vp, vn, scratch);
+						gpmpn_toom22_mul(prodp, up, un, vp, vn, scratch);
 					else if (4 * un < 7 * vn)
-						mpn_toom32_mul(prodp, up, un, vp, vn, scratch);
+						gpmpn_toom32_mul(prodp, up, un, vp, vn, scratch);
 					else
-						mpn_toom42_mul(prodp, up, un, vp, vn, scratch);
+						gpmpn_toom42_mul(prodp, up, un, vp, vn, scratch);
 				}
 				TMP_SFREE;
 			}
@@ -290,12 +290,12 @@ namespace gpgmp
 
 #define ITCH_TOOMX3 (4 * vn + GMP_NUMB_BITS)
 					scratch = TMP_ALLOC_LIMBS(ITCH_TOOMX3);
-					ASSERT(mpn_toom33_mul_itch((7 * vn - 1) / 6, vn) <= ITCH_TOOMX3);  /* 7vn/2+ */
-					ASSERT(mpn_toom43_mul_itch((3 * vn - 1) / 2, vn) <= ITCH_TOOMX3);  /* 9vn/4+ */
-					ASSERT(mpn_toom32_mul_itch((7 * vn - 1) / 4, vn) <= ITCH_TOOMX3);  /* 7vn/6+ */
-					ASSERT(mpn_toom53_mul_itch((11 * vn - 1) / 6, vn) <= ITCH_TOOMX3); /* 11vn/3+ */
-					ASSERT(mpn_toom42_mul_itch((5 * vn - 1) / 2, vn) <= ITCH_TOOMX3);  /* 15vn/4+ */
-					ASSERT(mpn_toom63_mul_itch((5 * vn - 1) / 2, vn) <= ITCH_TOOMX3);  /* 15vn/4+ */
+					ASSERT(gpmpn_toom33_mul_itch((7 * vn - 1) / 6, vn) <= ITCH_TOOMX3);  /* 7vn/2+ */
+					ASSERT(gpmpn_toom43_mul_itch((3 * vn - 1) / 2, vn) <= ITCH_TOOMX3);  /* 9vn/4+ */
+					ASSERT(gpmpn_toom32_mul_itch((7 * vn - 1) / 4, vn) <= ITCH_TOOMX3);  /* 7vn/6+ */
+					ASSERT(gpmpn_toom53_mul_itch((11 * vn - 1) / 6, vn) <= ITCH_TOOMX3); /* 11vn/3+ */
+					ASSERT(gpmpn_toom42_mul_itch((5 * vn - 1) / 2, vn) <= ITCH_TOOMX3);  /* 15vn/4+ */
+					ASSERT(gpmpn_toom63_mul_itch((5 * vn - 1) / 2, vn) <= ITCH_TOOMX3);  /* 15vn/4+ */
 #undef ITCH_TOOMX3
 
 					if (2 * un >= 5 * vn)
@@ -303,13 +303,13 @@ namespace gpgmp
 						mp_limb_t cy;
 						mp_ptr ws;
 
-						/* The maximum ws usage is for the mpn_mul result.  */
+						/* The maximum ws usage is for the gpmpn_mul result.  */
 						ws = TMP_ALLOC_LIMBS(7 * vn >> 1);
 
 						if (BELOW_THRESHOLD(vn, MUL_TOOM42_TO_TOOM63_THRESHOLD))
-							mpn_toom42_mul(prodp, up, 2 * vn, vp, vn, scratch);
+							gpmpn_toom42_mul(prodp, up, 2 * vn, vp, vn, scratch);
 						else
-							mpn_toom63_mul(prodp, up, 2 * vn, vp, vn, scratch);
+							gpmpn_toom63_mul(prodp, up, 2 * vn, vp, vn, scratch);
 						un -= 2 * vn;
 						up += 2 * vn;
 						prodp += 2 * vn;
@@ -317,62 +317,62 @@ namespace gpgmp
 						while (2 * un >= 5 * vn) /* un >= 2.5vn */
 						{
 							if (BELOW_THRESHOLD(vn, MUL_TOOM42_TO_TOOM63_THRESHOLD))
-								mpn_toom42_mul(ws, up, 2 * vn, vp, vn, scratch);
+								gpmpn_toom42_mul(ws, up, 2 * vn, vp, vn, scratch);
 							else
-								mpn_toom63_mul(ws, up, 2 * vn, vp, vn, scratch);
+								gpmpn_toom63_mul(ws, up, 2 * vn, vp, vn, scratch);
 							un -= 2 * vn;
 							up += 2 * vn;
-							cy = mpn_add_n(prodp, prodp, ws, vn);
+							cy = gpmpn_add_n(prodp, prodp, ws, vn);
 							MPN_COPY(prodp + vn, ws + vn, 2 * vn);
-							mpn_incr_u(prodp + vn, cy);
+							gpmpn_incr_u(prodp + vn, cy);
 							prodp += 2 * vn;
 						}
 
 						/* vn / 2 <= un < 2.5vn */
 
 						if (un < vn)
-							mpn_mul(ws, vp, vn, up, un);
+							gpmpn_mul(ws, vp, vn, up, un);
 						else
-							mpn_mul(ws, up, un, vp, vn);
+							gpmpn_mul(ws, up, un, vp, vn);
 
-						cy = mpn_add_n(prodp, prodp, ws, vn);
+						cy = gpmpn_add_n(prodp, prodp, ws, vn);
 						MPN_COPY(prodp + vn, ws + vn, un);
-						mpn_incr_u(prodp + vn, cy);
+						gpmpn_incr_u(prodp + vn, cy);
 					}
 					else
 					{
 						if (6 * un < 7 * vn)
-							mpn_toom33_mul(prodp, up, un, vp, vn, scratch);
+							gpmpn_toom33_mul(prodp, up, un, vp, vn, scratch);
 						else if (2 * un < 3 * vn)
 						{
 							if (BELOW_THRESHOLD(vn, MUL_TOOM32_TO_TOOM43_THRESHOLD))
-								mpn_toom32_mul(prodp, up, un, vp, vn, scratch);
+								gpmpn_toom32_mul(prodp, up, un, vp, vn, scratch);
 							else
-								mpn_toom43_mul(prodp, up, un, vp, vn, scratch);
+								gpmpn_toom43_mul(prodp, up, un, vp, vn, scratch);
 						}
 						else if (6 * un < 11 * vn)
 						{
 							if (4 * un < 7 * vn)
 							{
 								if (BELOW_THRESHOLD(vn, MUL_TOOM32_TO_TOOM53_THRESHOLD))
-									mpn_toom32_mul(prodp, up, un, vp, vn, scratch);
+									gpmpn_toom32_mul(prodp, up, un, vp, vn, scratch);
 								else
-									mpn_toom53_mul(prodp, up, un, vp, vn, scratch);
+									gpmpn_toom53_mul(prodp, up, un, vp, vn, scratch);
 							}
 							else
 							{
 								if (BELOW_THRESHOLD(vn, MUL_TOOM42_TO_TOOM53_THRESHOLD))
-									mpn_toom42_mul(prodp, up, un, vp, vn, scratch);
+									gpmpn_toom42_mul(prodp, up, un, vp, vn, scratch);
 								else
-									mpn_toom53_mul(prodp, up, un, vp, vn, scratch);
+									gpmpn_toom53_mul(prodp, up, un, vp, vn, scratch);
 							}
 						}
 						else
 						{
 							if (BELOW_THRESHOLD(vn, MUL_TOOM42_TO_TOOM63_THRESHOLD))
-								mpn_toom42_mul(prodp, up, un, vp, vn, scratch);
+								gpmpn_toom42_mul(prodp, up, un, vp, vn, scratch);
 							else
-								mpn_toom63_mul(prodp, up, un, vp, vn, scratch);
+								gpmpn_toom63_mul(prodp, up, un, vp, vn, scratch);
 						}
 					}
 					TMP_FREE;
@@ -385,18 +385,18 @@ namespace gpgmp
 
 					if (BELOW_THRESHOLD(vn, MUL_TOOM6H_THRESHOLD))
 					{
-						scratch = TMP_SALLOC_LIMBS(mpn_toom44_mul_itch(un, vn));
-						mpn_toom44_mul(prodp, up, un, vp, vn, scratch);
+						scratch = TMP_SALLOC_LIMBS(gpmpn_toom44_mul_itch(un, vn));
+						gpmpn_toom44_mul(prodp, up, un, vp, vn, scratch);
 					}
 					else if (BELOW_THRESHOLD(vn, MUL_TOOM8H_THRESHOLD))
 					{
-						scratch = TMP_SALLOC_LIMBS(mpn_toom6h_mul_itch(un, vn));
-						mpn_toom6h_mul(prodp, up, un, vp, vn, scratch);
+						scratch = TMP_SALLOC_LIMBS(gpmpn_toom6h_mul_itch(un, vn));
+						gpmpn_toom6h_mul(prodp, up, un, vp, vn, scratch);
 					}
 					else
 					{
-						scratch = TMP_ALLOC_LIMBS(mpn_toom8h_mul_itch(un, vn));
-						mpn_toom8h_mul(prodp, up, un, vp, vn, scratch);
+						scratch = TMP_ALLOC_LIMBS(gpmpn_toom8h_mul_itch(un, vn));
+						gpmpn_toom8h_mul(prodp, up, un, vp, vn, scratch);
 					}
 					TMP_FREE;
 				}
@@ -410,40 +410,40 @@ namespace gpgmp
 					TMP_DECL;
 					TMP_MARK;
 
-					/* The maximum ws usage is for the mpn_mul result.  */
+					/* The maximum ws usage is for the gpmpn_mul result.  */
 					ws = TMP_BALLOC_LIMBS(9 * vn >> 1);
 
-					mpn_fft_mul(prodp, up, 3 * vn, vp, vn);
+					gpmpn_fft_mul(prodp, up, 3 * vn, vp, vn);
 					un -= 3 * vn;
 					up += 3 * vn;
 					prodp += 3 * vn;
 
 					while (2 * un >= 7 * vn) /* un >= 3.5vn  */
 					{
-						mpn_fft_mul(ws, up, 3 * vn, vp, vn);
+						gpmpn_fft_mul(ws, up, 3 * vn, vp, vn);
 						un -= 3 * vn;
 						up += 3 * vn;
-						cy = mpn_add_n(prodp, prodp, ws, vn);
+						cy = gpmpn_add_n(prodp, prodp, ws, vn);
 						MPN_COPY(prodp + vn, ws + vn, 3 * vn);
-						mpn_incr_u(prodp + vn, cy);
+						gpmpn_incr_u(prodp + vn, cy);
 						prodp += 3 * vn;
 					}
 
 					/* vn / 2 <= un < 3.5vn */
 
 					if (un < vn)
-						mpn_mul(ws, vp, vn, up, un);
+						gpmpn_mul(ws, vp, vn, up, un);
 					else
-						mpn_mul(ws, up, un, vp, vn);
+						gpmpn_mul(ws, up, un, vp, vn);
 
-					cy = mpn_add_n(prodp, prodp, ws, vn);
+					cy = gpmpn_add_n(prodp, prodp, ws, vn);
 					MPN_COPY(prodp + vn, ws + vn, un);
-					mpn_incr_u(prodp + vn, cy);
+					gpmpn_incr_u(prodp + vn, cy);
 
 					TMP_FREE;
 				}
 				else
-					mpn_fft_mul(prodp, up, un, vp, vn);
+					gpmpn_fft_mul(prodp, up, un, vp, vn);
 			}
 
 			return prodp[un + vn - 1]; /* historic */

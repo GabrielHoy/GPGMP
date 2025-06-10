@@ -1,4 +1,4 @@
-/* mpn_divrem_2 -- Divide natural numbers, producing both remainder and
+/* gpmpn_divrem_2 -- Divide natural numbers, producing both remainder and
    quotient.  The divisor is two limbs.
 
    THIS FILE CONTAINS INTERNAL FUNCTIONS WITH MUTABLE INTERFACES.  IT IS ONLY
@@ -55,7 +55,7 @@ namespace gpgmp
           the quotient in the high part of {np,nn}, right above the remainder.
       3. nn >= 2, even if qxn is non-zero.  */
 
-    ANYCALLER mp_limb_t mpn_divrem_2(mp_ptr qp, mp_size_t qxn, mp_ptr np, mp_size_t nn, mp_srcptr dp)
+    ANYCALLER mp_limb_t gpmpn_divrem_2(mp_ptr qp, mp_size_t qxn, mp_ptr np, mp_size_t nn, mp_srcptr dp)
     {
       mp_limb_t most_significant_q_limb;
       mp_size_t i;

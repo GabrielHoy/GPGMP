@@ -1,4 +1,4 @@
-/* mpn_sec_invert
+/* gpmpn_sec_invert
 
    Contributed to the GNU project by Niels Möller
 
@@ -39,13 +39,13 @@ namespace gpgmp
   {
 
     /* FIXME: Ought to return carry */
-    ANYCALLER static void mpn_cnd_neg(int cnd, mp_limb_t *rp, const mp_limb_t *ap, mp_size_t n, mp_ptr scratch)
+    ANYCALLER static void gpmpn_cnd_neg(int cnd, mp_limb_t *rp, const mp_limb_t *ap, mp_size_t n, mp_ptr scratch)
     {
-      mpn_lshift(scratch, ap, n, 1);
-      mpn_cnd_sub_n(cnd, rp, ap, scratch, n);
+      gpmpn_lshift(scratch, ap, n, 1);
+      gpmpn_cnd_sub_n(cnd, rp, ap, scratch, n);
     }
 
-    ANYCALLER static int mpn_sec_eq_ui(mp_srcptr ap, mp_size_t n, mp_limb_t b)
+    ANYCALLER static int gpmpn_sec_eq_ui(mp_srcptr ap, mp_size_t n, mp_limb_t b)
     {
       mp_limb_t d;
       ASSERT(n > 0);
@@ -58,7 +58,7 @@ namespace gpgmp
       return d == 0;
     }
 
-    ANYCALLER mp_size_t mpn_sec_invert_itch(mp_size_t n)
+    ANYCALLER mp_size_t gpmpn_sec_invert_itch(mp_size_t n)
     {
       return 4 * n;
     }
@@ -70,7 +70,7 @@ namespace gpgmp
        2*n*GMP_NUMB_BITS, but if A or M are known to be smaller, e.g., if
        M = 2^521 - 1 and A < M, bit_size can be any bound on the sum of
        the bit sizes of A and M. */
-    ANYCALLER int mpn_sec_invert(mp_ptr vp, mp_ptr ap, mp_srcptr mp, mp_size_t n, mp_bitcnt_t bit_size, mp_ptr scratch)
+    ANYCALLER int gpmpn_sec_invert(mp_ptr vp, mp_ptr ap, mp_srcptr mp, mp_size_t n, mp_bitcnt_t bit_size, mp_ptr scratch)
     {
       ASSERT(n > 0);
       ASSERT(bit_size > 0);
@@ -92,12 +92,12 @@ namespace gpgmp
          */
 
       up[0] = 1;
-      mpn_zero(up + 1, n - 1);
-      mpn_copyi(bp, mp, n);
-      mpn_zero(vp, n);
+      gpmpn_zero(up + 1, n - 1);
+      gpmpn_copyi(bp, mp, n);
+      gpmpn_zero(vp, n);
 
-      ASSERT_CARRY(mpn_rshift(m1hp, mp, n, 1));
-      ASSERT_NOCARRY(mpn_sec_add_1(m1hp, m1hp, n, 1, scratch));
+      ASSERT_CARRY(gpmpn_rshift(m1hp, mp, n, 1));
+      ASSERT_NOCARRY(gpmpn_sec_add_1(m1hp, m1hp, n, 1, scratch));
 
       while (bit_size-- > 0)
       {
@@ -140,25 +140,25 @@ namespace gpgmp
         ASSERT(bp[0] & 1);
         odd = ap[0] & 1;
 
-        swap = mpn_cnd_sub_n(odd, ap, ap, bp, n);
-        mpn_cnd_add_n(swap, bp, bp, ap, n);
-        mpn_cnd_neg(swap, ap, ap, n, scratch);
+        swap = gpmpn_cnd_sub_n(odd, ap, ap, bp, n);
+        gpmpn_cnd_add_n(swap, bp, bp, ap, n);
+        gpmpn_cnd_neg(swap, ap, ap, n, scratch);
 
-        mpn_cnd_swap(swap, up, vp, n);
-        cy = mpn_cnd_sub_n(odd, up, up, vp, n);
-        cy -= mpn_cnd_add_n(cy, up, up, mp, n);
+        gpmpn_cnd_swap(swap, up, vp, n);
+        cy = gpmpn_cnd_sub_n(odd, up, up, vp, n);
+        cy -= gpmpn_cnd_add_n(cy, up, up, mp, n);
         ASSERT(cy == 0);
 
-        cy = mpn_rshift(ap, ap, n, 1);
+        cy = gpmpn_rshift(ap, ap, n, 1);
         ASSERT(cy == 0);
-        cy = mpn_rshift(up, up, n, 1);
-        cy = mpn_cnd_add_n(cy, up, up, m1hp, n);
+        cy = gpmpn_rshift(up, up, n, 1);
+        cy = gpmpn_cnd_add_n(cy, up, up, m1hp, n);
         ASSERT(cy == 0);
       }
       /* Should be all zeros, but check only extreme limbs */
       ASSERT((ap[0] | ap[n - 1]) == 0);
       /* Check if indeed gcd == 1. */
-      return mpn_sec_eq_ui(bp, n, 1);
+      return gpmpn_sec_eq_ui(bp, n, 1);
 #undef bp
 #undef up
 #undef m1hp

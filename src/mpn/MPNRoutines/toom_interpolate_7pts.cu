@@ -1,4 +1,4 @@
-/* mpn_toom_interpolate_7pts -- Interpolate for toom44, 53, 62.
+/* gpmpn_toom_interpolate_7pts -- Interpolate for toom44, 53, 62.
 
    Contributed to the GNU project by Niels Möller.
    Improvements by Marco Bodrato.
@@ -51,34 +51,34 @@ namespace gpgmp
 #define BINVERT_15 \
   ((((GMP_NUMB_MAX >> (GMP_NUMB_BITS % 4)) / 15) * 14 * 16 & GMP_NUMB_MAX) + 15)
 
-/* For the various mpn_divexact_byN here, fall back to using either
-   mpn_pi1_bdiv_q_1 or mpn_divexact_1.  The former has less overhead and is
-   many faster if it is native.  For now, since mpn_divexact_1 is native on
-   several platforms where mpn_pi1_bdiv_q_1 does not yet exist, do not use
-   mpn_pi1_bdiv_q_1 unconditionally.  FIXME.  */
+/* For the various gpmpn_divexact_byN here, fall back to using either
+   gpmpn_pi1_bdiv_q_1 or gpmpn_divexact_1.  The former has less overhead and is
+   many faster if it is native.  For now, since gpmpn_divexact_1 is native on
+   several platforms where gpmpn_pi1_bdiv_q_1 does not yet exist, do not use
+   gpmpn_pi1_bdiv_q_1 unconditionally.  FIXME.  */
 
-/* For odd divisors, mpn_divexact_1 works fine with two's complement. */
-#ifndef mpn_divexact_by3
-#if HAVE_NATIVE_mpn_pi1_bdiv_q_1
-#define mpn_divexact_by3(dst, src, size) mpn_pi1_bdiv_q_1(dst, src, size, 3, BINVERT_3, 0)
+/* For odd divisors, gpmpn_divexact_1 works fine with two's complement. */
+#ifndef gpmpn_divexact_by3
+#if HAVE_NATIVE_gpmpn_pi1_bdiv_q_1
+#define gpmpn_divexact_by3(dst, src, size) gpmpn_pi1_bdiv_q_1(dst, src, size, 3, BINVERT_3, 0)
 #else
-#define mpn_divexact_by3(dst, src, size) mpn_divexact_1(dst, src, size, 3)
-#endif
-#endif
-
-#ifndef mpn_divexact_by9
-#if HAVE_NATIVE_mpn_pi1_bdiv_q_1
-#define mpn_divexact_by9(dst, src, size) mpn_pi1_bdiv_q_1(dst, src, size, 9, BINVERT_9, 0)
-#else
-#define mpn_divexact_by9(dst, src, size) mpn_divexact_1(dst, src, size, 9)
+#define gpmpn_divexact_by3(dst, src, size) gpmpn_divexact_1(dst, src, size, 3)
 #endif
 #endif
 
-#ifndef mpn_divexact_by15
-#if HAVE_NATIVE_mpn_pi1_bdiv_q_1
-#define mpn_divexact_by15(dst, src, size) mpn_pi1_bdiv_q_1(dst, src, size, 15, BINVERT_15, 0)
+#ifndef gpmpn_divexact_by9
+#if HAVE_NATIVE_gpmpn_pi1_bdiv_q_1
+#define gpmpn_divexact_by9(dst, src, size) gpmpn_pi1_bdiv_q_1(dst, src, size, 9, BINVERT_9, 0)
 #else
-#define mpn_divexact_by15(dst, src, size) mpn_divexact_1(dst, src, size, 15)
+#define gpmpn_divexact_by9(dst, src, size) gpmpn_divexact_1(dst, src, size, 9)
+#endif
+#endif
+
+#ifndef gpmpn_divexact_by15
+#if HAVE_NATIVE_gpmpn_pi1_bdiv_q_1
+#define gpmpn_divexact_by15(dst, src, size) gpmpn_pi1_bdiv_q_1(dst, src, size, 15, BINVERT_15, 0)
+#else
+#define gpmpn_divexact_by15(dst, src, size) gpmpn_divexact_1(dst, src, size, 15)
 #endif
 #endif
 
@@ -104,7 +104,7 @@ namespace gpgmp
        Needs (2*n + 1) limbs of temporary storage.
     */
 
-    ANYCALLER void mpn_toom_interpolate_7pts(mp_ptr rp, mp_size_t n, enum toom7_flags flags, mp_ptr w1, mp_ptr w3, mp_ptr w4, mp_ptr w5, mp_size_t w6n, mp_ptr tp)
+    ANYCALLER void gpmpn_toom_interpolate_7pts(mp_ptr rp, mp_size_t n, enum toom7_flags flags, mp_ptr w1, mp_ptr w3, mp_ptr w4, mp_ptr w5, mp_size_t w6n, mp_ptr tp)
     {
       mp_size_t m;
       mp_limb_t cy;
@@ -148,87 +148,87 @@ namespace gpgmp
          numbers work fine with two's complement.
       */
 
-      mpn_add_n(w5, w5, w4, m);
+      gpmpn_add_n(w5, w5, w4, m);
       if (flags & toom7_w1_neg)
       {
-#ifdef HAVE_NATIVE_mpn_rsh1add_n
-        mpn_rsh1add_n(w1, w1, w4, m);
+#ifdef HAVE_NATIVE_gpmpn_rsh1add_n
+        gpmpn_rsh1add_n(w1, w1, w4, m);
 #else
-        mpn_add_n(w1, w1, w4, m);
+        gpmpn_add_n(w1, w1, w4, m);
         ASSERT(!(w1[0] & 1));
-        mpn_rshift(w1, w1, m, 1);
+        gpmpn_rshift(w1, w1, m, 1);
 #endif
       }
       else
       {
-#ifdef HAVE_NATIVE_mpn_rsh1sub_n
-        mpn_rsh1sub_n(w1, w4, w1, m);
+#ifdef HAVE_NATIVE_gpmpn_rsh1sub_n
+        gpmpn_rsh1sub_n(w1, w4, w1, m);
 #else
-        mpn_sub_n(w1, w4, w1, m);
+        gpmpn_sub_n(w1, w4, w1, m);
         ASSERT(!(w1[0] & 1));
-        mpn_rshift(w1, w1, m, 1);
+        gpmpn_rshift(w1, w1, m, 1);
 #endif
       }
-      mpn_sub(w4, w4, m, w0, 2 * n);
-      mpn_sub_n(w4, w4, w1, m);
+      gpmpn_sub(w4, w4, m, w0, 2 * n);
+      gpmpn_sub_n(w4, w4, w1, m);
       ASSERT(!(w4[0] & 3));
-      mpn_rshift(w4, w4, m, 2); /* w4>=0 */
+      gpmpn_rshift(w4, w4, m, 2); /* w4>=0 */
 
-      tp[w6n] = mpn_lshift(tp, w6, w6n, 4);
-      mpn_sub(w4, w4, m, tp, w6n + 1);
+      tp[w6n] = gpmpn_lshift(tp, w6, w6n, 4);
+      gpmpn_sub(w4, w4, m, tp, w6n + 1);
 
       if (flags & toom7_w3_neg)
       {
-#ifdef HAVE_NATIVE_mpn_rsh1add_n
-        mpn_rsh1add_n(w3, w3, w2, m);
+#ifdef HAVE_NATIVE_gpmpn_rsh1add_n
+        gpmpn_rsh1add_n(w3, w3, w2, m);
 #else
-        mpn_add_n(w3, w3, w2, m);
+        gpmpn_add_n(w3, w3, w2, m);
         ASSERT(!(w3[0] & 1));
-        mpn_rshift(w3, w3, m, 1);
+        gpmpn_rshift(w3, w3, m, 1);
 #endif
       }
       else
       {
-#ifdef HAVE_NATIVE_mpn_rsh1sub_n
-        mpn_rsh1sub_n(w3, w2, w3, m);
+#ifdef HAVE_NATIVE_gpmpn_rsh1sub_n
+        gpmpn_rsh1sub_n(w3, w2, w3, m);
 #else
-        mpn_sub_n(w3, w2, w3, m);
+        gpmpn_sub_n(w3, w2, w3, m);
         ASSERT(!(w3[0] & 1));
-        mpn_rshift(w3, w3, m, 1);
+        gpmpn_rshift(w3, w3, m, 1);
 #endif
       }
 
-      mpn_sub_n(w2, w2, w3, m);
+      gpmpn_sub_n(w2, w2, w3, m);
 
-      mpn_submul_1(w5, w2, m, 65);
-      mpn_sub(w2, w2, m, w6, w6n);
-      mpn_sub(w2, w2, m, w0, 2 * n);
+      gpmpn_submul_1(w5, w2, m, 65);
+      gpmpn_sub(w2, w2, m, w6, w6n);
+      gpmpn_sub(w2, w2, m, w0, 2 * n);
 
-      mpn_addmul_1(w5, w2, m, 45);
+      gpmpn_addmul_1(w5, w2, m, 45);
       ASSERT(!(w5[0] & 1));
-      mpn_rshift(w5, w5, m, 1);
-      mpn_sub_n(w4, w4, w2, m);
+      gpmpn_rshift(w5, w5, m, 1);
+      gpmpn_sub_n(w4, w4, w2, m);
 
-      mpn_divexact_by3(w4, w4, m);
-      mpn_sub_n(w2, w2, w4, m);
+      gpmpn_divexact_by3(w4, w4, m);
+      gpmpn_sub_n(w2, w2, w4, m);
 
-      mpn_sub_n(w1, w5, w1, m);
-      mpn_lshift(tp, w3, m, 3);
-      mpn_sub_n(w5, w5, tp, m);
-      mpn_divexact_by9(w5, w5, m);
-      mpn_sub_n(w3, w3, w5, m);
+      gpmpn_sub_n(w1, w5, w1, m);
+      gpmpn_lshift(tp, w3, m, 3);
+      gpmpn_sub_n(w5, w5, tp, m);
+      gpmpn_divexact_by9(w5, w5, m);
+      gpmpn_sub_n(w3, w3, w5, m);
 
-      mpn_divexact_by15(w1, w1, m);
-#ifdef HAVE_NATIVE_mpn_rsh1add_n
-      mpn_rsh1add_n(w1, w1, w5, m);
+      gpmpn_divexact_by15(w1, w1, m);
+#ifdef HAVE_NATIVE_gpmpn_rsh1add_n
+      gpmpn_rsh1add_n(w1, w1, w5, m);
       w1[m - 1] &= GMP_NUMB_MASK >> 1;
 #else
-      mpn_add_n(w1, w1, w5, m);
+      gpmpn_add_n(w1, w1, w5, m);
       ASSERT(!(w1[0] & 1));
-      mpn_rshift(w1, w1, m, 1); /* w1>=0 now */
+      gpmpn_rshift(w1, w1, m, 1); /* w1>=0 now */
 #endif
 
-      mpn_sub_n(w5, w5, w1, m);
+      gpmpn_sub_n(w5, w5, w1, m);
 
       /* These bounds are valid for the 4x4 polynomial product of toom44,
        * and they are conservative for toom53 and toom62. */
@@ -257,22 +257,22 @@ namespace gpgmp
        *        c7   c6   c5   c4   c3                 Carries to propagate
        */
 
-      cy = mpn_add_n(rp + n, rp + n, w1, m);
+      cy = gpmpn_add_n(rp + n, rp + n, w1, m);
       MPN_INCR_U(w2 + n + 1, n, cy);
-      cy = mpn_add_n(rp + 3 * n, rp + 3 * n, w3, n);
+      cy = gpmpn_add_n(rp + 3 * n, rp + 3 * n, w3, n);
       MPN_INCR_U(w3 + n, n + 1, w2[2 * n] + cy);
-      cy = mpn_add_n(rp + 4 * n, w3 + n, w4, n);
+      cy = gpmpn_add_n(rp + 4 * n, w3 + n, w4, n);
       MPN_INCR_U(w4 + n, n + 1, w3[2 * n] + cy);
-      cy = mpn_add_n(rp + 5 * n, w4 + n, w5, n);
+      cy = gpmpn_add_n(rp + 5 * n, w4 + n, w5, n);
       MPN_INCR_U(w5 + n, n + 1, w4[2 * n] + cy);
       if (w6n > n + 1)
       {
-        cy = mpn_add_n(rp + 6 * n, rp + 6 * n, w5 + n, n + 1);
+        cy = gpmpn_add_n(rp + 6 * n, rp + 6 * n, w5 + n, n + 1);
         MPN_INCR_U(rp + 7 * n + 1, w6n - n - 1, cy);
       }
       else
       {
-        ASSERT_NOCARRY(mpn_add_n(rp + 6 * n, rp + 6 * n, w5 + n, w6n));
+        ASSERT_NOCARRY(gpmpn_add_n(rp + 6 * n, rp + 6 * n, w5 + n, w6n));
 #if WANT_ASSERT
         {
           mp_size_t i;

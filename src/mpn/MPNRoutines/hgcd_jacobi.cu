@@ -40,7 +40,7 @@ namespace gpgmp {
 
 
     /* This file is almost a copy of hgcd.c, with some added calls to
-   mpn_jacobi_update */
+   gpmpn_jacobi_update */
 
     struct hgcd_jacobi_ctx
     {
@@ -62,12 +62,12 @@ namespace gpgmp {
       now use the rest. */
           mp_ptr tp = (mp_ptr) qp + qn;
 
-          mpn_hgcd_matrix_update_q (ctx->M, qp, qn, d, tp);
-          *ctx->bitsp = mpn_jacobi_update (*ctx->bitsp, d, qp[0] & 3);
+          gpmpn_hgcd_matrix_update_q (ctx->M, qp, qn, d, tp);
+          *ctx->bitsp = gpmpn_jacobi_update (*ctx->bitsp, d, qp[0] & 3);
         }
     }
 
-    /* Perform a few steps, using some of mpn_hgcd2, subtraction and
+    /* Perform a few steps, using some of gpmpn_hgcd2, subtraction and
       division. Reduces the size by almost one limb or more, but never
       below the given size s. Return new size for a and b, or 0 if no
       more steps are possible.
@@ -118,16 +118,16 @@ namespace gpgmp {
           bl = MPN_EXTRACT_NUMB (shift, bp[n-2], bp[n-3]);
         }
 
-      /* Try an mpn_hgcd2 step */
-      if (mpn_hgcd2_jacobi (ah, al, bh, bl, &M1, bitsp))
+      /* Try an gpmpn_hgcd2 step */
+      if (gpmpn_hgcd2_jacobi (ah, al, bh, bl, &M1, bitsp))
         {
           /* Multiply M <- M * M1 */
-          mpn_hgcd_matrix_mul_1 (M, &M1, tp);
+          gpmpn_hgcd_matrix_mul_1 (M, &M1, tp);
 
           /* Can't swap inputs, so we need to copy. */
           MPN_COPY (tp, ap, n);
           /* Multiply M1^{-1} (a;b) */
-          return mpn_matrix22_mul1_inverse_vector (&M1, ap, tp, bp, n);
+          return gpmpn_matrix22_mul1_inverse_vector (&M1, ap, tp, bp, n);
         }
 
     subtract:
@@ -136,7 +136,7 @@ namespace gpgmp {
         ctx.M = M;
         ctx.bitsp = bitsp;
 
-        return mpn_gcd_subdiv_step (ap, bp, n, s, hgcd_jacobi_hook, &ctx, tp);
+        return gpmpn_gcd_subdiv_step (ap, bp, n, s, hgcd_jacobi_hook, &ctx, tp);
       }
     }
 
@@ -144,8 +144,8 @@ namespace gpgmp {
       with elements of size at most (n+1)/2 - 1. Returns new size of a,
       b, or zero if no reduction is possible. */
 
-    /* Same scratch requirements as for mpn_hgcd. */
-    ANYCALLER mp_size_t mpn_hgcd_jacobi (mp_ptr ap, mp_ptr bp, mp_size_t n, struct hgcd_matrix *M, unsigned *bitsp, mp_ptr tp)
+    /* Same scratch requirements as for gpmpn_hgcd. */
+    ANYCALLER mp_size_t gpmpn_hgcd_jacobi (mp_ptr ap, mp_ptr bp, mp_size_t n, struct hgcd_matrix *M, unsigned *bitsp, mp_ptr tp)
     {
       mp_size_t s = n/2 + 1;
 
@@ -166,12 +166,12 @@ namespace gpgmp {
           mp_size_t n2 = (3*n)/4 + 1;
           mp_size_t p = n/2;
 
-          nn = mpn_hgcd_jacobi (ap + p, bp + p, n - p, M, bitsp, tp);
+          nn = gpmpn_hgcd_jacobi (ap + p, bp + p, n - p, M, bitsp, tp);
           if (nn > 0)
       {
         /* Needs 2*(p + M->n) <= 2*(floor(n/2) + ceil(n/2) - 1)
           = 2 (n - 1) */
-        n = mpn_hgcd_matrix_adjust (M, p + nn, ap, bp, p, tp);
+        n = gpmpn_hgcd_matrix_adjust (M, p + nn, ap, bp, p, tp);
         success = 1;
       }
           while (n > n2)
@@ -192,8 +192,8 @@ namespace gpgmp {
         p = 2*s - n + 1;
         scratch = MPN_HGCD_MATRIX_INIT_ITCH (n-p);
 
-        mpn_hgcd_matrix_init(&M1, n - p, tp);
-        nn = mpn_hgcd_jacobi (ap + p, bp + p, n - p, &M1, bitsp, tp + scratch);
+        gpmpn_hgcd_matrix_init(&M1, n - p, tp);
+        nn = gpmpn_hgcd_jacobi (ap + p, bp + p, n - p, &M1, bitsp, tp + scratch);
         if (nn > 0)
           {
             /* We always have max(M) > 2^{-(GMP_NUMB_BITS + 1)} max(M1) */
@@ -209,7 +209,7 @@ namespace gpgmp {
 
             /* Needs 2 (p + M->n) <= 2 (2*s - n2 + 1 + n2 - s - 1)
         = 2*s <= 2*(floor(n/2) + 1) <= n + 2. */
-            n = mpn_hgcd_matrix_adjust (&M1, p + nn, ap, bp, p, tp + scratch);
+            n = gpmpn_hgcd_matrix_adjust (&M1, p + nn, ap, bp, p, tp + scratch);
 
             /* We need a bound for of M->n + M1.n. Let n be the original
         input size. Then
@@ -222,7 +222,7 @@ namespace gpgmp {
 
         Then 3*(M.n + M1.n) + 5 <= 3 * ceil(n/2) + 8 is the
         amount of needed scratch space. */
-            mpn_hgcd_matrix_mul (M, &M1, tp + scratch);
+            gpmpn_hgcd_matrix_mul (M, &M1, tp + scratch);
             success = 1;
           }
       }

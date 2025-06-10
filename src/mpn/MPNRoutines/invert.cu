@@ -40,13 +40,13 @@ see https://www.gnu.org/licenses/.  */
 namespace gpgmp {
   namespace mpnRoutines {
 
-    ANYCALLER void mpn_invert (mp_ptr ip, mp_srcptr dp, mp_size_t n, mp_ptr scratch)
+    ANYCALLER void gpmpn_invert (mp_ptr ip, mp_srcptr dp, mp_size_t n, mp_ptr scratch)
     {
       ASSERT (n > 0);
       ASSERT (dp[n-1] & GMP_NUMB_HIGHBIT);
       ASSERT (! MPN_OVERLAP_P (ip, n, dp, n));
-      ASSERT (! MPN_OVERLAP_P (ip, n, scratch, mpn_invertappr_itch(n)));
-      ASSERT (! MPN_OVERLAP_P (dp, n, scratch, mpn_invertappr_itch(n)));
+      ASSERT (! MPN_OVERLAP_P (ip, n, scratch, gpmpn_invertappr_itch(n)));
+      ASSERT (! MPN_OVERLAP_P (dp, n, scratch, gpmpn_invertappr_itch(n)));
 
       if (n == 1)
         invert_limb (*ip, *dp);
@@ -58,28 +58,28 @@ namespace gpgmp {
       xp = scratch;				/* 2 * n limbs */
       /* n > 1 here */
       MPN_FILL (xp, n, GMP_NUMB_MAX);
-      mpn_com (xp + n, dp, n);
+      gpmpn_com (xp + n, dp, n);
       if (n == 2) {
-        mpn_divrem_2 (ip, 0, xp, 4, dp);
+        gpmpn_divrem_2 (ip, 0, xp, 4, dp);
       } else {
         gmp_pi1_t inv;
         invert_pi1 (inv, dp[n-1], dp[n-2]);
         /* FIXME: should we use dcpi1_div_q, for big sizes? */
-        mpn_sbpi1_div_q (ip, xp, 2 * n, dp, n, inv.inv32);
+        gpmpn_sbpi1_div_q (ip, xp, 2 * n, dp, n, inv.inv32);
       }
         }
       else { /* Use approximated inverse; correct the result if needed. */
           mp_limb_t e; /* The possible error in the approximate inverse */
 
-          ASSERT ( mpn_invert_itch (n) >= mpn_invertappr_itch (n) );
-          e = mpn_ni_invertappr (ip, dp, n, scratch);
+          ASSERT ( gpmpn_invert_itch (n) >= gpmpn_invertappr_itch (n) );
+          e = gpmpn_ni_invertappr (ip, dp, n, scratch);
 
           if (UNLIKELY (e)) { /* Assume the error can only be "0" (no error) or "1". */
       /* Code to detect and correct the "off by one" approximation. */
-      mpn_mul_n (scratch, ip, dp, n);
-      e = mpn_add_n (scratch, scratch, dp, n); /* FIXME: we only need e.*/
+      gpmpn_mul_n (scratch, ip, dp, n);
+      e = gpmpn_add_n (scratch, scratch, dp, n); /* FIXME: we only need e.*/
       if (LIKELY(e)) /* The high part can not give a carry by itself. */
-        e = mpn_add_nc (scratch + n, scratch + n, dp, n, e); /* FIXME:e */
+        e = gpmpn_add_nc (scratch + n, scratch + n, dp, n, e); /* FIXME:e */
       /* If the value was wrong (no carry), correct it (increment). */
       e ^= CNST_LIMB (1);
       MPN_INCR_U (ip, n, e);

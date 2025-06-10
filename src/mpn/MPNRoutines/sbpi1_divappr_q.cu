@@ -1,4 +1,4 @@
-/* mpn_sbpi1_divappr_q -- Schoolbook division using the Möller-Granlund 3/2
+/* gpmpn_sbpi1_divappr_q -- Schoolbook division using the Möller-Granlund 3/2
    division algorithm, returning approximate quotient.  The quotient returned
    is either correct, or one too large.
 
@@ -44,7 +44,7 @@ namespace gpgmp
 	namespace mpnRoutines
 	{
 
-		ANYCALLER mp_limb_t mpn_sbpi1_divappr_q(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_limb_t dinv)
+		ANYCALLER mp_limb_t gpmpn_sbpi1_divappr_q(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_limb_t dinv)
 		{
 			mp_limb_t qh;
 			mp_size_t qn, i;
@@ -67,14 +67,14 @@ namespace gpgmp
 				dn = qn + 1;
 			}
 
-			qh = mpn_cmp(np - dn, dp, dn) >= 0;
+			qh = gpmpn_cmp(np - dn, dp, dn) >= 0;
 			if (qh != 0)
-				mpn_sub_n(np - dn, np - dn, dp, dn);
+				gpmpn_sub_n(np - dn, np - dn, dp, dn);
 
 			qp += qn;
 
 			dn -= 2; /* offset dn by 2 for main division loops,
-					saving two iterations in mpn_submul_1.  */
+					saving two iterations in gpmpn_submul_1.  */
 			d1 = dp[dn + 1];
 			d0 = dp[dn + 0];
 
@@ -88,14 +88,14 @@ namespace gpgmp
 				if (UNLIKELY(n1 == d1) && np[1] == d0)
 				{
 					q = GMP_NUMB_MASK;
-					mpn_submul_1(np - dn, dp, dn + 2, q);
+					gpmpn_submul_1(np - dn, dp, dn + 2, q);
 					n1 = np[1]; /* update n1, last loop's value will now be invalid */
 				}
 				else
 				{
 					udiv_qr_3by2(q, n1, n0, n1, np[1], np[0], d1, d0, dinv);
 
-					cy = mpn_submul_1(np - dn, dp, dn, q);
+					cy = gpmpn_submul_1(np - dn, dp, dn, q);
 
 					cy1 = n0 < cy;
 					n0 = (n0 - cy) & GMP_NUMB_MASK;
@@ -105,7 +105,7 @@ namespace gpgmp
 
 					if (UNLIKELY(cy != 0))
 					{
-						n1 += d1 + mpn_add_n(np - dn, np - dn, dp, dn + 1);
+						n1 += d1 + gpmpn_add_n(np - dn, np - dn, dp, dn + 1);
 						q--;
 					}
 				}
@@ -123,14 +123,14 @@ namespace gpgmp
 					if (UNLIKELY(n1 >= (d1 & flag)))
 					{
 						q = GMP_NUMB_MASK;
-						cy = mpn_submul_1(np - dn, dp, dn + 2, q);
+						cy = gpmpn_submul_1(np - dn, dp, dn + 2, q);
 
 						if (UNLIKELY(n1 != cy))
 						{
 							if (n1 < (cy & flag))
 							{
 								q--;
-								mpn_add_n(np - dn, np - dn, dp, dn + 2);
+								gpmpn_add_n(np - dn, np - dn, dp, dn + 2);
 							}
 							else
 								flag = 0;
@@ -141,7 +141,7 @@ namespace gpgmp
 					{
 						udiv_qr_3by2(q, n1, n0, n1, np[1], np[0], d1, d0, dinv);
 
-						cy = mpn_submul_1(np - dn, dp, dn, q);
+						cy = gpmpn_submul_1(np - dn, dp, dn, q);
 
 						cy1 = n0 < cy;
 						n0 = (n0 - cy) & GMP_NUMB_MASK;
@@ -151,7 +151,7 @@ namespace gpgmp
 
 						if (UNLIKELY(cy != 0))
 						{
-							n1 += d1 + mpn_add_n(np - dn, np - dn, dp, dn + 1);
+							n1 += d1 + gpmpn_add_n(np - dn, np - dn, dp, dn + 1);
 							q--;
 						}
 					}
@@ -167,7 +167,7 @@ namespace gpgmp
 				if (UNLIKELY(n1 >= (d1 & flag)))
 				{
 					q = GMP_NUMB_MASK;
-					cy = mpn_submul_1(np, dp, 2, q);
+					cy = gpmpn_submul_1(np, dp, 2, q);
 
 					if (UNLIKELY(n1 != cy))
 					{

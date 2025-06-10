@@ -41,7 +41,7 @@ namespace gpgmp {
 
     /* For input of size n, matrix elements are of size at most ceil(n/2)
    - 1, but we need two limbs extra. */
-    ANYCALLER void mpn_hgcd_matrix_init (struct hgcd_matrix *M, mp_size_t n, mp_ptr p)
+    ANYCALLER void gpmpn_hgcd_matrix_init (struct hgcd_matrix *M, mp_size_t n, mp_ptr p)
     {
       mp_size_t s = (n+1)/2 + 1;
       M->alloc = s;
@@ -58,7 +58,7 @@ namespace gpgmp {
     /* Update column COL, adding in Q * column (1-COL). Temporary storage:
     * qn + n <= M->alloc, where n is the size of the largest element in
     * column 1 - COL. */
-    ANYCALLER void mpn_hgcd_matrix_update_q (struct hgcd_matrix *M, mp_srcptr qp, mp_size_t qn, unsigned col, mp_ptr tp)
+    ANYCALLER void gpmpn_hgcd_matrix_update_q (struct hgcd_matrix *M, mp_srcptr qp, mp_size_t qn, unsigned col, mp_ptr tp)
     {
       ASSERT (col < 2);
 
@@ -67,8 +67,8 @@ namespace gpgmp {
           mp_limb_t q = qp[0];
           mp_limb_t c0, c1;
 
-          c0 = mpn_addmul_1 (M->p[0][col], M->p[0][1-col], M->n, q);
-          c1 = mpn_addmul_1 (M->p[1][col], M->p[1][1-col], M->n, q);
+          c0 = gpmpn_addmul_1 (M->p[0][col], M->p[0][1-col], M->n, q);
+          c1 = gpmpn_addmul_1 (M->p[1][col], M->p[1][1-col], M->n, q);
 
           M->p[0][col][M->n] = c0;
           M->p[1][col][M->n] = c1;
@@ -99,12 +99,12 @@ namespace gpgmp {
           for (row = 0; row < 2; row++)
       {
         if (qn <= n)
-          mpn_mul (tp, M->p[row][1-col], n, qp, qn);
+          gpmpn_mul (tp, M->p[row][1-col], n, qp, qn);
         else
-          mpn_mul (tp, qp, qn, M->p[row][1-col], n);
+          gpmpn_mul (tp, qp, qn, M->p[row][1-col], n);
 
         ASSERT (n + qn >= M->n);
-        c[row] = mpn_add (M->p[row][col], tp, n + qn, M->p[row][col], M->n);
+        c[row] = gpmpn_add (M->p[row][col], tp, n + qn, M->p[row][col], M->n);
       }
 
           n += qn;
@@ -129,15 +129,15 @@ namespace gpgmp {
     /* Multiply M by M1 from the right. Since the M1 elements fit in
       GMP_NUMB_BITS - 1 bits, M grows by at most one limb. Needs
       temporary space M->n */
-    ANYCALLER void mpn_hgcd_matrix_mul_1 (struct hgcd_matrix *M, const struct hgcd_matrix1 *M1, mp_ptr tp)
+    ANYCALLER void gpmpn_hgcd_matrix_mul_1 (struct hgcd_matrix *M, const struct hgcd_matrix1 *M1, mp_ptr tp)
     {
       mp_size_t n0, n1;
 
       /* Could avoid copy by some swapping of pointers. */
       MPN_COPY (tp, M->p[0][0], M->n);
-      n0 = mpn_hgcd_mul_matrix1_vector (M1, M->p[0][0], tp, M->p[0][1], M->n);
+      n0 = gpmpn_hgcd_mul_matrix1_vector (M1, M->p[0][0], tp, M->p[0][1], M->n);
       MPN_COPY (tp, M->p[1][0], M->n);
-      n1 = mpn_hgcd_mul_matrix1_vector (M1, M->p[1][0], tp, M->p[1][1], M->n);
+      n1 = gpmpn_hgcd_mul_matrix1_vector (M1, M->p[1][0], tp, M->p[1][1], M->n);
 
       /* Depends on zero initialization */
       M->n = MAX(n0, n1);
@@ -145,8 +145,8 @@ namespace gpgmp {
     }
 
     /* Multiply M by M1 from the right. Needs 3*(M->n + M1->n) + 5 limbs
-      of temporary storage (see mpn_matrix22_mul_itch). */
-    ANYCALLER void mpn_hgcd_matrix_mul (struct hgcd_matrix *M, const struct hgcd_matrix *M1, mp_ptr tp)
+      of temporary storage (see gpmpn_matrix22_mul_itch). */
+    ANYCALLER void gpmpn_hgcd_matrix_mul (struct hgcd_matrix *M, const struct hgcd_matrix *M1, mp_ptr tp)
     {
       mp_size_t n;
 
@@ -173,7 +173,7 @@ namespace gpgmp {
       ASSERT ((M1->p[0][0][M1->n-1] | M1->p[0][1][M1->n-1]
         | M1->p[1][0][M1->n-1] | M1->p[1][1][M1->n-1]) > 0);
 
-      mpn_matrix22_mul (M->p[0][0], M->p[0][1],
+      gpmpn_matrix22_mul (M->p[0][0], M->p[0][1],
             M->p[1][0], M->p[1][1], M->n,
             M1->p[0][0], M1->p[0][1],
             M1->p[1][0], M1->p[1][1], M1->n, tp);
@@ -192,7 +192,7 @@ namespace gpgmp {
 
     /* Multiplies the least significant p limbs of (a;b) by M^-1.
       Temporary space needed: 2 * (p + M->n)*/
-    ANYCALLER mp_size_t mpn_hgcd_matrix_adjust (const struct hgcd_matrix *M, mp_size_t n, mp_ptr ap, mp_ptr bp, mp_size_t p, mp_ptr tp)
+    ANYCALLER mp_size_t gpmpn_hgcd_matrix_adjust (const struct hgcd_matrix *M, mp_size_t n, mp_ptr ap, mp_ptr bp, mp_size_t p, mp_ptr tp)
     {
       /* M^-1 (a;b) = (r11, -r01; -r10, r00) (a ; b)
         = (r11 a - r01 b; - r10 a + r00 b */
@@ -208,37 +208,37 @@ namespace gpgmp {
 
       if (M->n >= p)
         {
-          mpn_mul (t0, M->p[1][1], M->n, ap, p);
-          mpn_mul (t1, M->p[1][0], M->n, ap, p);
+          gpmpn_mul (t0, M->p[1][1], M->n, ap, p);
+          gpmpn_mul (t1, M->p[1][0], M->n, ap, p);
         }
       else
         {
-          mpn_mul (t0, ap, p, M->p[1][1], M->n);
-          mpn_mul (t1, ap, p, M->p[1][0], M->n);
+          gpmpn_mul (t0, ap, p, M->p[1][1], M->n);
+          gpmpn_mul (t1, ap, p, M->p[1][0], M->n);
         }
 
       /* Update a */
       MPN_COPY (ap, t0, p);
-      ah = mpn_add (ap + p, ap + p, n - p, t0 + p, M->n);
+      ah = gpmpn_add (ap + p, ap + p, n - p, t0 + p, M->n);
 
       if (M->n >= p)
-        mpn_mul (t0, M->p[0][1], M->n, bp, p);
+        gpmpn_mul (t0, M->p[0][1], M->n, bp, p);
       else
-        mpn_mul (t0, bp, p, M->p[0][1], M->n);
+        gpmpn_mul (t0, bp, p, M->p[0][1], M->n);
 
-      cy = mpn_sub (ap, ap, n, t0, p + M->n);
+      cy = gpmpn_sub (ap, ap, n, t0, p + M->n);
       ASSERT (cy <= ah);
       ah -= cy;
 
       /* Update b */
       if (M->n >= p)
-        mpn_mul (t0, M->p[0][0], M->n, bp, p);
+        gpmpn_mul (t0, M->p[0][0], M->n, bp, p);
       else
-        mpn_mul (t0, bp, p, M->p[0][0], M->n);
+        gpmpn_mul (t0, bp, p, M->p[0][0], M->n);
 
       MPN_COPY (bp, t0, p);
-      bh = mpn_add (bp + p, bp + p, n - p, t0 + p, M->n);
-      cy = mpn_sub (bp, bp, n, t1, p + M->n);
+      bh = gpmpn_add (bp + p, bp + p, n - p, t0 + p, M->n);
+      cy = gpmpn_sub (bp, bp, n, t1, p + M->n);
       ASSERT (cy <= bh);
       bh -= cy;
 

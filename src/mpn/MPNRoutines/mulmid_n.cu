@@ -1,4 +1,4 @@
-/* mpn_mulmid_n -- balanced middle product
+/* gpmpn_mulmid_n -- balanced middle product
 
    Contributed by David Harvey.
 
@@ -42,7 +42,7 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-    ANYCALLER void mpn_mulmid_n(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t n)
+    ANYCALLER void gpmpn_mulmid_n(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t n)
     {
       ASSERT(n >= 1);
       ASSERT(!MPN_OVERLAP_P(rp, n + 2, ap, 2 * n - 1));
@@ -50,15 +50,15 @@ namespace gpgmp
 
       if (n < MULMID_TOOM42_THRESHOLD)
       {
-        mpn_mulmid_basecase(rp, ap, 2 * n - 1, bp, n);
+        gpmpn_mulmid_basecase(rp, ap, 2 * n - 1, bp, n);
       }
       else
       {
         mp_ptr scratch;
         TMP_DECL;
         TMP_MARK;
-        scratch = TMP_ALLOC_LIMBS(mpn_toom42_mulmid_itch(n));
-        mpn_toom42_mulmid(rp, ap, bp, n, scratch);
+        scratch = TMP_ALLOC_LIMBS(gpmpn_toom42_mulmid_itch(n));
+        gpmpn_toom42_mulmid(rp, ap, bp, n, scratch);
         TMP_FREE;
       }
     }

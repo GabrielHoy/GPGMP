@@ -1,4 +1,4 @@
-/* mpn_sub_err2_n -- sub_n with two error terms
+/* gpmpn_sub_err2_n -- sub_n with two error terms
 
    Contributed by David Harvey.
 
@@ -45,7 +45,7 @@ namespace gpgmp
     /*
       Computes:
 
-      (1) {rp,n} := {up,n} - {vp,n} (just like mpn_sub_n) with incoming borrow cy,
+      (1) {rp,n} := {up,n} - {vp,n} (just like gpmpn_sub_n) with incoming borrow cy,
       return value is borrow out.
 
       (2) Let c[i+1] = borrow from i-th limb subtraction (c[0] = cy).
@@ -58,7 +58,7 @@ namespace gpgmp
       None of the outputs may overlap each other or any of the inputs, except
       that {rp,n} may be equal to {up,n} or {vp,n}.
     */
-    ANYCALLER mp_limb_t mpn_sub_err2_n(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_ptr ep, mp_srcptr yp1, mp_srcptr yp2, mp_size_t n, mp_limb_t cy)
+    ANYCALLER mp_limb_t gpmpn_sub_err2_n(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_ptr ep, mp_srcptr yp1, mp_srcptr yp2, mp_size_t n, mp_limb_t cy)
     {
       mp_limb_t el1, eh1, el2, eh2, ul, vl, yl1, yl2, zl1, zl2, rl, sl, cy1, cy2;
 

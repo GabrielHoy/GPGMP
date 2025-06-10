@@ -1,4 +1,4 @@
-/* mpn_lshiftc -- Shift left low level with complement.
+/* gpmpn_lshiftc -- Shift left low level with complement.
 
 Copyright 1991, 1993, 1994, 1996, 2000-2002, 2009 Free Software Foundation,
 Inc.
@@ -44,7 +44,7 @@ namespace gpgmp {
       2. If the result is to be written over the input, rp must be >= up.
     */
 
-    ANYCALLER mp_limb_t mpn_lshiftc (mp_ptr rp, mp_srcptr up, mp_size_t n, unsigned int cnt)
+    ANYCALLER mp_limb_t gpmpn_lshiftc (mp_ptr rp, mp_srcptr up, mp_size_t n, unsigned int cnt)
     {
       mp_limb_t high_limb, low_limb;
       unsigned int tnc;

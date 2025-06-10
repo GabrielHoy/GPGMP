@@ -1,4 +1,4 @@
-/* mpn_remove -- divide out all multiples of odd mpn number from another mpn
+/* gpmpn_remove -- divide out all multiples of odd mpn number from another mpn
    number.
 
    Contributed to the GNU project by Torbjorn Granlund.
@@ -63,12 +63,12 @@ namespace gpgmp
          and the initial COPY (but also here we would need un + 1 limbs).
     */
 
-    /* FIXME: We need to wrap mpn_bdiv_qr due to the itch interface.  This need
+    /* FIXME: We need to wrap gpmpn_bdiv_qr due to the itch interface.  This need
        indicates a flaw in the current itch mechanism: Which operands not greater
        than un,un will incur the worst itch?  We need a parallel foo_maxitch set
        of functions.  */
     ANYCALLER static void
-    mpn_bdiv_qr_wrap(mp_ptr qp, mp_ptr rp,
+    gpmpn_bdiv_qr_wrap(mp_ptr qp, mp_ptr rp,
                      mp_srcptr np, mp_size_t nn,
                      mp_srcptr dp, mp_size_t dn)
     {
@@ -76,14 +76,14 @@ namespace gpgmp
       TMP_DECL;
 
       TMP_MARK;
-      scratch_out = TMP_ALLOC_LIMBS(mpn_bdiv_qr_itch(nn, dn));
-      mpn_bdiv_qr(qp, rp, np, nn, dp, dn, scratch_out);
+      scratch_out = TMP_ALLOC_LIMBS(gpmpn_bdiv_qr_itch(nn, dn));
+      gpmpn_bdiv_qr(qp, rp, np, nn, dp, dn, scratch_out);
 
       TMP_FREE;
     }
 
     mp_bitcnt_t
-    mpn_remove(mp_ptr wp, mp_size_t *wn,
+    gpmpn_remove(mp_ptr wp, mp_size_t *wn,
                mp_srcptr up, mp_size_t un, mp_srcptr vp, mp_size_t vn,
                mp_bitcnt_t cap)
     {
@@ -116,16 +116,16 @@ namespace gpgmp
       while (qn >= pn)
       {
         qp[qn] = 0;
-        mpn_bdiv_qr_wrap(qp2, tp, qp, qn + 1, pp, pn);
-        if (!mpn_zero_p(tp, pn))
+        gpmpn_bdiv_qr_wrap(qp2, tp, qp, qn + 1, pp, pn);
+        if (!gpmpn_zero_p(tp, pn))
         {
-          if (mpn_cmp(tp, pp, pn) != 0)
+          if (gpmpn_cmp(tp, pp, pn) != 0)
             break; /* could not divide by V^npowers */
         }
 
         MP_PTR_SWAP(qp, qp2);
         qn = qn - pn;
-        mpn_neg(qp, qp, qn + 1);
+        gpmpn_neg(qp, qp, qn + 1);
 
         qn += qp[qn] != 0;
 
@@ -145,7 +145,7 @@ namespace gpgmp
         else
           np += pn;
 
-        mpn_sqr(np, pp, pn);
+        gpmpn_sqr(np, pp, pn);
         pn = nn + (np[nn] != 0);
         pp = np;
       }
@@ -162,16 +162,16 @@ namespace gpgmp
           continue; /* V^i would bring us past cap */
 
         qp[qn] = 0;
-        mpn_bdiv_qr_wrap(qp2, tp, qp, qn + 1, pwpsp[i], pn);
-        if (!mpn_zero_p(tp, pn))
+        gpmpn_bdiv_qr_wrap(qp2, tp, qp, qn + 1, pwpsp[i], pn);
+        if (!gpmpn_zero_p(tp, pn))
         {
-          if (mpn_cmp(tp, pwpsp[i], pn) != 0)
+          if (gpmpn_cmp(tp, pwpsp[i], pn) != 0)
             continue; /* could not divide by V^i */
         }
 
         MP_PTR_SWAP(qp, qp2);
         qn = qn - pn;
-        mpn_neg(qp, qp, qn + 1);
+        gpmpn_neg(qp, qp, qn + 1);
 
         qn += qp[qn] != 0;
 

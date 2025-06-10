@@ -1,4 +1,4 @@
-/* mpn_gcdext -- Extended Greatest Common Divisor.
+/* gpmpn_gcdext -- Extended Greatest Common Divisor.
 
 Copyright 1996, 1998, 2000-2005, 2008, 2009, 2012 Free Software Foundation,
 Inc.
@@ -38,7 +38,7 @@ namespace gpgmp {
 
 		/* Here, d is the index of the cofactor to update. FIXME: Could use qn
 		= 0 for the common case q = 1. */
-		ANYCALLER void mpn_gcdext_hook (void *p, mp_srcptr gp, mp_size_t gn, mp_srcptr qp, mp_size_t qn, int d)
+		ANYCALLER void gpmpn_gcdext_hook (void *p, mp_srcptr gp, mp_size_t gn, mp_srcptr qp, mp_size_t qn, int d)
 		{
 		struct gcdext_ctx *ctx = (struct gcdext_ctx *) p;
 		mp_size_t un = ctx->un;
@@ -91,9 +91,9 @@ namespace gpgmp {
 
 			if (q == 1)
 				/* A common case. */
-				cy = mpn_add_n (u0, u0, u1, un);
+				cy = gpmpn_add_n (u0, u0, u1, un);
 			else
-				cy = mpn_addmul_1 (u0, u1, un, q);
+				cy = gpmpn_addmul_1 (u0, u1, un, q);
 			}
 			else
 			{
@@ -116,21 +116,21 @@ namespace gpgmp {
 			tp = ctx->tp;
 
 			if (qn > u1n)
-				mpn_mul (tp, qp, qn, u1, u1n);
+				gpmpn_mul (tp, qp, qn, u1, u1n);
 			else
-				mpn_mul (tp, u1, u1n, qp, qn);
+				gpmpn_mul (tp, u1, u1n, qp, qn);
 
 			u1n += qn;
 			u1n -= tp[u1n-1] == 0;
 
 			if (u1n >= un)
 				{
-				cy = mpn_add (u0, tp, u1n, u0, un);
+				cy = gpmpn_add (u0, tp, u1n, u0, un);
 				un = u1n;
 				}
 			else
 				/* Note: Unlikely case, maybe never happens? */
-				cy = mpn_add (u0, u0, un, tp, u1n);
+				cy = gpmpn_add (u0, u0, un, tp, u1n);
 
 			}
 			u0[un] = cy;
@@ -143,7 +143,7 @@ namespace gpgmp {
 		need at most n for the quotient and n+1 for the u update (reusing
 		the extra u). In all, 4n + 3. */
 
-		ANYCALLER mp_size_t mpn_gcdext_lehmer_n (mp_ptr gp, mp_ptr up, mp_size_t *usize, mp_ptr ap, mp_ptr bp, mp_size_t n, mp_ptr tp)
+		ANYCALLER mp_size_t gpmpn_gcdext_lehmer_n (mp_ptr gp, mp_ptr up, mp_size_t *usize, mp_ptr ap, mp_ptr bp, mp_size_t n, mp_ptr tp)
 		{
 		mp_size_t ualloc = n + 1;
 
@@ -218,17 +218,17 @@ namespace gpgmp {
 			bl = MPN_EXTRACT_NUMB (shift, bp[n-2], bp[n-3]);
 			}
 
-			/* Try an mpn_nhgcd2 step */
-			if (mpn_hgcd2 (ah, al, bh, bl, &M))
+			/* Try an gpmpn_nhgcd2 step */
+			if (gpmpn_hgcd2 (ah, al, bh, bl, &M))
 			{
-			n = mpn_matrix22_mul1_inverse_vector (&M, tp, ap, bp, n);
+			n = gpmpn_matrix22_mul1_inverse_vector (&M, tp, ap, bp, n);
 			MP_PTR_SWAP (ap, tp);
-			un = mpn_hgcd_mul_matrix1_vector(&M, u2, u0, u1, un);
+			un = gpmpn_hgcd_mul_matrix1_vector(&M, u2, u0, u1, un);
 			MP_PTR_SWAP (u0, u2);
 			}
 			else
 			{
-			/* mpn_hgcd2 has failed. Then either one of a or b is very
+			/* gpmpn_hgcd2 has failed. Then either one of a or b is very
 				small, or the difference is very small. Perform one
 				subtraction followed by one division. */
 			ctx.u0 = u0;
@@ -238,7 +238,7 @@ namespace gpgmp {
 
 			/* Temporary storage n for the quotient and ualloc for the
 				new cofactor. */
-			n = mpn_gcd_subdiv_step (ap, bp, n, 0, mpn_gcdext_hook, &ctx, tp);
+			n = gpmpn_gcd_subdiv_step (ap, bp, n, 0, gpmpn_gcdext_hook, &ctx, tp);
 			if (n == 0)
 				return ctx.gn;
 
@@ -282,7 +282,7 @@ namespace gpgmp {
 			mp_limb_signed_t v;
 			int negate;
 
-			gp[0] = mpn_gcdext_1 (&u, &v, ap[0], bp[0]);
+			gp[0] = gpmpn_gcdext_1 (&u, &v, ap[0], bp[0]);
 
 			/* Set up = u u1 - v u0. Keep track of size, un grows by one or
 			two limbs. */
@@ -316,8 +316,8 @@ namespace gpgmp {
 			u = -u;
 			}
 
-			uh = mpn_mul_1 (up, u1, un, u);
-			vh = mpn_addmul_1 (up, u0, un, v);
+			uh = gpmpn_mul_1 (up, u1, un, u);
+			vh = gpmpn_addmul_1 (up, u0, un, v);
 
 			if ( (uh | vh) > 0)
 			{

@@ -1,4 +1,4 @@
-/* mpn_redc_2.  Set rp[] <- up[]/R^n mod mp[].  Clobber up[].
+/* gpmpn_redc_2.  Set rp[] <- up[]/R^n mod mp[].  Clobber up[].
    mp[] is n limbs; up[] is 2n limbs.
 
    THIS IS AN INTERNAL FUNCTION WITH A MUTABLE INTERFACE.  IT IS ONLY
@@ -44,15 +44,15 @@ namespace gpgmp
     you lose
 #endif
 
-/* For testing purposes, define our own mpn_addmul_2 if there is none already
+/* For testing purposes, define our own gpmpn_addmul_2 if there is none already
    available.  */
-#ifndef HAVE_NATIVE_mpn_addmul_2
-#undef mpn_addmul_2
+#ifndef HAVE_NATIVE_gpmpn_addmul_2
+#undef gpmpn_addmul_2
         ANYCALLER static mp_limb_t
-        mpn_addmul_2(mp_ptr rp, mp_srcptr up, mp_size_t n, mp_srcptr vp)
+        gpmpn_addmul_2(mp_ptr rp, mp_srcptr up, mp_size_t n, mp_srcptr vp)
     {
-      rp[n] = mpn_addmul_1(rp, up, n, vp[0]);
-      return mpn_addmul_1(rp + 1, up, n, vp[1]);
+      rp[n] = gpmpn_addmul_1(rp, up, n, vp[0]);
+      return gpmpn_addmul_1(rp + 1, up, n, vp[1]);
     }
 #endif
 
@@ -84,7 +84,7 @@ namespace gpgmp
 #endif
 
     ANYCALLER mp_limb_t
-    mpn_redc_2(mp_ptr rp, mp_ptr up, mp_srcptr mp, mp_size_t n, mp_srcptr mip)
+    gpmpn_redc_2(mp_ptr rp, mp_ptr up, mp_srcptr mp, mp_size_t n, mp_srcptr mip)
     {
       mp_limb_t q[2];
       mp_size_t j;
@@ -96,21 +96,21 @@ namespace gpgmp
 
       if ((n & 1) != 0)
       {
-        up[0] = mpn_addmul_1(up, mp, n, (up[0] * mip[0]) & GMP_NUMB_MASK);
+        up[0] = gpmpn_addmul_1(up, mp, n, (up[0] * mip[0]) & GMP_NUMB_MASK);
         up++;
       }
 
       for (j = n - 2; j >= 0; j -= 2)
       {
         umul2low(q[1], q[0], mip[1], mip[0], up[1], up[0]);
-        upn = up[n]; /* mpn_addmul_2 overwrites this */
-        up[1] = mpn_addmul_2(up, mp, n, q);
+        upn = up[n]; /* gpmpn_addmul_2 overwrites this */
+        up[1] = gpmpn_addmul_2(up, mp, n, q);
         up[0] = up[n];
         up[n] = upn;
         up += 2;
       }
 
-      cy = mpn_add_n(rp, up, up - n, n);
+      cy = gpmpn_add_n(rp, up, up - n, n);
       return cy;
     }
 

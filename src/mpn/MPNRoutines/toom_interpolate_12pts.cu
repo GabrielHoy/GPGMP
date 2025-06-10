@@ -68,49 +68,49 @@ namespace gpgmp
 #define AORSMUL_FASTER_3AORSLSH 1
 #endif
 
-#if HAVE_NATIVE_mpn_sublsh_n
-#define DO_mpn_sublsh_n(dst, src, n, s, ws) mpn_sublsh_n(dst, dst, src, n, s)
+#if HAVE_NATIVE_gpmpn_sublsh_n
+#define DO_gpmpn_sublsh_n(dst, src, n, s, ws) gpmpn_sublsh_n(dst, dst, src, n, s)
 #else
-    ANYCALLER static mp_limb_t DO_mpn_sublsh_n(mp_ptr dst, mp_srcptr src, mp_size_t n, unsigned int s, mp_ptr ws)
+    ANYCALLER static mp_limb_t DO_gpmpn_sublsh_n(mp_ptr dst, mp_srcptr src, mp_size_t n, unsigned int s, mp_ptr ws)
     {
 #if USE_MUL_1 && 0
-      return mpn_submul_1(dst, src, n, CNST_LIMB(1) << (s));
+      return gpmpn_submul_1(dst, src, n, CNST_LIMB(1) << (s));
 #else
       mp_limb_t __cy;
-      __cy = mpn_lshift(ws, src, n, s);
-      return __cy + mpn_sub_n(dst, dst, ws, n);
+      __cy = gpmpn_lshift(ws, src, n, s);
+      return __cy + gpmpn_sub_n(dst, dst, ws, n);
 #endif
     }
 #endif
 
-#if HAVE_NATIVE_mpn_addlsh_n
-#define DO_mpn_addlsh_n(dst, src, n, s, ws) mpn_addlsh_n(dst, dst, src, n, s)
+#if HAVE_NATIVE_gpmpn_addlsh_n
+#define DO_gpmpn_addlsh_n(dst, src, n, s, ws) gpmpn_addlsh_n(dst, dst, src, n, s)
 #else
 #if !defined(AORSMUL_FASTER_2AORSLSH) && !defined(AORSMUL_FASTER_AORS_2AORSLSH)
     static mp_limb_t
-    DO_mpn_addlsh_n(mp_ptr dst, mp_srcptr src, mp_size_t n, unsigned int s, mp_ptr ws)
+    DO_gpmpn_addlsh_n(mp_ptr dst, mp_srcptr src, mp_size_t n, unsigned int s, mp_ptr ws)
     {
 #if USE_MUL_1 && 0
-      return mpn_addmul_1(dst, src, n, CNST_LIMB(1) << (s));
+      return gpmpn_addmul_1(dst, src, n, CNST_LIMB(1) << (s));
 #else
       mp_limb_t __cy;
-      __cy = mpn_lshift(ws, src, n, s);
-      return __cy + mpn_add_n(dst, dst, ws, n);
+      __cy = gpmpn_lshift(ws, src, n, s);
+      return __cy + gpmpn_add_n(dst, dst, ws, n);
 #endif
     }
 #endif
 #endif
 
-#if HAVE_NATIVE_mpn_subrsh
-#define DO_mpn_subrsh(dst, nd, src, ns, s, ws) mpn_subrsh(dst, nd, src, ns, s)
+#if HAVE_NATIVE_gpmpn_subrsh
+#define DO_gpmpn_subrsh(dst, nd, src, ns, s, ws) gpmpn_subrsh(dst, nd, src, ns, s)
 #else
 /* FIXME: This is not a correct definition, it assumes no carry */
-#define DO_mpn_subrsh(dst, nd, src, ns, s, ws)                           \
+#define DO_gpmpn_subrsh(dst, nd, src, ns, s, ws)                           \
   do                                                                     \
   {                                                                      \
     mp_limb_t __cy;                                                      \
     MPN_DECR_U(dst, nd, src[0] >> s);                                    \
-    __cy = DO_mpn_sublsh_n(dst, src + 1, ns - 1, GMP_NUMB_BITS - s, ws); \
+    __cy = DO_gpmpn_sublsh_n(dst, src + 1, ns - 1, GMP_NUMB_BITS - s, ws); \
     MPN_DECR_U(dst + ns - 1, nd - ns + 1, __cy);                         \
   } while (0)
 #endif
@@ -132,40 +132,40 @@ namespace gpgmp
 #endif
 #endif
 
-#ifndef mpn_divexact_by255
+#ifndef gpmpn_divexact_by255
 #if GMP_NUMB_BITS % 8 == 0
-#define mpn_divexact_by255(dst, src, size) \
-  (255 & 1 * mpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 255)))
+#define gpmpn_divexact_by255(dst, src, size) \
+  (255 & 1 * gpmpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 255)))
 #else
-#if HAVE_NATIVE_mpn_pi1_bdiv_q_1
-#define mpn_divexact_by255(dst, src, size) mpn_pi1_bdiv_q_1(dst, src, size, CNST_LIMB(255), BINVERT_255, 0)
+#if HAVE_NATIVE_gpmpn_pi1_bdiv_q_1
+#define gpmpn_divexact_by255(dst, src, size) gpmpn_pi1_bdiv_q_1(dst, src, size, CNST_LIMB(255), BINVERT_255, 0)
 #else
-#define mpn_divexact_by255(dst, src, size) mpn_divexact_1(dst, src, size, CNST_LIMB(255))
+#define gpmpn_divexact_by255(dst, src, size) gpmpn_divexact_1(dst, src, size, CNST_LIMB(255))
 #endif
 #endif
 #endif
 
-#ifndef mpn_divexact_by9x4
-#if HAVE_NATIVE_mpn_pi1_bdiv_q_1
-#define mpn_divexact_by9x4(dst, src, size) mpn_pi1_bdiv_q_1(dst, src, size, CNST_LIMB(9), BINVERT_9, 2)
+#ifndef gpmpn_divexact_by9x4
+#if HAVE_NATIVE_gpmpn_pi1_bdiv_q_1
+#define gpmpn_divexact_by9x4(dst, src, size) gpmpn_pi1_bdiv_q_1(dst, src, size, CNST_LIMB(9), BINVERT_9, 2)
 #else
-#define mpn_divexact_by9x4(dst, src, size) mpn_divexact_1(dst, src, size, CNST_LIMB(9) << 2)
+#define gpmpn_divexact_by9x4(dst, src, size) gpmpn_divexact_1(dst, src, size, CNST_LIMB(9) << 2)
 #endif
 #endif
 
-#ifndef mpn_divexact_by42525
-#if HAVE_NATIVE_mpn_pi1_bdiv_q_1 && defined(BINVERT_42525)
-#define mpn_divexact_by42525(dst, src, size) mpn_pi1_bdiv_q_1(dst, src, size, CNST_LIMB(42525), BINVERT_42525, 0)
+#ifndef gpmpn_divexact_by42525
+#if HAVE_NATIVE_gpmpn_pi1_bdiv_q_1 && defined(BINVERT_42525)
+#define gpmpn_divexact_by42525(dst, src, size) gpmpn_pi1_bdiv_q_1(dst, src, size, CNST_LIMB(42525), BINVERT_42525, 0)
 #else
-#define mpn_divexact_by42525(dst, src, size) mpn_divexact_1(dst, src, size, CNST_LIMB(42525))
+#define gpmpn_divexact_by42525(dst, src, size) gpmpn_divexact_1(dst, src, size, CNST_LIMB(42525))
 #endif
 #endif
 
-#ifndef mpn_divexact_by2835x4
-#if HAVE_NATIVE_mpn_pi1_bdiv_q_1 && defined(BINVERT_2835)
-#define mpn_divexact_by2835x4(dst, src, size) mpn_pi1_bdiv_q_1(dst, src, size, CNST_LIMB(2835), BINVERT_2835, 2)
+#ifndef gpmpn_divexact_by2835x4
+#if HAVE_NATIVE_gpmpn_pi1_bdiv_q_1 && defined(BINVERT_2835)
+#define gpmpn_divexact_by2835x4(dst, src, size) gpmpn_pi1_bdiv_q_1(dst, src, size, CNST_LIMB(2835), BINVERT_2835, 2)
 #else
-#define mpn_divexact_by2835x4(dst, src, size) mpn_divexact_1(dst, src, size, CNST_LIMB(2835) << 2)
+#define gpmpn_divexact_by2835x4(dst, src, size) gpmpn_divexact_1(dst, src, size, CNST_LIMB(2835) << 2)
 #endif
 #endif
 
@@ -197,7 +197,7 @@ namespace gpgmp
        Inputs are destroyed.
     */
 
-    ANYCALLER void mpn_toom_interpolate_12pts(mp_ptr pp, mp_ptr r1, mp_ptr r3, mp_ptr r5, mp_size_t n, mp_size_t spt, int half, mp_ptr wsi)
+    ANYCALLER void gpmpn_toom_interpolate_12pts(mp_ptr pp, mp_ptr r1, mp_ptr r3, mp_ptr r5, mp_size_t n, mp_size_t spt, int half, mp_ptr wsi)
     {
       mp_limb_t cy;
       mp_size_t n3;
@@ -212,104 +212,104 @@ namespace gpgmp
       /******************************* interpolation *****************************/
       if (half != 0)
       {
-        cy = mpn_sub_n(r3, r3, r0, spt);
+        cy = gpmpn_sub_n(r3, r3, r0, spt);
         MPN_DECR_U(r3 + spt, n3p1 - spt, cy);
 
-        cy = DO_mpn_sublsh_n(r2, r0, spt, 10, wsi);
+        cy = DO_gpmpn_sublsh_n(r2, r0, spt, 10, wsi);
         MPN_DECR_U(r2 + spt, n3p1 - spt, cy);
-        DO_mpn_subrsh(r5, n3p1, r0, spt, 2, wsi);
+        DO_gpmpn_subrsh(r5, n3p1, r0, spt, 2, wsi);
 
-        cy = DO_mpn_sublsh_n(r1, r0, spt, 20, wsi);
+        cy = DO_gpmpn_sublsh_n(r1, r0, spt, 20, wsi);
         MPN_DECR_U(r1 + spt, n3p1 - spt, cy);
-        DO_mpn_subrsh(r4, n3p1, r0, spt, 4, wsi);
+        DO_gpmpn_subrsh(r4, n3p1, r0, spt, 4, wsi);
       };
 
-      r4[n3] -= DO_mpn_sublsh_n(r4 + n, pp, 2 * n, 20, wsi);
-      DO_mpn_subrsh(r1 + n, 2 * n + 1, pp, 2 * n, 4, wsi);
+      r4[n3] -= DO_gpmpn_sublsh_n(r4 + n, pp, 2 * n, 20, wsi);
+      DO_gpmpn_subrsh(r1 + n, 2 * n + 1, pp, 2 * n, 4, wsi);
 
-#if HAVE_NATIVE_mpn_add_n_sub_n
-      mpn_add_n_sub_n(r1, r4, r4, r1, n3p1);
+#if HAVE_NATIVE_gpmpn_add_n_sub_n
+      gpmpn_add_n_sub_n(r1, r4, r4, r1, n3p1);
 #else
-      ASSERT_NOCARRY(mpn_add_n(wsi, r1, r4, n3p1));
-      mpn_sub_n(r4, r4, r1, n3p1); /* can be negative */
+      ASSERT_NOCARRY(gpmpn_add_n(wsi, r1, r4, n3p1));
+      gpmpn_sub_n(r4, r4, r1, n3p1); /* can be negative */
       MP_PTR_SWAP(r1, wsi);
 #endif
 
-      r5[n3] -= DO_mpn_sublsh_n(r5 + n, pp, 2 * n, 10, wsi);
-      DO_mpn_subrsh(r2 + n, 2 * n + 1, pp, 2 * n, 2, wsi);
+      r5[n3] -= DO_gpmpn_sublsh_n(r5 + n, pp, 2 * n, 10, wsi);
+      DO_gpmpn_subrsh(r2 + n, 2 * n + 1, pp, 2 * n, 2, wsi);
 
-#if HAVE_NATIVE_mpn_add_n_sub_n
-      mpn_add_n_sub_n(r2, r5, r5, r2, n3p1);
+#if HAVE_NATIVE_gpmpn_add_n_sub_n
+      gpmpn_add_n_sub_n(r2, r5, r5, r2, n3p1);
 #else
-      mpn_sub_n(wsi, r5, r2, n3p1); /* can be negative */
-      ASSERT_NOCARRY(mpn_add_n(r2, r2, r5, n3p1));
+      gpmpn_sub_n(wsi, r5, r2, n3p1); /* can be negative */
+      ASSERT_NOCARRY(gpmpn_add_n(r2, r2, r5, n3p1));
       MP_PTR_SWAP(r5, wsi);
 #endif
 
-      r3[n3] -= mpn_sub_n(r3 + n, r3 + n, pp, 2 * n);
+      r3[n3] -= gpmpn_sub_n(r3 + n, r3 + n, pp, 2 * n);
 
 #if AORSMUL_FASTER_AORS_AORSLSH
-      mpn_submul_1(r4, r5, n3p1, 257); /* can be negative */
+      gpmpn_submul_1(r4, r5, n3p1, 257); /* can be negative */
 #else
-      mpn_sub_n(r4, r4, r5, n3p1);           /* can be negative */
-      DO_mpn_sublsh_n(r4, r5, n3p1, 8, wsi); /* can be negative */
+      gpmpn_sub_n(r4, r4, r5, n3p1);           /* can be negative */
+      DO_gpmpn_sublsh_n(r4, r5, n3p1, 8, wsi); /* can be negative */
 #endif
       /* A division by 2835x4 follows. Warning: the operand can be negative! */
-      mpn_divexact_by2835x4(r4, r4, n3p1);
+      gpmpn_divexact_by2835x4(r4, r4, n3p1);
       if ((r4[n3] & (GMP_NUMB_MAX << (GMP_NUMB_BITS - 3))) != 0)
         r4[n3] |= (GMP_NUMB_MAX << (GMP_NUMB_BITS - 2));
 
 #if AORSMUL_FASTER_2AORSLSH
-      mpn_addmul_1(r5, r4, n3p1, 60); /* can be negative */
+      gpmpn_addmul_1(r5, r4, n3p1, 60); /* can be negative */
 #else
-      DO_mpn_sublsh_n(r5, r4, n3p1, 2, wsi); /* can be negative */
-      DO_mpn_addlsh_n(r5, r4, n3p1, 6, wsi); /* can give a carry */
+      DO_gpmpn_sublsh_n(r5, r4, n3p1, 2, wsi); /* can be negative */
+      DO_gpmpn_addlsh_n(r5, r4, n3p1, 6, wsi); /* can give a carry */
 #endif
-      mpn_divexact_by255(r5, r5, n3p1);
+      gpmpn_divexact_by255(r5, r5, n3p1);
 
-      ASSERT_NOCARRY(DO_mpn_sublsh_n(r2, r3, n3p1, 5, wsi));
+      ASSERT_NOCARRY(DO_gpmpn_sublsh_n(r2, r3, n3p1, 5, wsi));
 
 #if AORSMUL_FASTER_3AORSLSH
-      ASSERT_NOCARRY(mpn_submul_1(r1, r2, n3p1, 100));
+      ASSERT_NOCARRY(gpmpn_submul_1(r1, r2, n3p1, 100));
 #else
-      ASSERT_NOCARRY(DO_mpn_sublsh_n(r1, r2, n3p1, 6, wsi));
-      ASSERT_NOCARRY(DO_mpn_sublsh_n(r1, r2, n3p1, 5, wsi));
-      ASSERT_NOCARRY(DO_mpn_sublsh_n(r1, r2, n3p1, 2, wsi));
+      ASSERT_NOCARRY(DO_gpmpn_sublsh_n(r1, r2, n3p1, 6, wsi));
+      ASSERT_NOCARRY(DO_gpmpn_sublsh_n(r1, r2, n3p1, 5, wsi));
+      ASSERT_NOCARRY(DO_gpmpn_sublsh_n(r1, r2, n3p1, 2, wsi));
 #endif
-      ASSERT_NOCARRY(DO_mpn_sublsh_n(r1, r3, n3p1, 9, wsi));
-      mpn_divexact_by42525(r1, r1, n3p1);
+      ASSERT_NOCARRY(DO_gpmpn_sublsh_n(r1, r3, n3p1, 9, wsi));
+      gpmpn_divexact_by42525(r1, r1, n3p1);
 
 #if AORSMUL_FASTER_AORS_2AORSLSH
-      ASSERT_NOCARRY(mpn_submul_1(r2, r1, n3p1, 225));
+      ASSERT_NOCARRY(gpmpn_submul_1(r2, r1, n3p1, 225));
 #else
-      ASSERT_NOCARRY(mpn_sub_n(r2, r2, r1, n3p1));
-      ASSERT_NOCARRY(DO_mpn_addlsh_n(r2, r1, n3p1, 5, wsi));
-      ASSERT_NOCARRY(DO_mpn_sublsh_n(r2, r1, n3p1, 8, wsi));
+      ASSERT_NOCARRY(gpmpn_sub_n(r2, r2, r1, n3p1));
+      ASSERT_NOCARRY(DO_gpmpn_addlsh_n(r2, r1, n3p1, 5, wsi));
+      ASSERT_NOCARRY(DO_gpmpn_sublsh_n(r2, r1, n3p1, 8, wsi));
 #endif
-      mpn_divexact_by9x4(r2, r2, n3p1);
+      gpmpn_divexact_by9x4(r2, r2, n3p1);
 
-      ASSERT_NOCARRY(mpn_sub_n(r3, r3, r2, n3p1));
+      ASSERT_NOCARRY(gpmpn_sub_n(r3, r3, r2, n3p1));
 
-#ifdef HAVE_NATIVE_mpn_rsh1sub_n
-      mpn_rsh1sub_n(r4, r2, r4, n3p1);
+#ifdef HAVE_NATIVE_gpmpn_rsh1sub_n
+      gpmpn_rsh1sub_n(r4, r2, r4, n3p1);
       r4[n3p1 - 1] &= GMP_NUMB_MASK >> 1;
 #else
-      mpn_sub_n(r4, r2, r4, n3p1);
-      ASSERT_NOCARRY(mpn_rshift(r4, r4, n3p1, 1));
+      gpmpn_sub_n(r4, r2, r4, n3p1);
+      ASSERT_NOCARRY(gpmpn_rshift(r4, r4, n3p1, 1));
 #endif
-      ASSERT_NOCARRY(mpn_sub_n(r2, r2, r4, n3p1));
+      ASSERT_NOCARRY(gpmpn_sub_n(r2, r2, r4, n3p1));
 
-#ifdef HAVE_NATIVE_mpn_rsh1add_n
-      mpn_rsh1add_n(r5, r5, r1, n3p1);
+#ifdef HAVE_NATIVE_gpmpn_rsh1add_n
+      gpmpn_rsh1add_n(r5, r5, r1, n3p1);
       r5[n3p1 - 1] &= GMP_NUMB_MASK >> 1;
 #else
-      mpn_add_n(r5, r5, r1, n3p1);
-      ASSERT_NOCARRY(mpn_rshift(r5, r5, n3p1, 1));
+      gpmpn_add_n(r5, r5, r1, n3p1);
+      ASSERT_NOCARRY(gpmpn_rshift(r5, r5, n3p1, 1));
 #endif
 
       /* last interpolation steps... */
-      ASSERT_NOCARRY(mpn_sub_n(r3, r3, r1, n3p1));
-      ASSERT_NOCARRY(mpn_sub_n(r1, r1, r5, n3p1));
+      ASSERT_NOCARRY(gpmpn_sub_n(r3, r3, r1, n3p1));
+      ASSERT_NOCARRY(gpmpn_sub_n(r1, r1, r5, n3p1));
       /* ... could be mixed with recomposition
       ||H-r5|M-r5|L-r5|   ||H-r1|M-r1|L-r1|
       */
@@ -325,56 +325,56 @@ namespace gpgmp
       ||H r1|M r1|L r1|   ||H r3|M r3|L r3|   ||H_r5|M_r5|L_r5|
       */
 
-      cy = mpn_add_n(pp + n, pp + n, r5, n);
-      cy = mpn_add_1(pp + 2 * n, r5 + n, n, cy);
-#if HAVE_NATIVE_mpn_add_nc
-      cy = r5[n3] + mpn_add_nc(pp + n3, pp + n3, r5 + 2 * n, n, cy);
+      cy = gpmpn_add_n(pp + n, pp + n, r5, n);
+      cy = gpmpn_add_1(pp + 2 * n, r5 + n, n, cy);
+#if HAVE_NATIVE_gpmpn_add_nc
+      cy = r5[n3] + gpmpn_add_nc(pp + n3, pp + n3, r5 + 2 * n, n, cy);
 #else
       MPN_INCR_U(r5 + 2 * n, n + 1, cy);
-      cy = r5[n3] + mpn_add_n(pp + n3, pp + n3, r5 + 2 * n, n);
+      cy = r5[n3] + gpmpn_add_n(pp + n3, pp + n3, r5 + 2 * n, n);
 #endif
       MPN_INCR_U(pp + n3 + n, 2 * n + 1, cy);
 
-      pp[2 * n3] += mpn_add_n(pp + 5 * n, pp + 5 * n, r3, n);
-      cy = mpn_add_1(pp + 2 * n3, r3 + n, n, pp[2 * n3]);
-#if HAVE_NATIVE_mpn_add_nc
-      cy = r3[n3] + mpn_add_nc(pp + 7 * n, pp + 7 * n, r3 + 2 * n, n, cy);
+      pp[2 * n3] += gpmpn_add_n(pp + 5 * n, pp + 5 * n, r3, n);
+      cy = gpmpn_add_1(pp + 2 * n3, r3 + n, n, pp[2 * n3]);
+#if HAVE_NATIVE_gpmpn_add_nc
+      cy = r3[n3] + gpmpn_add_nc(pp + 7 * n, pp + 7 * n, r3 + 2 * n, n, cy);
 #else
       MPN_INCR_U(r3 + 2 * n, n + 1, cy);
-      cy = r3[n3] + mpn_add_n(pp + 7 * n, pp + 7 * n, r3 + 2 * n, n);
+      cy = r3[n3] + gpmpn_add_n(pp + 7 * n, pp + 7 * n, r3 + 2 * n, n);
 #endif
       MPN_INCR_U(pp + 8 * n, 2 * n + 1, cy);
 
-      pp[10 * n] += mpn_add_n(pp + 9 * n, pp + 9 * n, r1, n);
+      pp[10 * n] += gpmpn_add_n(pp + 9 * n, pp + 9 * n, r1, n);
       if (half)
       {
-        cy = mpn_add_1(pp + 10 * n, r1 + n, n, pp[10 * n]);
-#if HAVE_NATIVE_mpn_add_nc
+        cy = gpmpn_add_1(pp + 10 * n, r1 + n, n, pp[10 * n]);
+#if HAVE_NATIVE_gpmpn_add_nc
         if (LIKELY(spt > n))
         {
-          cy = r1[n3] + mpn_add_nc(pp + 11 * n, pp + 11 * n, r1 + 2 * n, n, cy);
+          cy = r1[n3] + gpmpn_add_nc(pp + 11 * n, pp + 11 * n, r1 + 2 * n, n, cy);
           MPN_INCR_U(pp + 4 * n3, spt - n, cy);
         }
         else
         {
-          ASSERT_NOCARRY(mpn_add_nc(pp + 11 * n, pp + 11 * n, r1 + 2 * n, spt, cy));
+          ASSERT_NOCARRY(gpmpn_add_nc(pp + 11 * n, pp + 11 * n, r1 + 2 * n, spt, cy));
         }
 #else
         MPN_INCR_U(r1 + 2 * n, n + 1, cy);
         if (LIKELY(spt > n))
         {
-          cy = r1[n3] + mpn_add_n(pp + 11 * n, pp + 11 * n, r1 + 2 * n, n);
+          cy = r1[n3] + gpmpn_add_n(pp + 11 * n, pp + 11 * n, r1 + 2 * n, n);
           MPN_INCR_U(pp + 4 * n3, spt - n, cy);
         }
         else
         {
-          ASSERT_NOCARRY(mpn_add_n(pp + 11 * n, pp + 11 * n, r1 + 2 * n, spt));
+          ASSERT_NOCARRY(gpmpn_add_n(pp + 11 * n, pp + 11 * n, r1 + 2 * n, spt));
         }
 #endif
       }
       else
       {
-        ASSERT_NOCARRY(mpn_add_1(pp + 10 * n, r1 + n, spt, pp[10 * n]));
+        ASSERT_NOCARRY(gpmpn_add_1(pp + 10 * n, r1 + n, spt, pp[10 * n]));
       }
 
 #undef r0

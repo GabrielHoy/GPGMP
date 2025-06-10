@@ -1,4 +1,4 @@
-/* mpn_toom_interpolate_6pts -- Interpolate for toom43, 52
+/* gpmpn_toom_interpolate_6pts -- Interpolate for toom43, 52
 
    Contributed to the GNU project by Marco Bodrato.
 
@@ -44,12 +44,12 @@ namespace gpgmp
 
 #define BINVERT_3 MODLIMB_INVERSE_3
 
-/* For odd divisors, mpn_divexact_1 works fine with two's complement. */
-#ifndef mpn_divexact_by3
-#if HAVE_NATIVE_mpn_pi1_bdiv_q_1
-#define mpn_divexact_by3(dst, src, size) mpn_pi1_bdiv_q_1(dst, src, size, 3, BINVERT_3, 0)
+/* For odd divisors, gpmpn_divexact_1 works fine with two's complement. */
+#ifndef gpmpn_divexact_by3
+#if HAVE_NATIVE_gpmpn_pi1_bdiv_q_1
+#define gpmpn_divexact_by3(dst, src, size) gpmpn_pi1_bdiv_q_1(dst, src, size, 3, BINVERT_3, 0)
 #else
-#define mpn_divexact_by3(dst, src, size) mpn_divexact_1(dst, src, size, 3)
+#define gpmpn_divexact_by3(dst, src, size) gpmpn_divexact_1(dst, src, size, 3)
 #endif
 #endif
 
@@ -79,7 +79,7 @@ namespace gpgmp
        interpolation and recomposition phases.
     */
 
-    ANYCALLER void mpn_toom_interpolate_6pts(mp_ptr pp, mp_size_t n, enum toom6_flags flags, mp_ptr w4, mp_ptr w2, mp_ptr w1, mp_size_t w0n)
+    ANYCALLER void gpmpn_toom_interpolate_6pts(mp_ptr pp, mp_size_t n, enum toom6_flags flags, mp_ptr w4, mp_ptr w2, mp_ptr w1, mp_size_t w0n)
     {
       mp_limb_t cy;
       /* cy6 can be stored in w1[2*n], cy4 in w4[0], embankment in w2[0] */
@@ -109,54 +109,54 @@ namespace gpgmp
 
       /* W2 =(W1 - W2)>>2 */
       if (flags & toom6_vm2_neg)
-        mpn_add_n(w2, w1, w2, 2 * n + 1);
+        gpmpn_add_n(w2, w1, w2, 2 * n + 1);
       else
-        mpn_sub_n(w2, w1, w2, 2 * n + 1);
-      mpn_rshift(w2, w2, 2 * n + 1, 2);
+        gpmpn_sub_n(w2, w1, w2, 2 * n + 1);
+      gpmpn_rshift(w2, w2, 2 * n + 1, 2);
 
       /* W1 =(W1 - W5)>>1 */
-      w1[2 * n] -= mpn_sub_n(w1, w1, w5, 2 * n);
-      mpn_rshift(w1, w1, 2 * n + 1, 1);
+      w1[2 * n] -= gpmpn_sub_n(w1, w1, w5, 2 * n);
+      gpmpn_rshift(w1, w1, 2 * n + 1, 1);
 
       /* W1 =(W1 - W2)>>1 */
-#if HAVE_NATIVE_mpn_rsh1sub_n
-      mpn_rsh1sub_n(w1, w1, w2, 2 * n + 1);
+#if HAVE_NATIVE_gpmpn_rsh1sub_n
+      gpmpn_rsh1sub_n(w1, w1, w2, 2 * n + 1);
 #else
-      mpn_sub_n(w1, w1, w2, 2 * n + 1);
-      mpn_rshift(w1, w1, 2 * n + 1, 1);
+      gpmpn_sub_n(w1, w1, w2, 2 * n + 1);
+      gpmpn_rshift(w1, w1, 2 * n + 1, 1);
 #endif
 
       /* W4 =(W3 - W4)>>1 */
       if (flags & toom6_vm1_neg)
       {
-#if HAVE_NATIVE_mpn_rsh1add_n
-        mpn_rsh1add_n(w4, w3, w4, 2 * n + 1);
+#if HAVE_NATIVE_gpmpn_rsh1add_n
+        gpmpn_rsh1add_n(w4, w3, w4, 2 * n + 1);
 #else
-        mpn_add_n(w4, w3, w4, 2 * n + 1);
-        mpn_rshift(w4, w4, 2 * n + 1, 1);
+        gpmpn_add_n(w4, w3, w4, 2 * n + 1);
+        gpmpn_rshift(w4, w4, 2 * n + 1, 1);
 #endif
       }
       else
       {
-#if HAVE_NATIVE_mpn_rsh1sub_n
-        mpn_rsh1sub_n(w4, w3, w4, 2 * n + 1);
+#if HAVE_NATIVE_gpmpn_rsh1sub_n
+        gpmpn_rsh1sub_n(w4, w3, w4, 2 * n + 1);
 #else
-        mpn_sub_n(w4, w3, w4, 2 * n + 1);
-        mpn_rshift(w4, w4, 2 * n + 1, 1);
+        gpmpn_sub_n(w4, w3, w4, 2 * n + 1);
+        gpmpn_rshift(w4, w4, 2 * n + 1, 1);
 #endif
       }
 
       /* W2 =(W2 - W4)/3 */
-      mpn_sub_n(w2, w2, w4, 2 * n + 1);
-      mpn_divexact_by3(w2, w2, 2 * n + 1);
+      gpmpn_sub_n(w2, w2, w4, 2 * n + 1);
+      gpmpn_divexact_by3(w2, w2, 2 * n + 1);
 
       /* W3 = W3 - W4 - W5 */
-      mpn_sub_n(w3, w3, w4, 2 * n + 1);
-      w3[2 * n] -= mpn_sub_n(w3, w3, w5, 2 * n);
+      gpmpn_sub_n(w3, w3, w4, 2 * n + 1);
+      w3[2 * n] -= gpmpn_sub_n(w3, w3, w5, 2 * n);
 
       /* W1 =(W1 - W3)/3 */
-      mpn_sub_n(w1, w1, w3, 2 * n + 1);
-      mpn_divexact_by3(w1, w1, 2 * n + 1);
+      gpmpn_sub_n(w1, w1, w3, 2 * n + 1);
+      gpmpn_divexact_by3(w1, w1, 2 * n + 1);
 
       /*
         [1 0 0 0 0 0;
@@ -178,38 +178,38 @@ namespace gpgmp
               ||-H w1  |-L w1  |
              |-H w0  |-L w0 ||-H w2  |-L w2  |
       */
-      cy = mpn_add_n(pp + n, pp + n, w4, 2 * n + 1);
+      cy = gpmpn_add_n(pp + n, pp + n, w4, 2 * n + 1);
       MPN_INCR_U(pp + 3 * n + 1, n, cy);
 
       /* W2 -= W0<<2 */
-#if HAVE_NATIVE_mpn_sublsh_n || HAVE_NATIVE_mpn_sublsh2_n_ip1
-#if HAVE_NATIVE_mpn_sublsh2_n_ip1
-      cy = mpn_sublsh2_n_ip1(w2, w0, w0n);
+#if HAVE_NATIVE_gpmpn_sublsh_n || HAVE_NATIVE_gpmpn_sublsh2_n_ip1
+#if HAVE_NATIVE_gpmpn_sublsh2_n_ip1
+      cy = gpmpn_sublsh2_n_ip1(w2, w0, w0n);
 #else
-      cy = mpn_sublsh_n(w2, w2, w0, w0n, 2);
+      cy = gpmpn_sublsh_n(w2, w2, w0, w0n, 2);
 #endif
 #else
       /* {W4,2*n+1} is now free and can be overwritten. */
-      cy = mpn_lshift(w4, w0, w0n, 2);
-      cy += mpn_sub_n(w2, w2, w4, w0n);
+      cy = gpmpn_lshift(w4, w0, w0n, 2);
+      cy += gpmpn_sub_n(w2, w2, w4, w0n);
 #endif
       MPN_DECR_U(w2 + w0n, 2 * n + 1 - w0n, cy);
 
       /* W4L = W4L - W2L */
-      cy = mpn_sub_n(pp + n, pp + n, w2, n);
+      cy = gpmpn_sub_n(pp + n, pp + n, w2, n);
       MPN_DECR_U(w3, 2 * n + 1, cy);
 
       /* W3H = W3H + W2L */
-      cy4 = w3[2 * n] + mpn_add_n(pp + 3 * n, pp + 3 * n, w2, n);
+      cy4 = w3[2 * n] + gpmpn_add_n(pp + 3 * n, pp + 3 * n, w2, n);
       /* W1L + W2H */
-      cy = w2[2 * n] + mpn_add_n(pp + 4 * n, w1, w2 + n, n);
+      cy = w2[2 * n] + gpmpn_add_n(pp + 4 * n, w1, w2 + n, n);
       MPN_INCR_U(w1 + n, n + 1, cy);
 
       /* W0 = W0 + W1H */
       if (LIKELY(w0n > n))
-        cy6 = w1[2 * n] + mpn_add_n(w0, w0, w1 + n, n);
+        cy6 = w1[2 * n] + gpmpn_add_n(w0, w0, w1 + n, n);
       else
-        cy6 = mpn_add_n(w0, w0, w1 + n, w0n);
+        cy6 = gpmpn_add_n(w0, w0, w1 + n, w0n);
 
       /*
         summation scheme for the next operation:
@@ -218,7 +218,7 @@ namespace gpgmp
              ...-w0___|-w1_w2 |
       */
       /* if(LIKELY(w0n>n)) the two operands below DO overlap! */
-      cy = mpn_sub_n(pp + 2 * n, pp + 2 * n, pp + 4 * n, n + w0n);
+      cy = gpmpn_sub_n(pp + 2 * n, pp + 2 * n, pp + 4 * n, n + w0n);
 
       /* embankment is a "dirty trick" to avoid carry/borrow propagation
          beyond allocated memory */

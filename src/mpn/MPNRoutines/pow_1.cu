@@ -1,4 +1,4 @@
-/* mpn_pow_1 -- Compute powers R = U^exp.
+/* gpmpn_pow_1 -- Compute powers R = U^exp.
 
    THE FUNCTIONS IN THIS FILE ARE FOR INTERNAL USE ONLY.  THEY'RE ALMOST
    CERTAIN TO BE SUBJECT TO INCOMPATIBLE CHANGES OR DISAPPEAR COMPLETELY IN
@@ -41,7 +41,7 @@ namespace gpgmp
   {
 
     ANYCALLER mp_size_t
-    mpn_pow_1(mp_ptr rp, mp_srcptr bp, mp_size_t bn, mp_limb_t exp, mp_ptr tp)
+    gpmpn_pow_1(mp_ptr rp, mp_srcptr bp, mp_size_t bn, mp_limb_t exp, mp_ptr tp)
     {
       mp_limb_t x;
       int cnt, i;
@@ -97,14 +97,14 @@ namespace gpgmp
           exp <<= 1;
           if ((exp & GMP_LIMB_HIGHBIT) != 0)
           {
-            rp[rn] = rh = mpn_mul_1(rp, rp, rn, bl);
+            rp[rn] = rh = gpmpn_mul_1(rp, rp, rn, bl);
             rn += rh != 0;
           }
 
           if (--i == 0)
             break;
 
-          mpn_sqr(tp, rp, rn);
+          gpmpn_sqr(tp, rp, rn);
           rn = 2 * rn;
           rn -= tp[rn - 1] == 0;
           MP_PTR_SWAP(rp, tp);
@@ -115,7 +115,7 @@ namespace gpgmp
         if (((par ^ cnt) & 1) == 0)
           MP_PTR_SWAP(rp, tp);
 
-        mpn_sqr(rp, bp, bn);
+        gpmpn_sqr(rp, bp, bn);
         rn = 2 * bn;
         rn -= rp[rn - 1] == 0;
 
@@ -124,14 +124,14 @@ namespace gpgmp
           exp <<= 1;
           if ((exp & GMP_LIMB_HIGHBIT) != 0)
           {
-            rn = rn + bn - (mpn_mul(tp, rp, rn, bp, bn) == 0);
+            rn = rn + bn - (gpmpn_mul(tp, rp, rn, bp, bn) == 0);
             MP_PTR_SWAP(rp, tp);
           }
 
           if (--i == 0)
             break;
 
-          mpn_sqr(tp, rp, rn);
+          gpmpn_sqr(tp, rp, rn);
           rn = 2 * rn;
           rn -= tp[rn - 1] == 0;
           MP_PTR_SWAP(rp, tp);

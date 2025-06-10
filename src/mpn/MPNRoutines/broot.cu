@@ -1,4 +1,4 @@
-/* mpn_broot -- Compute hensel sqrt
+/* gpmpn_broot -- Compute hensel sqrt
 
    Contributed to the GNU project by Niels Möller
 
@@ -75,7 +75,7 @@ namespace gpgmp {
       where we still have cancellation of low limbs.
 
     */
-    ANYCALLER void mpn_broot_invm1 (mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t k)
+    ANYCALLER void gpmpn_broot_invm1 (mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t k)
     {
       mp_size_t sizes[GMP_LIMB_BITS * 2];
       mp_ptr akm1, tp, rnp, ep;
@@ -101,7 +101,7 @@ namespace gpgmp {
         that we can use wraparound also for a*r, since the low half is
         unchanged from the previous iteration. Or possibly mulmid. Also,
         a r = a^{1/k}, so we get that value too, for free? */
-      mpn_powlo (akm1, ap, &km1, 1, n, tp); /* 3 n scratch space */
+      gpmpn_powlo (akm1, ap, &km1, 1, n, tp); /* 3 n scratch space */
 
       a0 = ap[0];
       binvert_limb (kinv, k);
@@ -153,25 +153,25 @@ namespace gpgmp {
       while (i-- > 0)
       {
         /* Compute x^{k+1}. */
-        mpn_sqr (ep, rp, rn); /* For odd n, writes n+1 limbs in the
+        gpmpn_sqr (ep, rp, rn); /* For odd n, writes n+1 limbs in the
               final iteration. */
-        mpn_powlo (rnp, ep, &kp1h, 1, sizes[i], tp);
+        gpmpn_powlo (rnp, ep, &kp1h, 1, sizes[i], tp);
 
         /* Multiply by a^{k-1}. Can use wraparound; low part equals r. */
 
-        mpn_mullo_n (ep, rnp, akm1, sizes[i]);
-        ASSERT (mpn_cmp (ep, rp, rn) == 0);
+        gpmpn_mullo_n (ep, rnp, akm1, sizes[i]);
+        ASSERT (gpmpn_cmp (ep, rp, rn) == 0);
 
         ASSERT (sizes[i] <= 2*rn);
-        mpn_pi1_bdiv_q_1 (rp + rn, ep + rn, sizes[i] - rn, k, kinv, 0);
-        mpn_neg (rp + rn, rp + rn, sizes[i] - rn);
+        gpmpn_pi1_bdiv_q_1 (rp + rn, ep + rn, sizes[i] - rn, k, kinv, 0);
+        gpmpn_neg (rp + rn, rp + rn, sizes[i] - rn);
         rn = sizes[i];
       }
       TMP_FREE;
     }
 
     /* Computes a^{1/k} (mod B^n). Both a and k must be odd. */
-    ANYCALLER void mpn_broot (mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t k)
+    ANYCALLER void gpmpn_broot (mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t k)
     {
       mp_ptr tp;
       TMP_DECL;
@@ -189,8 +189,8 @@ namespace gpgmp {
       TMP_MARK;
       tp = TMP_ALLOC_LIMBS (n);
 
-      mpn_broot_invm1 (tp, ap, n, k);
-      mpn_mullo_n (rp, tp, ap, n);
+      gpmpn_broot_invm1 (tp, ap, n, k);
+      gpmpn_mullo_n (rp, tp, ap, n);
 
       TMP_FREE;
     }

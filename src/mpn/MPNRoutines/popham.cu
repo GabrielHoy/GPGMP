@@ -1,4 +1,4 @@
-/* mpn_popcount, mpn_hamdist -- mpn bit population count/hamming distance.
+/* gpmpn_popcount, gpmpn_hamdist -- mpn bit population count/hamming distance.
 
 Copyright 1994, 1996, 2000-2002, 2005, 2011, 2012 Free Software Foundation,
 Inc.
@@ -39,7 +39,7 @@ namespace gpgmp
 
 #define OPERATION_popcount 1
 #if OPERATION_popcount
-#define FNAME mpn_popcount
+#define FNAME gpmpn_popcount
 #define POPHAM(u, v) u
 #endif
 
@@ -145,7 +145,7 @@ namespace gpgmp
 
 #define OPERATION_hamdist 1
 #if OPERATION_hamdist
-#define FNAME mpn_hamdist
+#define FNAME gpmpn_hamdist
 #define POPHAM(u, v) u ^ v
 #endif
 

@@ -82,19 +82,19 @@ namespace gpgmp
   do                                                                                                  \
   {                                                                                                   \
     if (MAYBE_sqr_basecase && (!MAYBE_sqr_above_basecase || BELOW_THRESHOLD(n, SQR_TOOM2_THRESHOLD))) \
-      mpn_sqr_basecase(p, a, n);                                                                      \
+      gpmpn_sqr_basecase(p, a, n);                                                                      \
     else if (MAYBE_sqr_toom2 && (!MAYBE_sqr_above_toom2 || BELOW_THRESHOLD(n, SQR_TOOM3_THRESHOLD)))  \
-      mpn_toom2_sqr(p, a, n, ws);                                                                     \
+      gpmpn_toom2_sqr(p, a, n, ws);                                                                     \
     else if (MAYBE_sqr_toom3 && (!MAYBE_sqr_above_toom3 || BELOW_THRESHOLD(n, SQR_TOOM4_THRESHOLD)))  \
-      mpn_toom3_sqr(p, a, n, ws);                                                                     \
+      gpmpn_toom3_sqr(p, a, n, ws);                                                                     \
     else if (!MAYBE_sqr_above_toom4 || BELOW_THRESHOLD(n, SQR_TOOM6_THRESHOLD))                       \
-      mpn_toom4_sqr(p, a, n, ws);                                                                     \
+      gpmpn_toom4_sqr(p, a, n, ws);                                                                     \
     else                                                                                              \
-      mpn_toom6_sqr(p, a, n, ws);                                                                     \
+      gpmpn_toom6_sqr(p, a, n, ws);                                                                     \
   } while (0)
 
     ANYCALLER void
-    mpn_toom6_sqr(mp_ptr pp, mp_srcptr ap, mp_size_t an, mp_ptr scratch)
+    gpmpn_toom6_sqr(mp_ptr pp, mp_srcptr ap, mp_size_t an, mp_ptr scratch)
     {
       mp_size_t n, s;
 
@@ -119,40 +119,40 @@ namespace gpgmp
 #define wse (scratch + 9 * n + 3) /* 3n+1 */
 
       /* Alloc also 3n+1 limbs for ws... toom_interpolate_12pts may
-         need all of them, when DO_mpn_sublsh_n usea a scratch  */
+         need all of them, when DO_gpmpn_sublsh_n usea a scratch  */
       /*   if (scratch== NULL) */
       /*     scratch = TMP_SALLOC_LIMBS (12 * n + 6); */
 
       /********************** evaluation and recursive calls *********************/
       /* $\pm1/2$ */
-      mpn_toom_eval_pm2rexp(v2, v0, 5, ap, n, s, 1, pp);
+      gpmpn_toom_eval_pm2rexp(v2, v0, 5, ap, n, s, 1, pp);
       TOOM6_SQR_REC(pp, v0, n + 1, wse); /* A(-1/2)*B(-1/2)*2^. */
       TOOM6_SQR_REC(r5, v2, n + 1, wse); /* A(+1/2)*B(+1/2)*2^. */
-      mpn_toom_couple_handling(r5, 2 * n + 1, pp, 0, n, 1, 0);
+      gpmpn_toom_couple_handling(r5, 2 * n + 1, pp, 0, n, 1, 0);
 
       /* $\pm1$ */
-      mpn_toom_eval_pm1(v2, v0, 5, ap, n, s, pp);
+      gpmpn_toom_eval_pm1(v2, v0, 5, ap, n, s, pp);
       TOOM6_SQR_REC(pp, v0, n + 1, wse); /* A(-1)*B(-1) */
       TOOM6_SQR_REC(r3, v2, n + 1, wse); /* A(1)*B(1) */
-      mpn_toom_couple_handling(r3, 2 * n + 1, pp, 0, n, 0, 0);
+      gpmpn_toom_couple_handling(r3, 2 * n + 1, pp, 0, n, 0, 0);
 
       /* $\pm4$ */
-      mpn_toom_eval_pm2exp(v2, v0, 5, ap, n, s, 2, pp);
+      gpmpn_toom_eval_pm2exp(v2, v0, 5, ap, n, s, 2, pp);
       TOOM6_SQR_REC(pp, v0, n + 1, wse); /* A(-4)*B(-4) */
       TOOM6_SQR_REC(r1, v2, n + 1, wse); /* A(+4)*B(+4) */
-      mpn_toom_couple_handling(r1, 2 * n + 1, pp, 0, n, 2, 4);
+      gpmpn_toom_couple_handling(r1, 2 * n + 1, pp, 0, n, 2, 4);
 
       /* $\pm1/4$ */
-      mpn_toom_eval_pm2rexp(v2, v0, 5, ap, n, s, 2, pp);
+      gpmpn_toom_eval_pm2rexp(v2, v0, 5, ap, n, s, 2, pp);
       TOOM6_SQR_REC(pp, v0, n + 1, wse); /* A(-1/4)*B(-1/4)*4^. */
       TOOM6_SQR_REC(r4, v2, n + 1, wse); /* A(+1/4)*B(+1/4)*4^. */
-      mpn_toom_couple_handling(r4, 2 * n + 1, pp, 0, n, 2, 0);
+      gpmpn_toom_couple_handling(r4, 2 * n + 1, pp, 0, n, 2, 0);
 
       /* $\pm2$ */
-      mpn_toom_eval_pm2(v2, v0, 5, ap, n, s, pp);
+      gpmpn_toom_eval_pm2(v2, v0, 5, ap, n, s, pp);
       TOOM6_SQR_REC(pp, v0, n + 1, wse); /* A(-2)*B(-2) */
       TOOM6_SQR_REC(r2, v2, n + 1, wse); /* A(+2)*B(+2) */
-      mpn_toom_couple_handling(r2, 2 * n + 1, pp, 0, n, 1, 2);
+      gpmpn_toom_couple_handling(r2, 2 * n + 1, pp, 0, n, 1, 2);
 
 #undef v0
 #undef v2
@@ -160,7 +160,7 @@ namespace gpgmp
       /* A(0)*B(0) */
       TOOM6_SQR_REC(pp, ap, n, wse);
 
-      mpn_toom_interpolate_12pts(pp, r1, r3, r5, n, 2 * s, 0, wse);
+      gpmpn_toom_interpolate_12pts(pp, r1, r3, r5, n, 2 * s, 0, wse);
 
 #undef r0
 #undef r1

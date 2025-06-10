@@ -1,4 +1,4 @@
-/* mpn_toom_eval_pm2 -- Evaluate a polynomial in +2 and -2
+/* gpmpn_toom_eval_pm2 -- Evaluate a polynomial in +2 and -2
 
    Contributed to the GNU project by Niels Möller and Marco Bodrato
 
@@ -44,20 +44,20 @@ namespace gpgmp
 
 /* DO_addlsh2(d,a,b,n,cy) computes cy,{d,n} <- {a,n} + 4*(cy,{b,n}), it
    can be used as DO_addlsh2(d,a,d,n,d[n]), for accumulation on {d,n+1}. */
-#if HAVE_NATIVE_mpn_addlsh2_n
+#if HAVE_NATIVE_gpmpn_addlsh2_n
 #define DO_addlsh2(d, a, b, n, cy)     \
   do                                   \
   {                                    \
     (cy) <<= 2;                        \
-    (cy) += mpn_addlsh2_n(d, a, b, n); \
+    (cy) += gpmpn_addlsh2_n(d, a, b, n); \
   } while (0)
 #else
-#if HAVE_NATIVE_mpn_addlsh_n
+#if HAVE_NATIVE_gpmpn_addlsh_n
 #define DO_addlsh2(d, a, b, n, cy)       \
   do                                     \
   {                                      \
     (cy) <<= 2;                          \
-    (cy) += mpn_addlsh_n(d, a, b, n, 2); \
+    (cy) += gpmpn_addlsh_n(d, a, b, n, 2); \
   } while (0)
 #else
 /* The following is not a general substitute for addlsh2.
@@ -66,15 +66,15 @@ namespace gpgmp
   do                                \
   {                                 \
     (cy) <<= 2;                     \
-    (cy) += mpn_lshift(d, b, n, 2); \
-    (cy) += mpn_add_n(d, d, a, n);  \
+    (cy) += gpmpn_lshift(d, b, n, 2); \
+    (cy) += gpmpn_add_n(d, d, a, n);  \
   } while (0)
 #endif
 #endif
 
     /* Evaluates a polynomial of degree 2 < k < GMP_NUMB_BITS, in the
        points +2 and -2. */
-    ANYCALLER int mpn_toom_eval_pm2(mp_ptr xp2, mp_ptr xm2, unsigned k, mp_srcptr xp, mp_size_t n, mp_size_t hn, mp_ptr tp)
+    ANYCALLER int gpmpn_toom_eval_pm2(mp_ptr xp2, mp_ptr xm2, unsigned k, mp_srcptr xp, mp_size_t n, mp_size_t hn, mp_ptr tp)
     {
       int i;
       int neg;
@@ -92,7 +92,7 @@ namespace gpgmp
       cy = 0;
       DO_addlsh2(xp2, xp + (k - 2) * n, xp + k * n, hn, cy);
       if (hn != n)
-        cy = mpn_add_1(xp2 + hn, xp + (k - 2) * n + hn, n - hn, cy);
+        cy = gpmpn_add_1(xp2 + hn, xp + (k - 2) * n + hn, n - hn, cy);
       for (i = k - 4; i >= 0; i -= 2)
         DO_addlsh2(xp2, xp + i * n, xp2, n, cy);
       xp2[n] = cy;
@@ -106,25 +106,25 @@ namespace gpgmp
       tp[n] = cy;
 
       if (k & 1)
-        ASSERT_NOCARRY(mpn_lshift(tp, tp, n + 1, 1));
+        ASSERT_NOCARRY(gpmpn_lshift(tp, tp, n + 1, 1));
       else
-        ASSERT_NOCARRY(mpn_lshift(xp2, xp2, n + 1, 1));
+        ASSERT_NOCARRY(gpmpn_lshift(xp2, xp2, n + 1, 1));
 
-      neg = (mpn_cmp(xp2, tp, n + 1) < 0) ? ~0 : 0;
+      neg = (gpmpn_cmp(xp2, tp, n + 1) < 0) ? ~0 : 0;
 
-#if HAVE_NATIVE_mpn_add_n_sub_n
+#if HAVE_NATIVE_gpmpn_add_n_sub_n
       if (neg)
-        mpn_add_n_sub_n(xp2, xm2, tp, xp2, n + 1);
+        gpmpn_add_n_sub_n(xp2, xm2, tp, xp2, n + 1);
       else
-        mpn_add_n_sub_n(xp2, xm2, xp2, tp, n + 1);
-#else  /* !HAVE_NATIVE_mpn_add_n_sub_n */
+        gpmpn_add_n_sub_n(xp2, xm2, xp2, tp, n + 1);
+#else  /* !HAVE_NATIVE_gpmpn_add_n_sub_n */
       if (neg)
-        mpn_sub_n(xm2, tp, xp2, n + 1);
+        gpmpn_sub_n(xm2, tp, xp2, n + 1);
       else
-        mpn_sub_n(xm2, xp2, tp, n + 1);
+        gpmpn_sub_n(xm2, xp2, tp, n + 1);
 
-      mpn_add_n(xp2, xp2, tp, n + 1);
-#endif /* !HAVE_NATIVE_mpn_add_n_sub_n */
+      gpmpn_add_n(xp2, xp2, tp, n + 1);
+#endif /* !HAVE_NATIVE_gpmpn_add_n_sub_n */
 
       ASSERT(xp2[n] < (1 << (k + 2)) - 1);
       ASSERT(xm2[n] < ((1 << (k + 3)) - 1 - (1 ^ k & 1)) / 3);

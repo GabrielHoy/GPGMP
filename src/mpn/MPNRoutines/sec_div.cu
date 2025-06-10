@@ -1,4 +1,4 @@
-/* mpn_sec_div_qr, mpn_sec_div_r -- Compute Q = floor(U / V), U = U mod V.
+/* gpmpn_sec_div_qr, gpmpn_sec_div_r -- Compute Q = floor(U / V), U = U mod V.
    Side-channel silent under the assumption that the used instructions are
    side-channel silent.
 
@@ -59,15 +59,15 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-    ANYCALLER mp_size_t mpn_sec_div_qr_itch(mp_size_t nn, mp_size_t dn)
+    ANYCALLER mp_size_t gpmpn_sec_div_qr_itch(mp_size_t nn, mp_size_t dn)
     {
-      /* Needs (nn + dn + 1) + mpn_sec_pi1_div_qr's needs of (2nn' - dn + 1) for a
-         total of 3nn + 4 limbs at tp.  Note that mpn_sec_pi1_div_qr's nn is one
+      /* Needs (nn + dn + 1) + gpmpn_sec_pi1_div_qr's needs of (2nn' - dn + 1) for a
+         total of 3nn + 4 limbs at tp.  Note that gpmpn_sec_pi1_div_qr's nn is one
          greater than ours, therefore +4 and not just +2.  */
       return 3 * nn + 4;
     }
 
-    mp_limb_t mpn_sec_div_qr(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr tp)
+    mp_limb_t gpmpn_sec_div_qr(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr tp)
     {
       mp_limb_t d1, d0;
       unsigned int cnt;
@@ -85,10 +85,10 @@ namespace gpgmp
         mp_limb_t qh, cy;
         mp_ptr np2, dp2;
         dp2 = tp; /* dn limbs */
-        mpn_lshift(dp2, dp, dn, cnt);
+        gpmpn_lshift(dp2, dp, dn, cnt);
 
         np2 = tp + dn; /* (nn + 1) limbs */
-        cy = mpn_lshift(np2, np, nn, cnt);
+        cy = gpmpn_lshift(np2, np, nn, cnt);
         np2[nn++] = cy;
 
         d0 = dp2[dn - 1];
@@ -97,12 +97,12 @@ namespace gpgmp
 
         /* We add nn + dn to tp here, not nn + 1 + dn, as expected.  This is
      since nn here will have been incremented.  */
-        qh = mpn_sec_pi1_div_qr(np2 + dn, np2, nn, dp2, dn, inv32, tp + nn + dn);
+        qh = gpmpn_sec_pi1_div_qr(np2 + dn, np2, nn, dp2, dn, inv32, tp + nn + dn);
         ASSERT(qh == 0); /* FIXME: this indicates inefficiency! */
         MPN_COPY(qp, np2 + dn, nn - dn - 1);
         qh = np2[nn - 1];
 
-        mpn_rshift(np, np2, dn, cnt);
+        gpmpn_rshift(np, np2, dn, cnt);
 
         return qh;
       }
@@ -115,7 +115,7 @@ namespace gpgmp
         d0 += (~d0 != 0);
         invert_limb(inv32, d0);
 
-        return mpn_sec_pi1_div_qr(qp, np, nn, dp, dn, inv32, tp);
+        return gpmpn_sec_pi1_div_qr(qp, np, nn, dp, dn, inv32, tp);
       }
     }
 
@@ -140,15 +140,15 @@ namespace gpgmp
 
 
 
-    ANYCALLER mp_size_t mpn_sec_div_r_itch(mp_size_t nn, mp_size_t dn)
+    ANYCALLER mp_size_t gpmpn_sec_div_r_itch(mp_size_t nn, mp_size_t dn)
     {
-      /* Needs (nn + dn + 1) + mpn_sec_pi1_div_r's needs of (dn + 1) for a total of
+      /* Needs (nn + dn + 1) + gpmpn_sec_pi1_div_r's needs of (dn + 1) for a total of
          nn + 2dn + 2 limbs at tp.  */
       return nn + 2 * dn + 2;
     }
 
     void
-    mpn_sec_div_r(
+    gpmpn_sec_div_r(
               mp_ptr np,
           mp_size_t nn,
           mp_srcptr dp, mp_size_t dn,
@@ -170,10 +170,10 @@ namespace gpgmp
         mp_limb_t qh, cy;
         mp_ptr np2, dp2;
         dp2 = tp; /* dn limbs */
-        mpn_lshift(dp2, dp, dn, cnt);
+        gpmpn_lshift(dp2, dp, dn, cnt);
 
         np2 = tp + dn; /* (nn + 1) limbs */
-        cy = mpn_lshift(np2, np, nn, cnt);
+        cy = gpmpn_lshift(np2, np, nn, cnt);
         np2[nn++] = cy;
 
         d0 = dp2[dn - 1];
@@ -182,9 +182,9 @@ namespace gpgmp
 
         /* We add nn + dn to tp here, not nn + 1 + dn, as expected.  This is
      since nn here will have been incremented.  */
-        mpn_sec_pi1_div_r(np2, nn, dp2, dn, inv32, tp + nn + dn);
+        gpmpn_sec_pi1_div_r(np2, nn, dp2, dn, inv32, tp + nn + dn);
 
-        mpn_rshift(np, np2, dn, cnt);
+        gpmpn_rshift(np, np2, dn, cnt);
       }
       else
       {
@@ -195,7 +195,7 @@ namespace gpgmp
         d0 += (~d0 != 0);
         invert_limb(inv32, d0);
 
-        mpn_sec_pi1_div_r(np, nn, dp, dn, inv32, tp);
+        gpmpn_sec_pi1_div_r(np, nn, dp, dn, inv32, tp);
       }
     }
 

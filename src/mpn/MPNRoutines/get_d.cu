@@ -1,4 +1,4 @@
-/* mpn_get_d -- limbs to double conversion.
+/* gpmpn_get_d -- limbs to double conversion.
 
    THE FUNCTIONS IN THIS FILE ARE FOR INTERNAL USE ONLY.  THEY'RE ALMOST
    CERTAIN TO BE SUBJECT TO INCOMPATIBLE CHANGES OR DISAPPEAR COMPLETELY IN
@@ -121,7 +121,7 @@ namespace gpgmp {
 
       mpz_get_d in the past handled size==1 with a cast limb->double.  This might
       still be worthwhile there (for up to the mantissa many bits), but for
-      mpn_get_d here, the cost of applying "exp" to the resulting exponent would
+      gpmpn_get_d here, the cost of applying "exp" to the resulting exponent would
       probably use up any benefit a cast may have over bit twiddling.  Also, if
       the exponent is pushed into denorm range then bit twiddling is the only
       option, to ensure the desired truncation is obtained.
@@ -139,7 +139,7 @@ namespace gpgmp {
 
     #undef FORMAT_RECOGNIZED
 
-    ANYCALLER double mpn_get_d (mp_srcptr up, mp_size_t size, mp_size_t sign, long exp)
+    ANYCALLER double gpmpn_get_d (mp_srcptr up, mp_size_t size, mp_size_t sign, long exp)
     {
       int lshift, nbits;
       mp_limb_t x, mhi, mlo;

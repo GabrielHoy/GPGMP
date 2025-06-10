@@ -1,4 +1,4 @@
-/* mpn/gcd.c: mpn_gcd for gcd of two odd integers.
+/* mpn/gcd.c: gpmpn_gcd for gcd of two odd integers.
 
 Copyright 1991, 1993-1998, 2000-2005, 2008, 2010, 2012, 2019 Free Software
 Foundation, Inc.
@@ -46,15 +46,15 @@ namespace gpgmp {
 
     /* Some reasonable choices are n / 2 (same as in hgcd), and p = (n +
     * 2)/3, which gives a balanced multiplication in
-    * mpn_hgcd_matrix_adjust. However, p = 2 n/3 gives slightly better
+    * gpmpn_hgcd_matrix_adjust. However, p = 2 n/3 gives slightly better
     * performance. The matrix-vector multiplication is then
     * 4:1-unbalanced, with matrix elements of size n/6, and vector
     * elements of size p = 2n/3. */
 
     /* From analysis of the theoretical running time, it appears that when
     * multiplication takes time O(n^alpha), p should be chosen so that
-    * the ratio of the time for the mpn_hgcd call, and the time for the
-    * multiplication in mpn_hgcd_matrix_adjust, is roughly 1/(alpha -
+    * the ratio of the time for the gpmpn_hgcd call, and the time for the
+    * multiplication in gpmpn_hgcd_matrix_adjust, is roughly 1/(alpha -
     * 1). */
     #ifdef TUNE_GCD_P
     #define P_TABLE_SIZE 10000
@@ -77,7 +77,7 @@ namespace gpgmp {
       ctx->gn = gn;
     }
 
-    ANYCALLER mp_size_t mpn_gcd (mp_ptr gp, mp_ptr up, mp_size_t usize, mp_ptr vp, mp_size_t n)
+    ANYCALLER mp_size_t gpmpn_gcd (mp_ptr gp, mp_ptr up, mp_size_t usize, mp_ptr vp, mp_size_t n)
     {
       mp_size_t talloc;
       mp_size_t scratch;
@@ -114,11 +114,11 @@ namespace gpgmp {
           /* Worst case, since we don't guarantee that n - CHOOSE_P(n)
       is increasing */
           matrix_scratch = MPN_HGCD_MATRIX_INIT_ITCH (n);
-          hgcd_scratch = mpn_hgcd_itch (n);
+          hgcd_scratch = gpmpn_hgcd_itch (n);
           update_scratch = 2*(n - 1);
     #else
           matrix_scratch = MPN_HGCD_MATRIX_INIT_ITCH (n - p);
-          hgcd_scratch = mpn_hgcd_itch (n - p);
+          hgcd_scratch = gpmpn_hgcd_itch (n - p);
           update_scratch = p + n - 1;
     #endif
           scratch = matrix_scratch + MAX(hgcd_scratch, update_scratch);
@@ -131,9 +131,9 @@ namespace gpgmp {
 
       if (usize > n)
         {
-          mpn_tdiv_qr (tp, up, 0, up, usize, vp, n);
+          gpmpn_tdiv_qr (tp, up, 0, up, usize, vp, n);
 
-          if (mpn_zero_p (up, n))
+          if (gpmpn_zero_p (up, n))
       {
         MPN_COPY (gp, vp, n);
         ctx.gn = n;
@@ -153,19 +153,19 @@ namespace gpgmp {
           mp_size_t p = CHOOSE_P (n);
           mp_size_t matrix_scratch = MPN_HGCD_MATRIX_INIT_ITCH (n - p);
           mp_size_t nn;
-          mpn_hgcd_matrix_init (&M, n - p, tp);
-          nn = mpn_hgcd (up + p, vp + p, n - p, &M, tp + matrix_scratch);
+          gpmpn_hgcd_matrix_init (&M, n - p, tp);
+          nn = gpmpn_hgcd (up + p, vp + p, n - p, &M, tp + matrix_scratch);
           if (nn > 0)
       {
         ASSERT (M.n <= (n - p - 1)/2);
         ASSERT (M.n + p <= (p + n - 1) / 2);
         /* Temporary storage 2 (p + M->n) <= p + n - 1. */
-        n = mpn_hgcd_matrix_adjust (&M, p + nn, up, vp, p, tp + matrix_scratch);
+        n = gpmpn_hgcd_matrix_adjust (&M, p + nn, up, vp, p, tp + matrix_scratch);
       }
           else
       {
         /* Temporary storage n */
-        n = mpn_gcd_subdiv_step (up, vp, n, 0, gcd_hook, &ctx, tp);
+        n = gpmpn_gcd_subdiv_step (up, vp, n, 0, gcd_hook, &ctx, tp);
         if (n == 0)
           goto done;
       }
@@ -196,20 +196,20 @@ namespace gpgmp {
         vl = MPN_EXTRACT_NUMB (shift, vp[n-2], vp[n-3]);
       }
 
-          /* Try an mpn_hgcd2 step */
-          if (mpn_hgcd2 (uh, ul, vh, vl, &M))
+          /* Try an gpmpn_hgcd2 step */
+          if (gpmpn_hgcd2 (uh, ul, vh, vl, &M))
       {
-        n = mpn_matrix22_mul1_inverse_vector (&M, tp, up, vp, n);
+        n = gpmpn_matrix22_mul1_inverse_vector (&M, tp, up, vp, n);
         MP_PTR_SWAP (up, tp);
       }
           else
       {
-        /* mpn_hgcd2 has failed. Then either one of a or b is very
+        /* gpmpn_hgcd2 has failed. Then either one of a or b is very
           small, or the difference is very small. Perform one
           subtraction followed by one division. */
 
         /* Temporary storage n */
-        n = mpn_gcd_subdiv_step (up, vp, n, 0, &gcd_hook, &ctx, tp);
+        n = gpmpn_gcd_subdiv_step (up, vp, n, 0, &gcd_hook, &ctx, tp);
         if (n == 0)
           goto done;
       }
@@ -217,7 +217,7 @@ namespace gpgmp {
 
       ASSERT(up[n-1] | vp[n-1]);
 
-      /* Due to the calling convention for mpn_gcd, at most one can be even. */
+      /* Due to the calling convention for gpmpn_gcd, at most one can be even. */
       if ((up[0] & 1) == 0)
         MP_PTR_SWAP (up, vp);
       ASSERT ((up[0] & 1) != 0);
@@ -233,7 +233,7 @@ namespace gpgmp {
           {
       int cnt;
       count_trailing_zeros (cnt, v0);
-      *gp = mpn_gcd_11 (u0, v0 >> cnt);
+      *gp = gpmpn_gcd_11 (u0, v0 >> cnt);
       ctx.gn = 1;
       goto done;
           }
@@ -243,7 +243,7 @@ namespace gpgmp {
           {
       v0 = v1;
       v1 = 0;
-      /* FIXME: We could invoke a mpn_gcd_21 here, just like mpn_gcd_22 could
+      /* FIXME: We could invoke a gpmpn_gcd_21 here, just like gpmpn_gcd_22 could
         when this situation occurs internally.  */
           }
         if ((v0 & 1) == 0)
@@ -255,7 +255,7 @@ namespace gpgmp {
           }
 
         u1 = up[1];
-        g = mpn_gcd_22 (u1, u0, v1, v0);
+        g = gpmpn_gcd_22 (u1, u0, v1, v0);
         gp[0] = g.d0;
         gp[1] = g.d1;
         ctx.gn = 1 + (g.d1 > 0);

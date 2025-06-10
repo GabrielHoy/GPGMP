@@ -1,4 +1,4 @@
-/* mpn_mod_1s_4p (ap, n, b, cps)
+/* gpmpn_mod_1s_4p (ap, n, b, cps)
    Divide (ap,,n) by b.  Return the single-limb remainder.
    Requires that b < B / 4.
 
@@ -43,7 +43,7 @@ see https://www.gnu.org/licenses/.  */
 namespace gpgmp {
   namespace mpnRoutines {
 
-ANYCALLER void mpn_mod_1s_4p_cps (mp_limb_t cps[7], mp_limb_t b)
+ANYCALLER void gpmpn_mod_1s_4p_cps (mp_limb_t cps[7], mp_limb_t b)
 {
   mp_limb_t bi;
   mp_limb_t B1modb, B2modb, B3modb, B4modb, B5modb;
@@ -88,7 +88,7 @@ ANYCALLER void mpn_mod_1s_4p_cps (mp_limb_t cps[7], mp_limb_t b)
 #endif
 }
 
-ANYCALLER mp_limb_t mpn_mod_1s_4p (mp_srcptr ap, mp_size_t n, mp_limb_t b, const mp_limb_t cps[7])
+ANYCALLER mp_limb_t gpmpn_mod_1s_4p (mp_srcptr ap, mp_size_t n, mp_limb_t b, const mp_limb_t cps[7])
 {
   mp_limb_t rh, rl, bi, ph, pl, ch, cl, r;
   mp_limb_t B1modb, B2modb, B3modb, B4modb, B5modb;

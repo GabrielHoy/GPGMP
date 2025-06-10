@@ -1,4 +1,4 @@
-/* mpn_bdiv_q_1, mpn_pi1_bdiv_q_1 -- schoolbook Hensel division by 1-limb
+/* gpmpn_bdiv_q_1, gpmpn_pi1_bdiv_q_1 -- schoolbook Hensel division by 1-limb
    divisor, returning quotient only.
 
    THE FUNCTIONS IN THIS FILE ARE FOR INTERNAL USE ONLY.  THEY'RE ALMOST
@@ -41,7 +41,7 @@ namespace gpgmp {
   namespace mpnRoutines {
 
 
-    ANYCALLER mp_limb_t mpn_pi1_bdiv_q_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t d, mp_limb_t di, int shift)
+    ANYCALLER mp_limb_t gpmpn_pi1_bdiv_q_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t d, mp_limb_t di, int shift)
     {
       mp_size_t  i;
       mp_limb_t  c, h, l, u, u_next, dummy;
@@ -105,7 +105,7 @@ namespace gpgmp {
     }
 
     mp_limb_t
-    mpn_bdiv_q_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t d)
+    gpmpn_bdiv_q_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t d)
     {
       mp_limb_t di;
       int shift;
@@ -120,7 +120,7 @@ namespace gpgmp {
       d >>= shift;
 
       binvert_limb (di, d);
-      return mpn_pi1_bdiv_q_1 (rp, up, n, d, di, shift);
+      return gpmpn_pi1_bdiv_q_1 (rp, up, n, d, di, shift);
     }
 
   }

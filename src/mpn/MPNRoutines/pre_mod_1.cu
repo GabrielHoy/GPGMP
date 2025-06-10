@@ -1,4 +1,4 @@
-/* mpn_preinv_mod_1 (up, un, d, dinv) -- Divide (UP,,UN) by the normalized D.
+/* gpmpn_preinv_mod_1 (up, un, d, dinv) -- Divide (UP,,UN) by the normalized D.
    DINV should be 2^(2*GMP_LIMB_BITS) / D - 2^GMP_LIMB_BITS.
    Return the single-limb remainder.
 
@@ -44,7 +44,7 @@ namespace gpgmp
        internally.  */
 
     ANYCALLER mp_limb_t
-    mpn_preinv_mod_1(mp_srcptr up, mp_size_t un, mp_limb_t d, mp_limb_t dinv)
+    gpmpn_preinv_mod_1(mp_srcptr up, mp_size_t un, mp_limb_t d, mp_limb_t dinv)
     {
       mp_size_t i;
       mp_limb_t n0, r;

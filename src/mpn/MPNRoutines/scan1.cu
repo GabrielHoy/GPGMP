@@ -1,4 +1,4 @@
-/* mpn_scan1 -- Scan from a given bit position for the next set bit.
+/* gpmpn_scan1 -- Scan from a given bit position for the next set bit.
 
 Copyright 1994, 1996, 2001, 2002, 2004 Free Software Foundation, Inc.
 
@@ -38,7 +38,7 @@ namespace gpgmp {
     /* Argument constraints:
       1. U must sooner or later have a limb != 0.
     */
-    ANYCALLER mp_bitcnt_t mpn_scan1 (mp_srcptr up, mp_bitcnt_t starting_bit)
+    ANYCALLER mp_bitcnt_t gpmpn_scan1 (mp_srcptr up, mp_bitcnt_t starting_bit)
     {
       mp_size_t starting_word;
       mp_limb_t alimb;

@@ -1,4 +1,4 @@
-/* mpn_toom62_mul -- Multiply {ap,an} and {bp,bn} where an is nominally 3 times
+/* gpmpn_toom62_mul -- Multiply {ap,an} and {bp,bn} where an is nominally 3 times
    as large as bn.  Or more accurately, (5/2)bn < an < 6bn.
 
    Contributed to the GNU project by Torbjorn Granlund and Marco Bodrato.
@@ -65,7 +65,7 @@ namespace gpgmp
     */
 
     ANYCALLER void
-    mpn_toom62_mul(mp_ptr pp,
+    gpmpn_toom62_mul(mp_ptr pp,
                    mp_srcptr ap, mp_size_t an,
                    mp_srcptr bp, mp_size_t bn,
                    mp_ptr scratch)
@@ -112,92 +112,92 @@ namespace gpgmp
       gp = pp;
 
       /* Compute as1 and asm1.  */
-      aflags = (enum toom7_flags)(toom7_w3_neg & mpn_toom_eval_pm1(as1, asm1, 5, ap, n, s, gp));
+      aflags = (enum toom7_flags)(toom7_w3_neg & gpmpn_toom_eval_pm1(as1, asm1, 5, ap, n, s, gp));
 
       /* Compute as2 and asm2. */
-      aflags = (enum toom7_flags)(aflags | (toom7_w1_neg & mpn_toom_eval_pm2(as2, asm2, 5, ap, n, s, gp)));
+      aflags = (enum toom7_flags)(aflags | (toom7_w1_neg & gpmpn_toom_eval_pm2(as2, asm2, 5, ap, n, s, gp)));
 
       /* Compute ash = 32 a0 + 16 a1 + 8 a2 + 4 a3 + 2 a4 + a5
          = 2*(2*(2*(2*(2*a0 + a1) + a2) + a3) + a4) + a5  */
 
-#if HAVE_NATIVE_mpn_addlsh1_n
-      cy = mpn_addlsh1_n(ash, a1, a0, n);
-      cy = 2 * cy + mpn_addlsh1_n(ash, a2, ash, n);
-      cy = 2 * cy + mpn_addlsh1_n(ash, a3, ash, n);
-      cy = 2 * cy + mpn_addlsh1_n(ash, a4, ash, n);
+#if HAVE_NATIVE_gpmpn_addlsh1_n
+      cy = gpmpn_addlsh1_n(ash, a1, a0, n);
+      cy = 2 * cy + gpmpn_addlsh1_n(ash, a2, ash, n);
+      cy = 2 * cy + gpmpn_addlsh1_n(ash, a3, ash, n);
+      cy = 2 * cy + gpmpn_addlsh1_n(ash, a4, ash, n);
       if (s < n)
       {
         mp_limb_t cy2;
-        cy2 = mpn_addlsh1_n(ash, a5, ash, s);
-        ash[n] = 2 * cy + mpn_lshift(ash + s, ash + s, n - s, 1);
+        cy2 = gpmpn_addlsh1_n(ash, a5, ash, s);
+        ash[n] = 2 * cy + gpmpn_lshift(ash + s, ash + s, n - s, 1);
         MPN_INCR_U(ash + s, n + 1 - s, cy2);
       }
       else
-        ash[n] = 2 * cy + mpn_addlsh1_n(ash, a5, ash, n);
+        ash[n] = 2 * cy + gpmpn_addlsh1_n(ash, a5, ash, n);
 #else
-      cy = mpn_lshift(ash, a0, n, 1);
-      cy += mpn_add_n(ash, ash, a1, n);
-      cy = 2 * cy + mpn_lshift(ash, ash, n, 1);
-      cy += mpn_add_n(ash, ash, a2, n);
-      cy = 2 * cy + mpn_lshift(ash, ash, n, 1);
-      cy += mpn_add_n(ash, ash, a3, n);
-      cy = 2 * cy + mpn_lshift(ash, ash, n, 1);
-      cy += mpn_add_n(ash, ash, a4, n);
-      cy = 2 * cy + mpn_lshift(ash, ash, n, 1);
-      ash[n] = cy + mpn_add(ash, ash, n, a5, s);
+      cy = gpmpn_lshift(ash, a0, n, 1);
+      cy += gpmpn_add_n(ash, ash, a1, n);
+      cy = 2 * cy + gpmpn_lshift(ash, ash, n, 1);
+      cy += gpmpn_add_n(ash, ash, a2, n);
+      cy = 2 * cy + gpmpn_lshift(ash, ash, n, 1);
+      cy += gpmpn_add_n(ash, ash, a3, n);
+      cy = 2 * cy + gpmpn_lshift(ash, ash, n, 1);
+      cy += gpmpn_add_n(ash, ash, a4, n);
+      cy = 2 * cy + gpmpn_lshift(ash, ash, n, 1);
+      ash[n] = cy + gpmpn_add(ash, ash, n, a5, s);
 #endif
 
       /* Compute bs1 and bsm1.  */
       if (t == n)
       {
-#if HAVE_NATIVE_mpn_add_n_sub_n
-        if (mpn_cmp(b0, b1, n) < 0)
+#if HAVE_NATIVE_gpmpn_add_n_sub_n
+        if (gpmpn_cmp(b0, b1, n) < 0)
         {
-          cy = mpn_add_n_sub_n(bs1, bsm1, b1, b0, n);
+          cy = gpmpn_add_n_sub_n(bs1, bsm1, b1, b0, n);
           bflags = toom7_w3_neg;
         }
         else
         {
-          cy = mpn_add_n_sub_n(bs1, bsm1, b0, b1, n);
+          cy = gpmpn_add_n_sub_n(bs1, bsm1, b0, b1, n);
           bflags = (enum toom7_flags)0;
         }
         bs1[n] = cy >> 1;
 #else
-        bs1[n] = mpn_add_n(bs1, b0, b1, n);
-        if (mpn_cmp(b0, b1, n) < 0)
+        bs1[n] = gpmpn_add_n(bs1, b0, b1, n);
+        if (gpmpn_cmp(b0, b1, n) < 0)
         {
-          mpn_sub_n(bsm1, b1, b0, n);
+          gpmpn_sub_n(bsm1, b1, b0, n);
           bflags = toom7_w3_neg;
         }
         else
         {
-          mpn_sub_n(bsm1, b0, b1, n);
+          gpmpn_sub_n(bsm1, b0, b1, n);
           bflags = (enum toom7_flags)0;
         }
 #endif
       }
       else
       {
-        bs1[n] = mpn_add(bs1, b0, n, b1, t);
-        if (mpn_zero_p(b0 + t, n - t) && mpn_cmp(b0, b1, t) < 0)
+        bs1[n] = gpmpn_add(bs1, b0, n, b1, t);
+        if (gpmpn_zero_p(b0 + t, n - t) && gpmpn_cmp(b0, b1, t) < 0)
         {
-          mpn_sub_n(bsm1, b1, b0, t);
+          gpmpn_sub_n(bsm1, b1, b0, t);
           MPN_ZERO(bsm1 + t, n - t);
           bflags = toom7_w3_neg;
         }
         else
         {
-          mpn_sub(bsm1, b0, n, b1, t);
+          gpmpn_sub(bsm1, b0, n, b1, t);
           bflags = (enum toom7_flags)0;
         }
       }
 
       /* Compute bs2 and bsm2. Recycling bs1 and bsm1; bs2=bs1+b1, bsm2 =
          bsm1 - b1 */
-      mpn_add(bs2, bs1, n + 1, b1, t);
+      gpmpn_add(bs2, bs1, n + 1, b1, t);
       if (bflags & toom7_w3_neg)
       {
-        bsm2[n] = mpn_add(bsm2, bsm1, n, b1, t);
+        bsm2[n] = gpmpn_add(bsm2, bsm1, n, b1, t);
         bflags = (enum toom7_flags)(bflags | toom7_w1_neg);
       }
       else
@@ -205,35 +205,35 @@ namespace gpgmp
         /* FIXME: Simplify this logic? */
         if (t < n)
         {
-          if (mpn_zero_p(bsm1 + t, n - t) && mpn_cmp(bsm1, b1, t) < 0)
+          if (gpmpn_zero_p(bsm1 + t, n - t) && gpmpn_cmp(bsm1, b1, t) < 0)
           {
-            ASSERT_NOCARRY(mpn_sub_n(bsm2, b1, bsm1, t));
+            ASSERT_NOCARRY(gpmpn_sub_n(bsm2, b1, bsm1, t));
             MPN_ZERO(bsm2 + t, n + 1 - t);
             bflags = (enum toom7_flags)(bflags | toom7_w1_neg);
           }
           else
           {
-            ASSERT_NOCARRY(mpn_sub(bsm2, bsm1, n, b1, t));
+            ASSERT_NOCARRY(gpmpn_sub(bsm2, bsm1, n, b1, t));
             bsm2[n] = 0;
           }
         }
         else
         {
-          if (mpn_cmp(bsm1, b1, n) < 0)
+          if (gpmpn_cmp(bsm1, b1, n) < 0)
           {
-            ASSERT_NOCARRY(mpn_sub_n(bsm2, b1, bsm1, n));
+            ASSERT_NOCARRY(gpmpn_sub_n(bsm2, b1, bsm1, n));
             bflags = (enum toom7_flags)(bflags | toom7_w1_neg);
           }
           else
           {
-            ASSERT_NOCARRY(mpn_sub_n(bsm2, bsm1, b1, n));
+            ASSERT_NOCARRY(gpmpn_sub_n(bsm2, bsm1, b1, n));
           }
           bsm2[n] = 0;
         }
       }
 
       /* Compute bsh, recycling bs1. bsh=bs1+b0;  */
-      bsh[n] = bs1[n] + mpn_add_n(bsh, bs1, b0, n);
+      bsh[n] = bs1[n] + gpmpn_add_n(bsh, bs1, b0, n);
 
       ASSERT(as1[n] <= 5);
       ASSERT(bs1[n] <= 1);
@@ -257,60 +257,60 @@ namespace gpgmp
 
       /* Must be in allocation order, as they overwrite one limb beyond
        * 2n+1. */
-      mpn_mul_n(v2, as2, bs2, n + 1);    /* v2, 2n+1 limbs */
-      mpn_mul_n(vm2, asm2, bsm2, n + 1); /* vm2, 2n+1 limbs */
-      mpn_mul_n(vh, ash, bsh, n + 1);    /* vh, 2n+1 limbs */
+      gpmpn_mul_n(v2, as2, bs2, n + 1);    /* v2, 2n+1 limbs */
+      gpmpn_mul_n(vm2, asm2, bsm2, n + 1); /* vm2, 2n+1 limbs */
+      gpmpn_mul_n(vh, ash, bsh, n + 1);    /* vh, 2n+1 limbs */
 
       /* vm1, 2n+1 limbs */
-      mpn_mul_n(vm1, asm1, bsm1, n);
+      gpmpn_mul_n(vm1, asm1, bsm1, n);
       cy = 0;
       if (asm1[n] == 1)
       {
-        cy = mpn_add_n(vm1 + n, vm1 + n, bsm1, n);
+        cy = gpmpn_add_n(vm1 + n, vm1 + n, bsm1, n);
       }
       else if (asm1[n] == 2)
       {
-#if HAVE_NATIVE_mpn_addlsh1_n
-        cy = mpn_addlsh1_n(vm1 + n, vm1 + n, bsm1, n);
+#if HAVE_NATIVE_gpmpn_addlsh1_n
+        cy = gpmpn_addlsh1_n(vm1 + n, vm1 + n, bsm1, n);
 #else
-        cy = mpn_addmul_1(vm1 + n, bsm1, n, CNST_LIMB(2));
+        cy = gpmpn_addmul_1(vm1 + n, bsm1, n, CNST_LIMB(2));
 #endif
       }
       vm1[2 * n] = cy;
 
       /* v1, 2n+1 limbs */
-      mpn_mul_n(v1, as1, bs1, n);
+      gpmpn_mul_n(v1, as1, bs1, n);
       if (as1[n] == 1)
       {
-        cy = bs1[n] + mpn_add_n(v1 + n, v1 + n, bs1, n);
+        cy = bs1[n] + gpmpn_add_n(v1 + n, v1 + n, bs1, n);
       }
       else if (as1[n] == 2)
       {
-#if HAVE_NATIVE_mpn_addlsh1_n
-        cy = 2 * bs1[n] + mpn_addlsh1_n(v1 + n, v1 + n, bs1, n);
+#if HAVE_NATIVE_gpmpn_addlsh1_n
+        cy = 2 * bs1[n] + gpmpn_addlsh1_n(v1 + n, v1 + n, bs1, n);
 #else
-        cy = 2 * bs1[n] + mpn_addmul_1(v1 + n, bs1, n, CNST_LIMB(2));
+        cy = 2 * bs1[n] + gpmpn_addmul_1(v1 + n, bs1, n, CNST_LIMB(2));
 #endif
       }
       else if (as1[n] != 0)
       {
-        cy = as1[n] * bs1[n] + mpn_addmul_1(v1 + n, bs1, n, as1[n]);
+        cy = as1[n] * bs1[n] + gpmpn_addmul_1(v1 + n, bs1, n, as1[n]);
       }
       else
         cy = 0;
       if (bs1[n] != 0)
-        cy += mpn_add_n(v1 + n, v1 + n, as1, n);
+        cy += gpmpn_add_n(v1 + n, v1 + n, as1, n);
       v1[2 * n] = cy;
 
-      mpn_mul_n(v0, a0, b0, n); /* v0, 2n limbs */
+      gpmpn_mul_n(v0, a0, b0, n); /* v0, 2n limbs */
 
       /* vinf, s+t limbs */
       if (s > t)
-        mpn_mul(vinf, a5, s, b1, t);
+        gpmpn_mul(vinf, a5, s, b1, t);
       else
-        mpn_mul(vinf, b1, t, a5, s);
+        gpmpn_mul(vinf, b1, t, a5, s);
 
-      mpn_toom_interpolate_7pts(pp, n, (enum toom7_flags)(aflags ^ bflags),
+      gpmpn_toom_interpolate_7pts(pp, n, (enum toom7_flags)(aflags ^ bflags),
                                 vm2, vm1, v2, vh, s + t, scratch_out);
 
       TMP_FREE;

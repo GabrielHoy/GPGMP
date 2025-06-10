@@ -1,4 +1,4 @@
-/* mpn_cnd_swap
+/* gpmpn_cnd_swap
 
    Contributed to the GNU project by Niels Möller
 
@@ -37,7 +37,7 @@ namespace gpgmp {
 	namespace mpnRoutines {
 
     //Conditional swap of two mp_limb_t arrays using bitwise operations to protect against timing attacks.
-		ANYCALLER void mpn_cnd_swap (mp_limb_t cnd, volatile mp_limb_t *ap, volatile mp_limb_t *bp, mp_size_t size)
+		ANYCALLER void gpmpn_cnd_swap (mp_limb_t cnd, volatile mp_limb_t *ap, volatile mp_limb_t *bp, mp_size_t size)
     {
       volatile mp_limb_t mask = - (mp_limb_t) (cnd != 0);
       mp_size_t limbIdx;

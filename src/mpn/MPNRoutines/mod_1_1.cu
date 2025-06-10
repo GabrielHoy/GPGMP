@@ -1,4 +1,4 @@
-/* mpn_mod_1_1p (ap, n, b, cps)
+/* gpmpn_mod_1_1p (ap, n, b, cps)
    Divide (ap,,n) by b.  Return the single-limb remainder.
 
    Contributed to the GNU project by Torbjorn Granlund and Niels Möller.
@@ -167,7 +167,7 @@ namespace gpgmp
 #endif
 
 #if MOD_1_1P_METHOD == 1
-    ANYCALLER void mpn_mod_1_1p_cps(mp_limb_t cps[4], mp_limb_t b)
+    ANYCALLER void gpmpn_mod_1_1p_cps(mp_limb_t cps[4], mp_limb_t b)
     {
       mp_limb_t bi;
       mp_limb_t B1modb, B2modb;
@@ -196,7 +196,7 @@ namespace gpgmp
       cps[3] = B2modb >> cnt;
     }
 
-    ANYCALLER mp_limb_t mpn_mod_1_1p(mp_srcptr ap, mp_size_t n, mp_limb_t b, const mp_limb_t bmodb[4])
+    ANYCALLER mp_limb_t gpmpn_mod_1_1p(mp_srcptr ap, mp_size_t n, mp_limb_t b, const mp_limb_t bmodb[4])
     {
       mp_limb_t rh, rl, bi, ph, pl, r;
       mp_limb_t B1modb, B2modb;
@@ -242,7 +242,7 @@ namespace gpgmp
 #endif /* MOD_1_1P_METHOD == 1 */
 
 #if MOD_1_1P_METHOD == 2
-    ANYCALLER void mpn_mod_1_1p_cps(mp_limb_t cps[4], mp_limb_t b)
+    ANYCALLER void gpmpn_mod_1_1p_cps(mp_limb_t cps[4], mp_limb_t b)
     {
       mp_limb_t bi;
       mp_limb_t B2modb;
@@ -268,7 +268,7 @@ namespace gpgmp
       cps[3] = B2modb;
     }
 
-    ANYCALLER mp_limb_t mpn_mod_1_1p(mp_srcptr ap, mp_size_t n, mp_limb_t b, const mp_limb_t bmodb[4])
+    ANYCALLER mp_limb_t gpmpn_mod_1_1p(mp_srcptr ap, mp_size_t n, mp_limb_t b, const mp_limb_t bmodb[4])
     {
       int cnt;
       mp_limb_t bi, B1modb;

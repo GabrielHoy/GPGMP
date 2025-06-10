@@ -1,4 +1,4 @@
-/* mpn_addmul_1 -- multiply the N long limb vector pointed to by UP by VL,
+/* gpmpn_addmul_1 -- multiply the N long limb vector pointed to by UP by VL,
    add the N least significant limbs of the product to the limb vector
    pointed to by RP.  Return the most significant limb of the product,
    adjusted for carry-out from the addition.
@@ -39,7 +39,7 @@ namespace gpgmp {
 
 	namespace mpnRoutines {
 
-		ANYCALLER mp_limb_t mpn_addmul_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t v0)
+		ANYCALLER mp_limb_t gpmpn_addmul_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t v0)
     {
       mp_limb_t u0, crec, c, p1, p0, r0;
 

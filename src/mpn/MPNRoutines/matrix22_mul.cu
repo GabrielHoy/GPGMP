@@ -46,9 +46,9 @@ namespace gpgmp
   do                               \
   {                                \
     if (an >= bn)                  \
-      mpn_mul(rp, ap, an, bp, bn); \
+      gpmpn_mul(rp, ap, an, bp, bn); \
     else                           \
-      mpn_mul(rp, bp, bn, ap, an); \
+      gpmpn_mul(rp, bp, bn, ap, an); \
   } while (0)
 
     /* Inputs are unsigned. */
@@ -58,12 +58,12 @@ namespace gpgmp
       MPN_CMP(c, ap, bp, n);
       if (c >= 0)
       {
-        mpn_sub_n(rp, ap, bp, n);
+        gpmpn_sub_n(rp, ap, bp, n);
         return 0;
       }
       else
       {
-        mpn_sub_n(rp, bp, ap, n);
+        gpmpn_sub_n(rp, bp, ap, n);
         return 1;
       }
     }
@@ -74,12 +74,12 @@ namespace gpgmp
         return as ^ abs_sub_n(rp, ap, bp, n);
       else
       {
-        ASSERT_NOCARRY(mpn_add_n(rp, ap, bp, n));
+        ASSERT_NOCARRY(gpmpn_add_n(rp, ap, bp, n));
         return as;
       }
     }
 
-    ANYCALLER mp_size_t mpn_matrix22_mul_itch(mp_size_t rn, mp_size_t mn)
+    ANYCALLER mp_size_t gpmpn_matrix22_mul_itch(mp_size_t rn, mp_size_t mn)
     {
       if (BELOW_THRESHOLD(rn, MATRIX22_STRASSEN_THRESHOLD) || BELOW_THRESHOLD(mn, MATRIX22_STRASSEN_THRESHOLD))
         return 3 * rn + 2 * mn;
@@ -128,7 +128,7 @@ namespace gpgmp
      * Resulting elements are of size up to rn + mn + 1.
      *
      * Temporary storage: 3 rn + 3 mn + 5. */
-    ANYCALLER static void mpn_matrix22_mul_strassen(mp_ptr r0, mp_ptr r1, mp_ptr r2, mp_ptr r3, mp_size_t rn, mp_srcptr m0, mp_srcptr m1, mp_srcptr m2, mp_srcptr m3, mp_size_t mn, mp_ptr tp)
+    ANYCALLER static void gpmpn_matrix22_mul_strassen(mp_ptr r0, mp_ptr r1, mp_ptr r2, mp_ptr r3, mp_size_t rn, mp_srcptr m0, mp_srcptr m1, mp_srcptr m2, mp_srcptr m3, mp_size_t mn, mp_ptr tp)
     {
       mp_ptr s0, t0, u0, u1;
       int r1s, r3s, s0s, t0s, u1s;
@@ -149,17 +149,17 @@ namespace gpgmp
       }
       else
       {
-        r1[rn] = mpn_add_n(r1, r1, r3, rn);
+        r1[rn] = gpmpn_add_n(r1, r1, r3, rn);
         r1s = 0; /* r1 - r2 + r3  */
       }
       if (r1s)
       {
-        s0[rn] = mpn_add_n(s0, r1, r0, rn);
+        s0[rn] = gpmpn_add_n(s0, r1, r0, rn);
         s0s = 0;
       }
       else if (r1[rn] != 0)
       {
-        s0[rn] = r1[rn] - mpn_sub_n(s0, r1, r0, rn);
+        s0[rn] = r1[rn] - gpmpn_sub_n(s0, r1, r0, rn);
         s0s = 1; /* s4 = -r0 + r1 - r2 + r3 */
                  /* Reverse sign! */
       }
@@ -169,7 +169,7 @@ namespace gpgmp
         s0[rn] = 0;
       }
       MUL(u1, r0, rn, m0, mn); /* u0 = s0 * t0 */
-      r0[rn + mn] = mpn_add_n(r0, u0, u1, rn + mn);
+      r0[rn + mn] = gpmpn_add_n(r0, u0, u1, rn + mn);
       ASSERT(r0[rn + mn] < 2); /* u0 + u5 */
 
       t0s = abs_sub_n(t0, m3, m2, mn);
@@ -183,7 +183,7 @@ namespace gpgmp
       }
       else
       {
-        t0[mn] = mpn_add_n(t0, t0, m1, mn);
+        t0[mn] = gpmpn_add_n(t0, t0, m1, mn);
       }
 
       /* FIXME: Could be simplified if we had space for rn + mn + 2 limbs
@@ -197,7 +197,7 @@ namespace gpgmp
         MUL(r3, r1, rn, t0, mn + 1); /* u3 = s3 * t3 */
         ASSERT(r1[rn] < 2);
         if (r1[rn] != 0)
-          mpn_add_n(r3 + rn, r3 + rn, t0, mn + 1);
+          gpmpn_add_n(r3 + rn, r3 + rn, t0, mn + 1);
       }
       else
       {
@@ -213,17 +213,17 @@ namespace gpgmp
       }
       else
       {
-        ASSERT_NOCARRY(mpn_add_n(r3, r3, u0, rn + mn + 1));
+        ASSERT_NOCARRY(gpmpn_add_n(r3, r3, u0, rn + mn + 1));
         r3s = 0; /* u3 + u5 */
       }
 
       if (t0s)
       {
-        t0[mn] = mpn_add_n(t0, t0, m0, mn);
+        t0[mn] = gpmpn_add_n(t0, t0, m0, mn);
       }
       else if (t0[mn] != 0)
       {
-        t0[mn] -= mpn_sub_n(t0, t0, m0, mn);
+        t0[mn] -= gpmpn_sub_n(t0, t0, m0, mn);
       }
       else
       {
@@ -233,11 +233,11 @@ namespace gpgmp
       ASSERT(u0[rn + mn] < 2);
       if (r1s)
       {
-        ASSERT_NOCARRY(mpn_sub_n(r1, r2, r1, rn));
+        ASSERT_NOCARRY(gpmpn_sub_n(r1, r2, r1, rn));
       }
       else
       {
-        r1[rn] += mpn_add_n(r1, r1, r2, rn);
+        r1[rn] += gpmpn_add_n(r1, r1, r2, rn);
       }
       rn++;
       t0s = add_signed_n(r2, r3, r3s, u0, t0s, rn + mn);
@@ -248,7 +248,7 @@ namespace gpgmp
       ASSERT(r3[rn + mn - 1] < 3);
       MUL(u0, s0, rn, m1, mn); /* u4 = s4 * t5 */
       ASSERT(u0[rn + mn - 1] < 2);
-      t0[mn] = mpn_add_n(t0, m3, m1, mn);
+      t0[mn] = gpmpn_add_n(t0, m3, m1, mn);
       MUL(u1, r1, rn, t0, mn + 1); /* u1 = s1 * t1 */
       mn += rn;
       ASSERT(u1[mn - 1] < 4);
@@ -258,27 +258,27 @@ namespace gpgmp
       ASSERT(r1[mn - 1] < 2);
       if (r3s)
       {
-        ASSERT_NOCARRY(mpn_add_n(r3, u1, r3, mn));
+        ASSERT_NOCARRY(gpmpn_add_n(r3, u1, r3, mn));
       }
       else
       {
-        ASSERT_NOCARRY(mpn_sub_n(r3, u1, r3, mn));
+        ASSERT_NOCARRY(gpmpn_sub_n(r3, u1, r3, mn));
         /* u1 + u2 - u3 - u5  */
       }
       ASSERT(r3[mn - 1] < 2);
       if (t0s)
       {
-        ASSERT_NOCARRY(mpn_add_n(r2, u1, r2, mn));
+        ASSERT_NOCARRY(gpmpn_add_n(r2, u1, r2, mn));
       }
       else
       {
-        ASSERT_NOCARRY(mpn_sub_n(r2, u1, r2, mn));
+        ASSERT_NOCARRY(gpmpn_sub_n(r2, u1, r2, mn));
         /* u1 - u3 - u5 - u6  */
       }
       ASSERT(r2[mn - 1] < 2);
     }
 
-    ANYCALLER void mpn_matrix22_mul(mp_ptr r0, mp_ptr r1, mp_ptr r2, mp_ptr r3, mp_size_t rn, mp_srcptr m0, mp_srcptr m1, mp_srcptr m2, mp_srcptr m3, mp_size_t mn, mp_ptr tp)
+    ANYCALLER void gpmpn_matrix22_mul(mp_ptr r0, mp_ptr r1, mp_ptr r2, mp_ptr r3, mp_size_t rn, mp_srcptr m0, mp_srcptr m1, mp_srcptr m2, mp_srcptr m3, mp_size_t mn, mp_ptr tp)
     {
       if (BELOW_THRESHOLD(rn, MATRIX22_STRASSEN_THRESHOLD) || BELOW_THRESHOLD(mn, MATRIX22_STRASSEN_THRESHOLD))
       {
@@ -295,27 +295,27 @@ namespace gpgmp
 
           if (rn >= mn)
           {
-            mpn_mul(p0, r0, rn, m0, mn);
-            mpn_mul(p1, r1, rn, m3, mn);
-            mpn_mul(r0, r1, rn, m2, mn);
-            mpn_mul(r1, tp, rn, m1, mn);
+            gpmpn_mul(p0, r0, rn, m0, mn);
+            gpmpn_mul(p1, r1, rn, m3, mn);
+            gpmpn_mul(r0, r1, rn, m2, mn);
+            gpmpn_mul(r1, tp, rn, m1, mn);
           }
           else
           {
-            mpn_mul(p0, m0, mn, r0, rn);
-            mpn_mul(p1, m3, mn, r1, rn);
-            mpn_mul(r0, m2, mn, r1, rn);
-            mpn_mul(r1, m1, mn, tp, rn);
+            gpmpn_mul(p0, m0, mn, r0, rn);
+            gpmpn_mul(p1, m3, mn, r1, rn);
+            gpmpn_mul(r0, m2, mn, r1, rn);
+            gpmpn_mul(r1, m1, mn, tp, rn);
           }
-          r0[rn + mn] = mpn_add_n(r0, r0, p0, rn + mn);
-          r1[rn + mn] = mpn_add_n(r1, r1, p1, rn + mn);
+          r0[rn + mn] = gpmpn_add_n(r0, r0, p0, rn + mn);
+          r1[rn + mn] = gpmpn_add_n(r1, r1, p1, rn + mn);
 
           r0 = r2;
           r1 = r3;
         }
       }
       else
-        mpn_matrix22_mul_strassen(r0, r1, r2, r3, rn,
+        gpmpn_matrix22_mul_strassen(r0, r1, r2, r3, rn,
                                   m0, m1, m2, m3, mn, tp);
     }
 

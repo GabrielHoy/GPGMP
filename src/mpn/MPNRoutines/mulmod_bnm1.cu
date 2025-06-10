@@ -48,15 +48,15 @@ namespace gpgmp
 		   as either 0 or B^n - 1.  Needs a scratch of 2rn limbs at tp.
 		   tp==rp is allowed. */
 		ANYCALLER void
-		mpn_bc_mulmod_bnm1(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t rn,
+		gpmpn_bc_mulmod_bnm1(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t rn,
 						   mp_ptr tp)
 		{
 			mp_limb_t cy;
 
 			ASSERT(0 < rn);
 
-			mpn_mul_n(tp, ap, bp, rn);
-			cy = mpn_add_n(rp, tp, tp + rn, rn);
+			gpmpn_mul_n(tp, ap, bp, rn);
+			cy = gpmpn_add_n(rp, tp, tp + rn, rn);
 			/* If cy == 1, then the value of rp is at most B^rn - 2, so there can
 			 * be no overflow when adding in the carry. */
 			MPN_INCR_U(rp, rn, cy);
@@ -67,7 +67,7 @@ namespace gpgmp
 		   a scratch area of 2rn limbs at tp; tp == rp is allowed.
 		   Output is normalised. */
 		ANYCALLER static void
-		mpn_bc_mulmod_bnp1(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t rn,
+		gpmpn_bc_mulmod_bnp1(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t rn,
 						   mp_ptr tp)
 		{
 			mp_limb_t cy;
@@ -78,9 +78,9 @@ namespace gpgmp
 			if (UNLIKELY(ap[rn] | bp[rn]))
 			{
 				if (ap[rn])
-					cy = bp[rn] + mpn_neg(rp, bp, rn);
+					cy = bp[rn] + gpmpn_neg(rp, bp, rn);
 				else /* ap[rn] == 0 */
-					cy = mpn_neg(rp, ap, rn);
+					cy = gpmpn_neg(rp, ap, rn);
 			}
 			else if (MPN_MULMOD_BKNP1_USABLE(rn, k, MUL_FFT_MODF_THRESHOLD))
 			{
@@ -88,15 +88,15 @@ namespace gpgmp
 				TMP_DECL;
 
 				TMP_MARK;
-				mpn_mulmod_bknp1(rp, ap, bp, n_k, k,
-								 TMP_ALLOC_LIMBS(mpn_mulmod_bknp1_itch(rn)));
+				gpmpn_mulmod_bknp1(rp, ap, bp, n_k, k,
+								 TMP_ALLOC_LIMBS(gpmpn_mulmod_bknp1_itch(rn)));
 				TMP_FREE;
 				return;
 			}
 			else
 			{
-				mpn_mul_n(tp, ap, bp, rn);
-				cy = mpn_sub_n(rp, tp, tp + rn, rn);
+				gpmpn_mul_n(tp, ap, bp, rn);
+				cy = gpmpn_sub_n(rp, tp, tp + rn, rn);
 			}
 			rp[rn] = 0;
 			MPN_INCR_U(rp, rn + 1, cy);
@@ -119,7 +119,7 @@ namespace gpgmp
 		 * S(n) <= rn + MAX (rn + 4, S(n/2)) <= 2rn + 4
 		 */
 		ANYCALLER void
-		mpn_mulmod_bnm1(mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr bp, mp_size_t bn, mp_ptr tp)
+		gpmpn_mulmod_bnm1(mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr bp, mp_size_t bn, mp_ptr tp)
 		{
 			ASSERT(0 < bn);
 			ASSERT(bn <= an);
@@ -131,18 +131,18 @@ namespace gpgmp
 				{
 					if (UNLIKELY(an + bn <= rn))
 					{
-						mpn_mul(rp, ap, an, bp, bn);
+						gpmpn_mul(rp, ap, an, bp, bn);
 					}
 					else
 					{
 						mp_limb_t cy;
-						mpn_mul(tp, ap, an, bp, bn);
-						cy = mpn_add(rp, tp, rn, tp + rn, an + bn - rn);
+						gpmpn_mul(tp, ap, an, bp, bn);
+						cy = gpmpn_add(rp, tp, rn, tp + rn, an + bn - rn);
 						MPN_INCR_U(rp, rn, cy);
 					}
 				}
 				else
-					mpn_bc_mulmod_bnm1(rp, ap, bp, rn, tp);
+					gpmpn_bc_mulmod_bnm1(rp, ap, bp, rn, tp);
 			}
 			else
 			{
@@ -188,14 +188,14 @@ namespace gpgmp
 					if (LIKELY(an > n))
 					{
 						am1 = xp;
-						cy = mpn_add(xp, a0, n, a1, an - n);
+						cy = gpmpn_add(xp, a0, n, a1, an - n);
 						MPN_INCR_U(xp, n, cy);
 						anm = n;
 						so = xp + n;
 						if (LIKELY(bn > n))
 						{
 							bm1 = so;
-							cy = mpn_add(so, b0, n, b1, bn - n);
+							cy = gpmpn_add(so, b0, n, b1, bn - n);
 							MPN_INCR_U(so, n, cy);
 							bnm = n;
 							so += n;
@@ -208,7 +208,7 @@ namespace gpgmp
 						anm = an;
 					}
 
-					mpn_mulmod_bnm1(rp, n, am1, anm, bm1, bnm, so);
+					gpmpn_mulmod_bnm1(rp, n, am1, anm, bm1, bnm, so);
 				}
 
 				{
@@ -221,14 +221,14 @@ namespace gpgmp
 					if (LIKELY(an > n))
 					{
 						ap1 = sp1;
-						cy = mpn_sub(sp1, a0, n, a1, an - n);
+						cy = gpmpn_sub(sp1, a0, n, a1, an - n);
 						sp1[n] = 0;
 						MPN_INCR_U(sp1, n + 1, cy);
 						anp = n + ap1[n];
 						if (LIKELY(bn > n))
 						{
 							bp1 = sp1 + n + 1;
-							cy = mpn_sub(sp1 + n + 1, b0, n, b1, bn - n);
+							cy = gpmpn_sub(sp1 + n + 1, b0, n, b1, bn - n);
 							sp1[2 * n + 1] = 0;
 							MPN_INCR_U(sp1 + n + 1, n + 1, cy);
 							bnp = n + bp1[n];
@@ -245,7 +245,7 @@ namespace gpgmp
 					else
 					{
 						int mask;
-						k = mpn_fft_best_k(n, 0);
+						k = gpmpn_fft_best_k(n, 0);
 						mask = (1 << k) - 1;
 						while (n & mask)
 						{
@@ -254,22 +254,22 @@ namespace gpgmp
 						};
 					}
 					if (k >= FFT_FIRST_K)
-						xp[n] = mpn_mul_fft(xp, n, ap1, anp, bp1, bnp, k);
+						xp[n] = gpmpn_mul_fft(xp, n, ap1, anp, bp1, bnp, k);
 					else if (UNLIKELY(bp1 == b0))
 					{
 						ASSERT(anp + bnp <= 2 * n + 1);
 						ASSERT(anp + bnp > n);
 						ASSERT(anp >= bnp);
-						mpn_mul(xp, ap1, anp, bp1, bnp);
+						gpmpn_mul(xp, ap1, anp, bp1, bnp);
 						anp = anp + bnp - n;
 						ASSERT(anp <= n || xp[2 * n] == 0);
 						anp -= anp > n;
-						cy = mpn_sub(xp, xp, n, xp + n, anp);
+						cy = gpmpn_sub(xp, xp, n, xp + n, anp);
 						xp[n] = 0;
 						MPN_INCR_U(xp, n + 1, cy);
 					}
 					else
-						mpn_bc_mulmod_bnp1(xp, ap1, bp1, n, xp);
+						gpmpn_bc_mulmod_bnp1(xp, ap1, bp1, n, xp);
 				}
 
 				/* Here the CRT recomposition begins.
@@ -283,15 +283,15 @@ namespace gpgmp
 			   both input are ZERO.
 				*/
 
-#if HAVE_NATIVE_mpn_rsh1add_n || HAVE_NATIVE_mpn_rsh1add_nc
-#if HAVE_NATIVE_mpn_rsh1add_nc
-				cy = mpn_rsh1add_nc(rp, rp, xp, n, xp[n]); /* B^n = 1 */
+#if HAVE_NATIVE_gpmpn_rsh1add_n || HAVE_NATIVE_gpmpn_rsh1add_nc
+#if HAVE_NATIVE_gpmpn_rsh1add_nc
+				cy = gpmpn_rsh1add_nc(rp, rp, xp, n, xp[n]); /* B^n = 1 */
 				hi = cy << (GMP_NUMB_BITS - 1);
 				cy = 0;
 				/* next update of rp[n-1] will set cy = 1 only if rp[n-1]+=hi
 			   overflows, i.e. a further increment will not overflow again. */
 #else /* ! _nc */
-				cy = xp[n] + mpn_rsh1add_n(rp, rp, xp, n);		  /* B^n = 1 */
+				cy = xp[n] + gpmpn_rsh1add_n(rp, rp, xp, n);		  /* B^n = 1 */
 				hi = (cy << (GMP_NUMB_BITS - 1)) & GMP_NUMB_MASK; /* (cy&1) << ... */
 				cy >>= 1;
 				/* cy = 1 only if xp[n] = 1 i.e. {xp,n} = ZERO, this implies that
@@ -303,14 +303,14 @@ namespace gpgmp
 				cy += (hi & rp[n - 1]) >> (GMP_NUMB_BITS - 1);
 				rp[n - 1] ^= hi;
 #endif
-#else /* ! HAVE_NATIVE_mpn_rsh1add_n */
-#if HAVE_NATIVE_mpn_add_nc
-				cy = mpn_add_nc(rp, rp, xp, n, xp[n]);
+#else /* ! HAVE_NATIVE_gpmpn_rsh1add_n */
+#if HAVE_NATIVE_gpmpn_add_nc
+				cy = gpmpn_add_nc(rp, rp, xp, n, xp[n]);
 #else /* ! _nc */
-				cy = xp[n] + mpn_add_n(rp, rp, xp, n); /* xp[n] == 1 implies {xp,n} == ZERO */
+				cy = xp[n] + gpmpn_add_n(rp, rp, xp, n); /* xp[n] == 1 implies {xp,n} == ZERO */
 #endif
 				cy += (rp[0] & 1);
-				mpn_rshift(rp, rp, n, 1);
+				gpmpn_rshift(rp, rp, n, 1);
 				ASSERT(cy <= 2);
 				hi = (cy << (GMP_NUMB_BITS - 1)) & GMP_NUMB_MASK; /* (cy&1) << ... */
 				cy >>= 1;
@@ -335,21 +335,21 @@ namespace gpgmp
 					   reconstruction is zero, not B^{rn} - 1. Which is good,
 					   since the latter representation doesn't fit in the output
 					   area.*/
-					cy = mpn_sub_n(rp + n, rp, xp, an + bn - n);
+					cy = gpmpn_sub_n(rp + n, rp, xp, an + bn - n);
 
 					/* FIXME: This subtraction of the high parts is not really
 					   necessary, we do it to get the carry out, and for sanity
 					   checking. */
-					cy = xp[n] + mpn_sub_nc(xp + an + bn - n, rp + an + bn - n,
+					cy = xp[n] + gpmpn_sub_nc(xp + an + bn - n, rp + an + bn - n,
 											xp + an + bn - n, rn - (an + bn), cy);
 					ASSERT(an + bn == rn - 1 ||
-						   mpn_zero_p(xp + an + bn - n + 1, rn - 1 - (an + bn)));
-					cy = mpn_sub_1(rp, rp, an + bn, cy);
+						   gpmpn_zero_p(xp + an + bn - n + 1, rn - 1 - (an + bn)));
+					cy = gpmpn_sub_1(rp, rp, an + bn, cy);
 					ASSERT(cy == (xp + an + bn - n)[0]);
 				}
 				else
 				{
-					cy = xp[n] + mpn_sub_n(rp + n, rp, xp, n);
+					cy = xp[n] + gpmpn_sub_n(rp + n, rp, xp, n);
 					/* cy = 1 only if {xp,n+1} is not ZERO, i.e. {rp,n} is not ZERO.
 					   DECR will affect _at most_ the lowest n limbs. */
 					MPN_DECR_U(rp, 2 * n, cy);
@@ -364,7 +364,7 @@ namespace gpgmp
 		}
 
 		ANYCALLER mp_size_t
-		mpn_mulmod_bnm1_next_size(mp_size_t n)
+		gpmpn_mulmod_bnm1_next_size(mp_size_t n)
 		{
 			mp_size_t nh;
 
@@ -380,7 +380,7 @@ namespace gpgmp
 			if (BELOW_THRESHOLD(nh, MUL_FFT_MODF_THRESHOLD))
 				return (n + (8 - 1)) & (-8);
 
-			return 2 * mpn_fft_next_size(nh, mpn_fft_best_k(nh, 0));
+			return 2 * gpmpn_fft_next_size(nh, gpmpn_fft_best_k(nh, 0));
 		}
 
 	}

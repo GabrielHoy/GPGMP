@@ -1,4 +1,4 @@
-/* mpn_gcd_22 -- double limb greatest common divisor.
+/* gpmpn_gcd_22 -- double limb greatest common divisor.
 
 Copyright 1994, 1996, 2000, 2001, 2009, 2012, 2019 Free Software Foundation, Inc.
 
@@ -38,7 +38,7 @@ namespace gpgmp {
 			#error Nails not supported.
 		#endif
 
-		ANYCALLER mp_double_limb_t mpn_gcd_22 (mp_limb_t u1, mp_limb_t u0, mp_limb_t v1, mp_limb_t v0)
+		ANYCALLER mp_double_limb_t gpmpn_gcd_22 (mp_limb_t u1, mp_limb_t u0, mp_limb_t v1, mp_limb_t v0)
 		{
 		mp_double_limb_t g;
 		ASSERT (u0 & v0 & 1);
@@ -127,7 +127,7 @@ namespace gpgmp {
 			u0 = (u0 >> 1) >> c;
 			}
 
-		g.d0 = mpn_gcd_11 ((u0 << 1) + 1, (v0 << 1) + 1);
+		g.d0 = gpmpn_gcd_11 ((u0 << 1) + 1, (v0 << 1) + 1);
 		g.d1 = 0;
 		return g;
 		}

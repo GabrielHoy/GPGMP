@@ -1,4 +1,4 @@
-/* mpn_toom2_sqr -- Square {ap,an}.
+/* gpmpn_toom2_sqr -- Square {ap,an}.
 
    Contributed to the GNU project by Torbjorn Granlund.
 
@@ -64,14 +64,14 @@ namespace gpgmp
   do                                                                 \
   {                                                                  \
     if (!MAYBE_sqr_toom2 || BELOW_THRESHOLD(n, SQR_TOOM2_THRESHOLD)) \
-      mpn_sqr_basecase(p, a, n);                                     \
+      gpmpn_sqr_basecase(p, a, n);                                     \
     else                                                             \
-      mpn_toom2_sqr(p, a, n, ws);                                    \
+      gpmpn_toom2_sqr(p, a, n, ws);                                    \
   } while (0)
 
-    ANYCALLER void mpn_toom2_sqr(mp_ptr pp, mp_srcptr ap, mp_size_t an, mp_ptr scratch)
+    ANYCALLER void gpmpn_toom2_sqr(mp_ptr pp, mp_srcptr ap, mp_size_t an, mp_ptr scratch)
     {
-      const int __gmpn_cpuvec_initialized = 1;
+      const int __ggpmpn_cpuvec_initialized = 1;
       mp_size_t n, s;
       mp_limb_t cy, cy2;
       mp_ptr asm1;
@@ -89,25 +89,25 @@ namespace gpgmp
       /* Compute asm1.  */
       if ((an & 1) == 0) /* s == n */
       {
-        if (mpn_cmp(a0, a1, n) < 0)
+        if (gpmpn_cmp(a0, a1, n) < 0)
         {
-          mpn_sub_n(asm1, a1, a0, n);
+          gpmpn_sub_n(asm1, a1, a0, n);
         }
         else
         {
-          mpn_sub_n(asm1, a0, a1, n);
+          gpmpn_sub_n(asm1, a0, a1, n);
         }
       }
       else /* n - s == 1 */
       {
-        if (a0[s] == 0 && mpn_cmp(a0, a1, s) < 0)
+        if (a0[s] == 0 && gpmpn_cmp(a0, a1, s) < 0)
         {
-          mpn_sub_n(asm1, a1, a0, s);
+          gpmpn_sub_n(asm1, a1, a0, s);
           asm1[s] = 0;
         }
         else
         {
-          asm1[s] = a0[s] - mpn_sub_n(asm1, a0, a1, s);
+          asm1[s] = a0[s] - gpmpn_sub_n(asm1, a0, a1, s);
         }
       }
 
@@ -126,15 +126,15 @@ namespace gpgmp
       TOOM2_SQR_REC(v0, ap, n, scratch_out);
 
       /* H(v0) + L(vinf) */
-      cy = mpn_add_n(pp + 2 * n, v0 + n, vinf, n);
+      cy = gpmpn_add_n(pp + 2 * n, v0 + n, vinf, n);
 
       /* L(v0) + H(v0) */
-      cy2 = cy + mpn_add_n(pp + n, pp + 2 * n, v0, n);
+      cy2 = cy + gpmpn_add_n(pp + n, pp + 2 * n, v0, n);
 
       /* L(vinf) + H(vinf) */
-      cy += mpn_add(pp + 2 * n, pp + 2 * n, n, vinf + n, s + s - n);
+      cy += gpmpn_add(pp + 2 * n, pp + 2 * n, n, vinf + n, s + s - n);
 
-      cy -= mpn_sub_n(pp + n, pp + n, vm1, 2 * n);
+      cy -= gpmpn_sub_n(pp + n, pp + n, vm1, 2 * n);
 
       ASSERT(cy + 1 <= 3);
       ASSERT(cy2 <= 2);
@@ -150,7 +150,7 @@ namespace gpgmp
 #if WANT_ASSERT
         /* The borrow in cy stops the propagation of the carry cy2, */
         ASSERT(cy2 == 1);
-        cy += mpn_add_1(pp + 2 * n, pp + 2 * n, n, cy2);
+        cy += gpmpn_add_1(pp + 2 * n, pp + 2 * n, n, cy2);
         ASSERT(cy == 0);
 #else
         /* we simply fill the area with zeros. */

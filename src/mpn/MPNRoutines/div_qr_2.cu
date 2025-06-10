@@ -1,4 +1,4 @@
-/* mpn_div_qr_2 -- Divide natural numbers, producing both remainder and
+/* gpmpn_div_qr_2 -- Divide natural numbers, producing both remainder and
    quotient.  The divisor is two limbs.
 
    Contributed to the GNU project by Torbjorn Granlund and Niels Möller
@@ -203,16 +203,16 @@ namespace gpgmp {
         mp_limb_t dp[2];
         dp[0] = d0;
         dp[1] = d1;
-        mpn_mul_n (tp, dp, di, 2);
-        ASSERT_ALWAYS (mpn_add_n (tp+2, tp+2, dp, 2) == 0);
+        gpmpn_mul_n (tp, dp, di, 2);
+        ASSERT_ALWAYS (gpmpn_add_n (tp+2, tp+2, dp, 2) == 0);
         ASSERT_ALWAYS (tp[2] == MP_LIMB_T_MAX);
         ASSERT_ALWAYS (tp[3] == MP_LIMB_T_MAX);
-        ASSERT_ALWAYS (mpn_add_n (tp, tp, dp, 2) == 1);
+        ASSERT_ALWAYS (gpmpn_add_n (tp, tp, dp, 2) == 1);
       }
     #endif
     }
 
-    ANYCALLER static mp_limb_t mpn_div_qr_2n_pi2 (mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_limb_t d1, mp_limb_t d0, mp_limb_t di1, mp_limb_t di0)
+    ANYCALLER static mp_limb_t gpmpn_div_qr_2n_pi2 (mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_limb_t d1, mp_limb_t d0, mp_limb_t di1, mp_limb_t di0)
     {
       mp_limb_t qh;
       mp_size_t i;
@@ -269,7 +269,7 @@ namespace gpgmp {
           qp >= np + 2 must hold true.  (This means that it's possible to put
           the quotient in the high part of {np,nn}, right above the remainder.)
       2. nn >= 2.  */
-    ANYCALLER mp_limb_t mpn_div_qr_2 (mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_srcptr dp)
+    ANYCALLER mp_limb_t gpmpn_div_qr_2 (mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_srcptr dp)
     {
       mp_limb_t d1;
       mp_limb_t d0;
@@ -290,13 +290,13 @@ namespace gpgmp {
       {
         gmp_pi1_t dinv;
         invert_pi1 (dinv, d1, d0);
-        return mpn_div_qr_2n_pi1 (qp, rp, np, nn, d1, d0, dinv.inv32);
+        return gpmpn_div_qr_2n_pi1 (qp, rp, np, nn, d1, d0, dinv.inv32);
       }
           else
       {
         mp_limb_t di[2];
         invert_4by2 (di, d1, d0);
-        return mpn_div_qr_2n_pi2 (qp, rp, np, nn, d1, d0, di[1], di[0]);
+        return gpmpn_div_qr_2n_pi2 (qp, rp, np, nn, d1, d0, di[1], di[0]);
       }
         }
       else
@@ -306,7 +306,7 @@ namespace gpgmp {
           d1 = (d1 << shift) | (d0 >> (GMP_LIMB_BITS - shift));
           d0 <<= shift;
           invert_pi1 (dinv, d1, d0);
-          return mpn_div_qr_2u_pi1 (qp, rp, np, nn, d1, d0, shift, dinv.inv32);
+          return gpmpn_div_qr_2u_pi1 (qp, rp, np, nn, d1, d0, shift, dinv.inv32);
         }
     }
 

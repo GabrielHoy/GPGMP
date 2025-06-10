@@ -1,4 +1,4 @@
-/* mpn_rootrem(rootp,remp,ap,an,nth) -- Compute the nth root of {ap,an}, and
+/* gpmpn_rootrem(rootp,remp,ap,an,nth) -- Compute the nth root of {ap,an}, and
    store the truncated integer part at rootp and the remainder at remp.
 
    Contributed by Paul Zimmermann (algorithm) and
@@ -52,13 +52,13 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-    ANYCALLER static mp_size_t mpn_rootrem_internal(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, int);
+    ANYCALLER static mp_size_t gpmpn_rootrem_internal(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, int);
 
 #define MPN_RSHIFT(rp, up, un, cnt) \
   do                                \
   {                                 \
     if ((cnt) != 0)                 \
-      mpn_rshift(rp, up, un, cnt);  \
+      gpmpn_rshift(rp, up, un, cnt);  \
     else                            \
     {                               \
       MPN_COPY_INCR(rp, up, un);    \
@@ -69,7 +69,7 @@ namespace gpgmp
   do                                    \
   {                                     \
     if ((cnt) != 0)                     \
-      cy = mpn_lshift(rp, up, un, cnt); \
+      cy = gpmpn_lshift(rp, up, un, cnt); \
     else                                \
     {                                   \
       MPN_COPY_DECR(rp, up, un);        \
@@ -90,14 +90,14 @@ namespace gpgmp
        The auxiliary memory usage is 3*un+2 if remp = NULL,
        and 2*un+2 if remp <> NULL.  FIXME: This is an incorrect comment.
     */
-    ANYCALLER mp_size_t mpn_rootrem(mp_ptr rootp, mp_ptr remp, mp_srcptr up, mp_size_t un, mp_limb_t k)
+    ANYCALLER mp_size_t gpmpn_rootrem(mp_ptr rootp, mp_ptr remp, mp_srcptr up, mp_size_t un, mp_limb_t k)
     {
       ASSERT(un > 0);
       ASSERT(up[un - 1] != 0);
       ASSERT(k > 1);
 
       if (UNLIKELY(k == 2))
-        return mpn_sqrtrem(rootp, remp, up, un);
+        return gpmpn_sqrtrem(rootp, remp, up, un);
       /* (un-1)/k > 2 <=> un > 3k <=> (un + 2)/3 > k */
       if (remp == NULL && (un + 2) / 3 > k)
       /* Pad {up,un} with k zero limbs.  This will produce an approximate root
@@ -113,7 +113,7 @@ namespace gpgmp
                           sp, sn); /* approximate root of padded input */
         MPN_COPY(wp + k, up, un);
         MPN_FILL(wp, k, 0);
-        rn = mpn_rootrem_internal(sp, NULL, wp, wn, k, 1);
+        rn = gpmpn_rootrem_internal(sp, NULL, wp, wn, k, 1);
         /* The approximate root S = {sp,sn} is either the correct root of
      {sp,sn}, or 1 too large.  Thus unless the least significant limb of
      S is 0 or 1, we can deduce the root of {up,un} is S truncated by one
@@ -125,7 +125,7 @@ namespace gpgmp
       }
       else
       {
-        return mpn_rootrem_internal(rootp, remp, up, un, k, 0);
+        return gpmpn_rootrem_internal(rootp, remp, up, un, k, 0);
       }
     }
 
@@ -205,7 +205,7 @@ namespace gpgmp
 
     /* if approx is non-zero, does not compute the final remainder */
     ANYCALLER static mp_size_t
-    mpn_rootrem_internal(mp_ptr rootp, mp_ptr remp, mp_srcptr up, mp_size_t un,
+    gpmpn_rootrem_internal(mp_ptr rootp, mp_ptr remp, mp_srcptr up, mp_size_t un,
                          mp_limb_t k, int approx)
     {
       mp_ptr qp, rp, sp, wp, scratch;
@@ -234,7 +234,7 @@ namespace gpgmp
           un -= (*up == CNST_LIMB(1)); /* Non-zero iif {up,un} > 1 */
         else
         {
-          mpn_sub_1(remp, up, un, CNST_LIMB(1));
+          gpmpn_sub_1(remp, up, un, CNST_LIMB(1));
           un -= (remp[un - 1] == 0); /* There should be at most one zero limb,
                 if we demand u to be normalized  */
         }
@@ -298,11 +298,11 @@ namespace gpgmp
       /* THINK: with the use of logbased_root, maybe the constant is
          258/256 instead of 3/2 ? log2(258/256) < 1/89 < 1/64 */
 #define EXTRA 2 + (mp_size_t)(0.585 * (double)k / (double)GMP_NUMB_BITS)
-      TMP_ALLOC_LIMBS_3(scratch, un + 1, /* used by mpn_div_q */
+      TMP_ALLOC_LIMBS_3(scratch, un + 1, /* used by gpmpn_div_q */
                         qp, un + EXTRA,  /* will contain quotient and remainder
                           of R/(k*S^(k-1)), and S^k */
                         wp, un + EXTRA); /* will contain S^(k-1), k*S^(k-1),
-                          and temporary for mpn_pow_1 */
+                          and temporary for gpmpn_pow_1 */
 
       if (remp == NULL)
         rp = scratch; /* will contain the remainder */
@@ -338,14 +338,14 @@ namespace gpgmp
           /* Compute S^k in {qp,qn}. */
           /* W <- S^(k-1) for the next iteration,
              and S^k = W * S. */
-          wn = mpn_pow_1(wp, sp, sn, k - 1, qp);
-          mpn_mul(qp, wp, wn, sp, sn);
+          wn = gpmpn_pow_1(wp, sp, sn, k - 1, qp);
+          gpmpn_mul(qp, wp, wn, sp, sn);
           qn = wn + sn;
           qn -= qp[qn - 1] == 0;
 
           perf_pow = 1;
           /* if S^k > floor(U/2^kk), the root approximation was too large */
-          if (qn > rn || (qn == rn && (perf_pow = mpn_cmp(qp, rp, rn)) > 0))
+          if (qn > rn || (qn == rn && (perf_pow = gpmpn_cmp(qp, rp, rn)) > 0))
             MPN_DECR_U(sp, sn, 1);
           else
             break;
@@ -377,7 +377,7 @@ namespace gpgmp
         /* R = R - Q = floor(U/2^kk) - S^k */
         if (perf_pow != 0)
         {
-          mpn_sub(rp, rp, rn, qp, qn);
+          gpmpn_sub(rp, rp, rn, qp, qn);
           MPN_NORMALIZE_NOT_ZERO(rp, rn);
 
           /* first multiply the remainder by 2^b */
@@ -416,7 +416,7 @@ namespace gpgmp
         /* 3: current buffers: {sp,sn}, {rp,rn}, {wp,wn} */
 
         /* compute {wp, wn} = k * {sp, sn}^(k-1) */
-        cy = mpn_mul_1(wp, wp, wn, k);
+        cy = gpmpn_mul_1(wp, wp, wn, k);
         wp[wn] = cy;
         wn += cy != 0;
 
@@ -449,7 +449,7 @@ namespace gpgmp
           qn = rn - wn; /* expected quotient size */
           if (qn <= bn)
           { /* Divide only if result is not too big. */
-            mpn_div_q(qp, rp, rn, wp, wn, scratch);
+            gpmpn_div_q(qp, rp, rn, wp, wn, scratch);
             qn += qp[qn] != 0;
           }
 
@@ -488,12 +488,12 @@ namespace gpgmp
         {
           /* Compute S^k in {qp,qn}. */
           /* Last iteration: we don't need W anymore. */
-          /* mpn_pow_1 requires that both qp and wp have enough
+          /* gpmpn_pow_1 requires that both qp and wp have enough
              space to store the result {sp,sn}^k + 1 limb */
-          qn = mpn_pow_1(qp, sp, sn, k, wp);
+          qn = gpmpn_pow_1(qp, sp, sn, k, wp);
 
           perf_pow = 1;
-          if (qn > un || (qn == un && (perf_pow = mpn_cmp(qp, up, un)) > 0))
+          if (qn > un || (qn == un && (perf_pow = gpmpn_cmp(qp, up, un)) > 0))
             MPN_DECR_U(sp, sn, 1);
           else
             break;
@@ -505,7 +505,7 @@ namespace gpgmp
         rn = perf_pow != 0;
         if (rn != 0 && remp != NULL)
         {
-          mpn_sub(remp, up, un, qp, qn);
+          gpmpn_sub(remp, up, un, qp, qn);
           rn = un;
           MPN_NORMALIZE_NOT_ZERO(remp, rn);
         }

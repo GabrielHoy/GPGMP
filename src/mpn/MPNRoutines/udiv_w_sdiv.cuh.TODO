@@ -1,4 +1,4 @@
-/* mpn_udiv_w_sdiv -- implement udiv_qrnnd on machines with only signed
+/* gpmpn_udiv_w_sdiv -- implement udiv_qrnnd on machines with only signed
    division.
 
    Contributed by Peter L. Montgomery.
@@ -45,7 +45,7 @@ namespace gpgmp
 	namespace mpnRoutines
 	{
 
-		ANYCALLER mp_limb_t mpn_udiv_w_sdiv(mp_limb_t *rp, mp_limb_t a1, mp_limb_t a0, mp_limb_t d)
+		ANYCALLER mp_limb_t gpmpn_udiv_w_sdiv(mp_limb_t *rp, mp_limb_t a1, mp_limb_t a0, mp_limb_t d)
 		{
 			mp_limb_t q, r;
 			mp_limb_t c0, c1, b1;

@@ -1,4 +1,4 @@
-/* mpn_sub_n -- Subtract equal length limb vectors.
+/* gpmpn_sub_n -- Subtract equal length limb vectors.
 
 Copyright 1992-1994, 1996, 2000, 2002, 2009 Free Software Foundation, Inc.
 
@@ -37,7 +37,7 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-    ANYCALLER mp_limb_t mpn_sub_n(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
+    ANYCALLER mp_limb_t gpmpn_sub_n(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n)
     {
       mp_limb_t ul, vl, sl, rl, cy, cy1, cy2;
 

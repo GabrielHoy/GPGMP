@@ -1,4 +1,4 @@
-/* mpn_perfect_square_p(u,usize) -- Return non-zero if U is a perfect square,
+/* gpmpn_perfect_square_p(u,usize) -- Return non-zero if U is a perfect square,
    zero otherwise.
 
 Copyright 1991, 1993, 1994, 1996, 1997, 2000-2002, 2005, 2012 Free Software
@@ -144,12 +144,12 @@ namespace gpgmp
        factors in the usual moduli 2^24-1 or 2^48-1.
 
        The moduli 2^24-1 or 2^48-1 are nothing particularly special, they're
-       just easy to calculate (see mpn_mod_34lsub1) and have a nice set of prime
+       just easy to calculate (see gpmpn_mod_34lsub1) and have a nice set of prime
        factors.  2^32-1 and 2^64-1 would be equally easy to calculate, but have
        fewer prime factors.
 
-       The nails case usually ends up using mpn_mod_1, which is a lot slower
-       than mpn_mod_34lsub1.  Perhaps other such special moduli could be found
+       The nails case usually ends up using gpmpn_mod_1, which is a lot slower
+       than gpmpn_mod_34lsub1.  Perhaps other such special moduli could be found
        for the nails case.  Two-term things like 2^30-2^15-1 might be
        candidates.  Or at worst some on-the-fly de-nailing would allow the plain
        2^24-1 to be used.  Currently nails are too preliminary to be worried
@@ -165,27 +165,27 @@ namespace gpgmp
 #define PERFSQR_MOD_34(r, up, usize)                \
   do                                                \
   {                                                 \
-    (r) = mpn_mod_34lsub1(up, usize);               \
+    (r) = gpmpn_mod_34lsub1(up, usize);               \
     (r) = ((r) & MOD34_MASK) + ((r) >> MOD34_BITS); \
   } while (0)
 
 /* FIXME: The %= here isn't good, and might destroy any savings from keeping
    the PERFSQR_MOD_IDX stuff within a limb (rather than needing umul_ppmm).
-   Maybe a new sort of mpn_preinv_mod_1 could accept an unnormalized divisor
-   and a shift count, like mpn_preinv_divrem_1.  But mod_34lsub1 is our
+   Maybe a new sort of gpmpn_preinv_mod_1 could accept an unnormalized divisor
+   and a shift count, like gpmpn_preinv_divrem_1.  But mod_34lsub1 is our
    normal case, so lets not worry too much about mod_1.  */
 #define PERFSQR_MOD_PP(r, up, usize)                             \
   do                                                             \
   {                                                              \
     if (BELOW_THRESHOLD(usize, PREINV_MOD_1_TO_MOD_1_THRESHOLD)) \
     {                                                            \
-      (r) = mpn_preinv_mod_1(up, usize, PERFSQR_PP_NORM,         \
+      (r) = gpmpn_preinv_mod_1(up, usize, PERFSQR_PP_NORM,         \
                              PERFSQR_PP_INVERTED);               \
       (r) %= PERFSQR_PP;                                         \
     }                                                            \
     else                                                         \
     {                                                            \
-      (r) = mpn_mod_1(up, usize, PERFSQR_PP);                    \
+      (r) = gpmpn_mod_1(up, usize, PERFSQR_PP);                    \
     }                                                            \
   } while (0)
 
@@ -239,11 +239,11 @@ namespace gpgmp
   } while (0)
 
     ANYCALLER int
-    mpn_perfect_square_p(mp_srcptr up, mp_size_t usize)
+    gpmpn_perfect_square_p(mp_srcptr up, mp_size_t usize)
     {
       ASSERT(usize >= 1);
 
-      TRACE(gmp_printf("mpn_perfect_square_p %Nd\n", up, usize));
+      TRACE(gmp_printf("gpmpn_perfect_square_p %Nd\n", up, usize));
 
       /* The first test excludes 212/256 (82.8%) of the perfect square candidates
          in O(1) time.  */
@@ -274,7 +274,7 @@ namespace gpgmp
   }
 #endif
 
-      /* The second test uses mpn_mod_34lsub1 or mpn_mod_1 to detect non-squares
+      /* The second test uses gpmpn_mod_34lsub1 or gpmpn_mod_1 to detect non-squares
          according to their residues modulo small primes (or powers of
          primes).  See perfsqr.h.  */
       PERFSQR_MOD_TEST(up, usize);
@@ -289,8 +289,8 @@ namespace gpgmp
         TMP_MARK;
         root_ptr = TMP_ALLOC_LIMBS((usize + 1) / 2);
 
-        /* Iff mpn_sqrtrem returns zero, the square is perfect.  */
-        res = !mpn_sqrtrem(root_ptr, NULL, up, usize);
+        /* Iff gpmpn_sqrtrem returns zero, the square is perfect.  */
+        res = !gpmpn_sqrtrem(root_ptr, NULL, up, usize);
         TMP_FREE;
 
         return res;

@@ -1,4 +1,4 @@
-/* mpn_scan0 -- Scan from a given bit position for the next clear bit.
+/* gpmpn_scan0 -- Scan from a given bit position for the next clear bit.
 
 Copyright 1994, 1996, 2001, 2002, 2004 Free Software Foundation, Inc.
 
@@ -38,7 +38,7 @@ namespace gpgmp {
       1. U must sooner or later have a limb with a clear bit.
     */
 
-    ANYCALLER mp_bitcnt_t mpn_scan0 (mp_srcptr up, mp_bitcnt_t starting_bit)
+    ANYCALLER mp_bitcnt_t gpmpn_scan0 (mp_srcptr up, mp_bitcnt_t starting_bit)
     {
       mp_size_t starting_word;
       mp_limb_t alimb;

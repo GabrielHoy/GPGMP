@@ -1,4 +1,4 @@
-/* mpn_bdiv_q -- Hensel division with precomputed inverse, returning quotient.
+/* gpmpn_bdiv_q -- Hensel division with precomputed inverse, returning quotient.
 
    Contributed to the GNU project by Torbjorn Granlund.
 
@@ -43,7 +43,7 @@ namespace gpgmp {
 
     /* Computes Q = N / D mod B^n. */
 
-    ANYCALLER void mpn_bdiv_q (mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr tp)
+    ANYCALLER void gpmpn_bdiv_q (mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr tp)
     {
       mp_limb_t di;
 
@@ -51,27 +51,27 @@ namespace gpgmp {
       {
         MPN_COPY (tp, np, nn);
         binvert_limb (di, dp[0]);  di = -di;
-        mpn_sbpi1_bdiv_q (qp, tp, nn, dp, dn, di);
+        gpmpn_sbpi1_bdiv_q (qp, tp, nn, dp, dn, di);
       }
       else if (BELOW_THRESHOLD (dn, MU_BDIV_Q_THRESHOLD))
       {
         MPN_COPY (tp, np, nn);
         binvert_limb (di, dp[0]);  di = -di;
-        mpn_dcpi1_bdiv_q (qp, tp, nn, dp, dn, di);
+        gpmpn_dcpi1_bdiv_q (qp, tp, nn, dp, dn, di);
       }
       else
       {
-        mpn_mu_bdiv_q (qp, np, nn, dp, dn, tp);
+        gpmpn_mu_bdiv_q (qp, np, nn, dp, dn, tp);
       }
       return;
     }
 
-    ANYCALLER mp_size_t mpn_bdiv_q_itch (mp_size_t nn, mp_size_t dn)
+    ANYCALLER mp_size_t gpmpn_bdiv_q_itch (mp_size_t nn, mp_size_t dn)
     {
       if (BELOW_THRESHOLD (dn, MU_BDIV_Q_THRESHOLD))
         return nn;
       else
-        return mpn_mu_bdiv_q_itch (nn, dn);
+        return gpmpn_mu_bdiv_q_itch (nn, dn);
     }
 
   }

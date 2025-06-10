@@ -1,4 +1,4 @@
-/* mpn_bsqrtinv, compute r such that r^2 * y = 1 (mod 2^{b+1}).
+/* gpmpn_bsqrtinv, compute r such that r^2 * y = 1 (mod 2^{b+1}).
 
    Contributed to the GNU project by Martin Boij (as part of perfpow.c).
 
@@ -54,7 +54,7 @@ namespace gpgmp {
 
         (4) Use a small table to get starting value.
     */
-    ANYCALLER int mpn_bsqrtinv (mp_ptr rp, mp_srcptr yp, mp_bitcnt_t bnb, mp_ptr tp)
+    ANYCALLER int gpmpn_bsqrtinv (mp_ptr rp, mp_srcptr yp, mp_bitcnt_t bnb, mp_ptr tp)
     {
       mp_ptr tp2;
       mp_size_t bn, order[GMP_LIMB_BITS + 1];
@@ -86,18 +86,18 @@ namespace gpgmp {
           bnb = order[i];
           bn = 1 + bnb / GMP_LIMB_BITS;
 
-          mpn_sqrlo (tp, rp, bn);
-          mpn_mullo_n (tp2, rp, tp, bn); /* tp2 <- rp ^ 3 */
+          gpmpn_sqrlo (tp, rp, bn);
+          gpmpn_mullo_n (tp2, rp, tp, bn); /* tp2 <- rp ^ 3 */
 
-          mpn_mul_1 (tp, rp, bn, 3);
+          gpmpn_mul_1 (tp, rp, bn, 3);
 
-          mpn_mullo_n (rp, yp, tp2, bn);
+          gpmpn_mullo_n (rp, yp, tp2, bn);
 
-          #if HAVE_NATIVE_mpn_rsh1sub_n
-              mpn_rsh1sub_n (rp, tp, rp, bn);
+          #if HAVE_NATIVE_gpmpn_rsh1sub_n
+              gpmpn_rsh1sub_n (rp, tp, rp, bn);
           #else
-              mpn_sub_n (tp2, tp, rp, bn);
-              mpn_rshift (rp, tp2, bn, 1);
+              gpmpn_sub_n (tp2, tp, rp, bn);
+              gpmpn_rshift (rp, tp2, bn, 1);
           #endif
         }
       }

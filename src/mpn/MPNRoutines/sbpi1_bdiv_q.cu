@@ -1,4 +1,4 @@
-/* mpn_sbpi1_bdiv_q -- schoolbook Hensel division with precomputed inverse,
+/* gpmpn_sbpi1_bdiv_q -- schoolbook Hensel division with precomputed inverse,
    returning quotient only.
 
    Contributed to the GNU project by Niels Möller and Torbjörn Granlund.
@@ -49,7 +49,7 @@ namespace gpgmp
 
     */
 
-    ANYCALLER void mpn_sbpi1_bdiv_q(mp_ptr qp, mp_ptr up, mp_size_t un, mp_srcptr dp, mp_size_t dn, mp_limb_t dinv)
+    ANYCALLER void gpmpn_sbpi1_bdiv_q(mp_ptr qp, mp_ptr up, mp_size_t un, mp_srcptr dp, mp_size_t dn, mp_limb_t dinv)
     {
       mp_size_t i;
       mp_limb_t q;
@@ -66,7 +66,7 @@ namespace gpgmp
         for (i = un - dn - 1, cy = 0; i > 0; i--)
         {
           q = dinv * up[0];
-          hi = mpn_addmul_1(up, dp, dn, q);
+          hi = gpmpn_addmul_1(up, dp, dn, q);
 
           ASSERT(up[0] == 0);
           *qp++ = q;
@@ -78,7 +78,7 @@ namespace gpgmp
           up++;
         }
         q = dinv * up[0];
-        hi = cy + mpn_addmul_1(up, dp, dn, q);
+        hi = cy + gpmpn_addmul_1(up, dp, dn, q);
         ASSERT(up[0] == 0);
         *qp++ = q;
         up[dn] += hi;
@@ -87,7 +87,7 @@ namespace gpgmp
       for (i = dn; i > 1; i--)
       {
         mp_limb_t q = dinv * up[0];
-        mpn_addmul_1(up, dp, i, q);
+        gpmpn_addmul_1(up, dp, i, q);
         ASSERT(up[0] == 0);
         *qp++ = q;
         up++;

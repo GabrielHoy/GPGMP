@@ -42,7 +42,7 @@ namespace gpgmp
 
     /* Sets (r;b) = M^{-1}(a;b), with M^{-1} = (u11, -u01; -u10, u00) from
        the left. Uses three buffers, to avoid a copy. */
-    ANYCALLER mp_size_t mpn_matrix22_mul1_inverse_vector(const struct hgcd_matrix1 *M, mp_ptr rp, mp_srcptr ap, mp_ptr bp, mp_size_t n)
+    ANYCALLER mp_size_t gpmpn_matrix22_mul1_inverse_vector(const struct hgcd_matrix1 *M, mp_ptr rp, mp_srcptr ap, mp_ptr bp, mp_size_t n)
     {
       mp_limb_t h0, h1;
 
@@ -54,12 +54,12 @@ namespace gpgmp
          b -= u10 * a
       */
 
-      h0 = mpn_mul_1(rp, ap, n, M->u[1][1]);
-      h1 = mpn_submul_1(rp, bp, n, M->u[0][1]);
+      h0 = gpmpn_mul_1(rp, ap, n, M->u[1][1]);
+      h1 = gpmpn_submul_1(rp, bp, n, M->u[0][1]);
       ASSERT(h0 == h1);
 
-      h0 = mpn_mul_1(bp, bp, n, M->u[0][0]);
-      h1 = mpn_submul_1(bp, ap, n, M->u[1][0]);
+      h0 = gpmpn_mul_1(bp, bp, n, M->u[0][0]);
+      h1 = gpmpn_submul_1(bp, ap, n, M->u[1][0]);
       ASSERT(h0 == h1);
 
       n -= (rp[n - 1] | bp[n - 1]) == 0;

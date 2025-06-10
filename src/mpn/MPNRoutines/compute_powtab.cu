@@ -1,4 +1,4 @@
-/* mpn_compute_powtab.
+/* gpmpn_compute_powtab.
 
    Contributed to the GNU project by Torbjorn Granlund.
 
@@ -68,9 +68,9 @@ namespace gpgmp
   } while (0)
 
 #if DIV_1_VS_MUL_1_PERCENT > 120
-#define HAVE_mpn_compute_powtab_mul 1
+#define HAVE_gpmpn_compute_powtab_mul 1
 
-    ANYCALLER static void mpn_compute_powtab_mul(powers_t *powtab, mp_ptr powtab_mem, mp_size_t un, int base, const size_t *exptab, size_t n_pows)
+    ANYCALLER static void gpmpn_compute_powtab_mul(powers_t *powtab, mp_ptr powtab_mem, mp_size_t un, int base, const size_t *exptab, size_t n_pows)
     {
       mp_size_t n;
       mp_ptr p, t;
@@ -96,7 +96,7 @@ namespace gpgmp
 
       t = powtab_mem_ptr;
       powtab_mem_ptr += 2;
-      t[1] = mpn_mul_1(t, p, 1, big_base);
+      t[1] = gpmpn_mul_1(t, p, 1, big_base);
       n = 2;
 
       digits_in_base *= 2;
@@ -121,7 +121,7 @@ namespace gpgmp
           /* 3, sometimes adjusted to 4.  */
           t = powtab_mem_ptr;
           powtab_mem_ptr += 4;
-          t[n] = cy = mpn_mul_1(t, p, n, big_base);
+          t[n] = cy = gpmpn_mul_1(t, p, n, big_base);
           n += cy != 0;
           ;
 
@@ -152,9 +152,9 @@ namespace gpgmp
         t = powtab_mem_ptr;
         powtab_mem_ptr += 2 * n + 2;
 
-        ASSERT(powtab_mem_ptr < powtab_mem + mpn_str_powtab_alloc(un));
+        ASSERT(powtab_mem_ptr < powtab_mem + gpmpn_str_powtab_alloc(un));
 
-        mpn_sqr(t, p, n);
+        gpmpn_sqr(t, p, n);
 
         digits_in_base *= 2;
         n *= 2;
@@ -169,7 +169,7 @@ namespace gpgmp
         /* Adjust new value if it is too small as input to the next squaring.  */
         if (((digits_in_base + chars_per_limb) << pi) <= exptab[0])
         {
-          t[n] = cy = mpn_mul_1(t, t, n, big_base);
+          t[n] = cy = gpmpn_mul_1(t, t, n, big_base);
           n += cy != 0;
 
           digits_in_base += chars_per_limb;
@@ -187,7 +187,7 @@ namespace gpgmp
         {
           mp_size_t n = pt[-1].n;
           mp_ptr p = pt[-1].p;
-          p[n] = cy = mpn_mul_1(p, p, n, big_base);
+          p[n] = cy = gpmpn_mul_1(p, p, n, big_base);
           n += cy != 0;
 
           ASSERT(pt[-1].digits_in_base + chars_per_limb == exptab[pi + 1]);
@@ -206,9 +206,9 @@ namespace gpgmp
 #endif
 
 #if DIV_1_VS_MUL_1_PERCENT < 275
-#define HAVE_mpn_compute_powtab_div 1
+#define HAVE_gpmpn_compute_powtab_div 1
     ANYCALLER static void
-    mpn_compute_powtab_div(powers_t *powtab, mp_ptr powtab_mem, mp_size_t un,
+    gpmpn_compute_powtab_div(powers_t *powtab, mp_ptr powtab_mem, mp_size_t un,
                            int base, const size_t *exptab, size_t n_pows)
     {
       mp_ptr p, t;
@@ -236,18 +236,18 @@ namespace gpgmp
         t = powtab_mem_ptr;
         powtab_mem_ptr += 2 * n;
 
-        ASSERT(powtab_mem_ptr < powtab_mem + mpn_str_powtab_alloc(un));
+        ASSERT(powtab_mem_ptr < powtab_mem + gpmpn_str_powtab_alloc(un));
 
-        mpn_sqr(t, p, n);
+        gpmpn_sqr(t, p, n);
         n = 2 * n - 1;
         n += t[n] != 0;
         digits_in_base *= 2;
 
         if (digits_in_base != exptab[pi]) /* if ((((un - 1) >> pi) & 2) == 0) */
         {
-#if HAVE_NATIVE_mpn_pi1_bdiv_q_1 || !HAVE_NATIVE_mpn_divexact_1
+#if HAVE_NATIVE_gpmpn_pi1_bdiv_q_1 || !HAVE_NATIVE_gpmpn_divexact_1
           if (__GMP_LIKELY(base == 10))
-            mpn_pi1_bdiv_q_1(t, t, n, big_base >> MP_BASES_BIG_BASE_CTZ_10,
+            gpmpn_pi1_bdiv_q_1(t, t, n, big_base >> MP_BASES_BIG_BASE_CTZ_10,
                              MP_BASES_BIG_BASE_BINVERTED_10,
                              MP_BASES_BIG_BASE_CTZ_10);
           else
@@ -255,9 +255,9 @@ namespace gpgmp
             /* FIXME: We could use _pi1 here if we add big_base_binverted and
               big_base_ctz fields to struct bases.  That would add about 2 KiB
               to mp_bases.c.
-              FIXME: Use mpn_bdiv_q_1 here when mpn_divexact_1 is converted to
-              mpn_bdiv_q_1 for more machines. */
-            mpn_divexact_1(t, t, n, big_base);
+              FIXME: Use gpmpn_bdiv_q_1 here when gpmpn_divexact_1 is converted to
+              gpmpn_bdiv_q_1 for more machines. */
+            gpmpn_divexact_1(t, t, n, big_base);
 
           n -= t[n - 1] == 0;
           digits_in_base -= chars_per_limb;
@@ -309,7 +309,7 @@ namespace gpgmp
       }
       exptab[n_pows] = chars_per_limb;
 
-#if HAVE_mpn_compute_powtab_mul && HAVE_mpn_compute_powtab_div
+#if HAVE_gpmpn_compute_powtab_mul && HAVE_gpmpn_compute_powtab_div
       size_t pn = un - 1;
       size_t xn = (un + 1) >> 1;
       unsigned mcost = 1;
@@ -341,9 +341,9 @@ namespace gpgmp
         return n_pows;
       else
         return -n_pows;
-#elif HAVE_mpn_compute_powtab_mul
+#elif HAVE_gpmpn_compute_powtab_mul
       return n_pows;
-#elif HAVE_mpn_compute_powtab_div
+#elif HAVE_gpmpn_compute_powtab_div
       return -n_pows;
 #else
 #error "no powtab function available"
@@ -351,30 +351,30 @@ namespace gpgmp
     }
 
     ANYCALLER size_t
-    mpn_compute_powtab(powers_t *powtab, mp_ptr powtab_mem, mp_size_t un, int base)
+    gpmpn_compute_powtab(powers_t *powtab, mp_ptr powtab_mem, mp_size_t un, int base)
     {
       size_t exptab[GMP_LIMB_BITS];
 
       long n_pows = powtab_decide(exptab, un, base);
 
-#if HAVE_mpn_compute_powtab_mul && HAVE_mpn_compute_powtab_div
+#if HAVE_gpmpn_compute_powtab_mul && HAVE_gpmpn_compute_powtab_div
       if (n_pows >= 0)
       {
-        mpn_compute_powtab_mul(powtab, powtab_mem, un, base, exptab, n_pows);
+        gpmpn_compute_powtab_mul(powtab, powtab_mem, un, base, exptab, n_pows);
         return n_pows;
       }
       else
       {
-        mpn_compute_powtab_div(powtab, powtab_mem, un, base, exptab, -n_pows);
+        gpmpn_compute_powtab_div(powtab, powtab_mem, un, base, exptab, -n_pows);
         return -n_pows;
       }
-#elif HAVE_mpn_compute_powtab_mul
+#elif HAVE_gpmpn_compute_powtab_mul
       ASSERT(n_pows > 0);
-      mpn_compute_powtab_mul(powtab, powtab_mem, un, base, exptab, n_pows);
+      gpmpn_compute_powtab_mul(powtab, powtab_mem, un, base, exptab, n_pows);
       return n_pows;
-#elif HAVE_mpn_compute_powtab_div
+#elif HAVE_gpmpn_compute_powtab_div
       ASSERT(n_pows < 0);
-      mpn_compute_powtab_div(powtab, powtab_mem, un, base, exptab, -n_pows);
+      gpmpn_compute_powtab_div(powtab, powtab_mem, un, base, exptab, -n_pows);
       return -n_pows;
 #else
 #error "no powtab function available"

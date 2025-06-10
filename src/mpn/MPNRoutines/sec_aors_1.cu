@@ -1,4 +1,4 @@
-/* mpn_sec_add_1, mpn_sec_sub_1
+/* gpmpn_sec_add_1, gpmpn_sec_sub_1
 
    Contributed to the GNU project by Niels Möller
 
@@ -39,9 +39,9 @@ namespace gpgmp
   {
 
 
-#define FNAME mpn_sec_add_1
-#define FNAME_itch mpn_sec_add_1_itch
-#define OP_N mpn_add_n
+#define FNAME gpmpn_sec_add_1
+#define FNAME_itch gpmpn_sec_add_1_itch
+#define OP_N gpmpn_add_n
 
     /* It's annoying to that we need scratch space */
     ANYCALLER mp_size_t FNAME_itch(mp_size_t n)
@@ -62,9 +62,9 @@ namespace gpgmp
 
 
 
-#define FNAME mpn_sec_sub_1
-#define FNAME_itch mpn_sec_sub_1_itch
-#define OP_N mpn_sub_n
+#define FNAME gpmpn_sec_sub_1
+#define FNAME_itch gpmpn_sec_sub_1_itch
+#define OP_N gpmpn_sub_n
 
     /* It's annoying to that we need scratch space */
     ANYCALLER mp_size_t FNAME_itch(mp_size_t n)

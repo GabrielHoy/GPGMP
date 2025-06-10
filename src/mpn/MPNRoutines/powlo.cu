@@ -1,4 +1,4 @@
-/* mpn_powlo -- Compute R = U^E mod B^n, where B is the limb base.
+/* gpmpn_powlo -- Compute R = U^E mod B^n, where B is the limb base.
 
 Copyright 2007-2009, 2012, 2015, 2016, 2018, 2020 Free Software
 Foundation, Inc.
@@ -81,7 +81,7 @@ namespace gpgmp
     /* We only use n words in the scratch space, we should pass tp + n to
        mullo/sqrlo as a temporary area, it is needed. */
     ANYCALLER void
-    mpn_powlo(mp_ptr rp, mp_srcptr bp,
+    gpmpn_powlo(mp_ptr rp, mp_srcptr bp,
               mp_srcptr ep, mp_size_t en,
               mp_size_t n, mp_ptr tp)
     {
@@ -113,7 +113,7 @@ namespace gpgmp
         MPN_COPY(this_pp, bp, n);
 
         /* Store b^2 in tp.  */
-        mpn_sqrlo(tp, bp, n);
+        gpmpn_sqrlo(tp, bp, n);
 
         /* Precompute odd powers of b and put them in the temporary area at pp.  */
         i = (1 << (windowsize - 1)) - 1;
@@ -121,7 +121,7 @@ namespace gpgmp
         {
           last_pp = this_pp;
           this_pp += n;
-          mpn_mullo_n(this_pp, last_pp, tp, n);
+          gpmpn_mullo_n(this_pp, last_pp, tp, n);
         } while (--i != 0);
 
         expbits = getbits(ep, ebi, windowsize);
@@ -148,7 +148,7 @@ namespace gpgmp
       {
         while (getbit(ep, ebi) == 0)
         {
-          mpn_sqrlo(tp, rp, n);
+          gpmpn_sqrlo(tp, rp, n);
           MP_PTR_SWAP(rp, tp);
           flipflop = !flipflop;
           if (--ebi == 0)
@@ -168,20 +168,20 @@ namespace gpgmp
 
         while (this_windowsize > 1)
         {
-          mpn_sqrlo(tp, rp, n);
-          mpn_sqrlo(rp, tp, n);
+          gpmpn_sqrlo(tp, rp, n);
+          gpmpn_sqrlo(rp, tp, n);
           this_windowsize -= 2;
         }
 
         if (this_windowsize != 0)
-          mpn_sqrlo(tp, rp, n);
+          gpmpn_sqrlo(tp, rp, n);
         else
         {
           MP_PTR_SWAP(rp, tp);
           flipflop = !flipflop;
         }
 
-        mpn_mullo_n(rp, tp, pp + n * (expbits >> 1), n);
+        gpmpn_mullo_n(rp, tp, pp + n * (expbits >> 1), n);
       } while (ebi != 0);
 
     done:

@@ -1,4 +1,4 @@
-/* mpn_add_n -- Add equal length limb vectors.  */
+/* gpmpn_add_n -- Add equal length limb vectors.  */
 #pragma once
 #include "gpgmp-impl.cuh"
 
@@ -6,7 +6,7 @@ namespace gpgmp {
 
 	namespace mpnRoutines {
 
-		ANYCALLER mp_limb_t mpn_add_n (mp_ptr result_ptr, mp_srcptr operand1_ptr, mp_srcptr operand2_ptr, mp_size_t size)
+		ANYCALLER mp_limb_t gpmpn_add_n (mp_ptr result_ptr, mp_srcptr operand1_ptr, mp_srcptr operand2_ptr, mp_size_t size)
 		{
 			mp_limb_t operand1_limb, operand2_limb, sum_limb, result_limb, carry, carry1, carry2;
 

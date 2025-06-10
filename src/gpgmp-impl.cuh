@@ -62,7 +62,7 @@ see https://www.gnu.org/licenses/.  */
 
 /* For fat.h and other fat binary stuff.
    No need for __GMP_ATTRIBUTE_PURE or __GMP_NOTHROW, since functions
-   declared this way are only used to set function pointers in __gmpn_cpuvec,
+   declared this way are only used to set function pointers in __ggpmpn_cpuvec,
    they're not called directly.  */
 #define DECL_add_n(name) \
     __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t name(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t)
@@ -152,6 +152,7 @@ see https://www.gnu.org/licenses/.  */
 #if !defined(__GMP_WITHIN_CONFIGURE)
 #include "config.cuh"
 #include "gmp.h"
+#include "gpgmp-gmp.cuh"
 
 //=========================GMP-MPARAM.H
 //(No content in generic gmp-mparam.h file...)
@@ -306,10 +307,7 @@ namespace gpgmp
         }
     }
 
-    // GPGMP's equivalent of __GPGMP_DECLSPEC.
-#define __GPGMP_DECLSPEC
-#define __GPGMP_CALLERTYPE ANYCALLER
-#define __GPGMP_MPN(x) __gpgmpn_##x
+
 
 #define GPGMP_MPN_NAMESPACE_BEGIN \
         namespace gpgmp               \
@@ -990,462 +988,462 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpgmp_tmp_reentrant_free(struct tmp_r
 #define mpz_n_pow_ui __gmpz_n_pow_ui
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpz_n_pow_ui(mpz_ptr, mp_srcptr, mp_size_t, unsigned long);
 
-#define mpn_addmul_1c __GPGMP_MPN(addmul_1c)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addmul_1c(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
+#define gpmpn_addmul_1c __GPGMP_MPN(addmul_1c)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addmul_1c(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
 
-#ifndef mpn_addmul_2 /* if not done with cpuvec in a fat binary */
-#define mpn_addmul_2 __GPGMP_MPN(addmul_2)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addmul_2(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#ifndef gpmpn_addmul_2 /* if not done with cpuvec in a fat binary */
+#define gpmpn_addmul_2 __GPGMP_MPN(addmul_2)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addmul_2(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 #endif
 
-#define mpn_addmul_3 __GPGMP_MPN(addmul_3)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addmul_3(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#define gpmpn_addmul_3 __GPGMP_MPN(addmul_3)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addmul_3(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-#define mpn_addmul_4 __GPGMP_MPN(addmul_4)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addmul_4(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#define gpmpn_addmul_4 __GPGMP_MPN(addmul_4)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addmul_4(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-#define mpn_addmul_5 __GPGMP_MPN(addmul_5)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addmul_5(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#define gpmpn_addmul_5 __GPGMP_MPN(addmul_5)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addmul_5(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-#define mpn_addmul_6 __GPGMP_MPN(addmul_6)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addmul_6(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#define gpmpn_addmul_6 __GPGMP_MPN(addmul_6)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addmul_6(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-#define mpn_addmul_7 __GPGMP_MPN(addmul_7)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addmul_7(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#define gpmpn_addmul_7 __GPGMP_MPN(addmul_7)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addmul_7(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-#define mpn_addmul_8 __GPGMP_MPN(addmul_8)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addmul_8(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#define gpmpn_addmul_8 __GPGMP_MPN(addmul_8)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addmul_8(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-        /* Alternative entry point in mpn_addmul_2 for the benefit of mpn_sqr_basecase.  */
-#define mpn_addmul_2s __GPGMP_MPN(addmul_2s)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addmul_2s(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+        /* Alternative entry point in gpmpn_addmul_2 for the benefit of gpmpn_sqr_basecase.  */
+#define gpmpn_addmul_2s __GPGMP_MPN(addmul_2s)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addmul_2s(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-        /* Override mpn_addlsh1_n, mpn_addlsh2_n, mpn_sublsh1_n, etc with mpn_addlsh_n,
+        /* Override gpmpn_addlsh1_n, gpmpn_addlsh2_n, gpmpn_sublsh1_n, etc with gpmpn_addlsh_n,
            etc when !HAVE_NATIVE the former but HAVE_NATIVE_ the latter.  Similarly,
            override foo_ip1 functions with foo.  We then lie and say these macros
            represent native functions, but leave a trace by using the value 2 rather
            than 1.  */
 
-#if HAVE_NATIVE_mpn_addlsh_n && !HAVE_NATIVE_mpn_addlsh1_n
-#define mpn_addlsh1_n(a, b, c, d) mpn_addlsh_n(a, b, c, d, 1)
-#define HAVE_NATIVE_mpn_addlsh1_n 2
+#if HAVE_NATIVE_gpmpn_addlsh_n && !HAVE_NATIVE_gpmpn_addlsh1_n
+#define gpmpn_addlsh1_n(a, b, c, d) gpmpn_addlsh_n(a, b, c, d, 1)
+#define HAVE_NATIVE_gpmpn_addlsh1_n 2
 #endif
 
-#if HAVE_NATIVE_mpn_addlsh_nc && !HAVE_NATIVE_mpn_addlsh1_nc
-#define mpn_addlsh1_nc(a, b, c, d, x) mpn_addlsh_nc(a, b, c, d, 1, x)
-#define HAVE_NATIVE_mpn_addlsh1_nc 2
+#if HAVE_NATIVE_gpmpn_addlsh_nc && !HAVE_NATIVE_gpmpn_addlsh1_nc
+#define gpmpn_addlsh1_nc(a, b, c, d, x) gpmpn_addlsh_nc(a, b, c, d, 1, x)
+#define HAVE_NATIVE_gpmpn_addlsh1_nc 2
 #endif
 
-#if HAVE_NATIVE_mpn_addlsh1_n && !HAVE_NATIVE_mpn_addlsh1_n_ip1
-#define mpn_addlsh1_n_ip1(a, b, n) mpn_addlsh1_n(a, a, b, n)
-#define HAVE_NATIVE_mpn_addlsh1_n_ip1 2
+#if HAVE_NATIVE_gpmpn_addlsh1_n && !HAVE_NATIVE_gpmpn_addlsh1_n_ip1
+#define gpmpn_addlsh1_n_ip1(a, b, n) gpmpn_addlsh1_n(a, a, b, n)
+#define HAVE_NATIVE_gpmpn_addlsh1_n_ip1 2
 #endif
 
-#if HAVE_NATIVE_mpn_addlsh1_nc && !HAVE_NATIVE_mpn_addlsh1_nc_ip1
-#define mpn_addlsh1_nc_ip1(a, b, n, c) mpn_addlsh1_nc(a, a, b, n, c)
-#define HAVE_NATIVE_mpn_addlsh1_nc_ip1 2
+#if HAVE_NATIVE_gpmpn_addlsh1_nc && !HAVE_NATIVE_gpmpn_addlsh1_nc_ip1
+#define gpmpn_addlsh1_nc_ip1(a, b, n, c) gpmpn_addlsh1_nc(a, a, b, n, c)
+#define HAVE_NATIVE_gpmpn_addlsh1_nc_ip1 2
 #endif
 
-#if HAVE_NATIVE_mpn_addlsh_n && !HAVE_NATIVE_mpn_addlsh2_n
-#define mpn_addlsh2_n(a, b, c, d) mpn_addlsh_n(a, b, c, d, 2)
-#define HAVE_NATIVE_mpn_addlsh2_n 2
+#if HAVE_NATIVE_gpmpn_addlsh_n && !HAVE_NATIVE_gpmpn_addlsh2_n
+#define gpmpn_addlsh2_n(a, b, c, d) gpmpn_addlsh_n(a, b, c, d, 2)
+#define HAVE_NATIVE_gpmpn_addlsh2_n 2
 #endif
 
-#if HAVE_NATIVE_mpn_addlsh_nc && !HAVE_NATIVE_mpn_addlsh2_nc
-#define mpn_addlsh2_nc(a, b, c, d, x) mpn_addlsh_nc(a, b, c, d, 2, x)
-#define HAVE_NATIVE_mpn_addlsh2_nc 2
+#if HAVE_NATIVE_gpmpn_addlsh_nc && !HAVE_NATIVE_gpmpn_addlsh2_nc
+#define gpmpn_addlsh2_nc(a, b, c, d, x) gpmpn_addlsh_nc(a, b, c, d, 2, x)
+#define HAVE_NATIVE_gpmpn_addlsh2_nc 2
 #endif
 
-#if HAVE_NATIVE_mpn_addlsh2_n && !HAVE_NATIVE_mpn_addlsh2_n_ip1
-#define mpn_addlsh2_n_ip1(a, b, n) mpn_addlsh2_n(a, a, b, n)
-#define HAVE_NATIVE_mpn_addlsh2_n_ip1 2
+#if HAVE_NATIVE_gpmpn_addlsh2_n && !HAVE_NATIVE_gpmpn_addlsh2_n_ip1
+#define gpmpn_addlsh2_n_ip1(a, b, n) gpmpn_addlsh2_n(a, a, b, n)
+#define HAVE_NATIVE_gpmpn_addlsh2_n_ip1 2
 #endif
 
-#if HAVE_NATIVE_mpn_addlsh2_nc && !HAVE_NATIVE_mpn_addlsh2_nc_ip1
-#define mpn_addlsh2_nc_ip1(a, b, n, c) mpn_addlsh2_nc(a, a, b, n, c)
-#define HAVE_NATIVE_mpn_addlsh2_nc_ip1 2
+#if HAVE_NATIVE_gpmpn_addlsh2_nc && !HAVE_NATIVE_gpmpn_addlsh2_nc_ip1
+#define gpmpn_addlsh2_nc_ip1(a, b, n, c) gpmpn_addlsh2_nc(a, a, b, n, c)
+#define HAVE_NATIVE_gpmpn_addlsh2_nc_ip1 2
 #endif
 
-#if HAVE_NATIVE_mpn_sublsh_n && !HAVE_NATIVE_mpn_sublsh1_n
-#define mpn_sublsh1_n(a, b, c, d) mpn_sublsh_n(a, b, c, d, 1)
-#define HAVE_NATIVE_mpn_sublsh1_n 2
+#if HAVE_NATIVE_gpmpn_sublsh_n && !HAVE_NATIVE_gpmpn_sublsh1_n
+#define gpmpn_sublsh1_n(a, b, c, d) gpmpn_sublsh_n(a, b, c, d, 1)
+#define HAVE_NATIVE_gpmpn_sublsh1_n 2
 #endif
 
-#if HAVE_NATIVE_mpn_sublsh_nc && !HAVE_NATIVE_mpn_sublsh1_nc
-#define mpn_sublsh1_nc(a, b, c, d, x) mpn_sublsh_nc(a, b, c, d, 1, x)
-#define HAVE_NATIVE_mpn_sublsh1_nc 2
+#if HAVE_NATIVE_gpmpn_sublsh_nc && !HAVE_NATIVE_gpmpn_sublsh1_nc
+#define gpmpn_sublsh1_nc(a, b, c, d, x) gpmpn_sublsh_nc(a, b, c, d, 1, x)
+#define HAVE_NATIVE_gpmpn_sublsh1_nc 2
 #endif
 
-#if HAVE_NATIVE_mpn_sublsh1_n && !HAVE_NATIVE_mpn_sublsh1_n_ip1
-#define mpn_sublsh1_n_ip1(a, b, n) mpn_sublsh1_n(a, a, b, n)
-#define HAVE_NATIVE_mpn_sublsh1_n_ip1 2
+#if HAVE_NATIVE_gpmpn_sublsh1_n && !HAVE_NATIVE_gpmpn_sublsh1_n_ip1
+#define gpmpn_sublsh1_n_ip1(a, b, n) gpmpn_sublsh1_n(a, a, b, n)
+#define HAVE_NATIVE_gpmpn_sublsh1_n_ip1 2
 #endif
 
-#if HAVE_NATIVE_mpn_sublsh1_nc && !HAVE_NATIVE_mpn_sublsh1_nc_ip1
-#define mpn_sublsh1_nc_ip1(a, b, n, c) mpn_sublsh1_nc(a, a, b, n, c)
-#define HAVE_NATIVE_mpn_sublsh1_nc_ip1 2
+#if HAVE_NATIVE_gpmpn_sublsh1_nc && !HAVE_NATIVE_gpmpn_sublsh1_nc_ip1
+#define gpmpn_sublsh1_nc_ip1(a, b, n, c) gpmpn_sublsh1_nc(a, a, b, n, c)
+#define HAVE_NATIVE_gpmpn_sublsh1_nc_ip1 2
 #endif
 
-#if HAVE_NATIVE_mpn_sublsh_n && !HAVE_NATIVE_mpn_sublsh2_n
-#define mpn_sublsh2_n(a, b, c, d) mpn_sublsh_n(a, b, c, d, 2)
-#define HAVE_NATIVE_mpn_sublsh2_n 2
+#if HAVE_NATIVE_gpmpn_sublsh_n && !HAVE_NATIVE_gpmpn_sublsh2_n
+#define gpmpn_sublsh2_n(a, b, c, d) gpmpn_sublsh_n(a, b, c, d, 2)
+#define HAVE_NATIVE_gpmpn_sublsh2_n 2
 #endif
 
-#if HAVE_NATIVE_mpn_sublsh_nc && !HAVE_NATIVE_mpn_sublsh2_nc
-#define mpn_sublsh2_nc(a, b, c, d, x) mpn_sublsh_nc(a, b, c, d, 2, x)
-#define HAVE_NATIVE_mpn_sublsh2_nc 2
+#if HAVE_NATIVE_gpmpn_sublsh_nc && !HAVE_NATIVE_gpmpn_sublsh2_nc
+#define gpmpn_sublsh2_nc(a, b, c, d, x) gpmpn_sublsh_nc(a, b, c, d, 2, x)
+#define HAVE_NATIVE_gpmpn_sublsh2_nc 2
 #endif
 
-#if HAVE_NATIVE_mpn_sublsh2_n && !HAVE_NATIVE_mpn_sublsh2_n_ip1
-#define mpn_sublsh2_n_ip1(a, b, n) mpn_sublsh2_n(a, a, b, n)
-#define HAVE_NATIVE_mpn_sublsh2_n_ip1 2
+#if HAVE_NATIVE_gpmpn_sublsh2_n && !HAVE_NATIVE_gpmpn_sublsh2_n_ip1
+#define gpmpn_sublsh2_n_ip1(a, b, n) gpmpn_sublsh2_n(a, a, b, n)
+#define HAVE_NATIVE_gpmpn_sublsh2_n_ip1 2
 #endif
 
-#if HAVE_NATIVE_mpn_sublsh2_nc && !HAVE_NATIVE_mpn_sublsh2_nc_ip1
-#define mpn_sublsh2_nc_ip1(a, b, n, c) mpn_sublsh2_nc(a, a, b, n, c)
-#define HAVE_NATIVE_mpn_sublsh2_nc_ip1 2
+#if HAVE_NATIVE_gpmpn_sublsh2_nc && !HAVE_NATIVE_gpmpn_sublsh2_nc_ip1
+#define gpmpn_sublsh2_nc_ip1(a, b, n, c) gpmpn_sublsh2_nc(a, a, b, n, c)
+#define HAVE_NATIVE_gpmpn_sublsh2_nc_ip1 2
 #endif
 
-#if HAVE_NATIVE_mpn_rsblsh_n && !HAVE_NATIVE_mpn_rsblsh1_n
-#define mpn_rsblsh1_n(a, b, c, d) mpn_rsblsh_n(a, b, c, d, 1)
-#define HAVE_NATIVE_mpn_rsblsh1_n 2
+#if HAVE_NATIVE_gpmpn_rsblsh_n && !HAVE_NATIVE_gpmpn_rsblsh1_n
+#define gpmpn_rsblsh1_n(a, b, c, d) gpmpn_rsblsh_n(a, b, c, d, 1)
+#define HAVE_NATIVE_gpmpn_rsblsh1_n 2
 #endif
 
-#if HAVE_NATIVE_mpn_rsblsh_nc && !HAVE_NATIVE_mpn_rsblsh1_nc
-#define mpn_rsblsh1_nc(a, b, c, d, x) mpn_rsblsh_nc(a, b, c, d, 1, x)
-#define HAVE_NATIVE_mpn_rsblsh1_nc 2
+#if HAVE_NATIVE_gpmpn_rsblsh_nc && !HAVE_NATIVE_gpmpn_rsblsh1_nc
+#define gpmpn_rsblsh1_nc(a, b, c, d, x) gpmpn_rsblsh_nc(a, b, c, d, 1, x)
+#define HAVE_NATIVE_gpmpn_rsblsh1_nc 2
 #endif
 
-#if HAVE_NATIVE_mpn_rsblsh1_n && !HAVE_NATIVE_mpn_rsblsh1_n_ip1
-#define mpn_rsblsh1_n_ip1(a, b, n) mpn_rsblsh1_n(a, a, b, n)
-#define HAVE_NATIVE_mpn_rsblsh1_n_ip1 2
+#if HAVE_NATIVE_gpmpn_rsblsh1_n && !HAVE_NATIVE_gpmpn_rsblsh1_n_ip1
+#define gpmpn_rsblsh1_n_ip1(a, b, n) gpmpn_rsblsh1_n(a, a, b, n)
+#define HAVE_NATIVE_gpmpn_rsblsh1_n_ip1 2
 #endif
 
-#if HAVE_NATIVE_mpn_rsblsh1_nc && !HAVE_NATIVE_mpn_rsblsh1_nc_ip1
-#define mpn_rsblsh1_nc_ip1(a, b, n, c) mpn_rsblsh1_nc(a, a, b, n, c)
-#define HAVE_NATIVE_mpn_rsblsh1_nc_ip1 2
+#if HAVE_NATIVE_gpmpn_rsblsh1_nc && !HAVE_NATIVE_gpmpn_rsblsh1_nc_ip1
+#define gpmpn_rsblsh1_nc_ip1(a, b, n, c) gpmpn_rsblsh1_nc(a, a, b, n, c)
+#define HAVE_NATIVE_gpmpn_rsblsh1_nc_ip1 2
 #endif
 
-#if HAVE_NATIVE_mpn_rsblsh_n && !HAVE_NATIVE_mpn_rsblsh2_n
-#define mpn_rsblsh2_n(a, b, c, d) mpn_rsblsh_n(a, b, c, d, 2)
-#define HAVE_NATIVE_mpn_rsblsh2_n 2
+#if HAVE_NATIVE_gpmpn_rsblsh_n && !HAVE_NATIVE_gpmpn_rsblsh2_n
+#define gpmpn_rsblsh2_n(a, b, c, d) gpmpn_rsblsh_n(a, b, c, d, 2)
+#define HAVE_NATIVE_gpmpn_rsblsh2_n 2
 #endif
 
-#if HAVE_NATIVE_mpn_rsblsh_nc && !HAVE_NATIVE_mpn_rsblsh2_nc
-#define mpn_rsblsh2_nc(a, b, c, d, x) mpn_rsblsh_nc(a, b, c, d, 2, x)
-#define HAVE_NATIVE_mpn_rsblsh2_nc 2
+#if HAVE_NATIVE_gpmpn_rsblsh_nc && !HAVE_NATIVE_gpmpn_rsblsh2_nc
+#define gpmpn_rsblsh2_nc(a, b, c, d, x) gpmpn_rsblsh_nc(a, b, c, d, 2, x)
+#define HAVE_NATIVE_gpmpn_rsblsh2_nc 2
 #endif
 
-#if HAVE_NATIVE_mpn_rsblsh2_n && !HAVE_NATIVE_mpn_rsblsh2_n_ip1
-#define mpn_rsblsh2_n_ip1(a, b, n) mpn_rsblsh2_n(a, a, b, n)
-#define HAVE_NATIVE_mpn_rsblsh2_n_ip1 2
+#if HAVE_NATIVE_gpmpn_rsblsh2_n && !HAVE_NATIVE_gpmpn_rsblsh2_n_ip1
+#define gpmpn_rsblsh2_n_ip1(a, b, n) gpmpn_rsblsh2_n(a, a, b, n)
+#define HAVE_NATIVE_gpmpn_rsblsh2_n_ip1 2
 #endif
 
-#if HAVE_NATIVE_mpn_rsblsh2_nc && !HAVE_NATIVE_mpn_rsblsh2_nc_ip1
-#define mpn_rsblsh2_nc_ip1(a, b, n, c) mpn_rsblsh2_nc(a, a, b, n, c)
-#define HAVE_NATIVE_mpn_rsblsh2_nc_ip1 2
+#if HAVE_NATIVE_gpmpn_rsblsh2_nc && !HAVE_NATIVE_gpmpn_rsblsh2_nc_ip1
+#define gpmpn_rsblsh2_nc_ip1(a, b, n, c) gpmpn_rsblsh2_nc(a, a, b, n, c)
+#define HAVE_NATIVE_gpmpn_rsblsh2_nc_ip1 2
 #endif
 
-#ifndef mpn_addlsh1_n
-#define mpn_addlsh1_n __GPGMP_MPN(addlsh1_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addlsh1_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#ifndef gpmpn_addlsh1_n
+#define gpmpn_addlsh1_n __GPGMP_MPN(addlsh1_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addlsh1_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
 #endif
-#ifndef mpn_addlsh1_nc
-#define mpn_addlsh1_nc __GPGMP_MPN(addlsh1_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addlsh1_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+#ifndef gpmpn_addlsh1_nc
+#define gpmpn_addlsh1_nc __GPGMP_MPN(addlsh1_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addlsh1_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
 #endif
-#ifndef mpn_addlsh1_n_ip1
-#define mpn_addlsh1_n_ip1 __GPGMP_MPN(addlsh1_n_ip1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addlsh1_n_ip1(mp_ptr, mp_srcptr, mp_size_t);
+#ifndef gpmpn_addlsh1_n_ip1
+#define gpmpn_addlsh1_n_ip1 __GPGMP_MPN(addlsh1_n_ip1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addlsh1_n_ip1(mp_ptr, mp_srcptr, mp_size_t);
 #endif
-#ifndef mpn_addlsh1_nc_ip1
-#define mpn_addlsh1_nc_ip1 __GPGMP_MPN(addlsh1_nc_ip1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addlsh1_nc_ip1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
-#endif
-
-#ifndef mpn_addlsh2_n
-#define mpn_addlsh2_n __GPGMP_MPN(addlsh2_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addlsh2_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
-#endif
-#ifndef mpn_addlsh2_nc
-#define mpn_addlsh2_nc __GPGMP_MPN(addlsh2_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addlsh2_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
-#endif
-#ifndef mpn_addlsh2_n_ip1
-#define mpn_addlsh2_n_ip1 __GPGMP_MPN(addlsh2_n_ip1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addlsh2_n_ip1(mp_ptr, mp_srcptr, mp_size_t);
-#endif
-#ifndef mpn_addlsh2_nc_ip1
-#define mpn_addlsh2_nc_ip1 __GPGMP_MPN(addlsh2_nc_ip1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addlsh2_nc_ip1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
+#ifndef gpmpn_addlsh1_nc_ip1
+#define gpmpn_addlsh1_nc_ip1 __GPGMP_MPN(addlsh1_nc_ip1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addlsh1_nc_ip1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
 #endif
 
-#ifndef mpn_addlsh_n
-#define mpn_addlsh_n __GPGMP_MPN(addlsh_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addlsh_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned int);
+#ifndef gpmpn_addlsh2_n
+#define gpmpn_addlsh2_n __GPGMP_MPN(addlsh2_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addlsh2_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
 #endif
-#ifndef mpn_addlsh_nc
-#define mpn_addlsh_nc __GPGMP_MPN(addlsh_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addlsh_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned int, mp_limb_t);
+#ifndef gpmpn_addlsh2_nc
+#define gpmpn_addlsh2_nc __GPGMP_MPN(addlsh2_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addlsh2_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
 #endif
-#ifndef mpn_addlsh_n_ip1
-#define mpn_addlsh_n_ip1 __GPGMP_MPN(addlsh_n_ip1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addlsh_n_ip1(mp_ptr, mp_srcptr, mp_size_t, unsigned int);
+#ifndef gpmpn_addlsh2_n_ip1
+#define gpmpn_addlsh2_n_ip1 __GPGMP_MPN(addlsh2_n_ip1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addlsh2_n_ip1(mp_ptr, mp_srcptr, mp_size_t);
 #endif
-#ifndef mpn_addlsh_nc_ip1
-#define mpn_addlsh_nc_ip1 __GPGMP_MPN(addlsh_nc_ip1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addlsh_nc_ip1(mp_ptr, mp_srcptr, mp_size_t, unsigned int, mp_limb_t);
-#endif
-
-#ifndef mpn_sublsh1_n
-#define mpn_sublsh1_n __GPGMP_MPN(sublsh1_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sublsh1_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
-#endif
-#ifndef mpn_sublsh1_nc
-#define mpn_sublsh1_nc __GPGMP_MPN(sublsh1_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sublsh1_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
-#endif
-#ifndef mpn_sublsh1_n_ip1
-#define mpn_sublsh1_n_ip1 __GPGMP_MPN(sublsh1_n_ip1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sublsh1_n_ip1(mp_ptr, mp_srcptr, mp_size_t);
-#endif
-#ifndef mpn_sublsh1_nc_ip1
-#define mpn_sublsh1_nc_ip1 __GPGMP_MPN(sublsh1_nc_ip1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sublsh1_nc_ip1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
+#ifndef gpmpn_addlsh2_nc_ip1
+#define gpmpn_addlsh2_nc_ip1 __GPGMP_MPN(addlsh2_nc_ip1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addlsh2_nc_ip1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
 #endif
 
-#ifndef mpn_sublsh2_n
-#define mpn_sublsh2_n __GPGMP_MPN(sublsh2_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sublsh2_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#ifndef gpmpn_addlsh_n
+#define gpmpn_addlsh_n __GPGMP_MPN(addlsh_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addlsh_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned int);
 #endif
-#ifndef mpn_sublsh2_nc
-#define mpn_sublsh2_nc __GPGMP_MPN(sublsh2_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sublsh2_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+#ifndef gpmpn_addlsh_nc
+#define gpmpn_addlsh_nc __GPGMP_MPN(addlsh_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addlsh_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned int, mp_limb_t);
 #endif
-#ifndef mpn_sublsh2_n_ip1
-#define mpn_sublsh2_n_ip1 __GPGMP_MPN(sublsh2_n_ip1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sublsh2_n_ip1(mp_ptr, mp_srcptr, mp_size_t);
+#ifndef gpmpn_addlsh_n_ip1
+#define gpmpn_addlsh_n_ip1 __GPGMP_MPN(addlsh_n_ip1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addlsh_n_ip1(mp_ptr, mp_srcptr, mp_size_t, unsigned int);
 #endif
-#ifndef mpn_sublsh2_nc_ip1
-#define mpn_sublsh2_nc_ip1 __GPGMP_MPN(sublsh2_nc_ip1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sublsh2_nc_ip1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
-#endif
-
-#ifndef mpn_sublsh_n
-#define mpn_sublsh_n __GPGMP_MPN(sublsh_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sublsh_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned int);
-#endif
-#ifndef mpn_sublsh_nc
-#define mpn_sublsh_nc __GPGMP_MPN(sublsh_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sublsh_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned int, mp_limb_t);
-#endif
-#ifndef mpn_sublsh_n_ip1
-#define mpn_sublsh_n_ip1 __GPGMP_MPN(sublsh_n_ip1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sublsh_n_ip1(mp_ptr, mp_srcptr, mp_size_t, unsigned int);
-#endif
-#ifndef mpn_sublsh_nc_ip1
-#define mpn_sublsh_nc_ip1 __GPGMP_MPN(sublsh_nc_ip1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sublsh_nc_ip1(mp_ptr, mp_srcptr, mp_size_t, unsigned int, mp_limb_t);
+#ifndef gpmpn_addlsh_nc_ip1
+#define gpmpn_addlsh_nc_ip1 __GPGMP_MPN(addlsh_nc_ip1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addlsh_nc_ip1(mp_ptr, mp_srcptr, mp_size_t, unsigned int, mp_limb_t);
 #endif
 
-#define mpn_rsblsh1_n __GPGMP_MPN(rsblsh1_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_signed_t mpn_rsblsh1_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
-#define mpn_rsblsh1_nc __GPGMP_MPN(rsblsh1_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_signed_t mpn_rsblsh1_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
-
-#define mpn_rsblsh2_n __GPGMP_MPN(rsblsh2_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_signed_t mpn_rsblsh2_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
-#define mpn_rsblsh2_nc __GPGMP_MPN(rsblsh2_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_signed_t mpn_rsblsh2_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
-
-#define mpn_rsblsh_n __GPGMP_MPN(rsblsh_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_signed_t mpn_rsblsh_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned int);
-#define mpn_rsblsh_nc __GPGMP_MPN(rsblsh_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_signed_t mpn_rsblsh_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned int, mp_limb_t);
-
-#define mpn_rsh1add_n __GPGMP_MPN(rsh1add_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_rsh1add_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
-#define mpn_rsh1add_nc __GPGMP_MPN(rsh1add_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_rsh1add_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
-
-#define mpn_rsh1sub_n __GPGMP_MPN(rsh1sub_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_rsh1sub_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
-#define mpn_rsh1sub_nc __GPGMP_MPN(rsh1sub_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_rsh1sub_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
-
-#ifndef mpn_lshiftc /* if not done with cpuvec in a fat binary */
-#define mpn_lshiftc __GPGMP_MPN(lshiftc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_lshiftc(mp_ptr, mp_srcptr, mp_size_t, unsigned int);
+#ifndef gpmpn_sublsh1_n
+#define gpmpn_sublsh1_n __GPGMP_MPN(sublsh1_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sublsh1_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#endif
+#ifndef gpmpn_sublsh1_nc
+#define gpmpn_sublsh1_nc __GPGMP_MPN(sublsh1_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sublsh1_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+#endif
+#ifndef gpmpn_sublsh1_n_ip1
+#define gpmpn_sublsh1_n_ip1 __GPGMP_MPN(sublsh1_n_ip1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sublsh1_n_ip1(mp_ptr, mp_srcptr, mp_size_t);
+#endif
+#ifndef gpmpn_sublsh1_nc_ip1
+#define gpmpn_sublsh1_nc_ip1 __GPGMP_MPN(sublsh1_nc_ip1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sublsh1_nc_ip1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
 #endif
 
-#define mpn_add_err1_n __GPGMP_MPN(add_err1_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_add_err1_n(mp_ptr, mp_srcptr, mp_srcptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
+#ifndef gpmpn_sublsh2_n
+#define gpmpn_sublsh2_n __GPGMP_MPN(sublsh2_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sublsh2_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#endif
+#ifndef gpmpn_sublsh2_nc
+#define gpmpn_sublsh2_nc __GPGMP_MPN(sublsh2_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sublsh2_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+#endif
+#ifndef gpmpn_sublsh2_n_ip1
+#define gpmpn_sublsh2_n_ip1 __GPGMP_MPN(sublsh2_n_ip1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sublsh2_n_ip1(mp_ptr, mp_srcptr, mp_size_t);
+#endif
+#ifndef gpmpn_sublsh2_nc_ip1
+#define gpmpn_sublsh2_nc_ip1 __GPGMP_MPN(sublsh2_nc_ip1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sublsh2_nc_ip1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
+#endif
 
-#define mpn_add_err2_n __GPGMP_MPN(add_err2_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_add_err2_n(mp_ptr, mp_srcptr, mp_srcptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+#ifndef gpmpn_sublsh_n
+#define gpmpn_sublsh_n __GPGMP_MPN(sublsh_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sublsh_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned int);
+#endif
+#ifndef gpmpn_sublsh_nc
+#define gpmpn_sublsh_nc __GPGMP_MPN(sublsh_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sublsh_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned int, mp_limb_t);
+#endif
+#ifndef gpmpn_sublsh_n_ip1
+#define gpmpn_sublsh_n_ip1 __GPGMP_MPN(sublsh_n_ip1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sublsh_n_ip1(mp_ptr, mp_srcptr, mp_size_t, unsigned int);
+#endif
+#ifndef gpmpn_sublsh_nc_ip1
+#define gpmpn_sublsh_nc_ip1 __GPGMP_MPN(sublsh_nc_ip1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sublsh_nc_ip1(mp_ptr, mp_srcptr, mp_size_t, unsigned int, mp_limb_t);
+#endif
 
-#define mpn_add_err3_n __GPGMP_MPN(add_err3_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_add_err3_n(mp_ptr, mp_srcptr, mp_srcptr, mp_ptr, mp_srcptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+#define gpmpn_rsblsh1_n __GPGMP_MPN(rsblsh1_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_signed_t gpmpn_rsblsh1_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#define gpmpn_rsblsh1_nc __GPGMP_MPN(rsblsh1_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_signed_t gpmpn_rsblsh1_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_sub_err1_n __GPGMP_MPN(sub_err1_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sub_err1_n(mp_ptr, mp_srcptr, mp_srcptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
+#define gpmpn_rsblsh2_n __GPGMP_MPN(rsblsh2_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_signed_t gpmpn_rsblsh2_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#define gpmpn_rsblsh2_nc __GPGMP_MPN(rsblsh2_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_signed_t gpmpn_rsblsh2_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_sub_err2_n __GPGMP_MPN(sub_err2_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sub_err2_n(mp_ptr, mp_srcptr, mp_srcptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+#define gpmpn_rsblsh_n __GPGMP_MPN(rsblsh_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_signed_t gpmpn_rsblsh_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned int);
+#define gpmpn_rsblsh_nc __GPGMP_MPN(rsblsh_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_signed_t gpmpn_rsblsh_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned int, mp_limb_t);
 
-#define mpn_sub_err3_n __GPGMP_MPN(sub_err3_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sub_err3_n(mp_ptr, mp_srcptr, mp_srcptr, mp_ptr, mp_srcptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+#define gpmpn_rsh1add_n __GPGMP_MPN(rsh1add_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_rsh1add_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#define gpmpn_rsh1add_nc __GPGMP_MPN(rsh1add_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_rsh1add_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_add_n_sub_n __GPGMP_MPN(add_n_sub_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_add_n_sub_n(mp_ptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#define gpmpn_rsh1sub_n __GPGMP_MPN(rsh1sub_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_rsh1sub_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#define gpmpn_rsh1sub_nc __GPGMP_MPN(rsh1sub_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_rsh1sub_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_add_n_sub_nc __GPGMP_MPN(add_n_sub_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_add_n_sub_nc(mp_ptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+#ifndef gpmpn_lshiftc /* if not done with cpuvec in a fat binary */
+#define gpmpn_lshiftc __GPGMP_MPN(lshiftc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_lshiftc(mp_ptr, mp_srcptr, mp_size_t, unsigned int);
+#endif
 
-#define mpn_addaddmul_1msb0 __GPGMP_MPN(addaddmul_1msb0)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_addaddmul_1msb0(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
+#define gpmpn_add_err1_n __GPGMP_MPN(add_err1_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_add_err1_n(mp_ptr, mp_srcptr, mp_srcptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_divrem_1c __GPGMP_MPN(divrem_1c)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_divrem_1c(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
+#define gpmpn_add_err2_n __GPGMP_MPN(add_err2_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_add_err2_n(mp_ptr, mp_srcptr, mp_srcptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_dump __GPGMP_MPN(dump)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_dump(mp_srcptr, mp_size_t);
+#define gpmpn_add_err3_n __GPGMP_MPN(add_err3_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_add_err3_n(mp_ptr, mp_srcptr, mp_srcptr, mp_ptr, mp_srcptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_fib2_ui __GPGMP_MPN(fib2_ui)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_fib2_ui(mp_ptr, mp_ptr, unsigned long);
+#define gpmpn_sub_err1_n __GPGMP_MPN(sub_err1_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sub_err1_n(mp_ptr, mp_srcptr, mp_srcptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_fib2m __GPGMP_MPN(fib2m)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_fib2m(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
+#define gpmpn_sub_err2_n __GPGMP_MPN(sub_err2_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sub_err2_n(mp_ptr, mp_srcptr, mp_srcptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_strongfibo __GPGMP_MPN(strongfibo)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_strongfibo(mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_sub_err3_n __GPGMP_MPN(sub_err3_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sub_err3_n(mp_ptr, mp_srcptr, mp_srcptr, mp_ptr, mp_srcptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+
+#define gpmpn_add_n_sub_n __GPGMP_MPN(add_n_sub_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_add_n_sub_n(mp_ptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+
+#define gpmpn_add_n_sub_nc __GPGMP_MPN(add_n_sub_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_add_n_sub_nc(mp_ptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+
+#define gpmpn_addaddmul_1msb0 __GPGMP_MPN(addaddmul_1msb0)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_addaddmul_1msb0(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
+
+#define gpmpn_divrem_1c __GPGMP_MPN(divrem_1c)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_divrem_1c(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
+
+#define gpmpn_dump __GPGMP_MPN(dump)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_dump(mp_srcptr, mp_size_t);
+
+#define gpmpn_fib2_ui __GPGMP_MPN(fib2_ui)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_fib2_ui(mp_ptr, mp_ptr, unsigned long);
+
+#define gpmpn_fib2m __GPGMP_MPN(fib2m)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_fib2m(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
+
+#define gpmpn_strongfibo __GPGMP_MPN(strongfibo)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_strongfibo(mp_srcptr, mp_size_t, mp_ptr);
 
         /* Remap names of internal mpn functions.  */
 #define __clz_tab __GPGMP_MPN(clz_tab)
-#define mpn_udiv_w_sdiv __GPGMP_MPN(udiv_w_sdiv)
+#define gpmpn_udiv_w_sdiv __GPGMP_MPN(udiv_w_sdiv)
 
-#define mpn_jacobi_base __GPGMP_MPN(jacobi_base)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_jacobi_base(mp_limb_t, mp_limb_t, int) ATTRIBUTE_CONST;
+#define gpmpn_jacobi_base __GPGMP_MPN(jacobi_base)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_jacobi_base(mp_limb_t, mp_limb_t, int) ATTRIBUTE_CONST;
 
-#define mpn_jacobi_2 __GPGMP_MPN(jacobi_2)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_jacobi_2(mp_srcptr, mp_srcptr, unsigned);
+#define gpmpn_jacobi_2 __GPGMP_MPN(jacobi_2)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_jacobi_2(mp_srcptr, mp_srcptr, unsigned);
 
-#define mpn_jacobi_n __GPGMP_MPN(jacobi_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_jacobi_n(mp_ptr, mp_ptr, mp_size_t, unsigned);
+#define gpmpn_jacobi_n __GPGMP_MPN(jacobi_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_jacobi_n(mp_ptr, mp_ptr, mp_size_t, unsigned);
 
-#define mpn_mod_1c __GPGMP_MPN(mod_1c)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mod_1c(mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t) __GMP_ATTRIBUTE_PURE;
+#define gpmpn_mod_1c __GPGMP_MPN(mod_1c)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mod_1c(mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t) __GMP_ATTRIBUTE_PURE;
 
-#define mpn_mul_1c __GPGMP_MPN(mul_1c)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mul_1c(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
+#define gpmpn_mul_1c __GPGMP_MPN(mul_1c)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mul_1c(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
 
-#define mpn_mul_2 __GPGMP_MPN(mul_2)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mul_2(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#define gpmpn_mul_2 __GPGMP_MPN(mul_2)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mul_2(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-#define mpn_mul_3 __GPGMP_MPN(mul_3)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mul_3(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#define gpmpn_mul_3 __GPGMP_MPN(mul_3)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mul_3(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-#define mpn_mul_4 __GPGMP_MPN(mul_4)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mul_4(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#define gpmpn_mul_4 __GPGMP_MPN(mul_4)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mul_4(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-#define mpn_mul_5 __GPGMP_MPN(mul_5)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mul_5(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#define gpmpn_mul_5 __GPGMP_MPN(mul_5)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mul_5(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-#define mpn_mul_6 __GPGMP_MPN(mul_6)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mul_6(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#define gpmpn_mul_6 __GPGMP_MPN(mul_6)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mul_6(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-#ifndef mpn_mul_basecase /* if not done with cpuvec in a fat binary */
-#define mpn_mul_basecase __GPGMP_MPN(mul_basecase)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mul_basecase(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
+#ifndef gpmpn_mul_basecase /* if not done with cpuvec in a fat binary */
+#define gpmpn_mul_basecase __GPGMP_MPN(mul_basecase)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mul_basecase(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
 #endif
 
-#define mpn_mullo_n __GPGMP_MPN(mullo_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mullo_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#define gpmpn_mullo_n __GPGMP_MPN(mullo_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mullo_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
 
-#ifndef mpn_mullo_basecase /* if not done with cpuvec in a fat binary */
-#define mpn_mullo_basecase __GPGMP_MPN(mullo_basecase)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mullo_basecase(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#ifndef gpmpn_mullo_basecase /* if not done with cpuvec in a fat binary */
+#define gpmpn_mullo_basecase __GPGMP_MPN(mullo_basecase)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mullo_basecase(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
 #endif
 
-#ifndef mpn_sqr_basecase /* if not done with cpuvec in a fat binary */
-#define mpn_sqr_basecase __GPGMP_MPN(sqr_basecase)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_sqr_basecase(mp_ptr, mp_srcptr, mp_size_t);
+#ifndef gpmpn_sqr_basecase /* if not done with cpuvec in a fat binary */
+#define gpmpn_sqr_basecase __GPGMP_MPN(sqr_basecase)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqr_basecase(mp_ptr, mp_srcptr, mp_size_t);
 #endif
 
-#define mpn_sqrlo __GPGMP_MPN(sqrlo)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_sqrlo(mp_ptr, mp_srcptr, mp_size_t);
+#define gpmpn_sqrlo __GPGMP_MPN(sqrlo)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqrlo(mp_ptr, mp_srcptr, mp_size_t);
 
-#define mpn_sqrlo_basecase __GPGMP_MPN(sqrlo_basecase)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_sqrlo_basecase(mp_ptr, mp_srcptr, mp_size_t);
+#define gpmpn_sqrlo_basecase __GPGMP_MPN(sqrlo_basecase)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqrlo_basecase(mp_ptr, mp_srcptr, mp_size_t);
 
-#define mpn_mulmid_basecase __GPGMP_MPN(mulmid_basecase)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mulmid_basecase(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
+#define gpmpn_mulmid_basecase __GPGMP_MPN(mulmid_basecase)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mulmid_basecase(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
 
-#define mpn_mulmid_n __GPGMP_MPN(mulmid_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mulmid_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#define gpmpn_mulmid_n __GPGMP_MPN(mulmid_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mulmid_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
 
-#define mpn_mulmid __GPGMP_MPN(mulmid)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mulmid(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
+#define gpmpn_mulmid __GPGMP_MPN(mulmid)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mulmid(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
 
-#define mpn_submul_1c __GPGMP_MPN(submul_1c)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_submul_1c(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
+#define gpmpn_submul_1c __GPGMP_MPN(submul_1c)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_submul_1c(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
 
-#ifndef mpn_redc_1 /* if not done with cpuvec in a fat binary */
-#define mpn_redc_1 __GPGMP_MPN(redc_1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_redc_1(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
+#ifndef gpmpn_redc_1 /* if not done with cpuvec in a fat binary */
+#define gpmpn_redc_1 __GPGMP_MPN(redc_1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_redc_1(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
 #endif
 
-#ifndef mpn_redc_2 /* if not done with cpuvec in a fat binary */
-#define mpn_redc_2 __GPGMP_MPN(redc_2)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_redc_2(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#ifndef gpmpn_redc_2 /* if not done with cpuvec in a fat binary */
+#define gpmpn_redc_2 __GPGMP_MPN(redc_2)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_redc_2(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 #endif
 
-#define mpn_redc_n __GPGMP_MPN(redc_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_redc_n(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
+#define gpmpn_redc_n __GPGMP_MPN(redc_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_redc_n(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr);
 
-#ifndef mpn_mod_1_1p_cps /* if not done with cpuvec in a fat binary */
-#define mpn_mod_1_1p_cps __GPGMP_MPN(mod_1_1p_cps)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mod_1_1p_cps(mp_limb_t[4], mp_limb_t);
+#ifndef gpmpn_mod_1_1p_cps /* if not done with cpuvec in a fat binary */
+#define gpmpn_mod_1_1p_cps __GPGMP_MPN(mod_1_1p_cps)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mod_1_1p_cps(mp_limb_t[4], mp_limb_t);
 #endif
-#ifndef mpn_mod_1_1p /* if not done with cpuvec in a fat binary */
-#define mpn_mod_1_1p __GPGMP_MPN(mod_1_1p)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mod_1_1p(mp_srcptr, mp_size_t, mp_limb_t, const mp_limb_t[4]) __GMP_ATTRIBUTE_PURE;
-#endif
-
-#ifndef mpn_mod_1s_2p_cps /* if not done with cpuvec in a fat binary */
-#define mpn_mod_1s_2p_cps __GPGMP_MPN(mod_1s_2p_cps)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mod_1s_2p_cps(mp_limb_t[5], mp_limb_t);
-#endif
-#ifndef mpn_mod_1s_2p /* if not done with cpuvec in a fat binary */
-#define mpn_mod_1s_2p __GPGMP_MPN(mod_1s_2p)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mod_1s_2p(mp_srcptr, mp_size_t, mp_limb_t, const mp_limb_t[5]) __GMP_ATTRIBUTE_PURE;
+#ifndef gpmpn_mod_1_1p /* if not done with cpuvec in a fat binary */
+#define gpmpn_mod_1_1p __GPGMP_MPN(mod_1_1p)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mod_1_1p(mp_srcptr, mp_size_t, mp_limb_t, const mp_limb_t[4]) __GMP_ATTRIBUTE_PURE;
 #endif
 
-#ifndef mpn_mod_1s_3p_cps /* if not done with cpuvec in a fat binary */
-#define mpn_mod_1s_3p_cps __GPGMP_MPN(mod_1s_3p_cps)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mod_1s_3p_cps(mp_limb_t[6], mp_limb_t);
+#ifndef gpmpn_mod_1s_2p_cps /* if not done with cpuvec in a fat binary */
+#define gpmpn_mod_1s_2p_cps __GPGMP_MPN(mod_1s_2p_cps)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mod_1s_2p_cps(mp_limb_t[5], mp_limb_t);
 #endif
-#ifndef mpn_mod_1s_3p /* if not done with cpuvec in a fat binary */
-#define mpn_mod_1s_3p __GPGMP_MPN(mod_1s_3p)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mod_1s_3p(mp_srcptr, mp_size_t, mp_limb_t, const mp_limb_t[6]) __GMP_ATTRIBUTE_PURE;
-#endif
-
-#ifndef mpn_mod_1s_4p_cps /* if not done with cpuvec in a fat binary */
-#define mpn_mod_1s_4p_cps __GPGMP_MPN(mod_1s_4p_cps)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mod_1s_4p_cps(mp_limb_t[7], mp_limb_t);
-#endif
-#ifndef mpn_mod_1s_4p /* if not done with cpuvec in a fat binary */
-#define mpn_mod_1s_4p __GPGMP_MPN(mod_1s_4p)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mod_1s_4p(mp_srcptr, mp_size_t, mp_limb_t, const mp_limb_t[7]) __GMP_ATTRIBUTE_PURE;
+#ifndef gpmpn_mod_1s_2p /* if not done with cpuvec in a fat binary */
+#define gpmpn_mod_1s_2p __GPGMP_MPN(mod_1s_2p)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mod_1s_2p(mp_srcptr, mp_size_t, mp_limb_t, const mp_limb_t[5]) __GMP_ATTRIBUTE_PURE;
 #endif
 
-#define mpn_bc_mulmod_bnm1 __GPGMP_MPN(bc_mulmod_bnm1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_bc_mulmod_bnm1(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_mulmod_bnm1 __GPGMP_MPN(mulmod_bnm1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mulmod_bnm1(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_mulmod_bnm1_next_size __GPGMP_MPN(mulmod_bnm1_next_size)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_mulmod_bnm1_next_size(mp_size_t) ATTRIBUTE_CONST;
-        ANYCALLER static inline mp_size_t mpn_mulmod_bnm1_itch(mp_size_t rn, mp_size_t an, mp_size_t bn)
+#ifndef gpmpn_mod_1s_3p_cps /* if not done with cpuvec in a fat binary */
+#define gpmpn_mod_1s_3p_cps __GPGMP_MPN(mod_1s_3p_cps)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mod_1s_3p_cps(mp_limb_t[6], mp_limb_t);
+#endif
+#ifndef gpmpn_mod_1s_3p /* if not done with cpuvec in a fat binary */
+#define gpmpn_mod_1s_3p __GPGMP_MPN(mod_1s_3p)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mod_1s_3p(mp_srcptr, mp_size_t, mp_limb_t, const mp_limb_t[6]) __GMP_ATTRIBUTE_PURE;
+#endif
+
+#ifndef gpmpn_mod_1s_4p_cps /* if not done with cpuvec in a fat binary */
+#define gpmpn_mod_1s_4p_cps __GPGMP_MPN(mod_1s_4p_cps)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mod_1s_4p_cps(mp_limb_t[7], mp_limb_t);
+#endif
+#ifndef gpmpn_mod_1s_4p /* if not done with cpuvec in a fat binary */
+#define gpmpn_mod_1s_4p __GPGMP_MPN(mod_1s_4p)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mod_1s_4p(mp_srcptr, mp_size_t, mp_limb_t, const mp_limb_t[7]) __GMP_ATTRIBUTE_PURE;
+#endif
+
+#define gpmpn_bc_mulmod_bnm1 __GPGMP_MPN(bc_mulmod_bnm1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_bc_mulmod_bnm1(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_mulmod_bnm1 __GPGMP_MPN(mulmod_bnm1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mulmod_bnm1(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_mulmod_bnm1_next_size __GPGMP_MPN(mulmod_bnm1_next_size)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_mulmod_bnm1_next_size(mp_size_t) ATTRIBUTE_CONST;
+        ANYCALLER static inline mp_size_t gpmpn_mulmod_bnm1_itch(mp_size_t rn, mp_size_t an, mp_size_t bn)
         {
             mp_size_t n, itch;
             n = rn >> 1;
@@ -1461,10 +1459,10 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpgmp_tmp_reentrant_free(struct tmp_r
 #define MOD_BKNP1_ONLY3 0
 #endif
         GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_mulmod_bknp1 __GPGMP_MPN(mulmod_bknp1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mulmod_bknp1(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned, mp_ptr);
+#define gpmpn_mulmod_bknp1 __GPGMP_MPN(mulmod_bknp1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mulmod_bknp1(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, unsigned, mp_ptr);
         ANYCALLER static inline mp_size_t
-        mpn_mulmod_bknp1_itch(mp_size_t rn)
+        gpmpn_mulmod_bknp1_itch(mp_size_t rn)
         {
             return rn << 2;
         }
@@ -1490,10 +1488,10 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpgmp_tmp_reentrant_free(struct tmp_r
           ((mn) >= 104) && ((rn) >= 64) && ((rn) % ((k) = 11) == 0)))
 #endif
 GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_sqrmod_bknp1 __GPGMP_MPN(sqrmod_bknp1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_sqrmod_bknp1(mp_ptr, mp_srcptr, mp_size_t, unsigned, mp_ptr);
+#define gpmpn_sqrmod_bknp1 __GPGMP_MPN(sqrmod_bknp1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqrmod_bknp1(mp_ptr, mp_srcptr, mp_size_t, unsigned, mp_ptr);
         ANYCALLER static inline mp_size_t
-        mpn_sqrmod_bknp1_itch(mp_size_t rn)
+        gpmpn_sqrmod_bknp1_itch(mp_size_t rn)
         {
             return rn * 3;
         }
@@ -1517,11 +1515,11 @@ GPGMP_MPN_NAMESPACE_BEGIN
           ((mn) >= 143) && ((rn) >= 128) && ((rn) % ((k) = 11) == 0)))
 #endif
 
-#define mpn_sqrmod_bnm1 __GPGMP_MPN(sqrmod_bnm1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_sqrmod_bnm1(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_sqrmod_bnm1_next_size __GPGMP_MPN(sqrmod_bnm1_next_size)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_sqrmod_bnm1_next_size(mp_size_t) ATTRIBUTE_CONST;
-        ANYCALLER static inline mp_size_t mpn_sqrmod_bnm1_itch(mp_size_t rn, mp_size_t an)
+#define gpmpn_sqrmod_bnm1 __GPGMP_MPN(sqrmod_bnm1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqrmod_bnm1(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_sqrmod_bnm1_next_size __GPGMP_MPN(sqrmod_bnm1_next_size)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_sqrmod_bnm1_next_size(mp_size_t) ATTRIBUTE_CONST;
+        ANYCALLER static inline mp_size_t gpmpn_sqrmod_bnm1_itch(mp_size_t rn, mp_size_t an)
         {
             mp_size_t n, itch;
             n = rn >> 1;
@@ -1629,14 +1627,14 @@ GPGMP_MPN_NAMESPACE_END
 
 #define MPN_TOOM42_MULMID_MINSIZE 4
 GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_sqr_diagonal __GPGMP_MPN(sqr_diagonal)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_sqr_diagonal(mp_ptr, mp_srcptr, mp_size_t);
+#define gpmpn_sqr_diagonal __GPGMP_MPN(sqr_diagonal)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqr_diagonal(mp_ptr, mp_srcptr, mp_size_t);
 
-#define mpn_sqr_diag_addlsh1 __GPGMP_MPN(sqr_diag_addlsh1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_sqr_diag_addlsh1(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
+#define gpmpn_sqr_diag_addlsh1 __GPGMP_MPN(sqr_diag_addlsh1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqr_diag_addlsh1(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
 
-#define mpn_toom_interpolate_5pts __GPGMP_MPN(toom_interpolate_5pts)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom_interpolate_5pts(mp_ptr, mp_ptr, mp_ptr, mp_size_t, mp_size_t, int, mp_limb_t);
+#define gpmpn_toom_interpolate_5pts __GPGMP_MPN(toom_interpolate_5pts)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom_interpolate_5pts(mp_ptr, mp_ptr, mp_ptr, mp_size_t, mp_size_t, int, mp_limb_t);
 GPGMP_MPN_NAMESPACE_END
         enum toom6_flags
         {
@@ -1645,8 +1643,8 @@ GPGMP_MPN_NAMESPACE_END
             toom6_vm2_neg = 2
         };
         GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_toom_interpolate_6pts __GPGMP_MPN(toom_interpolate_6pts)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom_interpolate_6pts(mp_ptr, mp_size_t, enum toom6_flags, mp_ptr, mp_ptr, mp_ptr, mp_size_t);
+#define gpmpn_toom_interpolate_6pts __GPGMP_MPN(toom_interpolate_6pts)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom_interpolate_6pts(mp_ptr, mp_size_t, enum toom6_flags, mp_ptr, mp_ptr, mp_ptr, mp_size_t);
 GPGMP_MPN_NAMESPACE_END
         enum toom7_flags
         {
@@ -1654,302 +1652,302 @@ GPGMP_MPN_NAMESPACE_END
             toom7_w3_neg = 2
         };
         GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_toom_interpolate_7pts __GPGMP_MPN(toom_interpolate_7pts)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom_interpolate_7pts(mp_ptr, mp_size_t, enum toom7_flags, mp_ptr, mp_ptr, mp_ptr, mp_ptr, mp_size_t, mp_ptr);
+#define gpmpn_toom_interpolate_7pts __GPGMP_MPN(toom_interpolate_7pts)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom_interpolate_7pts(mp_ptr, mp_size_t, enum toom7_flags, mp_ptr, mp_ptr, mp_ptr, mp_ptr, mp_size_t, mp_ptr);
 
-#define mpn_toom_interpolate_8pts __GPGMP_MPN(toom_interpolate_8pts)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom_interpolate_8pts(mp_ptr, mp_size_t, mp_ptr, mp_ptr, mp_size_t, mp_ptr);
+#define gpmpn_toom_interpolate_8pts __GPGMP_MPN(toom_interpolate_8pts)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom_interpolate_8pts(mp_ptr, mp_size_t, mp_ptr, mp_ptr, mp_size_t, mp_ptr);
 
-#define mpn_toom_interpolate_12pts __GPGMP_MPN(toom_interpolate_12pts)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom_interpolate_12pts(mp_ptr, mp_ptr, mp_ptr, mp_ptr, mp_size_t, mp_size_t, int, mp_ptr);
+#define gpmpn_toom_interpolate_12pts __GPGMP_MPN(toom_interpolate_12pts)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom_interpolate_12pts(mp_ptr, mp_ptr, mp_ptr, mp_ptr, mp_size_t, mp_size_t, int, mp_ptr);
 
-#define mpn_toom_interpolate_16pts __GPGMP_MPN(toom_interpolate_16pts)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom_interpolate_16pts(mp_ptr, mp_ptr, mp_ptr, mp_ptr, mp_ptr, mp_size_t, mp_size_t, int, mp_ptr);
+#define gpmpn_toom_interpolate_16pts __GPGMP_MPN(toom_interpolate_16pts)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom_interpolate_16pts(mp_ptr, mp_ptr, mp_ptr, mp_ptr, mp_ptr, mp_size_t, mp_size_t, int, mp_ptr);
 
-#define mpn_toom_couple_handling __GPGMP_MPN(toom_couple_handling)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom_couple_handling(mp_ptr, mp_size_t, mp_ptr, int, mp_size_t, int, int);
+#define gpmpn_toom_couple_handling __GPGMP_MPN(toom_couple_handling)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom_couple_handling(mp_ptr, mp_size_t, mp_ptr, int, mp_size_t, int, int);
 
-#define mpn_toom_eval_dgr3_pm1 __GPGMP_MPN(toom_eval_dgr3_pm1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_toom_eval_dgr3_pm1(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_size_t, mp_ptr);
+#define gpmpn_toom_eval_dgr3_pm1 __GPGMP_MPN(toom_eval_dgr3_pm1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_toom_eval_dgr3_pm1(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_size_t, mp_ptr);
 
-#define mpn_toom_eval_dgr3_pm2 __GPGMP_MPN(toom_eval_dgr3_pm2)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_toom_eval_dgr3_pm2(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_size_t, mp_ptr);
+#define gpmpn_toom_eval_dgr3_pm2 __GPGMP_MPN(toom_eval_dgr3_pm2)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_toom_eval_dgr3_pm2(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_size_t, mp_ptr);
 
-#define mpn_toom_eval_pm1 __GPGMP_MPN(toom_eval_pm1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_toom_eval_pm1(mp_ptr, mp_ptr, unsigned, mp_srcptr, mp_size_t, mp_size_t, mp_ptr);
+#define gpmpn_toom_eval_pm1 __GPGMP_MPN(toom_eval_pm1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_toom_eval_pm1(mp_ptr, mp_ptr, unsigned, mp_srcptr, mp_size_t, mp_size_t, mp_ptr);
 
-#define mpn_toom_eval_pm2 __GPGMP_MPN(toom_eval_pm2)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_toom_eval_pm2(mp_ptr, mp_ptr, unsigned, mp_srcptr, mp_size_t, mp_size_t, mp_ptr);
+#define gpmpn_toom_eval_pm2 __GPGMP_MPN(toom_eval_pm2)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_toom_eval_pm2(mp_ptr, mp_ptr, unsigned, mp_srcptr, mp_size_t, mp_size_t, mp_ptr);
 
-#define mpn_toom_eval_pm2exp __GPGMP_MPN(toom_eval_pm2exp)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_toom_eval_pm2exp(mp_ptr, mp_ptr, unsigned, mp_srcptr, mp_size_t, mp_size_t, unsigned, mp_ptr);
+#define gpmpn_toom_eval_pm2exp __GPGMP_MPN(toom_eval_pm2exp)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_toom_eval_pm2exp(mp_ptr, mp_ptr, unsigned, mp_srcptr, mp_size_t, mp_size_t, unsigned, mp_ptr);
 
-#define mpn_toom_eval_pm2rexp __GPGMP_MPN(toom_eval_pm2rexp)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_toom_eval_pm2rexp(mp_ptr, mp_ptr, unsigned, mp_srcptr, mp_size_t, mp_size_t, unsigned, mp_ptr);
+#define gpmpn_toom_eval_pm2rexp __GPGMP_MPN(toom_eval_pm2rexp)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_toom_eval_pm2rexp(mp_ptr, mp_ptr, unsigned, mp_srcptr, mp_size_t, mp_size_t, unsigned, mp_ptr);
 
-#define mpn_toom22_mul __GPGMP_MPN(toom22_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom22_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom22_mul __GPGMP_MPN(toom22_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom22_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom32_mul __GPGMP_MPN(toom32_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom32_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom32_mul __GPGMP_MPN(toom32_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom32_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom42_mul __GPGMP_MPN(toom42_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom42_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom42_mul __GPGMP_MPN(toom42_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom42_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom52_mul __GPGMP_MPN(toom52_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom52_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom52_mul __GPGMP_MPN(toom52_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom52_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom62_mul __GPGMP_MPN(toom62_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom62_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom62_mul __GPGMP_MPN(toom62_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom62_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom2_sqr __GPGMP_MPN(toom2_sqr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom2_sqr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom2_sqr __GPGMP_MPN(toom2_sqr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom2_sqr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom33_mul __GPGMP_MPN(toom33_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom33_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom33_mul __GPGMP_MPN(toom33_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom33_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom43_mul __GPGMP_MPN(toom43_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom43_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom43_mul __GPGMP_MPN(toom43_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom43_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom53_mul __GPGMP_MPN(toom53_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom53_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom53_mul __GPGMP_MPN(toom53_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom53_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom54_mul __GPGMP_MPN(toom54_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom54_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom54_mul __GPGMP_MPN(toom54_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom54_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom63_mul __GPGMP_MPN(toom63_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom63_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom63_mul __GPGMP_MPN(toom63_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom63_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom3_sqr __GPGMP_MPN(toom3_sqr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom3_sqr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom3_sqr __GPGMP_MPN(toom3_sqr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom3_sqr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom44_mul __GPGMP_MPN(toom44_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom44_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom44_mul __GPGMP_MPN(toom44_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom44_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom4_sqr __GPGMP_MPN(toom4_sqr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom4_sqr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom4_sqr __GPGMP_MPN(toom4_sqr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom4_sqr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom6h_mul __GPGMP_MPN(toom6h_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom6h_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom6h_mul __GPGMP_MPN(toom6h_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom6h_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom6_sqr __GPGMP_MPN(toom6_sqr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom6_sqr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom6_sqr __GPGMP_MPN(toom6_sqr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom6_sqr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom8h_mul __GPGMP_MPN(toom8h_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom8h_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom8h_mul __GPGMP_MPN(toom8h_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom8h_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom8_sqr __GPGMP_MPN(toom8_sqr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom8_sqr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom8_sqr __GPGMP_MPN(toom8_sqr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom8_sqr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_toom42_mulmid __GPGMP_MPN(toom42_mulmid)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_toom42_mulmid(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_toom42_mulmid __GPGMP_MPN(toom42_mulmid)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_toom42_mulmid(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_ptr);
 
-#define mpn_fft_best_k __GPGMP_MPN(fft_best_k)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_fft_best_k(mp_size_t, int) ATTRIBUTE_CONST;
+#define gpmpn_fft_best_k __GPGMP_MPN(fft_best_k)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_fft_best_k(mp_size_t, int) ATTRIBUTE_CONST;
 
-#define mpn_mul_fft __GPGMP_MPN(mul_fft)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mul_fft(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, int);
+#define gpmpn_mul_fft __GPGMP_MPN(mul_fft)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mul_fft(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, int);
 
-#define mpn_mul_fft_full __GPGMP_MPN(mul_fft_full)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mul_fft_full(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
+#define gpmpn_mul_fft_full __GPGMP_MPN(mul_fft_full)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mul_fft_full(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
 
-#define mpn_nussbaumer_mul __GPGMP_MPN(nussbaumer_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_nussbaumer_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
+#define gpmpn_nussbaumer_mul __GPGMP_MPN(nussbaumer_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_nussbaumer_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
 
-#define mpn_fft_next_size __GPGMP_MPN(fft_next_size)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_fft_next_size(mp_size_t, int) ATTRIBUTE_CONST;
+#define gpmpn_fft_next_size __GPGMP_MPN(fft_next_size)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_fft_next_size(mp_size_t, int) ATTRIBUTE_CONST;
 
-#define mpn_div_qr_1n_pi1 __GPGMP_MPN(div_qr_1n_pi1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_div_qr_1n_pi1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t, mp_limb_t);
+#define gpmpn_div_qr_1n_pi1 __GPGMP_MPN(div_qr_1n_pi1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_div_qr_1n_pi1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t, mp_limb_t);
 
-#define mpn_div_qr_2n_pi1 __GPGMP_MPN(div_qr_2n_pi1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_div_qr_2n_pi1(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t, mp_limb_t);
+#define gpmpn_div_qr_2n_pi1 __GPGMP_MPN(div_qr_2n_pi1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_div_qr_2n_pi1(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t, mp_limb_t);
 
-#define mpn_div_qr_2u_pi1 __GPGMP_MPN(div_qr_2u_pi1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_div_qr_2u_pi1(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t, int, mp_limb_t);
+#define gpmpn_div_qr_2u_pi1 __GPGMP_MPN(div_qr_2u_pi1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_div_qr_2u_pi1(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t, int, mp_limb_t);
 
-#define mpn_sbpi1_div_qr __GPGMP_MPN(sbpi1_div_qr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sbpi1_div_qr(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
+#define gpmpn_sbpi1_div_qr __GPGMP_MPN(sbpi1_div_qr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sbpi1_div_qr(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_sbpi1_div_q __GPGMP_MPN(sbpi1_div_q)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sbpi1_div_q(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
+#define gpmpn_sbpi1_div_q __GPGMP_MPN(sbpi1_div_q)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sbpi1_div_q(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_sbpi1_divappr_q __GPGMP_MPN(sbpi1_divappr_q)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sbpi1_divappr_q(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
+#define gpmpn_sbpi1_divappr_q __GPGMP_MPN(sbpi1_divappr_q)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sbpi1_divappr_q(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_dcpi1_div_qr __GPGMP_MPN(dcpi1_div_qr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_dcpi1_div_qr(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, gmp_pi1_t *);
-#define mpn_dcpi1_div_qr_n __GPGMP_MPN(dcpi1_div_qr_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_dcpi1_div_qr_n(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, gmp_pi1_t *, mp_ptr);
-
-#define mpn_dcpi1_div_q __GPGMP_MPN(dcpi1_div_q)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_dcpi1_div_q(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, gmp_pi1_t *);
-
-#define mpn_dcpi1_divappr_q __GPGMP_MPN(dcpi1_divappr_q)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_dcpi1_divappr_q(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, gmp_pi1_t *);
-
-#define mpn_mu_div_qr __GPGMP_MPN(mu_div_qr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mu_div_qr(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_mu_div_qr_itch __GPGMP_MPN(mu_div_qr_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_mu_div_qr_itch(mp_size_t, mp_size_t, int) ATTRIBUTE_CONST;
-
-#define mpn_preinv_mu_div_qr __GPGMP_MPN(preinv_mu_div_qr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_preinv_mu_div_qr(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_preinv_mu_div_qr_itch __GPGMP_MPN(preinv_mu_div_qr_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_preinv_mu_div_qr_itch(mp_size_t, mp_size_t, mp_size_t) ATTRIBUTE_CONST;
-
-#define mpn_mu_divappr_q __GPGMP_MPN(mu_divappr_q)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mu_divappr_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_mu_divappr_q_itch __GPGMP_MPN(mu_divappr_q_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_mu_divappr_q_itch(mp_size_t, mp_size_t, int) ATTRIBUTE_CONST;
-
-#define mpn_mu_div_q __GPGMP_MPN(mu_div_q)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mu_div_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_mu_div_q_itch __GPGMP_MPN(mu_div_q_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_mu_div_q_itch(mp_size_t, mp_size_t, int) ATTRIBUTE_CONST;
-
-#define mpn_div_q __GPGMP_MPN(div_q)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_div_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-
-#define mpn_invert __GPGMP_MPN(invert)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_invert(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_invert_itch(n) mpn_invertappr_itch(n)
-
-#define mpn_ni_invertappr __GPGMP_MPN(ni_invertappr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_ni_invertappr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_invertappr __GPGMP_MPN(invertappr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_invertappr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_invertappr_itch(n) (2 * (n))
-
-#define mpn_binvert __GPGMP_MPN(binvert)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_binvert(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_binvert_itch __GPGMP_MPN(binvert_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_binvert_itch(mp_size_t) ATTRIBUTE_CONST;
-
-#define mpn_bdiv_q_1 __GPGMP_MPN(bdiv_q_1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_bdiv_q_1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
-
-#define mpn_pi1_bdiv_q_1 __GPGMP_MPN(pi1_bdiv_q_1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_pi1_bdiv_q_1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t, int);
-
-#define mpn_sbpi1_bdiv_qr __GPGMP_MPN(sbpi1_bdiv_qr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sbpi1_bdiv_qr(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
-
-#define mpn_sbpi1_bdiv_q __GPGMP_MPN(sbpi1_bdiv_q)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_sbpi1_bdiv_q(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
-
-#define mpn_sbpi1_bdiv_r __GPGMP_MPN(sbpi1_bdiv_r)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sbpi1_bdiv_r(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
-
-#define mpn_dcpi1_bdiv_qr __GPGMP_MPN(dcpi1_bdiv_qr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_dcpi1_bdiv_qr(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
-#define mpn_dcpi1_bdiv_qr_n_itch __GPGMP_MPN(dcpi1_bdiv_qr_n_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_dcpi1_bdiv_qr_n_itch(mp_size_t) ATTRIBUTE_CONST;
-
-#define mpn_dcpi1_bdiv_qr_n __GPGMP_MPN(dcpi1_bdiv_qr_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_dcpi1_bdiv_qr_n(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_ptr);
-#define mpn_dcpi1_bdiv_q __GPGMP_MPN(dcpi1_bdiv_q)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_dcpi1_bdiv_q(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
-
-#define mpn_mu_bdiv_qr __GPGMP_MPN(mu_bdiv_qr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mu_bdiv_qr(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_mu_bdiv_qr_itch __GPGMP_MPN(mu_bdiv_qr_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_mu_bdiv_qr_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
-
-#define mpn_mu_bdiv_q __GPGMP_MPN(mu_bdiv_q)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_mu_bdiv_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_mu_bdiv_q_itch __GPGMP_MPN(mu_bdiv_q_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_mu_bdiv_q_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
-
-#define mpn_bdiv_qr __GPGMP_MPN(bdiv_qr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_bdiv_qr(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_bdiv_qr_itch __GPGMP_MPN(bdiv_qr_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_bdiv_qr_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
-
-#define mpn_bdiv_q __GPGMP_MPN(bdiv_q)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_bdiv_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_bdiv_q_itch __GPGMP_MPN(bdiv_q_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_bdiv_q_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
-
-#define mpn_divexact __GPGMP_MPN(divexact)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_divexact(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
-#define mpn_divexact_itch __GPGMP_MPN(divexact_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_divexact_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
-
-#ifndef mpn_bdiv_dbm1c /* if not done with cpuvec in a fat binary */
-#define mpn_bdiv_dbm1c __GPGMP_MPN(bdiv_dbm1c)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_bdiv_dbm1c(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
+#define gpmpn_dcpi1_div_qr __GPGMP_MPN(dcpi1_div_qr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_dcpi1_div_qr(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, gmp_pi1_t *);
+#define gpmpn_dcpi1_div_qr_n __GPGMP_MPN(dcpi1_div_qr_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_dcpi1_div_qr_n(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, gmp_pi1_t *, mp_ptr);
+
+#define gpmpn_dcpi1_div_q __GPGMP_MPN(dcpi1_div_q)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_dcpi1_div_q(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, gmp_pi1_t *);
+
+#define gpmpn_dcpi1_divappr_q __GPGMP_MPN(dcpi1_divappr_q)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_dcpi1_divappr_q(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, gmp_pi1_t *);
+
+#define gpmpn_mu_div_qr __GPGMP_MPN(mu_div_qr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mu_div_qr(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_mu_div_qr_itch __GPGMP_MPN(mu_div_qr_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_mu_div_qr_itch(mp_size_t, mp_size_t, int) ATTRIBUTE_CONST;
+
+#define gpmpn_preinv_mu_div_qr __GPGMP_MPN(preinv_mu_div_qr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_preinv_mu_div_qr(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_preinv_mu_div_qr_itch __GPGMP_MPN(preinv_mu_div_qr_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_preinv_mu_div_qr_itch(mp_size_t, mp_size_t, mp_size_t) ATTRIBUTE_CONST;
+
+#define gpmpn_mu_divappr_q __GPGMP_MPN(mu_divappr_q)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mu_divappr_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_mu_divappr_q_itch __GPGMP_MPN(mu_divappr_q_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_mu_divappr_q_itch(mp_size_t, mp_size_t, int) ATTRIBUTE_CONST;
+
+#define gpmpn_mu_div_q __GPGMP_MPN(mu_div_q)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mu_div_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_mu_div_q_itch __GPGMP_MPN(mu_div_q_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_mu_div_q_itch(mp_size_t, mp_size_t, int) ATTRIBUTE_CONST;
+
+#define gpmpn_div_q __GPGMP_MPN(div_q)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_div_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+
+#define gpmpn_invert __GPGMP_MPN(invert)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_invert(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_invert_itch(n) gpmpn_invertappr_itch(n)
+
+#define gpmpn_ni_invertappr __GPGMP_MPN(ni_invertappr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_ni_invertappr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_invertappr __GPGMP_MPN(invertappr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_invertappr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_invertappr_itch(n) (2 * (n))
+
+#define gpmpn_binvert __GPGMP_MPN(binvert)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_binvert(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_binvert_itch __GPGMP_MPN(binvert_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_binvert_itch(mp_size_t) ATTRIBUTE_CONST;
+
+#define gpmpn_bdiv_q_1 __GPGMP_MPN(bdiv_q_1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_bdiv_q_1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
+
+#define gpmpn_pi1_bdiv_q_1 __GPGMP_MPN(pi1_bdiv_q_1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_pi1_bdiv_q_1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t, int);
+
+#define gpmpn_sbpi1_bdiv_qr __GPGMP_MPN(sbpi1_bdiv_qr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sbpi1_bdiv_qr(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
+
+#define gpmpn_sbpi1_bdiv_q __GPGMP_MPN(sbpi1_bdiv_q)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sbpi1_bdiv_q(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
+
+#define gpmpn_sbpi1_bdiv_r __GPGMP_MPN(sbpi1_bdiv_r)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sbpi1_bdiv_r(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
+
+#define gpmpn_dcpi1_bdiv_qr __GPGMP_MPN(dcpi1_bdiv_qr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_dcpi1_bdiv_qr(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
+#define gpmpn_dcpi1_bdiv_qr_n_itch __GPGMP_MPN(dcpi1_bdiv_qr_n_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_dcpi1_bdiv_qr_n_itch(mp_size_t) ATTRIBUTE_CONST;
+
+#define gpmpn_dcpi1_bdiv_qr_n __GPGMP_MPN(dcpi1_bdiv_qr_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_dcpi1_bdiv_qr_n(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_ptr);
+#define gpmpn_dcpi1_bdiv_q __GPGMP_MPN(dcpi1_bdiv_q)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_dcpi1_bdiv_q(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t);
+
+#define gpmpn_mu_bdiv_qr __GPGMP_MPN(mu_bdiv_qr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mu_bdiv_qr(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_mu_bdiv_qr_itch __GPGMP_MPN(mu_bdiv_qr_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_mu_bdiv_qr_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
+
+#define gpmpn_mu_bdiv_q __GPGMP_MPN(mu_bdiv_q)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mu_bdiv_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_mu_bdiv_q_itch __GPGMP_MPN(mu_bdiv_q_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_mu_bdiv_q_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
+
+#define gpmpn_bdiv_qr __GPGMP_MPN(bdiv_qr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_bdiv_qr(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_bdiv_qr_itch __GPGMP_MPN(bdiv_qr_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_bdiv_qr_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
+
+#define gpmpn_bdiv_q __GPGMP_MPN(bdiv_q)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_bdiv_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_bdiv_q_itch __GPGMP_MPN(bdiv_q_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_bdiv_q_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
+
+#define gpmpn_divexact __GPGMP_MPN(divexact)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_divexact(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
+#define gpmpn_divexact_itch __GPGMP_MPN(divexact_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_divexact_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
+
+#ifndef gpmpn_bdiv_dbm1c /* if not done with cpuvec in a fat binary */
+#define gpmpn_bdiv_dbm1c __GPGMP_MPN(bdiv_dbm1c)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_bdiv_dbm1c(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t);
 #endif
 
-#define mpn_bdiv_dbm1(dst, src, size, divisor) \
-        mpn_bdiv_dbm1c(dst, src, size, divisor, __GMP_CAST(mp_limb_t, 0))
+#define gpmpn_bdiv_dbm1(dst, src, size, divisor) \
+        gpmpn_bdiv_dbm1c(dst, src, size, divisor, __GMP_CAST(mp_limb_t, 0))
 
-#define mpn_powm __GPGMP_MPN(powm)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_powm(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_powlo __GPGMP_MPN(powlo)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_powlo(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_size_t, mp_ptr);
+#define gpmpn_powm __GPGMP_MPN(powm)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_powm(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_powlo __GPGMP_MPN(powlo)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_powlo(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_size_t, mp_ptr);
 
-#define mpn_sec_pi1_div_qr __GPGMP_MPN(sec_pi1_div_qr)
-#define mpn_sec_pi1_div_r __GPGMP_MPN(sec_pi1_div_r)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sec_pi1_div_qr(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t, mp_ptr);
-#define mpn_sec_pi1_div_r __GPGMP_MPN(sec_pi1_div_r)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_sec_pi1_div_r(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t, mp_ptr);
+#define gpmpn_sec_pi1_div_qr __GPGMP_MPN(sec_pi1_div_qr)
+#define gpmpn_sec_pi1_div_r __GPGMP_MPN(sec_pi1_div_r)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sec_pi1_div_qr(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t, mp_ptr);
+#define gpmpn_sec_pi1_div_r __GPGMP_MPN(sec_pi1_div_r)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sec_pi1_div_r(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t, mp_ptr);
 
 GPGMP_MPN_NAMESPACE_END
 
 #ifndef DIVEXACT_BY3_METHOD
-#if GMP_NUMB_BITS % 2 == 0 && !defined(HAVE_NATIVE_mpn_divexact_by3c)
-#define DIVEXACT_BY3_METHOD 0 /* default to using mpn_bdiv_dbm1c */
+#if GMP_NUMB_BITS % 2 == 0 && !defined(HAVE_NATIVE_gpmpn_divexact_by3c)
+#define DIVEXACT_BY3_METHOD 0 /* default to using gpmpn_bdiv_dbm1c */
 #else
 #define DIVEXACT_BY3_METHOD 1
 #endif
 #endif
 
 #if DIVEXACT_BY3_METHOD == 0
-#undef mpn_divexact_by3
-#define mpn_divexact_by3(dst, src, size) \
-        (3 & mpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 3)))
-        /* override mpn_divexact_by3c defined in gmp.h */
+#undef gpmpn_divexact_by3
+#define gpmpn_divexact_by3(dst, src, size) \
+        (3 & gpmpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 3)))
+        /* override gpmpn_divexact_by3c defined in gmp.h */
         /*
-        #undef mpn_divexact_by3c
-        #define mpn_divexact_by3c(dst,src,size,cy) \
-          (3 & mpn_bdiv_dbm1c (dst, src, size, __GMP_CAST (mp_limb_t, GMP_NUMB_MASK / 3, GMP_NUMB_MASK / 3 * cy)))
+        #undef gpmpn_divexact_by3c
+        #define gpmpn_divexact_by3c(dst,src,size,cy) \
+          (3 & gpmpn_bdiv_dbm1c (dst, src, size, __GMP_CAST (mp_limb_t, GMP_NUMB_MASK / 3, GMP_NUMB_MASK / 3 * cy)))
         */
 #endif
 
 #if GMP_NUMB_BITS % 4 == 0
-#define mpn_divexact_by5(dst, src, size) \
-        (7 & 3 * mpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 5)))
+#define gpmpn_divexact_by5(dst, src, size) \
+        (7 & 3 * gpmpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 5)))
 #endif
 
 #if GMP_NUMB_BITS % 3 == 0
-#define mpn_divexact_by7(dst, src, size) \
-        (7 & 1 * mpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 7)))
+#define gpmpn_divexact_by7(dst, src, size) \
+        (7 & 1 * gpmpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 7)))
 #endif
 
 #if GMP_NUMB_BITS % 6 == 0
-#define mpn_divexact_by9(dst, src, size) \
-        (15 & 7 * mpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 9)))
+#define gpmpn_divexact_by9(dst, src, size) \
+        (15 & 7 * gpmpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 9)))
 #endif
 
 #if GMP_NUMB_BITS % 10 == 0
-#define mpn_divexact_by11(dst, src, size) \
-        (15 & 5 * mpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 11)))
+#define gpmpn_divexact_by11(dst, src, size) \
+        (15 & 5 * gpmpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 11)))
 #endif
 
 #if GMP_NUMB_BITS % 12 == 0
-#define mpn_divexact_by13(dst, src, size) \
-        (15 & 3 * mpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 13)))
+#define gpmpn_divexact_by13(dst, src, size) \
+        (15 & 3 * gpmpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 13)))
 #endif
 
 #if GMP_NUMB_BITS % 4 == 0
-#define mpn_divexact_by15(dst, src, size) \
-        (15 & 1 * mpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 15)))
+#define gpmpn_divexact_by15(dst, src, size) \
+        (15 & 1 * gpmpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 15)))
 #endif
 
 #if GMP_NUMB_BITS % 8 == 0
-#define mpn_divexact_by17(dst, src, size) \
-        (31 & 15 * mpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 17)))
+#define gpmpn_divexact_by17(dst, src, size) \
+        (31 & 15 * gpmpn_bdiv_dbm1(dst, src, size, __GMP_CAST(mp_limb_t, GMP_NUMB_MASK / 17)))
 #endif
 GPGMP_MPN_NAMESPACE_BEGIN
 #define mpz_divexact_gcd __gmpz_divexact_gcd
@@ -1972,26 +1970,26 @@ GPGMP_MPN_NAMESPACE_BEGIN
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t mpz_inp_str_nowhite(mpz_ptr, FILE *, int, int, size_t);
 #endif
 
-#define mpn_divisible_p __GPGMP_MPN(divisible_p)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_divisible_p(mp_srcptr, mp_size_t, mp_srcptr, mp_size_t) __GMP_ATTRIBUTE_PURE;
+#define gpmpn_divisible_p __GPGMP_MPN(divisible_p)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_divisible_p(mp_srcptr, mp_size_t, mp_srcptr, mp_size_t) __GMP_ATTRIBUTE_PURE;
 
-#define mpn_rootrem __GPGMP_MPN(rootrem)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_rootrem(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
+#define gpmpn_rootrem __GPGMP_MPN(rootrem)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_rootrem(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_broot __GPGMP_MPN(broot)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_broot(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
+#define gpmpn_broot __GPGMP_MPN(broot)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_broot(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_broot_invm1 __GPGMP_MPN(broot_invm1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_broot_invm1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
+#define gpmpn_broot_invm1 __GPGMP_MPN(broot_invm1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_broot_invm1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define mpn_brootinv __GPGMP_MPN(brootinv)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_brootinv(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_ptr);
+#define gpmpn_brootinv __GPGMP_MPN(brootinv)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_brootinv(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_ptr);
 
-#define mpn_bsqrt __GPGMP_MPN(bsqrt)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_bsqrt(mp_ptr, mp_srcptr, mp_bitcnt_t, mp_ptr);
+#define gpmpn_bsqrt __GPGMP_MPN(bsqrt)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_bsqrt(mp_ptr, mp_srcptr, mp_bitcnt_t, mp_ptr);
 
-#define mpn_bsqrtinv __GPGMP_MPN(bsqrtinv)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_bsqrtinv(mp_ptr, mp_srcptr, mp_bitcnt_t, mp_ptr);
+#define gpmpn_bsqrtinv __GPGMP_MPN(bsqrtinv)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_bsqrtinv(mp_ptr, mp_srcptr, mp_bitcnt_t, mp_ptr);
 GPGMP_MPN_NAMESPACE_END
 #if defined(_CRAY)
 #define MPN_COPY_INCR(dst, src, n)                         \
@@ -2005,18 +2003,18 @@ GPGMP_MPN_NAMESPACE_END
 #endif
 GPGMP_MPN_NAMESPACE_BEGIN
         /* used by test programs, hence __GPGMP_DECLSPEC __GPGMP_CALLERTYPE */
-#ifndef mpn_copyi /* if not done with cpuvec in a fat binary */
-#define mpn_copyi __GPGMP_MPN(copyi)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_copyi(mp_ptr, mp_srcptr, mp_size_t);
+#ifndef gpmpn_copyi /* if not done with cpuvec in a fat binary */
+#define gpmpn_copyi __GPGMP_MPN(copyi)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_copyi(mp_ptr, mp_srcptr, mp_size_t);
 #endif
 GPGMP_MPN_NAMESPACE_END
-#if !defined(MPN_COPY_INCR) && HAVE_NATIVE_mpn_copyi
+#if !defined(MPN_COPY_INCR) && HAVE_NATIVE_gpmpn_copyi
 #define MPN_COPY_INCR(dst, src, size)               \
         do                                              \
         {                                               \
             ASSERT((size) >= 0);                        \
             ASSERT(MPN_SAME_OR_INCR_P(dst, src, size)); \
-            mpn_copyi(dst, src, size);                  \
+            gpmpn_copyi(dst, src, size);                  \
         } while (0)
 #endif
 
@@ -2059,18 +2057,18 @@ GPGMP_MPN_NAMESPACE_END
 #endif
 GPGMP_MPN_NAMESPACE_BEGIN
         /* used by test programs, hence __GPGMP_DECLSPEC __GPGMP_CALLERTYPE */
-#ifndef mpn_copyd /* if not done with cpuvec in a fat binary */
-#define mpn_copyd __GPGMP_MPN(copyd)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_copyd(mp_ptr, mp_srcptr, mp_size_t);
+#ifndef gpmpn_copyd /* if not done with cpuvec in a fat binary */
+#define gpmpn_copyd __GPGMP_MPN(copyd)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_copyd(mp_ptr, mp_srcptr, mp_size_t);
 #endif
 GPGMP_MPN_NAMESPACE_END
-#if !defined(MPN_COPY_DECR) && HAVE_NATIVE_mpn_copyd
+#if !defined(MPN_COPY_DECR) && HAVE_NATIVE_gpmpn_copyd
 #define MPN_COPY_DECR(dst, src, size)               \
         do                                              \
         {                                               \
             ASSERT((size) >= 0);                        \
             ASSERT(MPN_SAME_OR_DECR_P(dst, src, size)); \
-            mpn_copyd(dst, src, size);                  \
+            gpmpn_copyd(dst, src, size);                  \
         } while (0)
 #endif
 
@@ -2274,7 +2272,7 @@ GPGMP_MPN_NAMESPACE_END
 
 #define MPZ_EQUAL_1_P(z) (SIZ(z) == 1 && PTR(z)[0] == 1)
 
-        /* MPN_FIB2_SIZE(n) is the size in limbs required by mpn_fib2_ui for fp and
+        /* MPN_FIB2_SIZE(n) is the size in limbs required by gpmpn_fib2_ui for fp and
            f1p.
 
            From Knuth vol 1 section 1.2.8, F[n] = phi^n/sqrt(5) rounded to the
@@ -2412,18 +2410,18 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE unsigned long int gpgmp_nextprime(gmp_primes
 #define SQRLO_DC_THRESHOLD_LIMIT SQRLO_DC_THRESHOLD
 #endif
 
-        /* SQR_BASECASE_THRESHOLD is where mpn_sqr_basecase should take over from
-           mpn_mul_basecase.  Default is to use mpn_sqr_basecase from 0.  (Note that we
-           certainly always want it if there's a native assembler mpn_sqr_basecase.)
+        /* SQR_BASECASE_THRESHOLD is where gpmpn_sqr_basecase should take over from
+           gpmpn_mul_basecase.  Default is to use gpmpn_sqr_basecase from 0.  (Note that we
+           certainly always want it if there's a native assembler gpmpn_sqr_basecase.)
 
-           If it turns out that mpn_toom2_sqr becomes faster than mpn_mul_basecase
-           before mpn_sqr_basecase does, then SQR_BASECASE_THRESHOLD is the toom2
+           If it turns out that gpmpn_toom2_sqr becomes faster than gpmpn_mul_basecase
+           before gpmpn_sqr_basecase does, then SQR_BASECASE_THRESHOLD is the toom2
            threshold and SQR_TOOM2_THRESHOLD is 0.  This oddity arises more or less
-           because SQR_TOOM2_THRESHOLD represents the size up to which mpn_sqr_basecase
+           because SQR_TOOM2_THRESHOLD represents the size up to which gpmpn_sqr_basecase
            should be used, and that may be never.  */
 
 #ifndef SQR_BASECASE_THRESHOLD
-#define SQR_BASECASE_THRESHOLD 0 /* never use mpn_mul_basecase */
+#define SQR_BASECASE_THRESHOLD 0 /* never use gpmpn_mul_basecase */
 #endif
 
 #ifndef SQR_TOOM2_THRESHOLD
@@ -2448,7 +2446,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE unsigned long int gpgmp_nextprime(gmp_primes
 #endif
 
 #ifndef MULLO_BASECASE_THRESHOLD
-#define MULLO_BASECASE_THRESHOLD 0 /* never use mpn_mul_basecase */
+#define MULLO_BASECASE_THRESHOLD 0 /* never use gpmpn_mul_basecase */
 #endif
 
 #ifndef MULLO_DC_THRESHOLD
@@ -2460,7 +2458,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE unsigned long int gpgmp_nextprime(gmp_primes
 #endif
 
 #ifndef SQRLO_BASECASE_THRESHOLD
-#define SQRLO_BASECASE_THRESHOLD 0 /* never use mpn_sqr_basecase */
+#define SQRLO_BASECASE_THRESHOLD 0 /* never use gpmpn_sqr_basecase */
 #endif
 
 #ifndef SQRLO_DC_THRESHOLD
@@ -2539,7 +2537,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE unsigned long int gpgmp_nextprime(gmp_primes
 #define MUL_TO_MULMOD_BNM1_FOR_2NXN_THRESHOLD (INV_MULMOD_BNM1_THRESHOLD / 2)
 #endif
 
-#if HAVE_NATIVE_mpn_addmul_2 || HAVE_NATIVE_mpn_redc_2
+#if HAVE_NATIVE_gpmpn_addmul_2 || HAVE_NATIVE_gpmpn_redc_2
 
 #ifndef REDC_1_TO_REDC_2_THRESHOLD
 #define REDC_1_TO_REDC_2_THRESHOLD 15
@@ -2554,7 +2552,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE unsigned long int gpgmp_nextprime(gmp_primes
 #define REDC_1_TO_REDC_N_THRESHOLD 100
 #endif
 
-#endif /* HAVE_NATIVE_mpn_addmul_2 || HAVE_NATIVE_mpn_redc_2 */
+#endif /* HAVE_NATIVE_gpmpn_addmul_2 || HAVE_NATIVE_gpmpn_redc_2 */
 
         /* First k to use for an FFT modF multiply.  A modF FFT is an order
            log(2^k)/log(2^(k-1)) algorithm, so k=3 is merely 1.5 like karatsuba,
@@ -2583,7 +2581,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE unsigned long int gpgmp_nextprime(gmp_primes
 
         /* Table of thresholds for successive modF FFT "k"s.  The first entry is
            where FFT_FIRST_K+1 should be used, the second FFT_FIRST_K+2,
-           etc.  See mpn_fft_best_k(). */
+           etc.  See gpmpn_fft_best_k(). */
 #ifndef MUL_FFT_TABLE
 #define MUL_FFT_TABLE                       \
         {MUL_TOOM33_THRESHOLD * 4,   /* k=5 */  \
@@ -2715,9 +2713,9 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpgmp_assert_fail (const char *, int 
         /* ASSERT_CARRY checks the expression is non-zero, and ASSERT_NOCARRY checks
            that it's zero.  In both cases if assertion checking is disabled the
            expression is still evaluated.  These macros are meant for use with
-           routines like mpn_add_n() where the return value represents a carry or
+           routines like gpmpn_add_n() where the return value represents a carry or
            whatever that should or shouldn't occur in some context.  For example,
-           ASSERT_NOCARRY (mpn_add_n (rp, s1p, s2p, size)); */
+           ASSERT_NOCARRY (gpmpn_add_n (rp, s1p, s2p, size)); */
 #if WANT_ASSERT
 #define ASSERT_CARRY(expr) ASSERT_ALWAYS((expr) != 0)
 #define ASSERT_NOCARRY(expr) ASSERT_ALWAYS((expr) == 0)
@@ -2832,9 +2830,9 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpgmp_assert_fail (const char *, int 
         } while (0)
 #endif
 
-#if !HAVE_NATIVE_mpn_com
-#undef mpn_com
-#define mpn_com(d, s, n)                               \
+#if !HAVE_NATIVE_gpmpn_com
+#undef gpmpn_com
+#define gpmpn_com(d, s, n)                               \
         do                                                 \
         {                                                  \
             mp_ptr __d = (d);                              \
@@ -2871,59 +2869,59 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpgmp_assert_fail (const char *, int 
             } while (++__n);                                 \
         } while (0)
 
-#if !HAVE_NATIVE_mpn_and_n
-#undef mpn_and_n
-#define mpn_and_n(rp, up, vp, n) \
+#if !HAVE_NATIVE_gpmpn_and_n
+#undef gpmpn_and_n
+#define gpmpn_and_n(rp, up, vp, n) \
         MPN_LOGOPS_N_INLINE(rp, up, vp, n, __a &__b)
 #endif
 
-#if !HAVE_NATIVE_mpn_andn_n
-#undef mpn_andn_n
-#define mpn_andn_n(rp, up, vp, n) \
+#if !HAVE_NATIVE_gpmpn_andn_n
+#undef gpmpn_andn_n
+#define gpmpn_andn_n(rp, up, vp, n) \
         MPN_LOGOPS_N_INLINE(rp, up, vp, n, __a & ~__b)
 #endif
 
-#if !HAVE_NATIVE_mpn_nand_n
-#undef mpn_nand_n
-#define mpn_nand_n(rp, up, vp, n) \
+#if !HAVE_NATIVE_gpmpn_nand_n
+#undef gpmpn_nand_n
+#define gpmpn_nand_n(rp, up, vp, n) \
         MPN_LOGOPS_N_INLINE(rp, up, vp, n, ~(__a & __b) & GMP_NUMB_MASK)
 #endif
 
-#if !HAVE_NATIVE_mpn_ior_n
-#undef mpn_ior_n
-#define mpn_ior_n(rp, up, vp, n) \
+#if !HAVE_NATIVE_gpmpn_ior_n
+#undef gpmpn_ior_n
+#define gpmpn_ior_n(rp, up, vp, n) \
         MPN_LOGOPS_N_INLINE(rp, up, vp, n, __a | __b)
 #endif
 
-#if !HAVE_NATIVE_mpn_iorn_n
-#undef mpn_iorn_n
-#define mpn_iorn_n(rp, up, vp, n) \
+#if !HAVE_NATIVE_gpmpn_iorn_n
+#undef gpmpn_iorn_n
+#define gpmpn_iorn_n(rp, up, vp, n) \
         MPN_LOGOPS_N_INLINE(rp, up, vp, n, (__a | ~__b) & GMP_NUMB_MASK)
 #endif
 
-#if !HAVE_NATIVE_mpn_nior_n
-#undef mpn_nior_n
-#define mpn_nior_n(rp, up, vp, n) \
+#if !HAVE_NATIVE_gpmpn_nior_n
+#undef gpmpn_nior_n
+#define gpmpn_nior_n(rp, up, vp, n) \
         MPN_LOGOPS_N_INLINE(rp, up, vp, n, ~(__a | __b) & GMP_NUMB_MASK)
 #endif
 
-#if !HAVE_NATIVE_mpn_xor_n
-#undef mpn_xor_n
-#define mpn_xor_n(rp, up, vp, n) \
+#if !HAVE_NATIVE_gpmpn_xor_n
+#undef gpmpn_xor_n
+#define gpmpn_xor_n(rp, up, vp, n) \
         MPN_LOGOPS_N_INLINE(rp, up, vp, n, __a ^ __b)
 #endif
 
-#if !HAVE_NATIVE_mpn_xnor_n
-#undef mpn_xnor_n
-#define mpn_xnor_n(rp, up, vp, n) \
+#if !HAVE_NATIVE_gpmpn_xnor_n
+#undef gpmpn_xnor_n
+#define gpmpn_xnor_n(rp, up, vp, n) \
         MPN_LOGOPS_N_INLINE(rp, up, vp, n, ~(__a ^ __b) & GMP_NUMB_MASK)
 #endif
 GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_trialdiv __GPGMP_MPN(trialdiv)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_trialdiv(mp_srcptr, mp_size_t, mp_size_t, int *);
+#define gpmpn_trialdiv __GPGMP_MPN(trialdiv)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_trialdiv(mp_srcptr, mp_size_t, mp_size_t, int *);
 
-#define mpn_remove __GPGMP_MPN(remove)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_bitcnt_t mpn_remove(mp_ptr, mp_size_t *, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_bitcnt_t);
+#define gpmpn_remove __GPGMP_MPN(remove)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_bitcnt_t gpmpn_remove(mp_ptr, mp_size_t *, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_bitcnt_t);
 GPGMP_MPN_NAMESPACE_END
         /* ADDC_LIMB sets w=x+y and cout to 0 or 1 for a carry from that addition. */
 #if GMP_NAIL_BITS == 0
@@ -2982,7 +2980,7 @@ GPGMP_MPN_NAMESPACE_END
            so there's no need for any sophisticated looping, just something compact
            and sensible.
 
-           FIXME: Switch all code from mpn_{incr,decr}_u to MPN_{INCR,DECR}_U,
+           FIXME: Switch all code from gpmpn_{incr,decr}_u to MPN_{INCR,DECR}_U,
            declaring their operand sizes, then remove the former.  This is purely
            for the benefit of assertion checking.  */
 
@@ -3029,13 +3027,13 @@ GPGMP_MPN_NAMESPACE_END
 #define MPN_INCR_U(ptr, size, incr) MPN_IORD_U(ptr, incr, "addq")
 #define MPN_DECR_U(ptr, size, incr) MPN_IORD_U(ptr, incr, "subq")
 #endif
-#define mpn_incr_u(ptr, incr) MPN_INCR_U(ptr, 0, incr)
-#define mpn_decr_u(ptr, incr) MPN_DECR_U(ptr, 0, incr)
+#define gpmpn_incr_u(ptr, incr) MPN_INCR_U(ptr, 0, incr)
+#define gpmpn_decr_u(ptr, incr) MPN_DECR_U(ptr, 0, incr)
 #endif
 
 #if GMP_NAIL_BITS == 0
-#ifndef mpn_incr_u
-#define mpn_incr_u(p, incr)                            \
+#ifndef gpmpn_incr_u
+#define gpmpn_incr_u(p, incr)                            \
         do                                                 \
         {                                                  \
             mp_limb_t __x;                                 \
@@ -3055,8 +3053,8 @@ GPGMP_MPN_NAMESPACE_END
             }                                              \
         } while (0)
 #endif
-#ifndef mpn_decr_u
-#define mpn_decr_u(p, incr)                            \
+#ifndef gpmpn_decr_u
+#define gpmpn_decr_u(p, incr)                            \
         do                                                 \
         {                                                  \
             mp_limb_t __x;                                 \
@@ -3079,8 +3077,8 @@ GPGMP_MPN_NAMESPACE_END
 #endif
 
 #if GMP_NAIL_BITS >= 1
-#ifndef mpn_incr_u
-#define mpn_incr_u(p, incr)                            \
+#ifndef gpmpn_incr_u
+#define gpmpn_incr_u(p, incr)                            \
         do                                                 \
         {                                                  \
             mp_limb_t __x;                                 \
@@ -3108,8 +3106,8 @@ GPGMP_MPN_NAMESPACE_END
             }                                              \
         } while (0)
 #endif
-#ifndef mpn_decr_u
-#define mpn_decr_u(p, incr)                             \
+#ifndef gpmpn_decr_u
+#define gpmpn_decr_u(p, incr)                             \
         do                                                  \
         {                                                   \
             mp_limb_t __x;                                  \
@@ -3145,10 +3143,10 @@ GPGMP_MPN_NAMESPACE_END
         do                                                \
         {                                                 \
             ASSERT((size) >= 1);                          \
-            ASSERT_NOCARRY(mpn_add_1(ptr, ptr, size, n)); \
+            ASSERT_NOCARRY(gpmpn_add_1(ptr, ptr, size, n)); \
         } while (0)
 #else
-#define MPN_INCR_U(ptr, size, n) mpn_incr_u(ptr, n)
+#define MPN_INCR_U(ptr, size, n) gpmpn_incr_u(ptr, n)
 #endif
 #endif
 
@@ -3158,10 +3156,10 @@ GPGMP_MPN_NAMESPACE_END
         do                                                \
         {                                                 \
             ASSERT((size) >= 1);                          \
-            ASSERT_NOCARRY(mpn_sub_1(ptr, ptr, size, n)); \
+            ASSERT_NOCARRY(gpmpn_sub_1(ptr, ptr, size, n)); \
         } while (0)
 #else
-#define MPN_DECR_U(ptr, size, n) mpn_decr_u(ptr, n)
+#define MPN_DECR_U(ptr, size, n) gpmpn_decr_u(ptr, n)
 #endif
 #endif
 
@@ -3328,14 +3326,14 @@ GPGMP_MPN_NAMESPACE_END
 
 GPGMP_MPN_NAMESPACE_BEGIN
         /* Use a library function for invert_limb, if available. */
-#define mpn_invert_limb __GPGMP_MPN(invert_limb)
-        //__GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_invert_limb(mp_limb_t) ATTRIBUTE_CONST;
+#define gpmpn_invert_limb __GPGMP_MPN(invert_limb)
+        //__GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_invert_limb(mp_limb_t) ATTRIBUTE_CONST;
 GPGMP_MPN_NAMESPACE_END
-#if !defined(invert_limb) && HAVE_NATIVE_mpn_invert_limb
+#if !defined(invert_limb) && HAVE_NATIVE_gpmpn_invert_limb
 #define invert_limb(invxl, xl)         \
         do                                 \
         {                                  \
-            (invxl) = mpn_invert_limb(xl); \
+            (invxl) = gpmpn_invert_limb(xl); \
         } while (0)
 #endif
 
@@ -3491,13 +3489,13 @@ GPGMP_MPN_NAMESPACE_END
             }                                                             \
         } while (0)
 
-#ifndef mpn_preinv_divrem_1 /* if not done with cpuvec in a fat binary */
-#define mpn_preinv_divrem_1 __GPGMP_MPN(preinv_divrem_1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_preinv_divrem_1(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t, int);
+#ifndef gpmpn_preinv_divrem_1 /* if not done with cpuvec in a fat binary */
+#define gpmpn_preinv_divrem_1 __GPGMP_MPN(preinv_divrem_1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_preinv_divrem_1(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t, int);
 #endif
 
-        /* USE_PREINV_DIVREM_1 is whether to use mpn_preinv_divrem_1, as opposed to the
-           plain mpn_divrem_1.  The default is yes, since the few CISC chips where
+        /* USE_PREINV_DIVREM_1 is whether to use gpmpn_preinv_divrem_1, as opposed to the
+           plain gpmpn_divrem_1.  The default is yes, since the few CISC chips where
            preinv is not good have defines saying so.  */
 #ifndef USE_PREINV_DIVREM_1
 #define USE_PREINV_DIVREM_1 1
@@ -3505,31 +3503,31 @@ GPGMP_MPN_NAMESPACE_END
 
 #if USE_PREINV_DIVREM_1
 #define MPN_DIVREM_OR_PREINV_DIVREM_1(qp, xsize, ap, size, d, dinv, shift) \
-        mpn_preinv_divrem_1(qp, xsize, ap, size, d, dinv, shift)
+        gpmpn_preinv_divrem_1(qp, xsize, ap, size, d, dinv, shift)
 #else
 #define MPN_DIVREM_OR_PREINV_DIVREM_1(qp, xsize, ap, size, d, dinv, shift) \
-        mpn_divrem_1(qp, xsize, ap, size, d)
+        gpmpn_divrem_1(qp, xsize, ap, size, d)
 #endif
 
 #ifndef PREINV_MOD_1_TO_MOD_1_THRESHOLD
 #define PREINV_MOD_1_TO_MOD_1_THRESHOLD 10
 #endif
 
-        /* This selection may seem backwards.  The reason mpn_mod_1 typically takes
+        /* This selection may seem backwards.  The reason gpmpn_mod_1 typically takes
            over for larger sizes is that it uses the mod_1_1 function.  */
 #define MPN_MOD_OR_PREINV_MOD_1(src, size, divisor, inverse) \
         (BELOW_THRESHOLD(size, PREINV_MOD_1_TO_MOD_1_THRESHOLD)  \
-             ? mpn_preinv_mod_1(src, size, divisor, inverse)     \
-             : mpn_mod_1(src, size, divisor))
+             ? gpmpn_preinv_mod_1(src, size, divisor, inverse)     \
+             : gpmpn_mod_1(src, size, divisor))
 GPGMP_MPN_NAMESPACE_BEGIN
-#ifndef mpn_mod_34lsub1 /* if not done with cpuvec in a fat binary */
-#define mpn_mod_34lsub1 __GPGMP_MPN(mod_34lsub1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_mod_34lsub1(mp_srcptr, mp_size_t) __GMP_ATTRIBUTE_PURE;
+#ifndef gpmpn_mod_34lsub1 /* if not done with cpuvec in a fat binary */
+#define gpmpn_mod_34lsub1 __GPGMP_MPN(mod_34lsub1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mod_34lsub1(mp_srcptr, mp_size_t) __GMP_ATTRIBUTE_PURE;
 #endif
 GPGMP_MPN_NAMESPACE_END
-        /* DIVEXACT_1_THRESHOLD is at what size to use mpn_divexact_1, as opposed to
-           plain mpn_divrem_1.  Likewise BMOD_1_TO_MOD_1_THRESHOLD for
-           mpn_modexact_1_odd against plain mpn_mod_1.  On most CPUs divexact and
+        /* DIVEXACT_1_THRESHOLD is at what size to use gpmpn_divexact_1, as opposed to
+           plain gpmpn_divrem_1.  Likewise BMOD_1_TO_MOD_1_THRESHOLD for
+           gpmpn_modexact_1_odd against plain gpmpn_mod_1.  On most CPUs divexact and
            modexact are faster at all sizes, so the defaults are 0.  Those CPUs
            where this is not right have a tuned threshold.  */
 #ifndef DIVEXACT_1_THRESHOLD
@@ -3543,31 +3541,31 @@ GPGMP_MPN_NAMESPACE_END
         do                                                                \
         {                                                                 \
             if (BELOW_THRESHOLD(n, DIVEXACT_1_THRESHOLD))                 \
-                ASSERT_NOCARRY(mpn_divrem_1(rp, (mp_size_t)0, up, n, d)); \
+                ASSERT_NOCARRY(gpmpn_divrem_1(rp, (mp_size_t)0, up, n, d)); \
             else                                                          \
             {                                                             \
-                ASSERT(mpn_mod_1(up, n, d) == 0);                         \
-                mpn_divexact_1(rp, up, n, d);                             \
+                ASSERT(gpmpn_mod_1(up, n, d) == 0);                         \
+                gpmpn_divexact_1(rp, up, n, d);                             \
             }                                                             \
         } while (0)
 GPGMP_MPN_NAMESPACE_BEGIN
-#ifndef mpn_modexact_1c_odd /* if not done with cpuvec in a fat binary */
-#define mpn_modexact_1c_odd __GPGMP_MPN(modexact_1c_odd)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_modexact_1c_odd(mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t) __GMP_ATTRIBUTE_PURE;
+#ifndef gpmpn_modexact_1c_odd /* if not done with cpuvec in a fat binary */
+#define gpmpn_modexact_1c_odd __GPGMP_MPN(modexact_1c_odd)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_modexact_1c_odd(mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t) __GMP_ATTRIBUTE_PURE;
 #endif
 
-#if HAVE_NATIVE_mpn_modexact_1_odd
-#define mpn_modexact_1_odd __GPGMP_MPN(modexact_1_odd)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_modexact_1_odd(mp_srcptr, mp_size_t, mp_limb_t) __GMP_ATTRIBUTE_PURE;
+#if HAVE_NATIVE_gpmpn_modexact_1_odd
+#define gpmpn_modexact_1_odd __GPGMP_MPN(modexact_1_odd)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_modexact_1_odd(mp_srcptr, mp_size_t, mp_limb_t) __GMP_ATTRIBUTE_PURE;
 #else
-#define mpn_modexact_1_odd(src, size, divisor) \
-        mpn_modexact_1c_odd(src, size, divisor, CNST_LIMB(0))
+#define gpmpn_modexact_1_odd(src, size, divisor) \
+        gpmpn_modexact_1c_odd(src, size, divisor, CNST_LIMB(0))
 #endif
 GPGMP_MPN_NAMESPACE_END
 #define MPN_MOD_OR_MODEXACT_1_ODD(src, size, divisor) \
         (BELOW_THRESHOLD(size, BMOD_1_TO_MOD_1_THRESHOLD) \
-             ? mpn_modexact_1_odd(src, size, divisor)     \
-             : mpn_mod_1(src, size, divisor))
+             ? gpmpn_modexact_1_odd(src, size, divisor)     \
+             : gpmpn_mod_1(src, size, divisor))
 
         /* binvert_limb() sets inv to the multiplicative inverse of n modulo
            2^GMP_NUMB_BITS, ie. satisfying inv*n == 1 mod 2^GMP_NUMB_BITS.
@@ -4171,8 +4169,8 @@ typedef unsigned long int UDItype;
 GPGMP_MPN_NAMESPACE_BEGIN
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int __gmp_extract_double(mp_ptr, double);
 
-#define mpn_get_d __gmpn_get_d
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE double mpn_get_d(mp_srcptr, mp_size_t, mp_size_t, long) __GMP_ATTRIBUTE_PURE;
+#define gpmpn_get_d __ggpmpn_get_d
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE double gpmpn_get_d(mp_srcptr, mp_size_t, mp_size_t, long) __GMP_ATTRIBUTE_PURE;
 GPGMP_MPN_NAMESPACE_END
         /* DOUBLE_NAN_INF_ACTION executes code a_nan if x is a NaN, or executes
            a_inf if x is an infinity.  Both are considered unlikely values, for
@@ -5078,8 +5076,8 @@ const mp_limb_t
             mp_limb_t d0, d1;
         } mp_double_limb_t;
 GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_gcd_22 __GPGMP_MPN(gcd_22)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_double_limb_t mpn_gcd_22(mp_limb_t, mp_limb_t, mp_limb_t, mp_limb_t);
+#define gpmpn_gcd_22 __GPGMP_MPN(gcd_22)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_double_limb_t gpmpn_gcd_22(mp_limb_t, mp_limb_t, mp_limb_t, mp_limb_t);
 GPGMP_MPN_NAMESPACE_END
 
         /* BIT1 means a result value in bit 1 (second least significant bit), with a
@@ -5088,7 +5086,7 @@ GPGMP_MPN_NAMESPACE_END
            used to ensure the expressions are "int"s even if a and/or b might be
            other types.
 
-           JACOBI_TWOS_U_BIT1 and JACOBI_RECIP_UU_BIT1 are used in mpn_jacobi_base
+           JACOBI_TWOS_U_BIT1 and JACOBI_RECIP_UU_BIT1 are used in gpmpn_jacobi_base
            and their speed is important.  Expressions are used rather than
            conditionals to accumulate sign changes, which effectively means XORs
            instead of conditional JUMPs. */
@@ -5200,12 +5198,12 @@ GPGMP_MPN_NAMESPACE_END
            unsigned.  modexact_1_odd effectively calculates -a mod b, and
            result_bit1 is adjusted for the factor of -1.
 
-           The way mpn_modexact_1_odd sometimes bases its remainder on a_size and
+           The way gpmpn_modexact_1_odd sometimes bases its remainder on a_size and
            sometimes on a_size-1 means if GMP_NUMB_BITS is odd we can't know what
-           factor to introduce into result_bit1, so for that case use mpn_mod_1
+           factor to introduce into result_bit1, so for that case use gpmpn_mod_1
            unconditionally.
 
-           FIXME: mpn_modexact_1_odd is more efficient, so some way to get it used
+           FIXME: gpmpn_modexact_1_odd is more efficient, so some way to get it used
            for odd GMP_NUMB_BITS would be good.  Perhaps it could mung its result,
            or not skip a divide step, or something. */
 
@@ -5221,12 +5219,12 @@ GPGMP_MPN_NAMESPACE_END
                                                                                                   \
             if ((GMP_NUMB_BITS % 2) != 0 || ABOVE_THRESHOLD(__a_size, BMOD_1_TO_MOD_1_THRESHOLD)) \
             {                                                                                     \
-                (a_rem) = mpn_mod_1(__a_ptr, __a_size, __b);                                      \
+                (a_rem) = gpmpn_mod_1(__a_ptr, __a_size, __b);                                      \
             }                                                                                     \
             else                                                                                  \
             {                                                                                     \
                 (result_bit1) ^= JACOBI_N1B_BIT1(__b);                                            \
-                (a_rem) = mpn_modexact_1_odd(__a_ptr, __a_size, __b);                             \
+                (a_rem) = gpmpn_modexact_1_odd(__a_ptr, __a_size, __b);                             \
             }                                                                                     \
         } while (0)
 
@@ -5452,7 +5450,7 @@ GPGMP_MPN_NAMESPACE_END
 
          */
         static inline unsigned
-        mpn_jacobi_init(unsigned a, unsigned b, unsigned s)
+        gpmpn_jacobi_init(unsigned a, unsigned b, unsigned s)
         {
             ASSERT(b & 1);
             ASSERT(s <= 1);
@@ -5460,7 +5458,7 @@ GPGMP_MPN_NAMESPACE_END
         }
 
         static inline int
-        mpn_jacobi_finish(unsigned bits)
+        gpmpn_jacobi_finish(unsigned bits)
         {
             /* (a, b) = (1,0) or (0,1) */
             ASSERT((bits & 14) == 0);
@@ -5469,7 +5467,7 @@ GPGMP_MPN_NAMESPACE_END
         }
 
         static inline unsigned
-        mpn_jacobi_update(unsigned bits, unsigned denominator, unsigned q)
+        gpmpn_jacobi_update(unsigned bits, unsigned denominator, unsigned q)
         {
             /* FIXME: Could halve table size by not including the e bit in the
              * index, and instead xor when updating. Then the lookup would be
@@ -5504,10 +5502,10 @@ GPGMP_MPN_NAMESPACE_END
         }
 GPGMP_MPN_NAMESPACE_BEGIN
         /* Matrix multiplication */
-#define mpn_matrix22_mul __GPGMP_MPN(matrix22_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_matrix22_mul(mp_ptr, mp_ptr, mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_srcptr, mp_srcptr, mp_srcptr, mp_size_t, mp_ptr);
-#define mpn_matrix22_mul_itch __GPGMP_MPN(matrix22_mul_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_matrix22_mul_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
+#define gpmpn_matrix22_mul __GPGMP_MPN(matrix22_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_matrix22_mul(mp_ptr, mp_ptr, mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_srcptr, mp_srcptr, mp_srcptr, mp_size_t, mp_ptr);
+#define gpmpn_matrix22_mul_itch __GPGMP_MPN(matrix22_mul_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_matrix22_mul_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
 GPGMP_MPN_NAMESPACE_END
 #ifndef MATRIX22_STRASSEN_THRESHOLD
 #define MATRIX22_STRASSEN_THRESHOLD 30
@@ -5543,17 +5541,17 @@ GPGMP_MPN_NAMESPACE_END
             mp_limb_t u[2][2];
         };
 GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_hgcd2 __GPGMP_MPN(hgcd2)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_hgcd2(mp_limb_t, mp_limb_t, mp_limb_t, mp_limb_t, struct hgcd_matrix1 *);
+#define gpmpn_hgcd2 __GPGMP_MPN(hgcd2)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_hgcd2(mp_limb_t, mp_limb_t, mp_limb_t, mp_limb_t, struct hgcd_matrix1 *);
 
-#define mpn_hgcd_mul_matrix1_vector __GPGMP_MPN(hgcd_mul_matrix1_vector)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_hgcd_mul_matrix1_vector(const struct hgcd_matrix1 *, mp_ptr, mp_srcptr, mp_ptr, mp_size_t);
+#define gpmpn_hgcd_mul_matrix1_vector __GPGMP_MPN(hgcd_mul_matrix1_vector)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_hgcd_mul_matrix1_vector(const struct hgcd_matrix1 *, mp_ptr, mp_srcptr, mp_ptr, mp_size_t);
 
-#define mpn_matrix22_mul1_inverse_vector __GPGMP_MPN(matrix22_mul1_inverse_vector)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_matrix22_mul1_inverse_vector(const struct hgcd_matrix1 *, mp_ptr, mp_srcptr, mp_ptr, mp_size_t);
+#define gpmpn_matrix22_mul1_inverse_vector __GPGMP_MPN(matrix22_mul1_inverse_vector)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_matrix22_mul1_inverse_vector(const struct hgcd_matrix1 *, mp_ptr, mp_srcptr, mp_ptr, mp_size_t);
 
-#define mpn_hgcd2_jacobi __GPGMP_MPN(hgcd2_jacobi)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_hgcd2_jacobi(mp_limb_t, mp_limb_t, mp_limb_t, mp_limb_t, struct hgcd_matrix1 *, unsigned *);
+#define gpmpn_hgcd2_jacobi __GPGMP_MPN(hgcd2_jacobi)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_hgcd2_jacobi(mp_limb_t, mp_limb_t, mp_limb_t, mp_limb_t, struct hgcd_matrix1 *, unsigned *);
 GPGMP_MPN_NAMESPACE_END
         struct hgcd_matrix
         {
@@ -5564,52 +5562,52 @@ GPGMP_MPN_NAMESPACE_END
 
 #define MPN_HGCD_MATRIX_INIT_ITCH(n) (4 * ((n + 1) / 2 + 1))
 GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_hgcd_matrix_init __GPGMP_MPN(hgcd_matrix_init)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_hgcd_matrix_init(struct hgcd_matrix *, mp_size_t, mp_ptr);
+#define gpmpn_hgcd_matrix_init __GPGMP_MPN(hgcd_matrix_init)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_hgcd_matrix_init(struct hgcd_matrix *, mp_size_t, mp_ptr);
 
-#define mpn_hgcd_matrix_update_q __GPGMP_MPN(hgcd_matrix_update_q)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_hgcd_matrix_update_q(struct hgcd_matrix *, mp_srcptr, mp_size_t, unsigned, mp_ptr);
+#define gpmpn_hgcd_matrix_update_q __GPGMP_MPN(hgcd_matrix_update_q)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_hgcd_matrix_update_q(struct hgcd_matrix *, mp_srcptr, mp_size_t, unsigned, mp_ptr);
 
-#define mpn_hgcd_matrix_mul_1 __GPGMP_MPN(hgcd_matrix_mul_1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_hgcd_matrix_mul_1(struct hgcd_matrix *, const struct hgcd_matrix1 *, mp_ptr);
+#define gpmpn_hgcd_matrix_mul_1 __GPGMP_MPN(hgcd_matrix_mul_1)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_hgcd_matrix_mul_1(struct hgcd_matrix *, const struct hgcd_matrix1 *, mp_ptr);
 
-#define mpn_hgcd_matrix_mul __GPGMP_MPN(hgcd_matrix_mul)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void mpn_hgcd_matrix_mul(struct hgcd_matrix *, const struct hgcd_matrix *, mp_ptr);
+#define gpmpn_hgcd_matrix_mul __GPGMP_MPN(hgcd_matrix_mul)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_hgcd_matrix_mul(struct hgcd_matrix *, const struct hgcd_matrix *, mp_ptr);
 
-#define mpn_hgcd_matrix_adjust __GPGMP_MPN(hgcd_matrix_adjust)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_hgcd_matrix_adjust(const struct hgcd_matrix *, mp_size_t, mp_ptr, mp_ptr, mp_size_t, mp_ptr);
+#define gpmpn_hgcd_matrix_adjust __GPGMP_MPN(hgcd_matrix_adjust)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_hgcd_matrix_adjust(const struct hgcd_matrix *, mp_size_t, mp_ptr, mp_ptr, mp_size_t, mp_ptr);
 
-#define mpn_hgcd_step __GPGMP_MPN(hgcd_step)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_hgcd_step(mp_size_t, mp_ptr, mp_ptr, mp_size_t, struct hgcd_matrix *, mp_ptr);
+#define gpmpn_hgcd_step __GPGMP_MPN(hgcd_step)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_hgcd_step(mp_size_t, mp_ptr, mp_ptr, mp_size_t, struct hgcd_matrix *, mp_ptr);
 
-#define mpn_hgcd_reduce __GPGMP_MPN(hgcd_reduce)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_hgcd_reduce(struct hgcd_matrix *, mp_ptr, mp_ptr, mp_size_t, mp_size_t, mp_ptr);
+#define gpmpn_hgcd_reduce __GPGMP_MPN(hgcd_reduce)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_hgcd_reduce(struct hgcd_matrix *, mp_ptr, mp_ptr, mp_size_t, mp_size_t, mp_ptr);
 
-#define mpn_hgcd_reduce_itch __GPGMP_MPN(hgcd_reduce_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_hgcd_reduce_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
+#define gpmpn_hgcd_reduce_itch __GPGMP_MPN(hgcd_reduce_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_hgcd_reduce_itch(mp_size_t, mp_size_t) ATTRIBUTE_CONST;
 
-#define mpn_hgcd_itch __GPGMP_MPN(hgcd_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_hgcd_itch(mp_size_t) ATTRIBUTE_CONST;
+#define gpmpn_hgcd_itch __GPGMP_MPN(hgcd_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_hgcd_itch(mp_size_t) ATTRIBUTE_CONST;
 
-#define mpn_hgcd __GPGMP_MPN(hgcd)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_hgcd(mp_ptr, mp_ptr, mp_size_t, struct hgcd_matrix *, mp_ptr);
+#define gpmpn_hgcd __GPGMP_MPN(hgcd)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_hgcd(mp_ptr, mp_ptr, mp_size_t, struct hgcd_matrix *, mp_ptr);
 
-#define mpn_hgcd_appr_itch __GPGMP_MPN(hgcd_appr_itch)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_hgcd_appr_itch(mp_size_t) ATTRIBUTE_CONST;
+#define gpmpn_hgcd_appr_itch __GPGMP_MPN(hgcd_appr_itch)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_hgcd_appr_itch(mp_size_t) ATTRIBUTE_CONST;
 
-#define mpn_hgcd_appr __GPGMP_MPN(hgcd_appr)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int mpn_hgcd_appr(mp_ptr, mp_ptr, mp_size_t, struct hgcd_matrix *, mp_ptr);
+#define gpmpn_hgcd_appr __GPGMP_MPN(hgcd_appr)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_hgcd_appr(mp_ptr, mp_ptr, mp_size_t, struct hgcd_matrix *, mp_ptr);
 
-#define mpn_hgcd_jacobi __GPGMP_MPN(hgcd_jacobi)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_hgcd_jacobi(mp_ptr, mp_ptr, mp_size_t, struct hgcd_matrix *, unsigned *, mp_ptr);
+#define gpmpn_hgcd_jacobi __GPGMP_MPN(hgcd_jacobi)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_hgcd_jacobi(mp_ptr, mp_ptr, mp_size_t, struct hgcd_matrix *, unsigned *, mp_ptr);
 GPGMP_MPN_NAMESPACE_END
         typedef void gcd_subdiv_step_hook(void *, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, int);
 
         /* Needs storage for the quotient */
 #define MPN_GCD_SUBDIV_STEP_ITCH(n) (n)
 GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_gcd_subdiv_step __GPGMP_MPN(gcd_subdiv_step)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_gcd_subdiv_step(mp_ptr, mp_ptr, mp_size_t, mp_size_t, gcd_subdiv_step_hook *, void *, mp_ptr);
+#define gpmpn_gcd_subdiv_step __GPGMP_MPN(gcd_subdiv_step)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_gcd_subdiv_step(mp_ptr, mp_ptr, mp_size_t, mp_size_t, gcd_subdiv_step_hook *, void *, mp_ptr);
 GPGMP_MPN_NAMESPACE_END
         struct gcdext_ctx
         {
@@ -5624,14 +5622,14 @@ GPGMP_MPN_NAMESPACE_END
             mp_ptr u0, u1, tp;
         };
 GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_gcdext_hook __GPGMP_MPN(gcdext_hook)
-        gcd_subdiv_step_hook mpn_gcdext_hook;
+#define gpmpn_gcdext_hook __GPGMP_MPN(gcdext_hook)
+        gcd_subdiv_step_hook gpmpn_gcdext_hook;
 GPGMP_MPN_NAMESPACE_END
 
 #define MPN_GCDEXT_LEHMER_N_ITCH(n) (4 * (n) + 3)
 GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_gcdext_lehmer_n __GPGMP_MPN(gcdext_lehmer_n)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_gcdext_lehmer_n(mp_ptr, mp_ptr, mp_size_t *, mp_ptr, mp_ptr, mp_size_t, mp_ptr);
+#define gpmpn_gcdext_lehmer_n __GPGMP_MPN(gcdext_lehmer_n)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_gcdext_lehmer_n(mp_ptr, mp_ptr, mp_size_t *, mp_ptr, mp_ptr, mp_size_t, mp_ptr);
 GPGMP_MPN_NAMESPACE_END
         /* 4*(an + 1) + 4*(bn + 1) + an */
 #define MPN_GCDEXT_LEHMER_ITCH(an, bn) (5 * (an) + 4 * (bn) + 8)
@@ -5656,7 +5654,7 @@ GPGMP_MPN_NAMESPACE_END
 #define GCDEXT_DC_THRESHOLD 600
 #endif
 
-        /* Definitions for mpn_set_str and mpn_get_str */
+        /* Definitions for gpmpn_set_str and gpmpn_get_str */
         struct powers
         {
             mp_ptr p;              /* actual power value */
@@ -5666,16 +5664,16 @@ GPGMP_MPN_NAMESPACE_END
             int base;
         };
         typedef struct powers powers_t;
-#define mpn_str_powtab_alloc(n) ((n) + 2 * GMP_LIMB_BITS) /* FIXME: This can perhaps be trimmed */
-#define mpn_dc_set_str_itch(n) ((n) + GMP_LIMB_BITS)
-#define mpn_dc_get_str_itch(n) ((n) + GMP_LIMB_BITS)
+#define gpmpn_str_powtab_alloc(n) ((n) + 2 * GMP_LIMB_BITS) /* FIXME: This can perhaps be trimmed */
+#define gpmpn_dc_set_str_itch(n) ((n) + GMP_LIMB_BITS)
+#define gpmpn_dc_get_str_itch(n) ((n) + GMP_LIMB_BITS)
 GPGMP_MPN_NAMESPACE_BEGIN
-#define mpn_compute_powtab __GPGMP_MPN(compute_powtab)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t mpn_compute_powtab(powers_t *, mp_ptr, mp_size_t, int);
-#define mpn_dc_set_str __GPGMP_MPN(dc_set_str)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_dc_set_str(mp_ptr, const unsigned char *, size_t, const powers_t *, mp_ptr);
-#define mpn_bc_set_str __GPGMP_MPN(bc_set_str)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t mpn_bc_set_str(mp_ptr, const unsigned char *, size_t, int);
+#define gpmpn_compute_powtab __GPGMP_MPN(compute_powtab)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t gpmpn_compute_powtab(powers_t *, mp_ptr, mp_size_t, int);
+#define gpmpn_dc_set_str __GPGMP_MPN(dc_set_str)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_dc_set_str(mp_ptr, const unsigned char *, size_t, const powers_t *, mp_ptr);
+#define gpmpn_bc_set_str __GPGMP_MPN(bc_set_str)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_bc_set_str(mp_ptr, const unsigned char *, size_t, int);
 GPGMP_MPN_NAMESPACE_END
         /* __GMPF_BITS_TO_PREC applies a minimum 53 bits, rounds upwards to a whole
            limb and adds an extra limb.  __GMPF_PREC_TO_BITS drops that extra limb,
@@ -6024,44 +6022,44 @@ GPGMP_MPN_NAMESPACE_END
             mp_size_t sqr_toom3_threshold;
             mp_size_t bmod_1_to_mod_1_threshold;
         };
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE extern struct cpuvec_t __gmpn_cpuvec;
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE extern int __gmpn_cpuvec_initialized;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE extern struct cpuvec_t __ggpmpn_cpuvec;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE extern int __ggpmpn_cpuvec_initialized;
 #endif /* x86 fat binary */
 
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gmpn_cpuvec_init(void);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __ggpmpn_cpuvec_init(void);
 
-        /* Get a threshold "field" from __gmpn_cpuvec, running __gmpn_cpuvec_init()
+        /* Get a threshold "field" from __ggpmpn_cpuvec, running __ggpmpn_cpuvec_init()
            if that hasn't yet been done (to establish the right values).  */
 #define CPUVEC_THRESHOLD(field)                                           \
-        ((LIKELY(__gmpn_cpuvec_initialized) ? 0 : (__gmpn_cpuvec_init(), 0)), \
-         __gmpn_cpuvec.field)
+        ((LIKELY(__ggpmpn_cpuvec_initialized) ? 0 : (__ggpmpn_cpuvec_init(), 0)), \
+         __ggpmpn_cpuvec.field)
 
 GPGMP_MPN_NAMESPACE_BEGIN
-#if HAVE_NATIVE_mpn_add_nc
-#define mpn_add_nc __GPGMP_MPN(add_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_add_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+#if HAVE_NATIVE_gpmpn_add_nc
+#define gpmpn_add_nc __GPGMP_MPN(add_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_add_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
 #else
 
-static inline mp_limb_t
-mpn_add_nc(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n, mp_limb_t ci)
+ANYCALLER static inline mp_limb_t
+gpmpn_add_nc(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n, mp_limb_t ci)
 {
     mp_limb_t co;
-    co = mpn_add_n(rp, up, vp, n);
-    co += mpn_add_1(rp, rp, n, ci);
+    co = gpmpn_add_n(rp, up, vp, n);
+    co += gpmpn_add_1(rp, rp, n, ci);
     return co;
 }
 #endif
 
-#if HAVE_NATIVE_mpn_sub_nc
-#define mpn_sub_nc __GPGMP_MPN(sub_nc)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t mpn_sub_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
+#if HAVE_NATIVE_gpmpn_sub_nc
+#define gpmpn_sub_nc __GPGMP_MPN(sub_nc)
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sub_nc(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t);
 #else
-static inline mp_limb_t
-mpn_sub_nc(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n, mp_limb_t ci)
+ANYCALLER static inline mp_limb_t
+gpmpn_sub_nc(mp_ptr rp, mp_srcptr up, mp_srcptr vp, mp_size_t n, mp_limb_t ci)
 {
     mp_limb_t co;
-    co = mpn_sub_n(rp, up, vp, n);
-    co += mpn_sub_1(rp, rp, n, ci);
+    co = gpmpn_sub_n(rp, up, vp, n);
+    co += gpmpn_sub_1(rp, rp, n, ci);
     return co;
 }
 #endif
@@ -6129,9 +6127,9 @@ GPGMP_MPN_NAMESPACE_END
 #undef MUL_FFT_TABLE3
 #define MUL_FFT_TABLE3 {{0, 0}}
 
-        /* A native mpn_sqr_basecase is not tuned and SQR_BASECASE_THRESHOLD should
+        /* A native gpmpn_sqr_basecase is not tuned and SQR_BASECASE_THRESHOLD should
            remain as zero (always use it). */
-#if !HAVE_NATIVE_mpn_sqr_basecase
+#if !HAVE_NATIVE_gpmpn_sqr_basecase
 #undef SQR_BASECASE_THRESHOLD
 #define SQR_BASECASE_THRESHOLD sqr_basecase_threshold
         extern mp_size_t sqr_basecase_threshold;
@@ -6392,9 +6390,9 @@ GPGMP_MPN_NAMESPACE_END
 
 #undef FFT_TABLE_ATTRS
 #define FFT_TABLE_ATTRS
-        extern mp_size_t mpn_fft_table[2][MPN_FFT_TABLE_SIZE];
+        extern mp_size_t gpmpn_fft_table[2][MPN_FFT_TABLE_SIZE];
 #define FFT_TABLE3_SIZE 2000 /* generous space for tuning */
-        extern struct fft_table_nk mpn_fft_table3[2][FFT_TABLE3_SIZE];
+        extern struct fft_table_nk gpmpn_fft_table3[2][FFT_TABLE3_SIZE];
 
         /* Sizes the tune program tests up to, used in a couple of recompilations. */
 #undef MUL_TOOM22_THRESHOLD_LIMIT
@@ -6436,69 +6434,69 @@ GPGMP_MPN_NAMESPACE_END
          k = bitsize of floor ((an-1)/(MUL_TOOM22_THRESHOLD-1))
            = 1 + floor (log_2 (floor ((an-1)/(MUL_TOOM22_THRESHOLD-1))))
     */
-#define mpn_toom22_mul_itch(an, bn) \
+#define gpmpn_toom22_mul_itch(an, bn) \
         (2 * ((an) + GMP_NUMB_BITS))
-#define mpn_toom2_sqr_itch(an) \
+#define gpmpn_toom2_sqr_itch(an) \
         (2 * ((an) + GMP_NUMB_BITS))
 
     /* toom33/toom3: Scratch need is 5an/2 + 10k, k is the recursion depth.
        We use 3an + C, so that we can use a smaller constant.
      */
-#define mpn_toom33_mul_itch(an, bn) \
+#define gpmpn_toom33_mul_itch(an, bn) \
         (3 * (an) + GMP_NUMB_BITS)
-#define mpn_toom3_sqr_itch(an) \
+#define gpmpn_toom3_sqr_itch(an) \
         (3 * (an) + GMP_NUMB_BITS)
 
     /* toom33/toom3: Scratch need is 8an/3 + 13k, k is the recursion depth.
        We use 3an + C, so that we can use a smaller constant.
      */
-#define mpn_toom44_mul_itch(an, bn) \
+#define gpmpn_toom44_mul_itch(an, bn) \
         (3 * (an) + GMP_NUMB_BITS)
-#define mpn_toom4_sqr_itch(an) \
+#define gpmpn_toom4_sqr_itch(an) \
         (3 * (an) + GMP_NUMB_BITS)
 
-#define mpn_toom6_sqr_itch(n)                         \
+#define gpmpn_toom6_sqr_itch(n)                         \
         (((n) - SQR_TOOM6_THRESHOLD) * 2 +                \
          MAX(SQR_TOOM6_THRESHOLD * 2 + GMP_NUMB_BITS * 6, \
-             mpn_toom4_sqr_itch(SQR_TOOM6_THRESHOLD)))
+             gpmpn_toom4_sqr_itch(SQR_TOOM6_THRESHOLD)))
 
 #define MUL_TOOM6H_MIN \
         ((MUL_TOOM6H_THRESHOLD > MUL_TOOM44_THRESHOLD) ? MUL_TOOM6H_THRESHOLD : MUL_TOOM44_THRESHOLD)
-#define mpn_toom6_mul_n_itch(n)                  \
+#define gpmpn_toom6_mul_n_itch(n)                  \
         (((n) - MUL_TOOM6H_MIN) * 2 +                \
          MAX(MUL_TOOM6H_MIN * 2 + GMP_NUMB_BITS * 6, \
-             mpn_toom44_mul_itch(MUL_TOOM6H_MIN, MUL_TOOM6H_MIN)))
+             gpmpn_toom44_mul_itch(MUL_TOOM6H_MIN, MUL_TOOM6H_MIN)))
 
     static inline mp_size_t
-    mpn_toom6h_mul_itch(mp_size_t an, mp_size_t bn)
+    gpmpn_toom6h_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t estimatedN;
         estimatedN = (an + bn) / (size_t)10 + 1;
-        return mpn_toom6_mul_n_itch(estimatedN * 6);
+        return gpmpn_toom6_mul_n_itch(estimatedN * 6);
     }
 
-#define mpn_toom8_sqr_itch(n)                                   \
+#define gpmpn_toom8_sqr_itch(n)                                   \
         ((((n) * 15) >> 3) - ((SQR_TOOM8_THRESHOLD * 15) >> 3) +    \
          MAX(((SQR_TOOM8_THRESHOLD * 15) >> 3) + GMP_NUMB_BITS * 6, \
-             mpn_toom6_sqr_itch(SQR_TOOM8_THRESHOLD)))
+             gpmpn_toom6_sqr_itch(SQR_TOOM8_THRESHOLD)))
 
 #define MUL_TOOM8H_MIN \
         ((MUL_TOOM8H_THRESHOLD > MUL_TOOM6H_MIN) ? MUL_TOOM8H_THRESHOLD : MUL_TOOM6H_MIN)
-#define mpn_toom8_mul_n_itch(n)                            \
+#define gpmpn_toom8_mul_n_itch(n)                            \
         ((((n) * 15) >> 3) - ((MUL_TOOM8H_MIN * 15) >> 3) +    \
          MAX(((MUL_TOOM8H_MIN * 15) >> 3) + GMP_NUMB_BITS * 6, \
-             mpn_toom6_mul_n_itch(MUL_TOOM8H_MIN)))
+             gpmpn_toom6_mul_n_itch(MUL_TOOM8H_MIN)))
 
     static inline mp_size_t
-    mpn_toom8h_mul_itch(mp_size_t an, mp_size_t bn)
+    gpmpn_toom8h_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t estimatedN;
         estimatedN = (an + bn) / (size_t)14 + 1;
-        return mpn_toom8_mul_n_itch(estimatedN * 8);
+        return gpmpn_toom8_mul_n_itch(estimatedN * 8);
     }
 
     static inline mp_size_t
-    mpn_toom32_mul_itch(mp_size_t an, mp_size_t bn)
+    gpmpn_toom32_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (2 * an >= 3 * bn ? (an - 1) / (size_t)3 : (bn - 1) >> 1);
         mp_size_t itch = 2 * n + 1;
@@ -6507,14 +6505,14 @@ GPGMP_MPN_NAMESPACE_END
     }
 
     static inline mp_size_t
-    mpn_toom42_mul_itch(mp_size_t an, mp_size_t bn)
+    gpmpn_toom42_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = an >= 2 * bn ? (an + 3) >> 2 : (bn + 1) >> 1;
         return 6 * n + 3;
     }
 
     static inline mp_size_t
-    mpn_toom43_mul_itch(mp_size_t an, mp_size_t bn)
+    gpmpn_toom43_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (3 * an >= 4 * bn ? (an - 1) >> 2 : (bn - 1) / (size_t)3);
 
@@ -6522,35 +6520,35 @@ GPGMP_MPN_NAMESPACE_END
     }
 
     static inline mp_size_t
-    mpn_toom52_mul_itch(mp_size_t an, mp_size_t bn)
+    gpmpn_toom52_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (2 * an >= 5 * bn ? (an - 1) / (size_t)5 : (bn - 1) >> 1);
         return 6 * n + 4;
     }
 
     static inline mp_size_t
-    mpn_toom53_mul_itch(mp_size_t an, mp_size_t bn)
+    gpmpn_toom53_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (3 * an >= 5 * bn ? (an - 1) / (size_t)5 : (bn - 1) / (size_t)3);
         return 10 * n + 10;
     }
 
     static inline mp_size_t
-    mpn_toom62_mul_itch(mp_size_t an, mp_size_t bn)
+    gpmpn_toom62_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (an >= 3 * bn ? (an - 1) / (size_t)6 : (bn - 1) >> 1);
         return 10 * n + 10;
     }
 
     static inline mp_size_t
-    mpn_toom63_mul_itch(mp_size_t an, mp_size_t bn)
+    gpmpn_toom63_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (an >= 2 * bn ? (an - 1) / (size_t)6 : (bn - 1) / (size_t)3);
         return 9 * n + 3;
     }
 
     static inline mp_size_t
-    mpn_toom54_mul_itch(mp_size_t an, mp_size_t bn)
+    gpmpn_toom54_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (4 * an >= 5 * bn ? (an - 1) / (size_t)5 : (bn - 1) / (size_t)4);
         return 9 * n + 3;
@@ -6558,13 +6556,13 @@ GPGMP_MPN_NAMESPACE_END
 
     /* let S(n) = space required for input size n,
        then S(n) = 3 floor(n/2) + 1 + S(floor(n/2)).   */
-#define mpn_toom42_mulmid_itch(n) \
+#define gpmpn_toom42_mulmid_itch(n) \
         (3 * (n) + GMP_NUMB_BITS)
 
 #if 0
-#define mpn_fft_mul mpn_mul_fft_full
+#define gpmpn_fft_mul gpmpn_mul_fft_full
 #else
-#define mpn_fft_mul mpn_nussbaumer_mul
+#define gpmpn_fft_mul gpmpn_nussbaumer_mul
 #endif
 
 #ifdef __cplusplus

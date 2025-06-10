@@ -1,4 +1,4 @@
-/* mpn_div_qr_1n_pi1
+/* gpmpn_div_qr_1n_pi1
 
    Contributed to the GNU project by Niels Möller
 
@@ -172,7 +172,7 @@ namespace gpgmp {
 
     /* Divides (uh B^n + {up, n}) by d, storing the quotient at {qp, n}.
       Requires that uh < d. */
-    ANYCALLER mp_limb_t mpn_div_qr_1n_pi1 (mp_ptr qp, mp_srcptr up, mp_size_t n, mp_limb_t uh, mp_limb_t d, mp_limb_t dinv)
+    ANYCALLER mp_limb_t gpmpn_div_qr_1n_pi1 (mp_ptr qp, mp_srcptr up, mp_size_t n, mp_limb_t uh, mp_limb_t d, mp_limb_t dinv)
     {
       ASSERT (n > 0);
       ASSERT (uh < d);
@@ -195,7 +195,7 @@ namespace gpgmp {
     #elif DIV_QR_1N_METHOD == 2
 
     /* The main idea of this algorithm is to write B^2 = d (B + dinv) +
-      B2, where 1 <= B2 < d. Similarly to mpn_mod_1_1p, each iteration
+      B2, where 1 <= B2 < d. Similarly to gpmpn_mod_1_1p, each iteration
       can then replace
 
         u1 B^2 = u1 B2 (mod d)
@@ -211,7 +211,7 @@ namespace gpgmp {
       two multiplies, u1 * B2 and u1 * dinv, are independent, and can be
       executed in parallel.
     */
-    ANYCALLER mp_limb_t mpn_div_qr_1n_pi1 (mp_ptr qp, mp_srcptr up, mp_size_t n, mp_limb_t u1, mp_limb_t d, mp_limb_t dinv)
+    ANYCALLER mp_limb_t gpmpn_div_qr_1n_pi1 (mp_ptr qp, mp_srcptr up, mp_size_t n, mp_limb_t u1, mp_limb_t d, mp_limb_t dinv)
     {
       mp_limb_t B2;
       mp_limb_t u0, u2;
@@ -302,7 +302,7 @@ namespace gpgmp {
     /* This variant handles carry from the u update earlier. This gives a
       longer critical path, but reduces the work needed for the
       quotients. */
-    ANYCALLER mp_limb_t mpn_div_qr_1n_pi1 (mp_ptr qp, mp_srcptr up, mp_size_t n, mp_limb_t u1, mp_limb_t d, mp_limb_t dinv)
+    ANYCALLER mp_limb_t gpmpn_div_qr_1n_pi1 (mp_ptr qp, mp_srcptr up, mp_size_t n, mp_limb_t u1, mp_limb_t d, mp_limb_t dinv)
     {
       mp_limb_t B2;
       mp_limb_t cy, u0;
@@ -396,7 +396,7 @@ namespace gpgmp {
 
     #elif DIV_QR_1N_METHOD == 4
 
-    ANYCALLER mp_limb_t mpn_div_qr_1n_pi1 (mp_ptr qp, mp_srcptr up, mp_size_t n, mp_limb_t u1, mp_limb_t d, mp_limb_t dinv)
+    ANYCALLER mp_limb_t gpmpn_div_qr_1n_pi1 (mp_ptr qp, mp_srcptr up, mp_size_t n, mp_limb_t u1, mp_limb_t d, mp_limb_t dinv)
     {
       mp_limb_t B2;
       mp_limb_t u2, u0;

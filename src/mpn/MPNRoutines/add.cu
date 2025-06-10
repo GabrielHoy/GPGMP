@@ -1,4 +1,4 @@
-/* mpn_add - add mpn to mpn.
+/* gpmpn_add - add mpn to mpn.
 
 Copyright 2001 Free Software Foundation, Inc.
 
@@ -28,6 +28,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
-#define __GMP_FORCE_mpn_add 1
+#define __GMP_FORCE_gpmpn_add 1
 
 #include "gpgmp-impl.cuh"

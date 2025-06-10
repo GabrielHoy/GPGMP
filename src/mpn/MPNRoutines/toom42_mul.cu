@@ -1,4 +1,4 @@
-/* mpn_toom42_mul -- Multiply {ap,an} and {bp,bn} where an is nominally twice
+/* gpmpn_toom42_mul -- Multiply {ap,an} and {bp,bn} where an is nominally twice
    as large as bn.  Or more accurately, (3/2)bn < an < 4bn.
 
    Contributed to the GNU project by Torbjorn Granlund.
@@ -65,11 +65,11 @@ namespace gpgmp
 #define TOOM42_MUL_N_REC(p, a, b, n, ws) \
   do                                     \
   {                                      \
-    mpn_mul_n(p, a, b, n);               \
+    gpmpn_mul_n(p, a, b, n);               \
   } while (0)
 
     ANYCALLER void
-    mpn_toom42_mul(mp_ptr pp,
+    gpmpn_toom42_mul(mp_ptr pp,
                    mp_srcptr ap, mp_size_t an,
                    mp_srcptr bp, mp_size_t bn,
                    mp_ptr scratch)
@@ -117,73 +117,73 @@ namespace gpgmp
       a0_a2 = pp;
 
       /* Compute as1 and asm1.  */
-      vm1_neg = mpn_toom_eval_dgr3_pm1(as1, asm1, ap, n, s, a0_a2) & 1;
+      vm1_neg = gpmpn_toom_eval_dgr3_pm1(as1, asm1, ap, n, s, a0_a2) & 1;
 
       /* Compute as2.  */
-#if HAVE_NATIVE_mpn_addlsh1_n
-      cy = mpn_addlsh1_n(as2, a2, a3, s);
+#if HAVE_NATIVE_gpmpn_addlsh1_n
+      cy = gpmpn_addlsh1_n(as2, a2, a3, s);
       if (s != n)
-        cy = mpn_add_1(as2 + s, a2 + s, n - s, cy);
-      cy = 2 * cy + mpn_addlsh1_n(as2, a1, as2, n);
-      cy = 2 * cy + mpn_addlsh1_n(as2, a0, as2, n);
+        cy = gpmpn_add_1(as2 + s, a2 + s, n - s, cy);
+      cy = 2 * cy + gpmpn_addlsh1_n(as2, a1, as2, n);
+      cy = 2 * cy + gpmpn_addlsh1_n(as2, a0, as2, n);
 #else
-      cy = mpn_lshift(as2, a3, s, 1);
-      cy += mpn_add_n(as2, a2, as2, s);
+      cy = gpmpn_lshift(as2, a3, s, 1);
+      cy += gpmpn_add_n(as2, a2, as2, s);
       if (s != n)
-        cy = mpn_add_1(as2 + s, a2 + s, n - s, cy);
-      cy = 2 * cy + mpn_lshift(as2, as2, n, 1);
-      cy += mpn_add_n(as2, a1, as2, n);
-      cy = 2 * cy + mpn_lshift(as2, as2, n, 1);
-      cy += mpn_add_n(as2, a0, as2, n);
+        cy = gpmpn_add_1(as2 + s, a2 + s, n - s, cy);
+      cy = 2 * cy + gpmpn_lshift(as2, as2, n, 1);
+      cy += gpmpn_add_n(as2, a1, as2, n);
+      cy = 2 * cy + gpmpn_lshift(as2, as2, n, 1);
+      cy += gpmpn_add_n(as2, a0, as2, n);
 #endif
       as2[n] = cy;
 
       /* Compute bs1 and bsm1.  */
       if (t == n)
       {
-#if HAVE_NATIVE_mpn_add_n_sub_n
-        if (mpn_cmp(b0, b1, n) < 0)
+#if HAVE_NATIVE_gpmpn_add_n_sub_n
+        if (gpmpn_cmp(b0, b1, n) < 0)
         {
-          cy = mpn_add_n_sub_n(bs1, bsm1, b1, b0, n);
+          cy = gpmpn_add_n_sub_n(bs1, bsm1, b1, b0, n);
           vm1_neg ^= 1;
         }
         else
         {
-          cy = mpn_add_n_sub_n(bs1, bsm1, b0, b1, n);
+          cy = gpmpn_add_n_sub_n(bs1, bsm1, b0, b1, n);
         }
         bs1[n] = cy >> 1;
 #else
-        bs1[n] = mpn_add_n(bs1, b0, b1, n);
+        bs1[n] = gpmpn_add_n(bs1, b0, b1, n);
 
-        if (mpn_cmp(b0, b1, n) < 0)
+        if (gpmpn_cmp(b0, b1, n) < 0)
         {
-          mpn_sub_n(bsm1, b1, b0, n);
+          gpmpn_sub_n(bsm1, b1, b0, n);
           vm1_neg ^= 1;
         }
         else
         {
-          mpn_sub_n(bsm1, b0, b1, n);
+          gpmpn_sub_n(bsm1, b0, b1, n);
         }
 #endif
       }
       else
       {
-        bs1[n] = mpn_add(bs1, b0, n, b1, t);
+        bs1[n] = gpmpn_add(bs1, b0, n, b1, t);
 
-        if (mpn_zero_p(b0 + t, n - t) && mpn_cmp(b0, b1, t) < 0)
+        if (gpmpn_zero_p(b0 + t, n - t) && gpmpn_cmp(b0, b1, t) < 0)
         {
-          mpn_sub_n(bsm1, b1, b0, t);
+          gpmpn_sub_n(bsm1, b1, b0, t);
           MPN_ZERO(bsm1 + t, n - t);
           vm1_neg ^= 1;
         }
         else
         {
-          mpn_sub(bsm1, b0, n, b1, t);
+          gpmpn_sub(bsm1, b0, n, b1, t);
         }
       }
 
       /* Compute bs2, recycling bs1. bs2=bs1+b1  */
-      mpn_add(bs2, bs1, n + 1, b1, t);
+      gpmpn_add(bs2, bs1, n + 1, b1, t);
 
       ASSERT(as1[n] <= 3);
       ASSERT(bs1[n] <= 1);
@@ -203,16 +203,16 @@ namespace gpgmp
       TOOM42_MUL_N_REC(vm1, asm1, bsm1, n, scratch_out);
       cy = 0;
       if (asm1[n] != 0)
-        cy = mpn_add_n(vm1 + n, vm1 + n, bsm1, n);
+        cy = gpmpn_add_n(vm1 + n, vm1 + n, bsm1, n);
       vm1[2 * n] = cy;
 
       TOOM42_MUL_N_REC(v2, as2, bs2, n + 1, scratch_out); /* v2, 2n+1 limbs */
 
       /* vinf, s+t limbs */
       if (s > t)
-        mpn_mul(vinf, a3, s, b1, t);
+        gpmpn_mul(vinf, a3, s, b1, t);
       else
-        mpn_mul(vinf, b1, t, a3, s);
+        gpmpn_mul(vinf, b1, t, a3, s);
 
       vinf0 = vinf[0]; /* v1 overlaps with this */
 
@@ -220,29 +220,29 @@ namespace gpgmp
       TOOM42_MUL_N_REC(v1, as1, bs1, n, scratch_out);
       if (as1[n] == 1)
       {
-        cy = mpn_add_n(v1 + n, v1 + n, bs1, n);
+        cy = gpmpn_add_n(v1 + n, v1 + n, bs1, n);
       }
       else if (as1[n] == 2)
       {
-#if HAVE_NATIVE_mpn_addlsh1_n_ip1
-        cy = mpn_addlsh1_n_ip1(v1 + n, bs1, n);
+#if HAVE_NATIVE_gpmpn_addlsh1_n_ip1
+        cy = gpmpn_addlsh1_n_ip1(v1 + n, bs1, n);
 #else
-        cy = mpn_addmul_1(v1 + n, bs1, n, CNST_LIMB(2));
+        cy = gpmpn_addmul_1(v1 + n, bs1, n, CNST_LIMB(2));
 #endif
       }
       else if (as1[n] == 3)
       {
-        cy = mpn_addmul_1(v1 + n, bs1, n, CNST_LIMB(3));
+        cy = gpmpn_addmul_1(v1 + n, bs1, n, CNST_LIMB(3));
       }
       else
         cy = 0;
       if (bs1[n] != 0)
-        cy += as1[n] + mpn_add_n(v1 + n, v1 + n, as1, n);
+        cy += as1[n] + gpmpn_add_n(v1 + n, v1 + n, as1, n);
       v1[2 * n] = cy;
 
       TOOM42_MUL_N_REC(v0, ap, bp, n, scratch_out); /* v0, 2n limbs */
 
-      mpn_toom_interpolate_5pts(pp, v2, vm1, n, s + t, vm1_neg, vinf0);
+      gpmpn_toom_interpolate_5pts(pp, v2, vm1, n, s + t, vm1_neg, vinf0);
 
       TMP_FREE;
     }

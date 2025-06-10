@@ -1,4 +1,4 @@
-/* mpn_divrem_1 -- mpn by limb division.
+/* gpmpn_divrem_1 -- mpn by limb division.
 
 Copyright 1991, 1993, 1994, 1996, 1998-2000, 2002, 2003 Free Software
 Foundation, Inc.
@@ -80,13 +80,13 @@ namespace gpgmp
 		Notice that the thresholds are tested after the decision to possibly skip
 		one divide step, so they're based on the actual number of divisions done.
 
-		For the unnorm case, it would be possible to call mpn_lshift to adjust
+		For the unnorm case, it would be possible to call gpmpn_lshift to adjust
 		the dividend all in one go (into the quotient space say), rather than
-		limb-by-limb in the loop.  This might help if mpn_lshift is a lot faster
+		limb-by-limb in the loop.  This might help if gpmpn_lshift is a lot faster
 		than what the compiler can generate for EXTRACT.  But this is left to CPU
 		specific implementations to consider, especially since EXTRACT isn't on
 		the dependent chain.  */
-		ANYCALLER mp_limb_t mpn_divrem_1(mp_ptr qp, mp_size_t qxn, mp_srcptr up, mp_size_t un, mp_limb_t d)
+		ANYCALLER mp_limb_t gpmpn_divrem_1(mp_ptr qp, mp_size_t qxn, mp_srcptr up, mp_size_t un, mp_limb_t d)
 		{
 			mp_size_t n;
 			mp_size_t i;

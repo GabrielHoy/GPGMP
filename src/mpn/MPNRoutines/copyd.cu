@@ -1,4 +1,4 @@
-/* mpn_copyd
+/* gpmpn_copyd
 
 Copyright 2009 Free Software Foundation, Inc.
 
@@ -36,7 +36,7 @@ namespace gpgmp {
 
 	namespace mpnRoutines {
 
-		ANYCALLER void mpn_copyd (mp_ptr result_ptr, mp_srcptr operand_ptr, mp_size_t size)
+		ANYCALLER void gpmpn_copyd (mp_ptr result_ptr, mp_srcptr operand_ptr, mp_size_t size)
     {
       mp_size_t limbIdx;
 

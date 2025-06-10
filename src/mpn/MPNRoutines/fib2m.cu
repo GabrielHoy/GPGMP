@@ -1,4 +1,4 @@
-/* mpn_fib2m -- calculate Fibonacci numbers, modulo m.
+/* gpmpn_fib2m -- calculate Fibonacci numbers, modulo m.
 
 Contributed to the GNU project by Marco Bodrato, based on the previous
 fib2_ui.c file.
@@ -58,12 +58,12 @@ namespace gpgmp
           ++n;
           if (x > y)
           {
-            ASSERT_NOCARRY(mpn_sub_n(rp, ap, bp, n));
+            ASSERT_NOCARRY(gpmpn_sub_n(rp, ap, bp, n));
             return 1;
           }
           else
           {
-            ASSERT_NOCARRY(mpn_sub_n(rp, bp, ap, n));
+            ASSERT_NOCARRY(gpmpn_sub_n(rp, bp, ap, n));
             return -1;
           }
         }
@@ -88,10 +88,10 @@ namespace gpgmp
       low limb.
 
       TODO: Should {tp, 2 * mn} be passed as a scratch pointer?
-      Should the call to mpn_fib2_ui() obtain (up to) 2*mn limbs?
+      Should the call to gpmpn_fib2_ui() obtain (up to) 2*mn limbs?
     */
 
-    ANYCALLER int mpn_fib2m(mp_ptr fp, mp_ptr f1p, mp_srcptr np, mp_size_t nn, mp_srcptr mp, mp_size_t mn)
+    ANYCALLER int gpmpn_fib2m(mp_ptr fp, mp_ptr f1p, mp_srcptr np, mp_size_t nn, mp_srcptr mp, mp_size_t mn)
     {
       unsigned long nfirst;
       mp_limb_t nh;
@@ -154,8 +154,8 @@ namespace gpgmp
       }
 
       ASSERT(nh <= nfirst);
-      /* Take a starting pair from mpn_fib2_ui. */
-      fn = mpn_fib2_ui(fp, f1p, nh);
+      /* Take a starting pair from gpmpn_fib2_ui. */
+      fn = gpmpn_fib2_ui(fp, f1p, nh);
       MPN_ZERO(fp + fn, mn - fn);
       MPN_ZERO(f1p + fn, mn - fn);
 
@@ -164,8 +164,8 @@ namespace gpgmp
         if (fn == mn)
         {
           mp_limb_t qp[2];
-          mpn_tdiv_qr(qp, fp, 0, fp, fn, mp, mn);
-          mpn_tdiv_qr(qp, f1p, 0, f1p, fn, mp, mn);
+          gpmpn_tdiv_qr(qp, fp, 0, fp, fn, mp, mn);
+          gpmpn_tdiv_qr(qp, f1p, 0, f1p, fn, mp, mn);
         }
 
         return 0;
@@ -191,11 +191,11 @@ namespace gpgmp
             fp==F[2k],f1p==F[2k-1] or fp==F[2k+1],f1p==F[2k], according as
             that bit is 0 or 1 respectively.  */
 
-          mpn_sqr(tp, fp, mn);
-          mpn_sqr(fp, f1p, mn);
+          gpmpn_sqr(tp, fp, mn);
+          gpmpn_sqr(fp, f1p, mn);
 
           /* Calculate F[2k-1] = F[k]^2 + F[k-1]^2. */
-          f1p[2 * mn] = mpn_add_n(f1p, tp, fp, 2 * mn);
+          f1p[2 * mn] = gpmpn_add_n(f1p, tp, fp, 2 * mn);
 
           /* Calculate F[2k+1] = 4*F[k]^2 - F[k-1]^2 + 2*(-1)^k.
             pb is the low bit of our implied k.  */
@@ -205,17 +205,17 @@ namespace gpgmp
           ASSERT(pb == (pb & 1));
           ASSERT((fp[0] + (pb ? 2 : 0)) == (fp[0] | (pb << 1)));
           fp[0] |= pb << 1; /* possible -2 */
-#if HAVE_NATIVE_mpn_rsblsh2_n
-          fp[2 * mn] = 1 + mpn_rsblsh2_n(fp, fp, tp, 2 * mn);
+#if HAVE_NATIVE_gpmpn_rsblsh2_n
+          fp[2 * mn] = 1 + gpmpn_rsblsh2_n(fp, fp, tp, 2 * mn);
           MPN_INCR_U(fp, 2 * mn + 1, (1 ^ pb) << 1); /* possible +2 */
           fp[2 * mn] = (fp[2 * mn] - 1) & GMP_NUMB_MAX;
 #else
           {
             mp_limb_t c;
 
-            c = mpn_lshift(tp, tp, 2 * mn, 2);
+            c = gpmpn_lshift(tp, tp, 2 * mn, 2);
             tp[0] |= (1 ^ pb) << 1; /* possible +2 */
-            c -= mpn_sub_n(fp, tp, fp, 2 * mn);
+            c -= gpmpn_sub_n(fp, tp, fp, 2 * mn);
             fp[2 * mn] = c & GMP_NUMB_MAX;
           }
 #endif
@@ -232,18 +232,18 @@ namespace gpgmp
           if (neg)
           {
             /* Calculate -(F[2k+1] - F[2k-1]) */
-            rp[2 * mn] = f1p[2 * mn] + 1 - mpn_sub_n(rp, f1p, fp, 2 * mn);
+            rp[2 * mn] = f1p[2 * mn] + 1 - gpmpn_sub_n(rp, f1p, fp, 2 * mn);
             neg = !pb;
             if (pb) /* fp not overwritten, negate it. */
-              fp[2 * mn] = 1 ^ mpn_neg(fp, fp, 2 * mn);
+              fp[2 * mn] = 1 ^ gpmpn_neg(fp, fp, 2 * mn);
           }
           else
           {
             neg = abs_sub_n(rp, fp, f1p, 2 * mn + 1) < 0;
           }
 
-          mpn_tdiv_qr(tp, fp, 0, fp, 2 * mn + 1, mp, mn);
-          mpn_tdiv_qr(tp, f1p, 0, f1p, 2 * mn + 1, mp, mn);
+          gpmpn_tdiv_qr(tp, fp, 0, fp, 2 * mn + 1, mp, mn);
+          gpmpn_tdiv_qr(tp, f1p, 0, f1p, 2 * mn + 1, mp, mn);
         } while (nbi != 0);
 
         TMP_FREE;

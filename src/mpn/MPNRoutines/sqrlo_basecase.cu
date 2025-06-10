@@ -1,4 +1,4 @@
-/* mpn_sqrlo_basecase -- Internal routine to square a natural number
+/* gpmpn_sqrlo_basecase -- Internal routine to square a natural number
    of length n.
 
    THIS IS AN INTERNAL FUNCTION WITH A MUTABLE INTERFACE.  IT IS ONLY
@@ -43,16 +43,16 @@ namespace gpgmp
   {
 
 #ifndef SQRLO_SHORTCUT_MULTIPLICATIONS
-#if HAVE_NATIVE_mpn_addmul_1
+#if HAVE_NATIVE_gpmpn_addmul_1
 #define SQRLO_SHORTCUT_MULTIPLICATIONS 0
 #else
 #define SQRLO_SHORTCUT_MULTIPLICATIONS 1
 #endif
 #endif
 
-#if HAVE_NATIVE_mpn_sqr_diagonal
+#if HAVE_NATIVE_gpmpn_sqr_diagonal
 #define MPN_SQR_DIAGONAL(rp, up, n) \
-  mpn_sqr_diagonal(rp, up, n)
+  gpmpn_sqr_diagonal(rp, up, n)
 #else
 #define MPN_SQR_DIAGONAL(rp, up, n)                              \
   do                                                             \
@@ -82,20 +82,20 @@ namespace gpgmp
     }                                            \
   } while (0)
 
-#if HAVE_NATIVE_mpn_addlsh1_n_ip1
+#if HAVE_NATIVE_gpmpn_addlsh1_n_ip1
 #define MPN_SQRLO_DIAG_ADDLSH1(rp, tp, up, n)   \
   do                                            \
   {                                             \
     MPN_SQRLO_DIAGONAL((rp), (up), (n));        \
-    mpn_addlsh1_n_ip1((rp) + 1, (tp), (n) - 1); \
+    gpmpn_addlsh1_n_ip1((rp) + 1, (tp), (n) - 1); \
   } while (0)
 #else
 #define MPN_SQRLO_DIAG_ADDLSH1(rp, tp, up, n)     \
   do                                              \
   {                                               \
     MPN_SQRLO_DIAGONAL((rp), (up), (n));          \
-    mpn_lshift((tp), (tp), (n) - 1, 1);           \
-    mpn_add_n((rp) + 1, (rp) + 1, (tp), (n) - 1); \
+    gpmpn_lshift((tp), (tp), (n) - 1, 1);           \
+    gpmpn_add_n((rp) + 1, (rp) + 1, (tp), (n) - 1); \
   } while (0)
 #endif
 
@@ -103,7 +103,7 @@ namespace gpgmp
 #define SQRLO_BASECASE_ALLOC \
   (SQRLO_DC_THRESHOLD_LIMIT < 2 ? 1 : SQRLO_DC_THRESHOLD_LIMIT - 1)
 
-/* Default mpn_sqrlo_basecase using mpn_addmul_1.  */
+/* Default gpmpn_sqrlo_basecase using gpmpn_addmul_1.  */
 #ifndef SQRLO_SPECIAL_CASES
 #define SQRLO_SPECIAL_CASES 2
 #endif
@@ -115,7 +115,7 @@ namespace gpgmp
   ((SQRLO_BASECASE_THRESHOLD <= SQRLO_SPECIAL_CASES) && (SQRLO_DC_THRESHOLD != 0))
 #endif
 
-    ANYCALLER void mpn_sqrlo_basecase(mp_ptr rp, mp_srcptr up, mp_size_t n)
+    ANYCALLER void gpmpn_sqrlo_basecase(mp_ptr rp, mp_srcptr up, mp_size_t n)
     {
       mp_limb_t ul;
 
@@ -176,18 +176,18 @@ namespace gpgmp
         {
           mp_limb_t cy;
 
-          cy = ul * up[n] + mpn_mul_1(tp, up + 1, n - 1, ul);
+          cy = ul * up[n] + gpmpn_mul_1(tp, up + 1, n - 1, ul);
           for (i = 1; 2 * i + 1 < n; ++i)
           {
             ul = up[i];
-            cy += ul * up[n - i] + mpn_addmul_1(tp + 2 * i, up + i + 1, n - 2 * i - 1, ul);
+            cy += ul * up[n - i] + gpmpn_addmul_1(tp + 2 * i, up + i + 1, n - 2 * i - 1, ul);
           }
           tp[n - 1] = (cy + ((n & 1) ? up[i] * up[i + 1] : 0)) & GMP_NUMB_MASK;
         }
 #else
-        mpn_mul_1(tp, up + 1, n, ul);
+        gpmpn_mul_1(tp, up + 1, n, ul);
         for (i = 1; 2 * i < n; ++i)
-          mpn_addmul_1(tp + 2 * i, up + i + 1, n - 2 * i, up[i]);
+          gpmpn_addmul_1(tp + 2 * i, up + i + 1, n - 2 * i, up[i]);
 #endif
 
         MPN_SQRLO_DIAG_ADDLSH1(rp, tp, up, n + 1);

@@ -1,4 +1,4 @@
-/* mpn_gcd_11 -- limb greatest common divisor.
+/* gpmpn_gcd_11 -- limb greatest common divisor.
 
 Copyright 1994, 1996, 2000, 2001, 2009, 2012, 2019 Free Software Foundation,
 Inc.
@@ -35,7 +35,7 @@ see https://www.gnu.org/licenses/.  */
 namespace gpgmp {
   namespace mpnRoutines {
 
-    ANYCALLER mp_limb_t mpn_gcd_11 (mp_limb_t u, mp_limb_t v)
+    ANYCALLER mp_limb_t gpmpn_gcd_11 (mp_limb_t u, mp_limb_t v)
     {
       ASSERT (u & v & 1);
 

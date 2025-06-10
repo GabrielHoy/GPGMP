@@ -1,4 +1,4 @@
-/* mpn_brootinv, compute r such that r^k * y = 1 (mod 2^b).
+/* gpmpn_brootinv, compute r such that r^k * y = 1 (mod 2^b).
 
    Contributed to the GNU project by Martin Boij (as part of perfpow.c).
 
@@ -73,12 +73,12 @@ namespace gpgmp {
 
         (4) Use a small table to get starting value.
 
-      Scratch need: bn + (((bn + 1) >> 1) + 1) + scratch for mpn_powlo
-      Currently mpn_powlo requires 3*bn
+      Scratch need: bn + (((bn + 1) >> 1) + 1) + scratch for gpmpn_powlo
+      Currently gpmpn_powlo requires 3*bn
       so that 5*bn is surely enough, where bn = ceil (bnb / GMP_NUMB_BITS).
     */
 
-    ANYCALLER void mpn_brootinv (mp_ptr rp, mp_srcptr yp, mp_size_t bn, mp_limb_t k, mp_ptr tp)
+    ANYCALLER void gpmpn_brootinv (mp_ptr rp, mp_srcptr yp, mp_size_t bn, mp_limb_t k, mp_ptr tp)
     {
       mp_ptr tp2, tp3;
       mp_limb_t kinv, k2, r0, y0;
@@ -132,29 +132,29 @@ namespace gpgmp {
 
       do
       {
-        mpn_sqr (tp, rp, bn); /* Result may overlap tp2 */
-        tp2[bn] = mpn_mul_1 (tp2, rp, bn, k2 << 1);
+        gpmpn_sqr (tp, rp, bn); /* Result may overlap tp2 */
+        tp2[bn] = gpmpn_mul_1 (tp2, rp, bn, k2 << 1);
 
         bn = order[d];
 
-        mpn_powlo (rp, tp, &k2, 1, bn, tp3);
-        mpn_mullo_n (tp, yp, rp, bn);
+        gpmpn_powlo (rp, tp, &k2, 1, bn, tp3);
+        gpmpn_mullo_n (tp, yp, rp, bn);
 
-        /* mpn_sub (tp, tp2, ((bn + 1) >> 1) + 1, tp, bn); */
+        /* gpmpn_sub (tp, tp2, ((bn + 1) >> 1) + 1, tp, bn); */
         /* The function above is not handled, ((bn + 1) >> 1) + 1 <= bn*/
         {
           mp_size_t pbn = (bn + 3) >> 1; /* Size of tp2 */
           int borrow;
-          borrow = mpn_sub_n (tp, tp2, tp, pbn) != 0;
+          borrow = gpmpn_sub_n (tp, tp2, tp, pbn) != 0;
           if (bn > pbn) /* 3 < bn */
           {
             if (borrow)
-              mpn_com (tp + pbn, tp + pbn, bn - pbn);
+              gpmpn_com (tp + pbn, tp + pbn, bn - pbn);
             else
-              mpn_neg (tp + pbn, tp + pbn, bn - pbn);
+              gpmpn_neg (tp + pbn, tp + pbn, bn - pbn);
           }
         }
-        mpn_pi1_bdiv_q_1 (rp, tp, bn, k, kinv, 0);
+        gpmpn_pi1_bdiv_q_1 (rp, tp, bn, k, kinv, 0);
       }
       while (--d >= 0);
     }

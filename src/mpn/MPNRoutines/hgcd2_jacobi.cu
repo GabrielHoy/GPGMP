@@ -45,7 +45,7 @@ namespace gpgmp {
 		#error Nails not implemented
 		#endif
 
-		ANYCALLER int mpn_hgcd2_jacobi (mp_limb_t ah, mp_limb_t al, mp_limb_t bh, mp_limb_t bl, struct hgcd_matrix1 *M, unsigned *bitsp)
+		ANYCALLER int gpmpn_hgcd2_jacobi (mp_limb_t ah, mp_limb_t al, mp_limb_t bh, mp_limb_t bl, struct hgcd_matrix1 *M, unsigned *bitsp)
 		{
 		mp_limb_t u00, u01, u10, u11;
 		unsigned bits = *bitsp;
@@ -61,7 +61,7 @@ namespace gpgmp {
 
 			u00 = u01 = u11 = 1;
 			u10 = 0;
-			bits = mpn_jacobi_update (bits, 1, 1);
+			bits = gpmpn_jacobi_update (bits, 1, 1);
 			}
 		else
 			{
@@ -71,7 +71,7 @@ namespace gpgmp {
 
 			u00 = u10 = u11 = 1;
 			u01 = 0;
-			bits = mpn_jacobi_update (bits, 0, 1);
+			bits = gpmpn_jacobi_update (bits, 0, 1);
 			}
 
 		if (ah < bh)
@@ -104,7 +104,7 @@ namespace gpgmp {
 			/* Use q = 1 */
 			u01 += u00;
 			u11 += u10;
-			bits = mpn_jacobi_update (bits, 1, 1);
+			bits = gpmpn_jacobi_update (bits, 1, 1);
 			}
 			else
 			{
@@ -116,13 +116,13 @@ namespace gpgmp {
 				/* A is too small, but q is correct. */
 				u01 += q * u00;
 				u11 += q * u10;
-				bits = mpn_jacobi_update (bits, 1, q & 3);
+				bits = gpmpn_jacobi_update (bits, 1, q & 3);
 				goto done;
 				}
 			q++;
 			u01 += q * u00;
 			u11 += q * u10;
-			bits = mpn_jacobi_update (bits, 1, q & 3);
+			bits = gpmpn_jacobi_update (bits, 1, q & 3);
 			}
 			subtract_a:
 			ASSERT (bh >= ah);
@@ -149,7 +149,7 @@ namespace gpgmp {
 			/* Use q = 1 */
 			u00 += u01;
 			u10 += u11;
-			bits = mpn_jacobi_update (bits, 0, 1);
+			bits = gpmpn_jacobi_update (bits, 0, 1);
 			}
 			else
 			{
@@ -161,13 +161,13 @@ namespace gpgmp {
 				/* B is too small, but q is correct. */
 				u00 += q * u01;
 				u10 += q * u11;
-				bits = mpn_jacobi_update (bits, 0, q & 3);
+				bits = gpmpn_jacobi_update (bits, 0, q & 3);
 				goto done;
 				}
 			q++;
 			u00 += q * u01;
 			u10 += q * u11;
-			bits = mpn_jacobi_update (bits, 0, q & 3);
+			bits = gpmpn_jacobi_update (bits, 0, q & 3);
 			}
 			}
 
@@ -187,7 +187,7 @@ namespace gpgmp {
 			/* Use q = 1 */
 			u01 += u00;
 			u11 += u10;
-			bits = mpn_jacobi_update (bits, 1, 1);
+			bits = gpmpn_jacobi_update (bits, 1, 1);
 			}
 			else
 			{
@@ -200,13 +200,13 @@ namespace gpgmp {
 				/* A is too small, but q is correct. */
 				u01 += q * u00;
 				u11 += q * u10;
-				bits = mpn_jacobi_update (bits, 1, q & 3);
+				bits = gpmpn_jacobi_update (bits, 1, q & 3);
 				break;
 				}
 			q++;
 			u01 += q * u00;
 			u11 += q * u10;
-			bits = mpn_jacobi_update (bits, 1, q & 3);
+			bits = gpmpn_jacobi_update (bits, 1, q & 3);
 			}
 			subtract_a1:
 			ASSERT (bh >= ah);
@@ -220,7 +220,7 @@ namespace gpgmp {
 			/* Use q = 1 */
 			u00 += u01;
 			u10 += u11;
-			bits = mpn_jacobi_update (bits, 0, 1);
+			bits = gpmpn_jacobi_update (bits, 0, 1);
 			}
 			else
 			{
@@ -233,13 +233,13 @@ namespace gpgmp {
 				/* B is too small, but q is correct. */
 				u00 += q * u01;
 				u10 += q * u11;
-				bits = mpn_jacobi_update (bits, 0, q & 3);
+				bits = gpmpn_jacobi_update (bits, 0, q & 3);
 				break;
 				}
 			q++;
 			u00 += q * u01;
 			u10 += q * u11;
-			bits = mpn_jacobi_update (bits, 0, q & 3);
+			bits = gpmpn_jacobi_update (bits, 0, q & 3);
 			}
 			}
 

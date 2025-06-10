@@ -1,4 +1,4 @@
-/* mpn_sqrlo -- squares an n-limb number and returns the low n limbs
+/* gpmpn_sqrlo -- squares an n-limb number and returns the low n limbs
    of the result.
 
    Contributed to the GNU project by Torbjorn Granlund and Marco Bodrato.
@@ -129,16 +129,16 @@ namespace gpgmp
     */
 
     ANYCALLER static mp_size_t
-    mpn_sqrlo_itch(mp_size_t n)
+    gpmpn_sqrlo_itch(mp_size_t n)
     {
       return 2 * n;
     }
 
     /*
-        mpn_dc_sqrlo requires a scratch space of 2*n limbs at tp.
+        gpmpn_dc_sqrlo requires a scratch space of 2*n limbs at tp.
         It accepts tp == rp.
     */
-    ANYCALLER static void mpn_dc_sqrlo(mp_ptr rp, mp_srcptr xp, mp_size_t n, mp_ptr tp)
+    ANYCALLER static void gpmpn_dc_sqrlo(mp_ptr rp, mp_srcptr xp, mp_size_t n, mp_ptr tp)
     {
       mp_size_t n2, n1;
       ASSERT(n >= 2);
@@ -167,22 +167,22 @@ namespace gpgmp
       /* Split as x = x1 2^(n2 GMP_NUMB_BITS) + x0 */
 
       /* x0 ^ 2 */
-      mpn_sqr(tp, xp, n2);
+      gpmpn_sqr(tp, xp, n2);
       MPN_COPY(rp, tp, n2);
 
       /* x1 * x0 * 2^(n2 GMP_NUMB_BITS) */
       if (BELOW_THRESHOLD(n1, MULLO_BASECASE_THRESHOLD))
-        mpn_mul_basecase(tp + n, xp + n2, n1, xp, n1);
+        gpmpn_mul_basecase(tp + n, xp + n2, n1, xp, n1);
       else if (BELOW_THRESHOLD(n1, MULLO_DC_THRESHOLD))
-        mpn_mullo_basecase(tp + n, xp + n2, xp, n1);
+        gpmpn_mullo_basecase(tp + n, xp + n2, xp, n1);
       else
-        mpn_mullo_n(tp + n, xp + n2, xp, n1);
-      /* mpn_dc_mullo_n (tp + n, xp + n2, xp, n1, tp + n); */
-#if HAVE_NATIVE_mpn_addlsh1_n
-      mpn_addlsh1_n(rp + n2, tp + n2, tp + n, n1);
+        gpmpn_mullo_n(tp + n, xp + n2, xp, n1);
+      /* gpmpn_dc_mullo_n (tp + n, xp + n2, xp, n1, tp + n); */
+#if HAVE_NATIVE_gpmpn_addlsh1_n
+      gpmpn_addlsh1_n(rp + n2, tp + n2, tp + n, n1);
 #else
-      mpn_lshift(rp + n2, tp + n, n1, 1);
-      mpn_add_n(rp + n2, rp + n2, tp + n2, n1);
+      gpmpn_lshift(rp + n2, tp + n, n1, 1);
+      gpmpn_add_n(rp + n2, rp + n2, tp + n2, n1);
 #endif
     }
 
@@ -195,7 +195,7 @@ namespace gpgmp
     */
 
     void
-    mpn_sqrlo(mp_ptr rp, mp_srcptr xp, mp_size_t n)
+    gpmpn_sqrlo(mp_ptr rp, mp_srcptr xp, mp_size_t n)
     {
       ASSERT(n >= 1);
       ASSERT(!MPN_OVERLAP_P(rp, n, xp, n));
@@ -203,39 +203,39 @@ namespace gpgmp
       if (BELOW_THRESHOLD(n, SQRLO_BASECASE_THRESHOLD))
       {
         /* FIXME: smarter criteria? */
-#if HAVE_NATIVE_mpn_mullo_basecase || !HAVE_NATIVE_mpn_sqr_basecase
+#if HAVE_NATIVE_gpmpn_mullo_basecase || !HAVE_NATIVE_gpmpn_sqr_basecase
         /* mullo computes as many products as sqr, but directly writes
      on the result area. */
-        mpn_mullo_basecase(rp, xp, xp, n);
+        gpmpn_mullo_basecase(rp, xp, xp, n);
 #else
         /* Allocate workspace of fixed size on stack: fast! */
         mp_limb_t tp[SQR_BASECASE_ALLOC];
-        mpn_sqr_basecase(tp, xp, n);
+        gpmpn_sqr_basecase(tp, xp, n);
         MPN_COPY(rp, tp, n);
 #endif
       }
       else if (BELOW_THRESHOLD(n, SQRLO_DC_THRESHOLD))
       {
-        mpn_sqrlo_basecase(rp, xp, n);
+        gpmpn_sqrlo_basecase(rp, xp, n);
       }
       else
       {
         mp_ptr tp;
         TMP_DECL;
         TMP_MARK;
-        tp = TMP_ALLOC_LIMBS(mpn_sqrlo_itch(n));
+        tp = TMP_ALLOC_LIMBS(gpmpn_sqrlo_itch(n));
         if (BELOW_THRESHOLD(n, SQRLO_SQR_THRESHOLD))
         {
-          mpn_dc_sqrlo(rp, xp, n, tp);
+          gpmpn_dc_sqrlo(rp, xp, n, tp);
         }
         else
         {
-          /* For really large operands, use plain mpn_mul_n but throw away upper n
+          /* For really large operands, use plain gpmpn_mul_n but throw away upper n
              limbs of result.  */
 #if !TUNE_PROGRAM_BUILD && (SQRLO_SQR_THRESHOLD > SQR_FFT_THRESHOLD)
-          mpn_fft_mul(tp, xp, n, xp, n);
+          gpmpn_fft_mul(tp, xp, n, xp, n);
 #else
-          mpn_sqr(tp, xp, n);
+          gpmpn_sqr(tp, xp, n);
 #endif
           MPN_COPY(rp, tp, n);
         }

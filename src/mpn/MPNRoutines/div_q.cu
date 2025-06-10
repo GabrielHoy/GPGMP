@@ -1,4 +1,4 @@
-/* mpn_div_q -- division for arbitrary size operands.
+/* gpmpn_div_q -- division for arbitrary size operands.
 
    Contributed to the GNU project by Torbjorn Granlund.
 
@@ -69,10 +69,10 @@ namespace gpgmp {
 		We write nn-dn+1 limbs for the quotient, but return void.  Why not return
 		the most significant quotient limb?  Look at the 4 main code blocks below
 		(consisting of an outer if-else where each arm contains an if-else). It is
-		tricky for the first code block, since the mpn_*_div_q calls will typically
+		tricky for the first code block, since the gpmpn_*_div_q calls will typically
 		generate all nn-dn+1 and return 0 or 1.  I don't see how to fix that unless
 		we generate the most significant quotient limb here, before calling
-		mpn_*_div_q, or put the quotient in a temporary area.  Since this is a
+		gpmpn_*_div_q, or put the quotient in a temporary area.  Since this is a
 		critical division case (the SB sub-case in particular) copying is not a good
 		idea.
 
@@ -99,7 +99,7 @@ namespace gpgmp {
 		#define MUPI_DIVAPPR_Q_THRESHOLD  MUPI_DIV_QR_THRESHOLD
 		#endif
 
-		ANYCALLER void mpn_div_q (mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr scratch)
+		ANYCALLER void gpmpn_div_q (mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr scratch)
 		{
 		mp_ptr new_dp, new_np, tp, rp;
 		mp_limb_t cy, dh, qh;
@@ -121,7 +121,7 @@ namespace gpgmp {
 		dh = dp[dn - 1];
 		if (dn == 1)
 			{
-			mpn_divrem_1 (qp, 0L, np, nn, dh);
+			gpmpn_divrem_1 (qp, 0L, np, nn, dh);
 			return;
 			}
 
@@ -137,22 +137,22 @@ namespace gpgmp {
 			{
 			count_leading_zeros (cnt, dh);
 
-			cy = mpn_lshift (new_np, np, nn, cnt);
+			cy = gpmpn_lshift (new_np, np, nn, cnt);
 			new_np[nn] = cy;
 			new_nn = nn + (cy != 0);
 
 			new_dp = TMP_ALLOC_LIMBS (dn);
-			mpn_lshift (new_dp, dp, dn, cnt);
+			gpmpn_lshift (new_dp, dp, dn, cnt);
 
 			if (dn == 2)
 				{
-				qh = mpn_divrem_2 (qp, 0L, new_np, new_nn, new_dp);
+				qh = gpmpn_divrem_2 (qp, 0L, new_np, new_nn, new_dp);
 				}
 			else if (BELOW_THRESHOLD (dn, DC_DIV_Q_THRESHOLD) ||
 				BELOW_THRESHOLD (new_nn - dn, DC_DIV_Q_THRESHOLD))
 				{
 				invert_pi1 (dinv, new_dp[dn - 1], new_dp[dn - 2]);
-				qh = mpn_sbpi1_div_q (qp, new_np, new_nn, new_dp, dn, dinv.inv32);
+				qh = gpmpn_sbpi1_div_q (qp, new_np, new_nn, new_dp, dn, dinv.inv32);
 				}
 			else if (BELOW_THRESHOLD (dn, MUPI_DIV_Q_THRESHOLD) ||   /* fast condition */
 				BELOW_THRESHOLD (nn, 2 * MU_DIV_Q_THRESHOLD) || /* fast condition */
@@ -160,13 +160,13 @@ namespace gpgmp {
 				+ (double) MUPI_DIV_Q_THRESHOLD * nn > (double) dn * nn)   /* ...condition */
 				{
 				invert_pi1 (dinv, new_dp[dn - 1], new_dp[dn - 2]);
-				qh = mpn_dcpi1_div_q (qp, new_np, new_nn, new_dp, dn, &dinv);
+				qh = gpmpn_dcpi1_div_q (qp, new_np, new_nn, new_dp, dn, &dinv);
 				}
 			else
 				{
-				mp_size_t itch = mpn_mu_div_q_itch (new_nn, dn, 0);
+				mp_size_t itch = gpmpn_mu_div_q_itch (new_nn, dn, 0);
 				mp_ptr scratch = TMP_ALLOC_LIMBS (itch);
-				qh = mpn_mu_div_q (qp, new_np, new_nn, new_dp, dn, scratch);
+				qh = gpmpn_mu_div_q (qp, new_np, new_nn, new_dp, dn, scratch);
 				}
 			if (cy == 0)
 				qp[qn - 1] = qh;
@@ -180,13 +180,13 @@ namespace gpgmp {
 
 			if (dn == 2)
 				{
-				qh = mpn_divrem_2 (qp, 0L, new_np, nn, dp);
+				qh = gpmpn_divrem_2 (qp, 0L, new_np, nn, dp);
 				}
 			else if (BELOW_THRESHOLD (dn, DC_DIV_Q_THRESHOLD) ||
 				BELOW_THRESHOLD (nn - dn, DC_DIV_Q_THRESHOLD))
 				{
 				invert_pi1 (dinv, dh, dp[dn - 2]);
-				qh = mpn_sbpi1_div_q (qp, new_np, nn, dp, dn, dinv.inv32);
+				qh = gpmpn_sbpi1_div_q (qp, new_np, nn, dp, dn, dinv.inv32);
 				}
 			else if (BELOW_THRESHOLD (dn, MUPI_DIV_Q_THRESHOLD) ||   /* fast condition */
 				BELOW_THRESHOLD (nn, 2 * MU_DIV_Q_THRESHOLD) || /* fast condition */
@@ -194,13 +194,13 @@ namespace gpgmp {
 				+ (double) MUPI_DIV_Q_THRESHOLD * nn > (double) dn * nn)   /* ...condition */
 				{
 				invert_pi1 (dinv, dh, dp[dn - 2]);
-				qh = mpn_dcpi1_div_q (qp, new_np, nn, dp, dn, &dinv);
+				qh = gpmpn_dcpi1_div_q (qp, new_np, nn, dp, dn, &dinv);
 				}
 			else
 				{
-				mp_size_t itch = mpn_mu_div_q_itch (nn, dn, 0);
+				mp_size_t itch = gpmpn_mu_div_q_itch (nn, dn, 0);
 				mp_ptr scratch = TMP_ALLOC_LIMBS (itch);
-				qh = mpn_mu_div_q (qp, np, nn, dp, dn, scratch);
+				qh = gpmpn_mu_div_q (qp, np, nn, dp, dn, scratch);
 				}
 			qp[nn - dn] = qh;
 			}
@@ -223,41 +223,41 @@ namespace gpgmp {
 			{
 			count_leading_zeros (cnt, dh);
 
-			cy = mpn_lshift (new_np, np + nn - new_nn, new_nn, cnt);
+			cy = gpmpn_lshift (new_np, np + nn - new_nn, new_nn, cnt);
 			new_np[new_nn] = cy;
 
 			new_nn += (cy != 0);
 
 			new_dp = TMP_ALLOC_LIMBS (qn + 1);
-			mpn_lshift (new_dp, dp + dn - (qn + 1), qn + 1, cnt);
+			gpmpn_lshift (new_dp, dp + dn - (qn + 1), qn + 1, cnt);
 			new_dp[0] |= dp[dn - (qn + 1) - 1] >> (GMP_NUMB_BITS - cnt);
 
 			if (qn + 1 == 2)
 				{
-				qh = mpn_divrem_2 (tp, 0L, new_np, new_nn, new_dp);
+				qh = gpmpn_divrem_2 (tp, 0L, new_np, new_nn, new_dp);
 				}
 			else if (BELOW_THRESHOLD (qn, DC_DIVAPPR_Q_THRESHOLD - 1))
 				{
 				invert_pi1 (dinv, new_dp[qn], new_dp[qn - 1]);
-				qh = mpn_sbpi1_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, dinv.inv32);
+				qh = gpmpn_sbpi1_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, dinv.inv32);
 				}
 			else if (BELOW_THRESHOLD (qn, MU_DIVAPPR_Q_THRESHOLD - 1))
 				{
 				invert_pi1 (dinv, new_dp[qn], new_dp[qn - 1]);
-				qh = mpn_dcpi1_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, &dinv);
+				qh = gpmpn_dcpi1_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, &dinv);
 				}
 			else
 				{
-				mp_size_t itch = mpn_mu_divappr_q_itch (new_nn, qn + 1, 0);
+				mp_size_t itch = gpmpn_mu_divappr_q_itch (new_nn, qn + 1, 0);
 				mp_ptr scratch = TMP_ALLOC_LIMBS (itch);
-				qh = mpn_mu_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, scratch);
+				qh = gpmpn_mu_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, scratch);
 				}
 			if (cy == 0)
 				tp[qn] = qh;
 			else if (UNLIKELY (qh != 0))
 				{
 				/* This happens only when the quotient is close to B^n and
-				mpn_*_divappr_q returned B^n.  */
+				gpmpn_*_divappr_q returned B^n.  */
 				mp_size_t i, n;
 				n = new_nn - (qn + 1);
 				for (i = 0; i < n; i++)
@@ -273,23 +273,23 @@ namespace gpgmp {
 
 			if (qn == 2 - 1)
 				{
-				qh = mpn_divrem_2 (tp, 0L, new_np, new_nn, new_dp);
+				qh = gpmpn_divrem_2 (tp, 0L, new_np, new_nn, new_dp);
 				}
 			else if (BELOW_THRESHOLD (qn, DC_DIVAPPR_Q_THRESHOLD - 1))
 				{
 				invert_pi1 (dinv, dh, new_dp[qn - 1]);
-				qh = mpn_sbpi1_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, dinv.inv32);
+				qh = gpmpn_sbpi1_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, dinv.inv32);
 				}
 			else if (BELOW_THRESHOLD (qn, MU_DIVAPPR_Q_THRESHOLD - 1))
 				{
 				invert_pi1 (dinv, dh, new_dp[qn - 1]);
-				qh = mpn_dcpi1_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, &dinv);
+				qh = gpmpn_dcpi1_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, &dinv);
 				}
 			else
 				{
-				mp_size_t itch = mpn_mu_divappr_q_itch (new_nn, qn + 1, 0);
+				mp_size_t itch = gpmpn_mu_divappr_q_itch (new_nn, qn + 1, 0);
 				mp_ptr scratch = TMP_ALLOC_LIMBS (itch);
-				qh = mpn_mu_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, scratch);
+				qh = gpmpn_mu_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, scratch);
 				}
 			tp[qn] = qh;
 			}
@@ -300,11 +300,11 @@ namespace gpgmp {
 			mp_size_t rn;
 
 				rp = TMP_ALLOC_LIMBS (dn + qn);
-				mpn_mul (rp, dp, dn, tp + 1, qn);
+				gpmpn_mul (rp, dp, dn, tp + 1, qn);
 			rn = dn + qn;
 			rn -= rp[rn - 1] == 0;
 
-				if (rn > nn || mpn_cmp (np, rp, nn) < 0)
+				if (rn > nn || gpmpn_cmp (np, rp, nn) < 0)
 					MPN_DECR_U (qp, qn, 1);
 				}
 			}

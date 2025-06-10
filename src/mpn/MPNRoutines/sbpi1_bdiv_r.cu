@@ -1,4 +1,4 @@
-/* mpn_sbpi1_bdiv_r -- schoolbook Hensel division with precomputed inverse,
+/* gpmpn_sbpi1_bdiv_r -- schoolbook Hensel division with precomputed inverse,
    returning remainder.
 
    Contributed to the GNU project by Niels Möller and Torbjörn Granlund.
@@ -55,7 +55,7 @@ namespace gpgmp
 
        D must be odd. dinv is (-D)^-1 mod B. */
 
-    ANYCALLER mp_limb_t mpn_sbpi1_bdiv_r(mp_ptr up, mp_size_t un, mp_srcptr dp, mp_size_t dn, mp_limb_t dinv)
+    ANYCALLER mp_limb_t gpmpn_sbpi1_bdiv_r(mp_ptr up, mp_size_t un, mp_srcptr dp, mp_size_t dn, mp_limb_t dinv)
     {
       mp_size_t i;
       mp_limb_t cy;
@@ -68,7 +68,7 @@ namespace gpgmp
       for (i = un - dn, cy = 0; i != 0; i--)
       {
         mp_limb_t q = dinv * up[0];
-        mp_limb_t hi = mpn_addmul_1(up, dp, dn, q);
+        mp_limb_t hi = gpmpn_addmul_1(up, dp, dn, q);
 
         hi += cy;
         cy = hi < cy;

@@ -1,4 +1,4 @@
-/* mpn_mullo_n -- multiply two n-limb numbers and return the low n limbs
+/* gpmpn_mullo_n -- multiply two n-limb numbers and return the low n limbs
    of their products.
 
    Contributed to the GNU project by Torbjorn Granlund and Marco Bodrato.
@@ -129,17 +129,17 @@ namespace gpgmp
     */
 
     ANYCALLER static mp_size_t
-    mpn_mullo_n_itch(mp_size_t n)
+    gpmpn_mullo_n_itch(mp_size_t n)
     {
       return 2 * n;
     }
 
     /*
-        mpn_dc_mullo_n requires a scratch space of 2*n limbs at tp.
+        gpmpn_dc_mullo_n requires a scratch space of 2*n limbs at tp.
         It accepts tp == rp.
     */
     ANYCALLER static void
-    mpn_dc_mullo_n(mp_ptr rp, mp_srcptr xp, mp_srcptr yp, mp_size_t n, mp_ptr tp)
+    gpmpn_dc_mullo_n(mp_ptr rp, mp_srcptr xp, mp_srcptr yp, mp_size_t n, mp_ptr tp)
     {
       mp_size_t n2, n1;
       ASSERT(n >= 2);
@@ -170,26 +170,26 @@ namespace gpgmp
             y = y1 2^(n2 GMP_NUMB_BITS) + y0 */
 
       /* x0 * y0 */
-      mpn_mul_n(tp, xp, yp, n2);
+      gpmpn_mul_n(tp, xp, yp, n2);
       MPN_COPY(rp, tp, n2);
 
       /* x1 * y0 * 2^(n2 GMP_NUMB_BITS) */
       if (BELOW_THRESHOLD(n1, MULLO_BASECASE_THRESHOLD))
-        mpn_mul_basecase(tp + n, xp + n2, n1, yp, n1);
+        gpmpn_mul_basecase(tp + n, xp + n2, n1, yp, n1);
       else if (BELOW_THRESHOLD(n1, MULLO_DC_THRESHOLD))
-        mpn_mullo_basecase(tp + n, xp + n2, yp, n1);
+        gpmpn_mullo_basecase(tp + n, xp + n2, yp, n1);
       else
-        mpn_dc_mullo_n(tp + n, xp + n2, yp, n1, tp + n);
-      mpn_add_n(rp + n2, tp + n2, tp + n, n1);
+        gpmpn_dc_mullo_n(tp + n, xp + n2, yp, n1, tp + n);
+      gpmpn_add_n(rp + n2, tp + n2, tp + n, n1);
 
       /* x0 * y1 * 2^(n2 GMP_NUMB_BITS) */
       if (BELOW_THRESHOLD(n1, MULLO_BASECASE_THRESHOLD))
-        mpn_mul_basecase(tp + n, xp, n1, yp + n2, n1);
+        gpmpn_mul_basecase(tp + n, xp, n1, yp + n2, n1);
       else if (BELOW_THRESHOLD(n1, MULLO_DC_THRESHOLD))
-        mpn_mullo_basecase(tp + n, xp, yp + n2, n1);
+        gpmpn_mullo_basecase(tp + n, xp, yp + n2, n1);
       else
-        mpn_dc_mullo_n(tp + n, xp, yp + n2, n1, tp + n);
-      mpn_add_n(rp + n2, rp + n2, tp + n, n1);
+        gpmpn_dc_mullo_n(tp + n, xp, yp + n2, n1, tp + n);
+      gpmpn_add_n(rp + n2, rp + n2, tp + n, n1);
     }
 
 /* Avoid zero allocations when MULLO_BASECASE_THRESHOLD is 0.  */
@@ -199,13 +199,13 @@ namespace gpgmp
     /* FIXME: This function should accept a temporary area; dc_mullow_n
        accepts a pointer tp, and handle the case tp == rp, do the same here.
        Maybe recombine the two functions.
-       THINK: If mpn_mul_basecase is always faster than mpn_mullo_basecase
-        (typically thanks to mpn_addmul_2) should we unconditionally use
-        mpn_mul_n?
+       THINK: If gpmpn_mul_basecase is always faster than gpmpn_mullo_basecase
+        (typically thanks to gpmpn_addmul_2) should we unconditionally use
+        gpmpn_mul_n?
     */
 
     ANYCALLER void
-    mpn_mullo_n(mp_ptr rp, mp_srcptr xp, mp_srcptr yp, mp_size_t n)
+    gpmpn_mullo_n(mp_ptr rp, mp_srcptr xp, mp_srcptr yp, mp_size_t n)
     {
       ASSERT(n >= 1);
       ASSERT(!MPN_OVERLAP_P(rp, n, xp, n));
@@ -215,31 +215,31 @@ namespace gpgmp
       {
         /* Allocate workspace of fixed size on stack: fast! */
         mp_limb_t tp[MUL_BASECASE_ALLOC];
-        mpn_mul_basecase(tp, xp, n, yp, n);
+        gpmpn_mul_basecase(tp, xp, n, yp, n);
         MPN_COPY(rp, tp, n);
       }
       else if (BELOW_THRESHOLD(n, MULLO_DC_THRESHOLD))
       {
-        mpn_mullo_basecase(rp, xp, yp, n);
+        gpmpn_mullo_basecase(rp, xp, yp, n);
       }
       else
       {
         mp_ptr tp;
         TMP_DECL;
         TMP_MARK;
-        tp = TMP_ALLOC_LIMBS(mpn_mullo_n_itch(n));
+        tp = TMP_ALLOC_LIMBS(gpmpn_mullo_n_itch(n));
         if (BELOW_THRESHOLD(n, MULLO_MUL_N_THRESHOLD))
         {
-          mpn_dc_mullo_n(rp, xp, yp, n, tp);
+          gpmpn_dc_mullo_n(rp, xp, yp, n, tp);
         }
         else
         {
-          /* For really large operands, use plain mpn_mul_n but throw away upper n
+          /* For really large operands, use plain gpmpn_mul_n but throw away upper n
              limbs of result.  */
 #if !TUNE_PROGRAM_BUILD && (MULLO_MUL_N_THRESHOLD > MUL_FFT_THRESHOLD)
-          mpn_fft_mul(tp, xp, n, yp, n);
+          gpmpn_fft_mul(tp, xp, n, yp, n);
 #else
-          mpn_mul_n(tp, xp, yp, n);
+          gpmpn_mul_n(tp, xp, yp, n);
 #endif
           MPN_COPY(rp, tp, n);
         }

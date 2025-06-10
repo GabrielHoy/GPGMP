@@ -39,9 +39,9 @@ namespace gpgmp {
   namespace mpnRoutines {
 
 
-		/* Identical to mpn_hgcd_itch. FIXME: Do we really need to add
+		/* Identical to gpmpn_hgcd_itch. FIXME: Do we really need to add
 		HGCD_THRESHOLD at the end? */
-		ANYCALLER mp_size_t mpn_hgcd_appr_itch (mp_size_t n)
+		ANYCALLER mp_size_t gpmpn_hgcd_appr_itch (mp_size_t n)
 		{
 		if (BELOW_THRESHOLD (n, HGCD_APPR_THRESHOLD))
 			return n;
@@ -61,7 +61,7 @@ namespace gpgmp {
 		}
 
 		/* Destroys inputs. */
-		ANYCALLER int mpn_hgcd_appr (mp_ptr ap, mp_ptr bp, mp_size_t n, struct hgcd_matrix *M, mp_ptr tp)
+		ANYCALLER int gpmpn_hgcd_appr (mp_ptr ap, mp_ptr bp, mp_size_t n, struct hgcd_matrix *M, mp_ptr tp)
 		{
 		mp_size_t s;
 		int success = 0;
@@ -94,7 +94,7 @@ namespace gpgmp {
 			ASSERT (n > s);
 			ASSERT (n <= 2*s);
 
-			nn = mpn_hgcd_step (n, ap, bp, s, M, tp);
+			nn = gpmpn_hgcd_step (n, ap, bp, s, M, tp);
 			if (!nn)
 				break;
 
@@ -120,8 +120,8 @@ namespace gpgmp {
 					if the result is that it makes makes min(U, V)
 					smaller than 2^{GMP_NUMB_BITS} s. */
 				if (s + 1 == n
-					|| mpn_zero_p (ap + s + 1, n - s - 1)
-					|| mpn_zero_p (bp + s + 1, n - s - 1))
+					|| gpmpn_zero_p (ap + s + 1, n - s - 1)
+					|| gpmpn_zero_p (bp + s + 1, n - s - 1))
 					continue;
 
 				extra_bits = GMP_NUMB_BITS - 1;
@@ -143,14 +143,14 @@ namespace gpgmp {
 			{
 			/* We can get here only of we have dropped at least one of the least
 				significant bits, so we can decrement ap and bp. We can then shift
-				left extra bits using mpn_rshift. */
+				left extra bits using gpmpn_rshift. */
 			/* NOTE: In the unlikely case that n is large, it would be preferable
 				to do an initial subdiv step to reduce the size before shifting,
-				but that would mean duplicating mpn_gcd_subdiv_step with a bit
+				but that would mean duplicating gpmpn_gcd_subdiv_step with a bit
 				count rather than a limb count. */
 			ap--; bp--;
-			ap[0] = mpn_rshift (ap+1, ap+1, n, GMP_NUMB_BITS - extra_bits);
-			bp[0] = mpn_rshift (bp+1, bp+1, n, GMP_NUMB_BITS - extra_bits);
+			ap[0] = gpmpn_rshift (ap+1, ap+1, n, GMP_NUMB_BITS - extra_bits);
+			bp[0] = gpmpn_rshift (bp+1, bp+1, n, GMP_NUMB_BITS - extra_bits);
 			n += (ap[n] | bp[n]) > 0;
 
 			ASSERT (success);
@@ -162,7 +162,7 @@ namespace gpgmp {
 				ASSERT (n > s);
 				ASSERT (n <= 2*s);
 
-				nn = mpn_hgcd_step (n, ap, bp, s, M, tp);
+				nn = gpmpn_hgcd_step (n, ap, bp, s, M, tp);
 
 				if (!nn)
 				return 1;
@@ -176,10 +176,10 @@ namespace gpgmp {
 			struct hgcd_matrix1 M1;
 			ASSERT (s == 1);
 
-			if (mpn_hgcd2 (ap[1], ap[0], bp[1], bp[0], &M1))
+			if (gpmpn_hgcd2 (ap[1], ap[0], bp[1], bp[0], &M1))
 				{
 				/* Multiply M <- M * M1 */
-				mpn_hgcd_matrix_mul_1 (M, &M1, tp);
+				gpmpn_hgcd_matrix_mul_1 (M, &M1, tp);
 				success = 1;
 				}
 			}
@@ -191,7 +191,7 @@ namespace gpgmp {
 			mp_size_t p = n/2;
 			mp_size_t nn;
 
-			nn = mpn_hgcd_reduce (M, ap, bp, n, p, tp);
+			nn = gpmpn_hgcd_reduce (M, ap, bp, n, p, tp);
 			if (nn)
 			{
 			n = nn;
@@ -204,7 +204,7 @@ namespace gpgmp {
 			mp_size_t nn;
 
 			/* Needs n + 1 storage */
-			nn = mpn_hgcd_step (n, ap, bp, s, M, tp);
+			nn = gpmpn_hgcd_step (n, ap, bp, s, M, tp);
 			if (!nn)
 				return success;
 
@@ -219,8 +219,8 @@ namespace gpgmp {
 			p = 2*s - n + 1;
 			scratch = MPN_HGCD_MATRIX_INIT_ITCH (n-p);
 
-			mpn_hgcd_matrix_init(&M1, n - p, tp);
-			if (mpn_hgcd_appr (ap + p, bp + p, n - p, &M1, tp + scratch))
+			gpmpn_hgcd_matrix_init(&M1, n - p, tp);
+			if (gpmpn_hgcd_appr (ap + p, bp + p, n - p, &M1, tp + scratch))
 				{
 				/* We always have max(M) > 2^{-(GMP_NUMB_BITS + 1)} max(M1) */
 				ASSERT (M->n + 2 >= M1.n);
@@ -244,7 +244,7 @@ namespace gpgmp {
 
 				Then 3*(M.n + M1.n) + 5 <= 3 * ceil(n/2) + 8 is the
 				amount of needed scratch space. */
-				mpn_hgcd_matrix_mul (M, &M1, tp + scratch);
+				gpmpn_hgcd_matrix_mul (M, &M1, tp + scratch);
 				return 1;
 				}
 			}
@@ -256,7 +256,7 @@ namespace gpgmp {
 			ASSERT (n > s);
 			ASSERT (n <= 2*s);
 
-			nn = mpn_hgcd_step (n, ap, bp, s, M, tp);
+			nn = gpmpn_hgcd_step (n, ap, bp, s, M, tp);
 
 			if (!nn)
 				return success;

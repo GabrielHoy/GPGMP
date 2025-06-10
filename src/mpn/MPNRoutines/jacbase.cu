@@ -1,4 +1,4 @@
-/* mpn_jacobi_base -- limb/limb Jacobi symbol with restricted arguments.
+/* gpmpn_jacobi_base -- limb/limb Jacobi symbol with restricted arguments.
 
    THIS INTERFACE IS PRELIMINARY AND MIGHT DISAPPEAR OR BE SUBJECT TO
    INCOMPATIBLE CHANGES IN A FUTURE RELEASE OF GMP.
@@ -137,7 +137,7 @@ namespace gpgmp {
       possible, but a couple of tests suggest it's not a significant speedup,
       and may even be a slowdown, so what's here is good enough for now. */
 
-    ANYCALLER int mpn_jacobi_base (mp_limb_t a, mp_limb_t b, int result_bit1)
+    ANYCALLER int gpmpn_jacobi_base (mp_limb_t a, mp_limb_t b, int result_bit1)
     {
       ASSERT (b & 1);  /* b odd */
       ASSERT (b != 1);
@@ -186,7 +186,7 @@ namespace gpgmp {
     * bit 1, internally we use bit 0. */
 
     /* FIXME: Could try table-based count_trailing_zeros. */
-    ANYCALLER int mpn_jacobi_base (mp_limb_t a, mp_limb_t b, int bit)
+    ANYCALLER int gpmpn_jacobi_base (mp_limb_t a, mp_limb_t b, int bit)
     {
       int c;
 

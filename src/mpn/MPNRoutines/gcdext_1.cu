@@ -1,4 +1,4 @@
-/* mpn_gcdext -- Extended Greatest Common Divisor.
+/* gpmpn_gcdext -- Extended Greatest Common Divisor.
 
 Copyright 1996, 1998, 2000-2005, 2008, 2009 Free Software Foundation, Inc.
 
@@ -45,7 +45,7 @@ namespace gpgmp {
 
     #if GCDEXT_1_USE_BINARY
 
-    ANYCALLER mp_limb_t mpn_gcdext_1 (mp_limb_signed_t *sp, mp_limb_signed_t *tp, mp_limb_t u, mp_limb_t v)
+    ANYCALLER mp_limb_t gpmpn_gcdext_1 (mp_limb_signed_t *sp, mp_limb_signed_t *tp, mp_limb_t u, mp_limb_t v)
     {
       /* Maintain
 
@@ -222,7 +222,7 @@ namespace gpgmp {
     * function that accepts a bignum for the first input, and only
     * returns the first co-factor. */
 
-    ANYCALLER mp_limb_t mpn_gcdext_1 (mp_limb_signed_t *up, mp_limb_signed_t *vp, mp_limb_t a, mp_limb_t b)
+    ANYCALLER mp_limb_t gpmpn_gcdext_1 (mp_limb_signed_t *up, mp_limb_signed_t *vp, mp_limb_t a, mp_limb_t b)
     {
       /* Maintain
 

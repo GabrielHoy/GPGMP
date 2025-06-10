@@ -1,4 +1,4 @@
-/* mpn_powm -- Compute R = U^E mod M.
+/* gpmpn_powm -- Compute R = U^E mod M.
 
    Contributed to the GNU project by Torbjorn Granlund.
 
@@ -61,7 +61,7 @@ see https://www.gnu.org/licenses/.  */
 
    * Handle small bases with initial, reduction-free exponentiation.
 
-   * Call new division functions, not mpn_tdiv_qr.
+   * Call new division functions, not gpmpn_tdiv_qr.
 
    * Consider special code for one-limb M.
 
@@ -102,13 +102,13 @@ namespace gpgmp {
   } while (0)
 
 #undef MPN_REDC_1
-#if HAVE_NATIVE_mpn_sbpi1_bdiv_r
+#if HAVE_NATIVE_gpmpn_sbpi1_bdiv_r
 #define MPN_REDC_1(rp, up, mp, n, invm)					\
   do {									\
     mp_limb_t cy;							\
-    cy = mpn_sbpi1_bdiv_r (up, 2 * n, mp, n, invm);			\
+    cy = gpmpn_sbpi1_bdiv_r (up, 2 * n, mp, n, invm);			\
     if (cy != 0)							\
-      mpn_sub_n (rp, up + n, mp, n);					\
+      gpmpn_sub_n (rp, up + n, mp, n);					\
     else								\
       MPN_COPY (rp, up + n, n);						\
   } while (0)
@@ -116,9 +116,9 @@ namespace gpgmp {
 #define MPN_REDC_1(rp, up, mp, n, invm)					\
   do {									\
     mp_limb_t cy;							\
-    cy = mpn_redc_1 (rp, up, mp, n, invm);				\
+    cy = gpmpn_redc_1 (rp, up, mp, n, invm);				\
     if (cy != 0)							\
-      mpn_sub_n (rp, rp, mp, n);					\
+      gpmpn_sub_n (rp, rp, mp, n);					\
   } while (0)
 #endif
 
@@ -126,12 +126,12 @@ namespace gpgmp {
 #define MPN_REDC_2(rp, up, mp, n, mip)					\
   do {									\
     mp_limb_t cy;							\
-    cy = mpn_redc_2 (rp, up, mp, n, mip);				\
+    cy = gpmpn_redc_2 (rp, up, mp, n, mip);				\
     if (cy != 0)							\
-      mpn_sub_n (rp, rp, mp, n);					\
+      gpmpn_sub_n (rp, rp, mp, n);					\
   } while (0)
 
-#if HAVE_NATIVE_mpn_addmul_2 || HAVE_NATIVE_mpn_redc_2
+#if HAVE_NATIVE_gpmpn_addmul_2 || HAVE_NATIVE_gpmpn_redc_2
 #define WANT_REDC_2 1
 #endif
 
@@ -184,20 +184,20 @@ redcify (mp_ptr rp, mp_srcptr up, mp_size_t un, mp_srcptr mp, mp_size_t n)
 
   MPN_ZERO (tp, n);
   MPN_COPY (tp + n, up, un);
-  mpn_tdiv_qr (qp, rp, 0L, tp, un + n, mp, n);
+  gpmpn_tdiv_qr (qp, rp, 0L, tp, un + n, mp, n);
   TMP_FREE;
 }
 
-#if ! HAVE_NATIVE_mpn_rsblsh1_n_ip2
-#undef mpn_rsblsh1_n_ip2
-#if HAVE_NATIVE_mpn_rsblsh1_n
-#define mpn_rsblsh1_n_ip2(a,b,n)	mpn_rsblsh1_n(a,b,a,n)
+#if ! HAVE_NATIVE_gpmpn_rsblsh1_n_ip2
+#undef gpmpn_rsblsh1_n_ip2
+#if HAVE_NATIVE_gpmpn_rsblsh1_n
+#define gpmpn_rsblsh1_n_ip2(a,b,n)	gpmpn_rsblsh1_n(a,b,a,n)
 #else
-#define mpn_rsblsh1_n_ip2(a,b,n)				\
+#define gpmpn_rsblsh1_n_ip2(a,b,n)				\
   do								\
     {								\
-      mpn_lshift (a, a, n, 1);					\
-      mpn_sub_n (a, a, b, n);					\
+      gpmpn_lshift (a, a, n, 1);					\
+      gpmpn_sub_n (a, a, b, n);					\
     } while (0)
 #endif
 #endif
@@ -207,23 +207,23 @@ redcify (mp_ptr rp, mp_srcptr up, mp_size_t un, mp_srcptr mp, mp_size_t n)
     {								\
       MPN_SQR (tp, rp, n);					\
       MPN_REDUCE (rp, tp, mp, n, mip);				\
-      if (mpn_cmp (rp, mp, n) >= 0)				\
-	ASSERT_NOCARRY (mpn_sub_n (rp, rp, mp, n));		\
+      if (gpmpn_cmp (rp, mp, n) >= 0)				\
+	ASSERT_NOCARRY (gpmpn_sub_n (rp, rp, mp, n));		\
       if (getbit (ep, ebi) != 0)				\
 	{							\
 	  if (rp[n - 1] >> (mbi - 1) % GMP_LIMB_BITS == 0)	\
-	    ASSERT_NOCARRY (mpn_lshift (rp, rp, n, 1));		\
+	    ASSERT_NOCARRY (gpmpn_lshift (rp, rp, n, 1));		\
 	  else							\
-	    mpn_rsblsh1_n_ip2 (rp, mp, n);			\
+	    gpmpn_rsblsh1_n_ip2 (rp, mp, n);			\
 	}							\
     } while (--ebi != 0)
 
 /* rp[n-1..0] = 2 ^ ep[en-1..0] mod mp[n-1..0]
    Requires that mp[n-1..0] is odd and > 1.
    Requires that ep[en-1..0] is > 1.
-   Uses scratch space at tp of MAX(mpn_binvert_itch(n),2n) limbs.  */
+   Uses scratch space at tp of MAX(gpmpn_binvert_itch(n),2n) limbs.  */
 ANYCALLER static void
-mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
+gpmpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	  mp_srcptr mp, mp_size_t n, mp_ptr tp)
 {
   mp_limb_t ip[2], *mip;
@@ -278,7 +278,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
       ASSERT (tbi < GMP_LIMB_BITS);
       tp[1] = CNST_LIMB (1) << tbi;
       tp[0] = CNST_LIMB (0);
-      r0 = mpn_mod_1 (tp, 2, m0);
+      r0 = gpmpn_mod_1 (tp, 2, m0);
 
       binvert_limb (invm, m0);
       do
@@ -313,7 +313,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
   else if (BELOW_THRESHOLD (n, REDC_2_TO_REDC_N_THRESHOLD))
     {
       mip = ip;
-      mpn_binvert (ip, mp, 2, tp);
+      gpmpn_binvert (ip, mp, 2, tp);
       ip[0] = -ip[0]; ip[1] = ~ip[1];
     }
 #else
@@ -327,7 +327,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
   else
     {
       mip = TMP_ALLOC_LIMBS (n);
-      mpn_binvert (mip, mp, n, tp);
+      gpmpn_binvert (mip, mp, n, tp);
     }
 
   tn = tbi / GMP_LIMB_BITS;
@@ -346,7 +346,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	    {
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_mul_basecase (r,a,n,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_mul_basecase (r,a,n,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP2;
 	    }
@@ -354,7 +354,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	    {
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr_basecase (r,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr_basecase (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP2;
 	    }
@@ -366,7 +366,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	    {
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_mul_basecase (r,a,n,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_mul_basecase (r,a,n,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_2 (rp, tp, mp, n, mip)
 	      INNERLOOP2;
 	    }
@@ -374,7 +374,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	    {
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr_basecase (r,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr_basecase (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_2 (rp, tp, mp, n, mip)
 	      INNERLOOP2;
 	    }
@@ -383,7 +383,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	{
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_2 (rp, tp, mp, n, mip)
 	  INNERLOOP2;
 	}
@@ -391,8 +391,8 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	{
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
-#define MPN_REDUCE(rp,tp,mp,n,mip)	mpn_redc_n (rp, tp, mp, n, mip)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
+#define MPN_REDUCE(rp,tp,mp,n,mip)	gpmpn_redc_n (rp, tp, mp, n, mip)
 	  INNERLOOP2;
 	}
     }
@@ -405,7 +405,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	    {
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_mul_basecase (r,a,n,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_mul_basecase (r,a,n,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP2;
 	    }
@@ -413,7 +413,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	    {
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr_basecase (r,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr_basecase (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP2;
 	    }
@@ -422,7 +422,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	{
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	  INNERLOOP2;
 	}
@@ -430,7 +430,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	{
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_2 (rp, tp, mp, n, mip)
 	  INNERLOOP2;
 	}
@@ -438,8 +438,8 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	{
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
-#define MPN_REDUCE(rp,tp,mp,n,mip)	mpn_redc_n (rp, tp, mp, n, mip)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
+#define MPN_REDUCE(rp,tp,mp,n,mip)	gpmpn_redc_n (rp, tp, mp, n, mip)
 	  INNERLOOP2;
 	}
     }
@@ -455,7 +455,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	    {
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_mul_basecase (r,a,n,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_mul_basecase (r,a,n,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP2;
 	    }
@@ -463,7 +463,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	    {
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr_basecase (r,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr_basecase (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP2;
 	    }
@@ -475,16 +475,16 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	    {
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_mul_basecase (r,a,n,a,n)
-#define MPN_REDUCE(rp,tp,mp,n,mip)	mpn_redc_n (rp, tp, mp, n, mip)
+#define MPN_SQR(r,a,n)			gpmpn_mul_basecase (r,a,n,a,n)
+#define MPN_REDUCE(rp,tp,mp,n,mip)	gpmpn_redc_n (rp, tp, mp, n, mip)
 	      INNERLOOP2;
 	    }
 	  else
 	    {
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr_basecase (r,a,n)
-#define MPN_REDUCE(rp,tp,mp,n,mip)	mpn_redc_n (rp, tp, mp, n, mip)
+#define MPN_SQR(r,a,n)			gpmpn_sqr_basecase (r,a,n)
+#define MPN_REDUCE(rp,tp,mp,n,mip)	gpmpn_redc_n (rp, tp, mp, n, mip)
 	      INNERLOOP2;
 	    }
 	}
@@ -492,8 +492,8 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	{
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
-#define MPN_REDUCE(rp,tp,mp,n,mip)	mpn_redc_n (rp, tp, mp, n, mip)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
+#define MPN_REDUCE(rp,tp,mp,n,mip)	gpmpn_redc_n (rp, tp, mp, n, mip)
 	  INNERLOOP2;
 	}
     }
@@ -506,7 +506,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	    {
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_mul_basecase (r,a,n,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_mul_basecase (r,a,n,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP2;
 	    }
@@ -514,7 +514,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	    {
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr_basecase (r,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr_basecase (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP2;
 	    }
@@ -523,7 +523,7 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	{
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	  INNERLOOP2;
 	}
@@ -531,8 +531,8 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 	{
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
-#define MPN_REDUCE(rp,tp,mp,n,mip)	mpn_redc_n (rp, tp, mp, n, mip)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
+#define MPN_REDUCE(rp,tp,mp,n,mip)	gpmpn_redc_n (rp, tp, mp, n, mip)
 	  INNERLOOP2;
 	}
     }
@@ -551,10 +551,10 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
     MPN_REDC_1 (rp, tp, mp, n, ip[0]);
 #endif
   else
-    mpn_redc_n (rp, tp, mp, n, mip);
+    gpmpn_redc_n (rp, tp, mp, n, mip);
 
-  if (mpn_cmp (rp, mp, n) >= 0)
-    mpn_sub_n (rp, rp, mp, n);
+  if (gpmpn_cmp (rp, mp, n) >= 0)
+    gpmpn_sub_n (rp, rp, mp, n);
 
   TMP_FREE;
 }
@@ -562,9 +562,9 @@ mpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
 /* rp[n-1..0] = bp[bn-1..0] ^ ep[en-1..0] mod mp[n-1..0]
    Requires that mp[n-1..0] is odd.
    Requires that ep[en-1..0] is > 1.
-   Uses scratch space at tp of MAX(mpn_binvert_itch(n),2n) limbs.  */
+   Uses scratch space at tp of MAX(gpmpn_binvert_itch(n),2n) limbs.  */
 ANYCALLER void
-mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
+gpmpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 	  mp_srcptr ep, mp_size_t en,
 	  mp_srcptr mp, mp_size_t n, mp_ptr tp)
 {
@@ -582,7 +582,7 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 
   if (bn == 1 && bp[0] == 2)
     {
-      mpn_2powm (rp, ep, en, mp, n, tp);
+      gpmpn_2powm (rp, ep, en, mp, n, tp);
       return;
     }
 
@@ -597,10 +597,10 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 	 until the result is greater than the mod argument.  */
       for (;;)
 	{
-	  mpn_sqr (tp, this_pp, tn);
+	  gpmpn_sqr (tp, this_pp, tn);
 	  tn = tn * 2 - 1,  tn += tp[tn] != 0;
 	  if (getbit (ep, ebi) != 0)
-	    mpn_mul (..., tp, tn, bp, bn);
+	    gpmpn_mul (..., tp, tn, bp, bn);
 	  ebi--;
 	}
     }
@@ -618,7 +618,7 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
   else if (BELOW_THRESHOLD (n, REDC_2_TO_REDC_N_THRESHOLD))
     {
       mip = ip;
-      mpn_binvert (mip, mp, 2, tp);
+      gpmpn_binvert (mip, mp, 2, tp);
       mip[0] = -mip[0]; mip[1] = ~mip[1];
     }
 #else
@@ -632,7 +632,7 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
   else
     {
       mip = TMP_ALLOC_LIMBS (n);
-      mpn_binvert (mip, mp, n, tp);
+      gpmpn_binvert (mip, mp, n, tp);
     }
 
   pp = TMP_ALLOC_LIMBS (n << (windowsize - 1));
@@ -641,7 +641,7 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
   redcify (this_pp, bp, bn, mp, n);
 
   /* Store b^2 at rp.  */
-  mpn_sqr (tp, this_pp, n);
+  gpmpn_sqr (tp, this_pp, n);
 #if 0
   if (n == 1) {
     MPN_REDC_0 (rp[0], tp[1], tp[0], mp[0], -mip[0]);
@@ -657,7 +657,7 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
     MPN_REDC_1 (rp, tp, mp, n, mip[0]);
 #endif
   else
-    mpn_redc_n (rp, tp, mp, n, mip);
+    gpmpn_redc_n (rp, tp, mp, n, mip);
 
   /* Precompute odd powers of b and put them in the temporary area at pp.  */
   for (i = (1 << (windowsize - 1)) - 1; i > 0; i--)
@@ -669,7 +669,7 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
     } else
 #endif
     {
-      mpn_mul_n (tp, this_pp, rp, n);
+      gpmpn_mul_n (tp, this_pp, rp, n);
       this_pp += n;
 #if WANT_REDC_2
       if (BELOW_THRESHOLD (n, REDC_1_TO_REDC_2_THRESHOLD))
@@ -681,7 +681,7 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 	MPN_REDC_1 (this_pp, tp, mp, n, mip[0]);
 #endif
       else
-	mpn_redc_n (this_pp, tp, mp, n, mip);
+	gpmpn_redc_n (this_pp, tp, mp, n, mip);
     }
 
   expbits = getbits (ep, ebi, windowsize);
@@ -751,8 +751,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_basecase (r,a,n,b,n)
-#define MPN_SQR(r,a,n)			mpn_mul_basecase (r,a,n,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_basecase (r,a,n,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_mul_basecase (r,a,n,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP;
 	    }
@@ -761,8 +761,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_basecase (r,a,n,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr_basecase (r,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_basecase (r,a,n,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr_basecase (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP;
 	    }
@@ -775,8 +775,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_basecase (r,a,n,b,n)
-#define MPN_SQR(r,a,n)			mpn_mul_basecase (r,a,n,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_basecase (r,a,n,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_mul_basecase (r,a,n,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_2 (rp, tp, mp, n, mip)
 	      INNERLOOP;
 	    }
@@ -785,8 +785,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_basecase (r,a,n,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr_basecase (r,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_basecase (r,a,n,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr_basecase (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_2 (rp, tp, mp, n, mip)
 	      INNERLOOP;
 	    }
@@ -796,8 +796,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_n (r,a,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_n (r,a,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_2 (rp, tp, mp, n, mip)
 	  INNERLOOP;
 	}
@@ -806,9 +806,9 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_n (r,a,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
-#define MPN_REDUCE(rp,tp,mp,n,mip)	mpn_redc_n (rp, tp, mp, n, mip)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_n (r,a,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
+#define MPN_REDUCE(rp,tp,mp,n,mip)	gpmpn_redc_n (rp, tp, mp, n, mip)
 	  INNERLOOP;
 	}
     }
@@ -822,8 +822,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_basecase (r,a,n,b,n)
-#define MPN_SQR(r,a,n)			mpn_mul_basecase (r,a,n,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_basecase (r,a,n,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_mul_basecase (r,a,n,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP;
 	    }
@@ -832,8 +832,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_basecase (r,a,n,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr_basecase (r,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_basecase (r,a,n,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr_basecase (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP;
 	    }
@@ -843,8 +843,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_n (r,a,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_n (r,a,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	  INNERLOOP;
 	}
@@ -853,8 +853,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_n (r,a,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_n (r,a,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_2 (rp, tp, mp, n, mip)
 	  INNERLOOP;
 	}
@@ -863,9 +863,9 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_n (r,a,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
-#define MPN_REDUCE(rp,tp,mp,n,mip)	mpn_redc_n (rp, tp, mp, n, mip)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_n (r,a,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
+#define MPN_REDUCE(rp,tp,mp,n,mip)	gpmpn_redc_n (rp, tp, mp, n, mip)
 	  INNERLOOP;
 	}
     }
@@ -882,8 +882,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_basecase (r,a,n,b,n)
-#define MPN_SQR(r,a,n)			mpn_mul_basecase (r,a,n,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_basecase (r,a,n,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_mul_basecase (r,a,n,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP;
 	    }
@@ -892,8 +892,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_basecase (r,a,n,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr_basecase (r,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_basecase (r,a,n,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr_basecase (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP;
 	    }
@@ -906,9 +906,9 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_basecase (r,a,n,b,n)
-#define MPN_SQR(r,a,n)			mpn_mul_basecase (r,a,n,a,n)
-#define MPN_REDUCE(rp,tp,mp,n,mip)	mpn_redc_n (rp, tp, mp, n, mip)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_basecase (r,a,n,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_mul_basecase (r,a,n,a,n)
+#define MPN_REDUCE(rp,tp,mp,n,mip)	gpmpn_redc_n (rp, tp, mp, n, mip)
 	      INNERLOOP;
 	    }
 	  else
@@ -916,9 +916,9 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_basecase (r,a,n,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr_basecase (r,a,n)
-#define MPN_REDUCE(rp,tp,mp,n,mip)	mpn_redc_n (rp, tp, mp, n, mip)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_basecase (r,a,n,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr_basecase (r,a,n)
+#define MPN_REDUCE(rp,tp,mp,n,mip)	gpmpn_redc_n (rp, tp, mp, n, mip)
 	      INNERLOOP;
 	    }
 	}
@@ -927,9 +927,9 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_n (r,a,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
-#define MPN_REDUCE(rp,tp,mp,n,mip)	mpn_redc_n (rp, tp, mp, n, mip)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_n (r,a,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
+#define MPN_REDUCE(rp,tp,mp,n,mip)	gpmpn_redc_n (rp, tp, mp, n, mip)
 	  INNERLOOP;
 	}
     }
@@ -943,8 +943,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_basecase (r,a,n,b,n)
-#define MPN_SQR(r,a,n)			mpn_mul_basecase (r,a,n,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_basecase (r,a,n,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_mul_basecase (r,a,n,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP;
 	    }
@@ -953,8 +953,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_basecase (r,a,n,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr_basecase (r,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_basecase (r,a,n,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr_basecase (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	      INNERLOOP;
 	    }
@@ -964,8 +964,8 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_n (r,a,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_n (r,a,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
 #define MPN_REDUCE(rp,tp,mp,n,mip)	MPN_REDC_1 (rp, tp, mp, n, mip[0])
 	  INNERLOOP;
 	}
@@ -974,9 +974,9 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
 #undef MPN_MUL_N
 #undef MPN_SQR
 #undef MPN_REDUCE
-#define MPN_MUL_N(r,a,b,n)		mpn_mul_n (r,a,b,n)
-#define MPN_SQR(r,a,n)			mpn_sqr (r,a,n)
-#define MPN_REDUCE(rp,tp,mp,n,mip)	mpn_redc_n (rp, tp, mp, n, mip)
+#define MPN_MUL_N(r,a,b,n)		gpmpn_mul_n (r,a,b,n)
+#define MPN_SQR(r,a,n)			gpmpn_sqr (r,a,n)
+#define MPN_REDUCE(rp,tp,mp,n,mip)	gpmpn_redc_n (rp, tp, mp, n, mip)
 	  INNERLOOP;
 	}
     }
@@ -997,10 +997,10 @@ mpn_powm (mp_ptr rp, mp_srcptr bp, mp_size_t bn,
     MPN_REDC_1 (rp, tp, mp, n, mip[0]);
 #endif
   else
-    mpn_redc_n (rp, tp, mp, n, mip);
+    gpmpn_redc_n (rp, tp, mp, n, mip);
 
-  if (mpn_cmp (rp, mp, n) >= 0)
-    mpn_sub_n (rp, rp, mp, n);
+  if (gpmpn_cmp (rp, mp, n) >= 0)
+    gpmpn_sub_n (rp, rp, mp, n);
 
   TMP_FREE;
 }

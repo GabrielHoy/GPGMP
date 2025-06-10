@@ -1,4 +1,4 @@
-/* mpn_sqr -- square natural numbers.
+/* gpmpn_sqr -- square natural numbers.
 
 Copyright 1991, 1993, 1994, 1996-2003, 2005, 2008, 2009 Free Software
 Foundation, Inc.
@@ -37,33 +37,33 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-    ANYCALLER void mpn_sqr(mp_ptr p, mp_srcptr a, mp_size_t n)
+    ANYCALLER void gpmpn_sqr(mp_ptr p, mp_srcptr a, mp_size_t n)
     {
       ASSERT(n >= 1);
       ASSERT(!MPN_OVERLAP_P(p, 2 * n, a, n));
 
       if (BELOW_THRESHOLD(n, SQR_BASECASE_THRESHOLD))
       { /* mul_basecase is faster than sqr_basecase on small sizes sometimes */
-        mpn_mul_basecase(p, a, n, a, n);
+        gpmpn_mul_basecase(p, a, n, a, n);
       }
       else if (BELOW_THRESHOLD(n, SQR_TOOM2_THRESHOLD))
       {
-        mpn_sqr_basecase(p, a, n);
+        gpmpn_sqr_basecase(p, a, n);
       }
       else if (BELOW_THRESHOLD(n, SQR_TOOM3_THRESHOLD))
       {
         /* Allocate workspace of fixed size on stack: fast! */
-        mp_limb_t ws[mpn_toom2_sqr_itch(SQR_TOOM3_THRESHOLD_LIMIT - 1)];
+        mp_limb_t ws[gpmpn_toom2_sqr_itch(SQR_TOOM3_THRESHOLD_LIMIT - 1)];
         ASSERT(SQR_TOOM3_THRESHOLD <= SQR_TOOM3_THRESHOLD_LIMIT);
-        mpn_toom2_sqr(p, a, n, ws);
+        gpmpn_toom2_sqr(p, a, n, ws);
       }
       else if (BELOW_THRESHOLD(n, SQR_TOOM4_THRESHOLD))
       {
         mp_ptr ws;
         TMP_SDECL;
         TMP_SMARK;
-        ws = TMP_SALLOC_LIMBS(mpn_toom3_sqr_itch(n));
-        mpn_toom3_sqr(p, a, n, ws);
+        ws = TMP_SALLOC_LIMBS(gpmpn_toom3_sqr_itch(n));
+        gpmpn_toom3_sqr(p, a, n, ws);
         TMP_SFREE;
       }
       else if (BELOW_THRESHOLD(n, SQR_TOOM6_THRESHOLD))
@@ -71,8 +71,8 @@ namespace gpgmp
         mp_ptr ws;
         TMP_SDECL;
         TMP_SMARK;
-        ws = TMP_SALLOC_LIMBS(mpn_toom4_sqr_itch(n));
-        mpn_toom4_sqr(p, a, n, ws);
+        ws = TMP_SALLOC_LIMBS(gpmpn_toom4_sqr_itch(n));
+        gpmpn_toom4_sqr(p, a, n, ws);
         TMP_SFREE;
       }
       else if (BELOW_THRESHOLD(n, SQR_TOOM8_THRESHOLD))
@@ -80,8 +80,8 @@ namespace gpgmp
         mp_ptr ws;
         TMP_SDECL;
         TMP_SMARK;
-        ws = TMP_SALLOC_LIMBS(mpn_toom6_sqr_itch(n));
-        mpn_toom6_sqr(p, a, n, ws);
+        ws = TMP_SALLOC_LIMBS(gpmpn_toom6_sqr_itch(n));
+        gpmpn_toom6_sqr(p, a, n, ws);
         TMP_SFREE;
       }
       else if (BELOW_THRESHOLD(n, SQR_FFT_THRESHOLD))
@@ -89,15 +89,15 @@ namespace gpgmp
         mp_ptr ws;
         TMP_DECL;
         TMP_MARK;
-        ws = TMP_ALLOC_LIMBS(mpn_toom8_sqr_itch(n));
-        mpn_toom8_sqr(p, a, n, ws);
+        ws = TMP_ALLOC_LIMBS(gpmpn_toom8_sqr_itch(n));
+        gpmpn_toom8_sqr(p, a, n, ws);
         TMP_FREE;
       }
       else
       {
         /* The current FFT code allocates its own space.  That should probably
      change.  */
-        mpn_fft_mul(p, a, n, a, n);
+        gpmpn_fft_mul(p, a, n, a, n);
       }
     }
 

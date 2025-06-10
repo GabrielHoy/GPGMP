@@ -1,4 +1,4 @@
-/* mpn_sec_pi1_div_qr, mpn_sec_pi1_div_r -- Compute Q = floor(U / V), U = U
+/* gpmpn_sec_pi1_div_qr, gpmpn_sec_pi1_div_r -- Compute Q = floor(U / V), U = U
    mod V.  Side-channel silent under the assumption that the used instructions
    are side-channel silent.
 
@@ -67,7 +67,7 @@ namespace gpgmp {
 #define OPERATION_sec_pi1_div_qr 1
 #if OPERATION_sec_pi1_div_qr
 /* Needs (dn + 1) + (nn - dn) + (nn - dn) = 2nn - dn + 1 limbs at tp. */
-#define FNAME mpn_sec_pi1_div_qr
+#define FNAME gpmpn_sec_pi1_div_qr
 #define Q(q) q,
 #define RETTYPE mp_limb_t
 #endif
@@ -94,8 +94,8 @@ FNAME (Q(mp_ptr qp)
 
   if (nn == dn)
     {
-      cy = mpn_sub_n (np, np, dp, dn);
-      mpn_cnd_add_n (cy, np, np, dp, dn);
+      cy = gpmpn_sub_n (np, np, dp, dn);
+      gpmpn_cnd_add_n (cy, np, np, dp, dn);
 #if OPERATION_sec_pi1_div_qr
       return 1 - cy;
 #else
@@ -105,7 +105,7 @@ FNAME (Q(mp_ptr qp)
 
   /* Create a divisor copy shifted half a limb.  */
   hp = tp;					/* (dn + 1) limbs */
-  hp[dn] = mpn_lshift (hp, dp, dn, GMP_NUMB_BITS / 2);
+  hp[dn] = gpmpn_lshift (hp, dp, dn, GMP_NUMB_BITS / 2);
 
 #if OPERATION_sec_pi1_div_qr
   qlp = tp + (dn + 1);				/* (nn - dn) limbs */
@@ -125,7 +125,7 @@ FNAME (Q(mp_ptr qp)
 #if OPERATION_sec_pi1_div_qr
       qhp[i] = q1h;
 #endif
-      mpn_submul_1 (np, hp, dn + 1, q1h);
+      gpmpn_submul_1 (np, hp, dn + 1, q1h);
 
       nh = np[dn];
       umul_ppmm (q0h, dummy, nh, dinv);
@@ -133,7 +133,7 @@ FNAME (Q(mp_ptr qp)
 #if OPERATION_sec_pi1_div_qr
       qlp[i] = q0h;
 #endif
-      nh -= mpn_submul_1 (np, dp, dn, q0h);
+      nh -= gpmpn_submul_1 (np, dp, dn, q0h);
     }
 
   /* 1st adjustment depends on extra high remainder limb.  */
@@ -141,28 +141,28 @@ FNAME (Q(mp_ptr qp)
 #if OPERATION_sec_pi1_div_qr
   qlp[0] += cnd;
 #endif
-  nh -= mpn_cnd_sub_n (cnd, np, np, dp, dn);
+  nh -= gpmpn_cnd_sub_n (cnd, np, np, dp, dn);
 
   /* 2nd adjustment depends on remainder/divisor comparison as well as whether
      extra remainder limb was nullified by previous subtract.  */
-  cy = mpn_sub_n (np, np, dp, dn);
+  cy = gpmpn_sub_n (np, np, dp, dn);
   cy = cy - nh;
 #if OPERATION_sec_pi1_div_qr
   qlp[0] += 1 - cy;
 #endif
-  mpn_cnd_add_n (cy, np, np, dp, dn);
+  gpmpn_cnd_add_n (cy, np, np, dp, dn);
 
   /* 3rd adjustment depends on remainder/divisor comparison.  */
-  cy = mpn_sub_n (np, np, dp, dn);
+  cy = gpmpn_sub_n (np, np, dp, dn);
 #if OPERATION_sec_pi1_div_qr
   qlp[0] += 1 - cy;
 #endif
-  mpn_cnd_add_n (cy, np, np, dp, dn);
+  gpmpn_cnd_add_n (cy, np, np, dp, dn);
 
 #if OPERATION_sec_pi1_div_qr
   /* Combine quotient halves into final quotient.  */
-  qh = mpn_lshift (qhp, qhp, nn - dn, GMP_NUMB_BITS/2);
-  qh += mpn_add_n (qp, qhp, qlp, nn - dn);
+  qh = gpmpn_lshift (qhp, qhp, nn - dn, GMP_NUMB_BITS/2);
+  qh += gpmpn_add_n (qp, qhp, qlp, nn - dn);
 
   return qh;
 #else
@@ -180,7 +180,7 @@ FNAME (Q(mp_ptr qp)
 #define OPERATION_sec_pi1_div_r 1
 #if OPERATION_sec_pi1_div_r
 /* Needs (dn + 1) limbs at tp.  */
-#define FNAME mpn_sec_pi1_div_r
+#define FNAME gpmpn_sec_pi1_div_r
 #define Q(q)
 #define RETTYPE void
 #endif
@@ -206,8 +206,8 @@ FNAME (Q(mp_ptr qp)
 
   if (nn == dn)
     {
-      cy = mpn_sub_n (np, np, dp, dn);
-      mpn_cnd_add_n (cy, np, np, dp, dn);
+      cy = gpmpn_sub_n (np, np, dp, dn);
+      gpmpn_cnd_add_n (cy, np, np, dp, dn);
 #if OPERATION_sec_pi1_div_qr
       return 1 - cy;
 #else
@@ -217,7 +217,7 @@ FNAME (Q(mp_ptr qp)
 
   /* Create a divisor copy shifted half a limb.  */
   hp = tp;					/* (dn + 1) limbs */
-  hp[dn] = mpn_lshift (hp, dp, dn, GMP_NUMB_BITS / 2);
+  hp[dn] = gpmpn_lshift (hp, dp, dn, GMP_NUMB_BITS / 2);
 
 #if OPERATION_sec_pi1_div_qr
   qlp = tp + (dn + 1);				/* (nn - dn) limbs */
@@ -237,7 +237,7 @@ FNAME (Q(mp_ptr qp)
 #if OPERATION_sec_pi1_div_qr
       qhp[i] = q1h;
 #endif
-      mpn_submul_1 (np, hp, dn + 1, q1h);
+      gpmpn_submul_1 (np, hp, dn + 1, q1h);
 
       nh = np[dn];
       umul_ppmm (q0h, dummy, nh, dinv);
@@ -245,7 +245,7 @@ FNAME (Q(mp_ptr qp)
 #if OPERATION_sec_pi1_div_qr
       qlp[i] = q0h;
 #endif
-      nh -= mpn_submul_1 (np, dp, dn, q0h);
+      nh -= gpmpn_submul_1 (np, dp, dn, q0h);
     }
 
   /* 1st adjustment depends on extra high remainder limb.  */
@@ -253,28 +253,28 @@ FNAME (Q(mp_ptr qp)
 #if OPERATION_sec_pi1_div_qr
   qlp[0] += cnd;
 #endif
-  nh -= mpn_cnd_sub_n (cnd, np, np, dp, dn);
+  nh -= gpmpn_cnd_sub_n (cnd, np, np, dp, dn);
 
   /* 2nd adjustment depends on remainder/divisor comparison as well as whether
      extra remainder limb was nullified by previous subtract.  */
-  cy = mpn_sub_n (np, np, dp, dn);
+  cy = gpmpn_sub_n (np, np, dp, dn);
   cy = cy - nh;
 #if OPERATION_sec_pi1_div_qr
   qlp[0] += 1 - cy;
 #endif
-  mpn_cnd_add_n (cy, np, np, dp, dn);
+  gpmpn_cnd_add_n (cy, np, np, dp, dn);
 
   /* 3rd adjustment depends on remainder/divisor comparison.  */
-  cy = mpn_sub_n (np, np, dp, dn);
+  cy = gpmpn_sub_n (np, np, dp, dn);
 #if OPERATION_sec_pi1_div_qr
   qlp[0] += 1 - cy;
 #endif
-  mpn_cnd_add_n (cy, np, np, dp, dn);
+  gpmpn_cnd_add_n (cy, np, np, dp, dn);
 
 #if OPERATION_sec_pi1_div_qr
   /* Combine quotient halves into final quotient.  */
-  qh = mpn_lshift (qhp, qhp, nn - dn, GMP_NUMB_BITS/2);
-  qh += mpn_add_n (qp, qhp, qlp, nn - dn);
+  qh = gpmpn_lshift (qhp, qhp, nn - dn, GMP_NUMB_BITS/2);
+  qh += gpmpn_add_n (qp, qhp, qlp, nn - dn);
 
   return qh;
 #else

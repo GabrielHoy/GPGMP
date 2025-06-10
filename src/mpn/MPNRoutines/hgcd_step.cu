@@ -52,11 +52,11 @@ namespace gpgmp {
       gcd_subdiv_step, which stores q at the start of that area. We
       now use the rest. */
           mp_ptr tp = (mp_ptr) qp + qn;
-          mpn_hgcd_matrix_update_q (M, qp, qn, d, tp);
+          gpmpn_hgcd_matrix_update_q (M, qp, qn, d, tp);
         }
     }
 
-    /* Perform a few steps, using some of mpn_hgcd2, subtraction and
+    /* Perform a few steps, using some of gpmpn_hgcd2, subtraction and
       division. Reduces the size by almost one limb or more, but never
       below the given size s. Return new size for a and b, or 0 if no
       more steps are possible.
@@ -72,7 +72,7 @@ namespace gpgmp {
       <= N.
     */
 
-    ANYCALLER mp_size_t mpn_hgcd_step (mp_size_t n, mp_ptr ap, mp_ptr bp, mp_size_t s, struct hgcd_matrix *M, mp_ptr tp)
+    ANYCALLER mp_size_t gpmpn_hgcd_step (mp_size_t n, mp_ptr ap, mp_ptr bp, mp_size_t s, struct hgcd_matrix *M, mp_ptr tp)
     {
       struct hgcd_matrix1 M1;
       mp_limb_t mask;
@@ -107,21 +107,21 @@ namespace gpgmp {
           bl = MPN_EXTRACT_NUMB (shift, bp[n-2], bp[n-3]);
         }
 
-      /* Try an mpn_hgcd2 step */
-      if (mpn_hgcd2 (ah, al, bh, bl, &M1))
+      /* Try an gpmpn_hgcd2 step */
+      if (gpmpn_hgcd2 (ah, al, bh, bl, &M1))
         {
           /* Multiply M <- M * M1 */
-          mpn_hgcd_matrix_mul_1 (M, &M1, tp);
+          gpmpn_hgcd_matrix_mul_1 (M, &M1, tp);
 
           /* Can't swap inputs, so we need to copy. */
           MPN_COPY (tp, ap, n);
           /* Multiply M1^{-1} (a;b) */
-          return mpn_matrix22_mul1_inverse_vector (&M1, ap, tp, bp, n);
+          return gpmpn_matrix22_mul1_inverse_vector (&M1, ap, tp, bp, n);
         }
 
     subtract:
 
-      return mpn_gcd_subdiv_step (ap, bp, n, s, hgcd_hook, M, tp);
+      return gpmpn_gcd_subdiv_step (ap, bp, n, s, hgcd_hook, M, tp);
     }
 
   }

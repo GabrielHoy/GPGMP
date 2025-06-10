@@ -1,4 +1,4 @@
-/* mpn_cnd_add_n -- Compute R = U + V if CND != 0 or R = U if CND == 0.
+/* gpmpn_cnd_add_n -- Compute R = U + V if CND != 0 or R = U if CND == 0.
    Both cases should take the same time and perform the exact same memory
    accesses, since this function is intended to be used where side-channel
    attack resilience is relevant.
@@ -39,7 +39,7 @@ namespace gpgmp {
 
 	namespace mpnRoutines {
 
-		ANYCALLER mp_limb_t mpn_cnd_add_n (mp_limb_t condition, mp_ptr return_ptr, mp_srcptr operand1_ptr, mp_srcptr operand2_ptr, mp_size_t size)
+		ANYCALLER mp_limb_t gpmpn_cnd_add_n (mp_limb_t condition, mp_ptr return_ptr, mp_srcptr operand1_ptr, mp_srcptr operand2_ptr, mp_size_t size)
     {
       mp_limb_t operand1_limb, operand2_limb, sum_limb, result_limb, carry, carry1, carry2, mask;
 

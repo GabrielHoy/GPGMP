@@ -1,4 +1,4 @@
-/* mpn_mod_1(dividend_ptr, dividend_size, divisor_limb) --
+/* gpmpn_mod_1(dividend_ptr, dividend_size, divisor_limb) --
    Divide (DIVIDEND_PTR,,DIVIDEND_SIZE) by DIVISOR_LIMB.
    Return the single-limb remainder.
    There are no constraints on the value of the divisor.
@@ -56,11 +56,11 @@ namespace gpgmp {
 #endif
 
 #ifndef MOD_1U_TO_MOD_1_1_THRESHOLD
-#define MOD_1U_TO_MOD_1_1_THRESHOLD  MP_SIZE_T_MAX /* default is not to use mpn_mod_1s */
+#define MOD_1U_TO_MOD_1_1_THRESHOLD  MP_SIZE_T_MAX /* default is not to use gpmpn_mod_1s */
 #endif
 
 #ifndef MOD_1N_TO_MOD_1_1_THRESHOLD
-#define MOD_1N_TO_MOD_1_1_THRESHOLD  MP_SIZE_T_MAX /* default is not to use mpn_mod_1s */
+#define MOD_1N_TO_MOD_1_1_THRESHOLD  MP_SIZE_T_MAX /* default is not to use gpmpn_mod_1s */
 #endif
 
 #ifndef MOD_1_1_TO_MOD_1_2_THRESHOLD
@@ -71,26 +71,26 @@ namespace gpgmp {
 #define MOD_1_2_TO_MOD_1_4_THRESHOLD  20
 #endif
 
-#if TUNE_PROGRAM_BUILD && !HAVE_NATIVE_mpn_mod_1_1p
+#if TUNE_PROGRAM_BUILD && !HAVE_NATIVE_gpmpn_mod_1_1p
 /* Duplicates declarations in tune/speed.h */
-mp_limb_t mpn_mod_1_1p_1 (mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t [4]);
-mp_limb_t mpn_mod_1_1p_2 (mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t [4]);
+mp_limb_t gpmpn_mod_1_1p_1 (mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t [4]);
+mp_limb_t gpmpn_mod_1_1p_2 (mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t [4]);
 
-void mpn_mod_1_1p_cps_1 (mp_limb_t [4], mp_limb_t);
-void mpn_mod_1_1p_cps_2 (mp_limb_t [4], mp_limb_t);
+void gpmpn_mod_1_1p_cps_1 (mp_limb_t [4], mp_limb_t);
+void gpmpn_mod_1_1p_cps_2 (mp_limb_t [4], mp_limb_t);
 
-#undef mpn_mod_1_1p
-#define mpn_mod_1_1p(ap, n, b, pre)			     \
-  (mod_1_1p_method == 1 ? mpn_mod_1_1p_1 (ap, n, b, pre)     \
-   : (mod_1_1p_method == 2 ? mpn_mod_1_1p_2 (ap, n, b, pre)  \
-      : __gmpn_mod_1_1p (ap, n, b, pre)))
+#undef gpmpn_mod_1_1p
+#define gpmpn_mod_1_1p(ap, n, b, pre)			     \
+  (mod_1_1p_method == 1 ? gpmpn_mod_1_1p_1 (ap, n, b, pre)     \
+   : (mod_1_1p_method == 2 ? gpmpn_mod_1_1p_2 (ap, n, b, pre)  \
+      : __ggpmpn_mod_1_1p (ap, n, b, pre)))
 
-#undef mpn_mod_1_1p_cps
-#define mpn_mod_1_1p_cps(pre, b)				\
-  (mod_1_1p_method == 1 ? mpn_mod_1_1p_cps_1 (pre, b)		\
-   : (mod_1_1p_method == 2 ? mpn_mod_1_1p_cps_2 (pre, b)	\
-      : __gmpn_mod_1_1p_cps (pre, b)))
-#endif /* TUNE_PROGRAM_BUILD && !HAVE_NATIVE_mpn_mod_1_1p */
+#undef gpmpn_mod_1_1p_cps
+#define gpmpn_mod_1_1p_cps(pre, b)				\
+  (mod_1_1p_method == 1 ? gpmpn_mod_1_1p_cps_1 (pre, b)		\
+   : (mod_1_1p_method == 2 ? gpmpn_mod_1_1p_cps_2 (pre, b)	\
+      : __ggpmpn_mod_1_1p_cps (pre, b)))
+#endif /* TUNE_PROGRAM_BUILD && !HAVE_NATIVE_gpmpn_mod_1_1p */
 
 
 /* The comments in mpn/generic/divrem_1.c apply here too.
@@ -103,7 +103,7 @@ void mpn_mod_1_1p_cps_2 (mp_limb_t [4], mp_limb_t);
    distributions of dividend and divisor.  In any case this idea is left to
    CPU specific implementations to consider.  */
 
-ANYCALLER static mp_limb_t mpn_mod_1_unnorm (mp_srcptr up, mp_size_t un, mp_limb_t d)
+ANYCALLER static mp_limb_t gpmpn_mod_1_unnorm (mp_srcptr up, mp_size_t un, mp_limb_t d)
 {
   mp_size_t  i;
   mp_limb_t  n1, n0, r;
@@ -181,7 +181,7 @@ ANYCALLER static mp_limb_t mpn_mod_1_unnorm (mp_srcptr up, mp_size_t un, mp_limb
     }
 }
 
-ANYCALLER static mp_limb_t mpn_mod_1_norm (mp_srcptr up, mp_size_t un, mp_limb_t d)
+ANYCALLER static mp_limb_t gpmpn_mod_1_norm (mp_srcptr up, mp_size_t un, mp_limb_t d)
 {
   mp_size_t  i;
   mp_limb_t  n0, r;
@@ -227,7 +227,7 @@ ANYCALLER static mp_limb_t mpn_mod_1_norm (mp_srcptr up, mp_size_t un, mp_limb_t
     }
 }
 
-ANYCALLER mp_limb_t mpn_mod_1 (mp_srcptr ap, mp_size_t n, mp_limb_t b)
+ANYCALLER mp_limb_t gpmpn_mod_1 (mp_srcptr ap, mp_size_t n, mp_limb_t b)
 {
   ASSERT (n >= 0);
   ASSERT (b != 0);
@@ -241,38 +241,38 @@ ANYCALLER mp_limb_t mpn_mod_1 (mp_srcptr ap, mp_size_t n, mp_limb_t b)
     {
       if (BELOW_THRESHOLD (n, MOD_1N_TO_MOD_1_1_THRESHOLD))
 	{
-	  return mpn_mod_1_norm (ap, n, b);
+	  return gpmpn_mod_1_norm (ap, n, b);
 	}
       else
 	{
 	  mp_limb_t pre[4];
-	  mpn_mod_1_1p_cps (pre, b);
-	  return mpn_mod_1_1p (ap, n, b, pre);
+	  gpmpn_mod_1_1p_cps (pre, b);
+	  return gpmpn_mod_1_1p (ap, n, b, pre);
 	}
     }
   else
     {
       if (BELOW_THRESHOLD (n, MOD_1U_TO_MOD_1_1_THRESHOLD))
 	{
-	  return mpn_mod_1_unnorm (ap, n, b);
+	  return gpmpn_mod_1_unnorm (ap, n, b);
 	}
       else if (BELOW_THRESHOLD (n, MOD_1_1_TO_MOD_1_2_THRESHOLD))
 	{
 	  mp_limb_t pre[4];
-	  mpn_mod_1_1p_cps (pre, b);
-	  return mpn_mod_1_1p (ap, n, b << pre[1], pre);
+	  gpmpn_mod_1_1p_cps (pre, b);
+	  return gpmpn_mod_1_1p (ap, n, b << pre[1], pre);
 	}
       else if (BELOW_THRESHOLD (n, MOD_1_2_TO_MOD_1_4_THRESHOLD) || UNLIKELY (b > GMP_NUMB_MASK / 4))
 	{
 	  mp_limb_t pre[5];
-	  mpn_mod_1s_2p_cps (pre, b);
-	  return mpn_mod_1s_2p (ap, n, b << pre[1], pre);
+	  gpmpn_mod_1s_2p_cps (pre, b);
+	  return gpmpn_mod_1s_2p (ap, n, b << pre[1], pre);
 	}
       else
 	{
 	  mp_limb_t pre[7];
-	  mpn_mod_1s_4p_cps (pre, b);
-	  return mpn_mod_1s_4p (ap, n, b << pre[1], pre);
+	  gpmpn_mod_1s_4p_cps (pre, b);
+	  return gpmpn_mod_1s_4p (ap, n, b << pre[1], pre);
 	}
     }
 }

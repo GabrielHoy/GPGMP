@@ -47,9 +47,9 @@ namespace gpgmp {
     #define HGCD2_DIV2_METHOD 2
     #endif
 
-    #if HAVE_NATIVE_mpn_div_11
+    #if HAVE_NATIVE_gpmpn_div_11
 
-    #define div1 mpn_div_11
+    #define div1 gpmpn_div_11
     /* Single-limb division optimized for small quotients.
       Returned value holds d0 = r, d1 = q. */
     mp_double_limb_t div1 (mp_limb_t, mp_limb_t);
@@ -395,9 +395,9 @@ namespace gpgmp {
     #error Unknown HGCD2_DIV1_METHOD
     #endif
 
-    #if HAVE_NATIVE_mpn_div_22
+    #if HAVE_NATIVE_gpmpn_div_22
 
-    #define div2 mpn_div_22
+    #define div2 gpmpn_div_22
     /* Two-limb division optimized for small quotients.  */
     mp_limb_t div2 (mp_ptr, mp_limb_t, mp_limb_t, mp_limb_t, mp_limb_t);
 

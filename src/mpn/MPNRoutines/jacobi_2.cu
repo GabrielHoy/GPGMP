@@ -47,7 +47,7 @@ namespace gpgmp
 /* Computes (a / b) where b is odd, and a and b are otherwise arbitrary
    two-limb numbers. */
 #if JACOBI_2_METHOD == 1
-    ANYCALLER int mpn_jacobi_2(mp_srcptr ap, mp_srcptr bp, unsigned bit)
+    ANYCALLER int gpmpn_jacobi_2(mp_srcptr ap, mp_srcptr bp, unsigned bit)
     {
       mp_limb_t ah, al, bh, bl;
       int c;
@@ -170,10 +170,10 @@ namespace gpgmp
       }
 
       /* Here we have a little impedance mismatch. Better to inline it? */
-      return mpn_jacobi_base(2 * al + 1, 2 * bl + 1, bit << 1);
+      return gpmpn_jacobi_base(2 * al + 1, 2 * bl + 1, bit << 1);
     }
 #elif JACOBI_2_METHOD == 2
-    ANYCALLER int mpn_jacobi_2(mp_srcptr ap, mp_srcptr bp, unsigned bit)
+    ANYCALLER int gpmpn_jacobi_2(mp_srcptr ap, mp_srcptr bp, unsigned bit)
     {
       mp_limb_t ah, al, bh, bl;
       int c;
@@ -347,7 +347,7 @@ namespace gpgmp
       ASSERT(bl & 1);
       ASSERT(bl > 1);
 
-      return mpn_jacobi_base(al, bl, bit);
+      return gpmpn_jacobi_base(al, bl, bit);
     }
 #else
 #error Unsupported value for JACOBI_2_METHOD

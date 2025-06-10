@@ -1,10 +1,10 @@
-/* mpn_set_str (mp_ptr res_ptr, const char *str, size_t str_len, int base) --
+/* gpmpn_set_str (mp_ptr res_ptr, const char *str, size_t str_len, int base) --
    Convert a STR_LEN long base BASE byte string pointed to by STR to a limb
    vector pointed to by RES_PTR.  Return the number of limbs in RES_PTR.
 
    Contributed to the GNU project by Torbjorn Granlund.
 
-   THE FUNCTIONS IN THIS FILE, EXCEPT mpn_set_str, ARE INTERNAL WITH MUTABLE
+   THE FUNCTIONS IN THIS FILE, EXCEPT gpmpn_set_str, ARE INTERNAL WITH MUTABLE
    INTERFACES.  IT IS ONLY SAFE TO REACH THEM THROUGH DOCUMENTED INTERFACES.
    IN FACT, IT IS ALMOST GUARANTEED THAT THEY WILL CHANGE OR DISAPPEAR IN A
    FUTURE GNU MP RELEASE.
@@ -70,7 +70,7 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-    ANYCALLER mp_size_t mpn_set_str(mp_ptr rp, const unsigned char *str, size_t str_len, int base)
+    ANYCALLER mp_size_t gpmpn_set_str(mp_ptr rp, const unsigned char *str, size_t str_len, int base)
     {
       if (POW2_P(base))
       {
@@ -107,7 +107,7 @@ namespace gpgmp
       }
 
       if (BELOW_THRESHOLD(str_len, SET_STR_PRECOMPUTE_THRESHOLD))
-        return mpn_bc_set_str(rp, str, str_len, base);
+        return gpmpn_bc_set_str(rp, str, str_len, base);
       else
       {
         mp_ptr powtab_mem, tp;
@@ -124,20 +124,20 @@ namespace gpgmp
         un = str_len / chars_per_limb + 1; /* FIXME: scalar integer division */
 
         /* Allocate one large block for the powers of big_base.  */
-        powtab_mem = TMP_BALLOC_LIMBS(mpn_str_powtab_alloc(un));
+        powtab_mem = TMP_BALLOC_LIMBS(gpmpn_str_powtab_alloc(un));
 
-        size_t n_pows = mpn_compute_powtab(powtab, powtab_mem, un, base);
+        size_t n_pows = gpmpn_compute_powtab(powtab, powtab_mem, un, base);
         powers_t *pt = powtab + n_pows;
 
-        tp = TMP_BALLOC_LIMBS(mpn_dc_set_str_itch(un));
-        size = mpn_dc_set_str(rp, str, str_len, pt, tp);
+        tp = TMP_BALLOC_LIMBS(gpmpn_dc_set_str_itch(un));
+        size = gpmpn_dc_set_str(rp, str, str_len, pt, tp);
 
         TMP_FREE;
         return size;
       }
     }
 
-    ANYCALLER mp_size_t mpn_dc_set_str(mp_ptr rp, const unsigned char *str, size_t str_len, const powers_t *powtab, mp_ptr tp)
+    ANYCALLER mp_size_t gpmpn_dc_set_str(mp_ptr rp, const unsigned char *str, size_t str_len, const powers_t *powtab, mp_ptr tp)
     {
       size_t len_lo, len_hi;
       mp_limb_t cy;
@@ -148,52 +148,52 @@ namespace gpgmp
       if (str_len <= len_lo)
       {
         if (BELOW_THRESHOLD(str_len, SET_STR_DC_THRESHOLD))
-          return mpn_bc_set_str(rp, str, str_len, powtab->base);
+          return gpmpn_bc_set_str(rp, str, str_len, powtab->base);
         else
-          return mpn_dc_set_str(rp, str, str_len, powtab - 1, tp);
+          return gpmpn_dc_set_str(rp, str, str_len, powtab - 1, tp);
       }
 
       len_hi = str_len - len_lo;
       ASSERT(len_lo >= len_hi);
 
       if (BELOW_THRESHOLD(len_hi, SET_STR_DC_THRESHOLD))
-        hn = mpn_bc_set_str(tp, str, len_hi, powtab->base);
+        hn = gpmpn_bc_set_str(tp, str, len_hi, powtab->base);
       else
-        hn = mpn_dc_set_str(tp, str, len_hi, powtab - 1, rp);
+        hn = gpmpn_dc_set_str(tp, str, len_hi, powtab - 1, rp);
 
       sn = powtab->shift;
 
       if (hn == 0)
       {
         /* Zero +1 limb here, to avoid reading an allocated but uninitialised
-     limb in mpn_incr_u below.  */
+     limb in gpmpn_incr_u below.  */
         MPN_ZERO(rp, powtab->n + sn + 1);
       }
       else
       {
         if (powtab->n > hn)
-          mpn_mul(rp + sn, powtab->p, powtab->n, tp, hn);
+          gpmpn_mul(rp + sn, powtab->p, powtab->n, tp, hn);
         else
-          mpn_mul(rp + sn, tp, hn, powtab->p, powtab->n);
+          gpmpn_mul(rp + sn, tp, hn, powtab->p, powtab->n);
         MPN_ZERO(rp, sn);
       }
 
       str = str + str_len - len_lo;
       if (BELOW_THRESHOLD(len_lo, SET_STR_DC_THRESHOLD))
-        ln = mpn_bc_set_str(tp, str, len_lo, powtab->base);
+        ln = gpmpn_bc_set_str(tp, str, len_lo, powtab->base);
       else
-        ln = mpn_dc_set_str(tp, str, len_lo, powtab - 1, tp + powtab->n + sn + 1);
+        ln = gpmpn_dc_set_str(tp, str, len_lo, powtab - 1, tp + powtab->n + sn + 1);
 
       if (ln != 0)
       {
-        cy = mpn_add_n(rp, rp, tp, ln);
-        mpn_incr_u(rp + ln, cy);
+        cy = gpmpn_add_n(rp, rp, tp, ln);
+        gpmpn_incr_u(rp + ln, cy);
       }
       n = hn + powtab->n + sn;
       return n - (rp[n - 1] == 0);
     }
 
-    ANYCALLER mp_size_t mpn_bc_set_str(mp_ptr rp, const unsigned char *str, size_t str_len, int base)
+    ANYCALLER mp_size_t gpmpn_bc_set_str(mp_ptr rp, const unsigned char *str, size_t str_len, int base)
     {
       mp_size_t size;
       size_t i;
@@ -237,11 +237,11 @@ namespace gpgmp
         }
         else
         {
-#if HAVE_NATIVE_mpn_mul_1c
-          cy_limb = mpn_mul_1c(rp, rp, size, big_base, res_digit);
+#if HAVE_NATIVE_gpmpn_mul_1c
+          cy_limb = gpmpn_mul_1c(rp, rp, size, big_base, res_digit);
 #else
-          cy_limb = mpn_mul_1(rp, rp, size, big_base);
-          cy_limb += mpn_add_1(rp, rp, size, res_digit);
+          cy_limb = gpmpn_mul_1(rp, rp, size, big_base);
+          cy_limb += gpmpn_add_1(rp, rp, size, res_digit);
 #endif
           if (cy_limb != 0)
             rp[size++] = cy_limb;
@@ -278,11 +278,11 @@ namespace gpgmp
       }
       else
       {
-#if HAVE_NATIVE_mpn_mul_1c
-        cy_limb = mpn_mul_1c(rp, rp, size, big_base, res_digit);
+#if HAVE_NATIVE_gpmpn_mul_1c
+        cy_limb = gpmpn_mul_1c(rp, rp, size, big_base, res_digit);
 #else
-        cy_limb = mpn_mul_1(rp, rp, size, big_base);
-        cy_limb += mpn_add_1(rp, rp, size, res_digit);
+        cy_limb = gpmpn_mul_1(rp, rp, size, big_base);
+        cy_limb += gpmpn_add_1(rp, rp, size, res_digit);
 #endif
         if (cy_limb != 0)
           rp[size++] = cy_limb;

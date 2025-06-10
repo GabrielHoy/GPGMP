@@ -1,5 +1,5 @@
-/* mpn_divrem -- Divide natural numbers, producing both remainder and
-   quotient.  This is now just a middle layer calling mpn_tdiv_qr.
+/* gpmpn_divrem -- Divide natural numbers, producing both remainder and
+   quotient.  This is now just a middle layer calling gpmpn_tdiv_qr.
 
 Copyright 1993-1997, 1999-2002, 2005, 2016 Free Software Foundation, Inc.
 
@@ -37,7 +37,7 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-    ANYCALLER mp_limb_t mpn_divrem(mp_ptr qp, mp_size_t qxn, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
+    ANYCALLER mp_limb_t gpmpn_divrem(mp_ptr qp, mp_size_t qxn, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
     {
       ASSERT(qxn >= 0);
       ASSERT(nn >= dn);
@@ -59,7 +59,7 @@ namespace gpgmp
         TMP_MARK;
         q2p = TMP_ALLOC_LIMBS(nn + qxn);
 
-        np[0] = mpn_divrem_1(q2p, qxn, np, nn, dp[0]);
+        np[0] = gpmpn_divrem_1(q2p, qxn, np, nn, dp[0]);
         qn = nn + qxn - 1;
         MPN_COPY(qp, q2p, qn);
         ret = q2p[qn];
@@ -69,7 +69,7 @@ namespace gpgmp
       }
       else if (dn == 2)
       {
-        return mpn_divrem_2(qp, qxn, np, nn, dp);
+        return gpmpn_divrem_2(qp, qxn, np, nn, dp);
       }
       else
       {
@@ -86,7 +86,7 @@ namespace gpgmp
                             q2p, nn - dn + qxn + 1);
           MPN_ZERO(n2p, qxn);
           MPN_COPY(n2p + qxn, np, nn);
-          mpn_tdiv_qr(q2p, np, 0L, n2p, nn + qxn, dp, dn);
+          gpmpn_tdiv_qr(q2p, np, 0L, n2p, nn + qxn, dp, dn);
           qn = nn - dn + qxn;
           MPN_COPY(qp, q2p, qn);
           qhl = q2p[qn];
@@ -94,7 +94,7 @@ namespace gpgmp
         else
         {
           q2p = TMP_ALLOC_LIMBS(nn - dn + 1);
-          mpn_tdiv_qr(q2p, np, 0L, np, nn, dp, dn);
+          gpmpn_tdiv_qr(q2p, np, 0L, np, nn, dp, dn);
           qn = nn - dn;
           MPN_COPY(qp, q2p, qn);
           qhl = q2p[qn];

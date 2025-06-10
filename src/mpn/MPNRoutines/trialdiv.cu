@@ -1,4 +1,4 @@
-/* mpn_trialdiv -- find small factors of an mpn number using trial division.
+/* gpmpn_trialdiv -- find small factors of an mpn number using trial division.
 
    Contributed to the GNU project by Torbjorn Granlund.
 
@@ -41,7 +41,7 @@ see https://www.gnu.org/licenses/.  */
 
    The caller can limit the factoring effort by passing NPRIMES.  The function
    will then divide until that limit, or perhaps a few primes more.  A position
-   which only mpn_trialdiv can make sense of is returned in the WHERE
+   which only gpmpn_trialdiv can make sense of is returned in the WHERE
    parameter.  It can be used for restarting the factoring effort; the first
    call should pass 0 here.
 
@@ -72,7 +72,7 @@ namespace gpgmp
     struct gmp_primes_ptab
     {
       mp_limb_t ppp;               /* primes, multiplied together */
-      mp_limb_t cps[7];            /* ppp values pre-computed for mpn_mod_1s_4p */
+      mp_limb_t cps[7];            /* ppp values pre-computed for gpmpn_mod_1s_4p */
       gmp_uint_least32_t idx : 24; /* index of  first primes in dtab */
       gmp_uint_least32_t np : 8;   /* number of primes related to this entry */
     };
@@ -2522,7 +2522,7 @@ namespace gpgmp
 
     /* FIXME: We could optimize out one of the outer loop conditions if we
        had a final ptab entry with a huge np field.  */
-    ANYCALLER mp_limb_t mpn_trialdiv(mp_srcptr tp, mp_size_t tn, mp_size_t nprimes, int *where)
+    ANYCALLER mp_limb_t gpmpn_trialdiv(mp_srcptr tp, mp_size_t tn, mp_size_t nprimes, int *where)
     {
       mp_limb_t ppp;
       const mp_limb_t *cps;
@@ -2537,7 +2537,7 @@ namespace gpgmp
         ppp = gmp_primes_ptab_var[i].ppp;
         cps = gmp_primes_ptab_var[i].cps;
 
-        r = mpn_mod_1s_4p(tp, tn, ppp << cps[1], cps);
+        r = gpmpn_mod_1s_4p(tp, tn, ppp << cps[1], cps);
 
         idx = gmp_primes_ptab_var[i].idx;
         np = gmp_primes_ptab_var[i].np;

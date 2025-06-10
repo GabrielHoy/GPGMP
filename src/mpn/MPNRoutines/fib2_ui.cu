@@ -1,4 +1,4 @@
-/* mpn_fib2_ui -- calculate Fibonacci numbers.
+/* gpmpn_fib2_ui -- calculate Fibonacci numbers.
 
    THE FUNCTIONS IN THIS FILE ARE FOR INTERNAL USE ONLY.  THEY'RE ALMOST
    CERTAIN TO BE SUBJECT TO INCOMPATIBLE CHANGES OR DISAPPEAR COMPLETELY IN
@@ -60,12 +60,12 @@ namespace gpgmp
 		low limb.
 		*/
 
-		ANYCALLER mp_size_t mpn_fib2_ui(mp_ptr fp, mp_ptr f1p, unsigned long int n)
+		ANYCALLER mp_size_t gpmpn_fib2_ui(mp_ptr fp, mp_ptr f1p, unsigned long int n)
 		{
 			mp_size_t size;
 			unsigned long nfirst, mask;
 
-			TRACE(printf("mpn_fib2_ui n=%lu\n", n));
+			TRACE(printf("gpmpn_fib2_ui n=%lu\n", n));
 
 			ASSERT(!MPN_OVERLAP_P(fp, MPN_FIB2_SIZE(n), f1p, MPN_FIB2_SIZE(n)));
 
@@ -100,10 +100,10 @@ namespace gpgmp
 						that bit is 0 or 1 respectively.  */
 
 					TRACE(printf("k=%lu mask=0x%lX size=%ld alloc=%ld\n",
-								 n >> refmpn_count_trailing_zeros(mask),
+								 n >> refgpmpn_count_trailing_zeros(mask),
 								 mask, size, alloc);
-						  mpn_trace("fp ", fp, size);
-						  mpn_trace("f1p", f1p, size));
+						  gpmpn_trace("fp ", fp, size);
+						  gpmpn_trace("f1p", f1p, size));
 
 					/* fp normalized, f1p at most one high zero */
 					ASSERT(fp[size - 1] != 0);
@@ -112,8 +112,8 @@ namespace gpgmp
 					/* f1p[size-1] might be zero, but this occurs rarely, so it's not
 						worth bothering checking for it */
 					ASSERT(alloc >= 2 * size);
-					mpn_sqr(xp, fp, size);
-					mpn_sqr(fp, f1p, size);
+					gpmpn_sqr(xp, fp, size);
+					gpmpn_sqr(fp, f1p, size);
 					size *= 2;
 
 					/* Shrink if possible.  Since fp was normalized there'll be at
@@ -124,7 +124,7 @@ namespace gpgmp
 					ASSERT(xp[size - 1] != 0); /* only one xp high zero */
 
 					/* Calculate F[2k-1] = F[k]^2 + F[k-1]^2. */
-					f1p[size] = mpn_add_n(f1p, xp, fp, size);
+					f1p[size] = gpmpn_add_n(f1p, xp, fp, size);
 
 					/* Calculate F[2k+1] = 4*F[k]^2 - F[k-1]^2 + 2*(-1)^k.
 						n&mask is the low bit of our implied k.  */
@@ -132,16 +132,16 @@ namespace gpgmp
 					ASSERT((fp[0] & 2) == 0);
 					/* fp is F[k-1]^2 == 0 or 1 mod 4, like all squares. */
 					fp[0] |= (n & mask ? 2 : 0); /* possible -2 */
-#if HAVE_NATIVE_mpn_rsblsh2_n
-					fp[size] = mpn_rsblsh2_n(fp, fp, xp, size);
+#if HAVE_NATIVE_gpmpn_rsblsh2_n
+					fp[size] = gpmpn_rsblsh2_n(fp, fp, xp, size);
 					MPN_INCR_U(fp, size + 1, (n & mask ? 0 : 2)); /* possible +2 */
 #else
 					{
 						mp_limb_t c;
 
-						c = mpn_lshift(xp, xp, size, 2);
+						c = gpmpn_lshift(xp, xp, size, 2);
 						xp[0] |= (n & mask ? 0 : 2); /* possible +2 */
-						c -= mpn_sub_n(fp, xp, fp, size);
+						c -= gpmpn_sub_n(fp, xp, fp, size);
 						fp[size] = c;
 					}
 #endif
@@ -154,10 +154,10 @@ namespace gpgmp
 					/* Calculate F[2k] = F[2k+1] - F[2k-1], replacing the unwanted one of
 						F[2k+1] and F[2k-1].  */
 					if (n & mask)
-						ASSERT_NOCARRY(mpn_sub_n(f1p, fp, f1p, size));
+						ASSERT_NOCARRY(gpmpn_sub_n(f1p, fp, f1p, size));
 					else
 					{
-						ASSERT_NOCARRY(mpn_sub_n(fp, fp, f1p, size));
+						ASSERT_NOCARRY(gpmpn_sub_n(fp, fp, f1p, size));
 
 						/* Can have a high zero after replacing F[2k+1] with F[2k].
 						f1p will have a high zero if fp does. */
@@ -170,8 +170,8 @@ namespace gpgmp
 			}
 
 			TRACE(printf("done size=%ld\n", size);
-				  mpn_trace("fp ", fp, size);
-				  mpn_trace("f1p", f1p, size));
+				  gpmpn_trace("fp ", fp, size);
+				  gpmpn_trace("f1p", f1p, size));
 
 			return size;
 		}

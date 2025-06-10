@@ -40,7 +40,7 @@ see https://www.gnu.org/licenses/.  */
 namespace gpgmp {
   namespace mpnRoutines {
 
-    /* Used when mpn_hgcd or mpn_hgcd2 has failed. Then either one of a or
+    /* Used when gpmpn_hgcd or gpmpn_hgcd2 has failed. Then either one of a or
       b is small, or the difference is small. Perform one subtraction
       followed by one division. The normal case is to compute the reduced
       a and b, and return the new size.
@@ -74,7 +74,7 @@ namespace gpgmp {
 
     */
 
-    ANYCALLER mp_size_t mpn_gcd_subdiv_step (mp_ptr ap, mp_ptr bp, mp_size_t n, mp_size_t s, gcd_subdiv_step_hook *hook, void *ctx, mp_ptr tp)
+    ANYCALLER mp_size_t gpmpn_gcd_subdiv_step (mp_ptr ap, mp_ptr bp, mp_size_t n, mp_size_t s, gcd_subdiv_step_hook *hook, void *ctx, mp_ptr tp)
     {
       static const mp_limb_t one = CNST_LIMB(1);
       mp_size_t an, bn, qn;
@@ -125,14 +125,14 @@ namespace gpgmp {
           return 0;
         }
 
-      ASSERT_NOCARRY (mpn_sub (bp, bp, bn, ap, an));
+      ASSERT_NOCARRY (gpmpn_sub (bp, bp, bn, ap, an));
       MPN_NORMALIZE (bp, bn);
       ASSERT (bn > 0);
 
       if (bn <= s)
         {
           /* Undo subtraction. */
-          mp_limb_t cy = mpn_add (bp, ap, an, bp, bn);
+          mp_limb_t cy = gpmpn_add (bp, ap, an, bp, bn);
           if (cy > 0)
       bp[an] = cy;
           return 0;
@@ -173,7 +173,7 @@ namespace gpgmp {
       }
         }
 
-      mpn_tdiv_qr (tp, bp, 0, bp, bn, ap, an);
+      gpmpn_tdiv_qr (tp, bp, 0, bp, bn, ap, an);
       qn = bn - an + 1;
       bn = an;
       MPN_NORMALIZE (bp, bn);
@@ -189,7 +189,7 @@ namespace gpgmp {
           /* Quotient is one too large, so decrement it and add back A. */
           if (bn > 0)
       {
-        mp_limb_t cy = mpn_add (bp, ap, an, bp, bn);
+        mp_limb_t cy = gpmpn_add (bp, ap, an, bp, bn);
         if (cy)
           bp[an++] = cy;
       }

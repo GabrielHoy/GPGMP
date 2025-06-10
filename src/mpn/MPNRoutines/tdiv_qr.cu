@@ -1,4 +1,4 @@
-/* mpn_tdiv_qr -- Divide the numerator (np,nn) by the denominator (dp,dn) and
+/* gpmpn_tdiv_qr -- Divide the numerator (np,nn) by the denominator (dp,dn) and
    write the nn-dn+1 quotient limbs at qp and the dn remainder limbs at rp.  If
    qxn is non-zero, generate that many fraction limbs and append them after the
    other quotient limbs, and update the remainder accordingly.  The input
@@ -47,7 +47,7 @@ namespace gpgmp
 	namespace mpnRoutines
 	{
 
-		ANYCALLER void mpn_tdiv_qr(mp_ptr qp, mp_ptr rp, mp_size_t qxn, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
+		ANYCALLER void gpmpn_tdiv_qr(mp_ptr qp, mp_ptr rp, mp_size_t qxn, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
 		{
 			ASSERT_ALWAYS(qxn == 0);
 
@@ -64,7 +64,7 @@ namespace gpgmp
 
 			case 1:
 			{
-				rp[0] = mpn_divrem_1(qp, (mp_size_t)0, np, nn, dp[0]);
+				rp[0] = gpmpn_divrem_1(qp, (mp_size_t)0, np, nn, dp[0]);
 				return;
 			}
 
@@ -83,9 +83,9 @@ namespace gpgmp
 					d2p[1] = (dp[1] << cnt) | (dp[0] >> (GMP_NUMB_BITS - cnt));
 					d2p[0] = (dp[0] << cnt) & GMP_NUMB_MASK;
 					n2p = TMP_ALLOC_LIMBS(nn + 1);
-					cy = mpn_lshift(n2p, np, nn, cnt);
+					cy = gpmpn_lshift(n2p, np, nn, cnt);
 					n2p[nn] = cy;
-					qhl = mpn_divrem_2(qp, 0L, n2p, nn + (cy != 0), d2p);
+					qhl = gpmpn_divrem_2(qp, 0L, n2p, nn + (cy != 0), d2p);
 					if (cy == 0)
 						qp[nn - 2] = qhl; /* always store nn-2+1 quotient limbs */
 					rp[0] = (n2p[0] >> cnt) | ((n2p[1] << (GMP_NUMB_BITS - cnt)) & GMP_NUMB_MASK);
@@ -95,7 +95,7 @@ namespace gpgmp
 				{
 					n2p = TMP_ALLOC_LIMBS(nn);
 					MPN_COPY(n2p, np, nn);
-					qhl = mpn_divrem_2(qp, 0L, n2p, nn, dp);
+					qhl = gpmpn_divrem_2(qp, 0L, n2p, nn, dp);
 					qp[nn - 2] = qhl; /* always store nn-2+1 quotient limbs */
 					rp[0] = n2p[0];
 					rp[1] = n2p[1];
@@ -123,9 +123,9 @@ namespace gpgmp
 						count_leading_zeros(cnt, dp[dn - 1]);
 						cnt -= GMP_NAIL_BITS;
 						d2p = TMP_ALLOC_LIMBS(dn);
-						mpn_lshift(d2p, dp, dn, cnt);
+						gpmpn_lshift(d2p, dp, dn, cnt);
 						n2p = TMP_ALLOC_LIMBS(nn + 1);
-						cy = mpn_lshift(n2p, np, nn, cnt);
+						cy = gpmpn_lshift(n2p, np, nn, cnt);
 						n2p[nn] = cy;
 						nn += adjust;
 					}
@@ -141,23 +141,23 @@ namespace gpgmp
 
 					invert_pi1(dinv, d2p[dn - 1], d2p[dn - 2]);
 					if (BELOW_THRESHOLD(dn, DC_DIV_QR_THRESHOLD))
-						mpn_sbpi1_div_qr(qp, n2p, nn, d2p, dn, dinv.inv32);
+						gpmpn_sbpi1_div_qr(qp, n2p, nn, d2p, dn, dinv.inv32);
 					else if (BELOW_THRESHOLD(dn, MUPI_DIV_QR_THRESHOLD) ||					  /* fast condition */
 							 BELOW_THRESHOLD(nn, 2 * MU_DIV_QR_THRESHOLD) ||				  /* fast condition */
 							 (double)(2 * (MU_DIV_QR_THRESHOLD - MUPI_DIV_QR_THRESHOLD)) * dn /* slow... */
 									 + (double)MUPI_DIV_QR_THRESHOLD * nn >
 								 (double)dn * nn) /* ...condition */
-						mpn_dcpi1_div_qr(qp, n2p, nn, d2p, dn, &dinv);
+						gpmpn_dcpi1_div_qr(qp, n2p, nn, d2p, dn, &dinv);
 					else
 					{
-						mp_size_t itch = mpn_mu_div_qr_itch(nn, dn, 0);
+						mp_size_t itch = gpmpn_mu_div_qr_itch(nn, dn, 0);
 						mp_ptr scratch = TMP_ALLOC_LIMBS(itch);
-						mpn_mu_div_qr(qp, rp, n2p, nn, d2p, dn, scratch);
+						gpmpn_mu_div_qr(qp, rp, n2p, nn, d2p, dn, scratch);
 						n2p = rp;
 					}
 
 					if (cnt != 0)
-						mpn_rshift(rp, n2p, dn, cnt);
+						gpmpn_rshift(rp, n2p, dn, cnt);
 					else
 						MPN_COPY(rp, n2p, dn);
 					TMP_FREE;
@@ -182,7 +182,7 @@ namespace gpgmp
 					  by the qn most significant limbs from the denominator.  Call
 					  the result qest.  This is either the correct quotient, but
 					  might be 1 or 2 too large.  Compute the remainder from the
-					  division.  (This step is implemented by an mpn_divrem call.)
+					  division.  (This step is implemented by an gpmpn_divrem call.)
 
 					   2) Is the most significant limb from the remainder < p, where p
 					  is the product of the most significant limb from the quotient
@@ -229,11 +229,11 @@ namespace gpgmp
 						cnt -= GMP_NAIL_BITS;
 
 						d2p = TMP_ALLOC_LIMBS(qn);
-						mpn_lshift(d2p, dp + in, qn, cnt);
+						gpmpn_lshift(d2p, dp + in, qn, cnt);
 						d2p[0] |= dp[in - 1] >> (GMP_NUMB_BITS - cnt);
 
 						n2p = TMP_ALLOC_LIMBS(2 * qn + 1);
-						cy = mpn_lshift(n2p, np + nn - 2 * qn, 2 * qn, cnt);
+						cy = gpmpn_lshift(n2p, np + nn - 2 * qn, 2 * qn, cnt);
 						if (adjust)
 						{
 							n2p[2 * qn] = cy;
@@ -267,22 +267,22 @@ namespace gpgmp
 						qp[0] = q0;
 					}
 					else if (qn == 2)
-						mpn_divrem_2(qp, 0L, n2p, 4L, d2p); /* FIXME: obsolete function */
+						gpmpn_divrem_2(qp, 0L, n2p, 4L, d2p); /* FIXME: obsolete function */
 					else
 					{
 						invert_pi1(dinv, d2p[qn - 1], d2p[qn - 2]);
 						if (BELOW_THRESHOLD(qn, DC_DIV_QR_THRESHOLD))
-							mpn_sbpi1_div_qr(qp, n2p, 2 * qn, d2p, qn, dinv.inv32);
+							gpmpn_sbpi1_div_qr(qp, n2p, 2 * qn, d2p, qn, dinv.inv32);
 						else if (BELOW_THRESHOLD(qn, MU_DIV_QR_THRESHOLD))
-							mpn_dcpi1_div_qr(qp, n2p, 2 * qn, d2p, qn, &dinv);
+							gpmpn_dcpi1_div_qr(qp, n2p, 2 * qn, d2p, qn, &dinv);
 						else
 						{
-							mp_size_t itch = mpn_mu_div_qr_itch(2 * qn, qn, 0);
+							mp_size_t itch = gpmpn_mu_div_qr_itch(2 * qn, qn, 0);
 							mp_ptr scratch = TMP_ALLOC_LIMBS(itch);
 							mp_ptr r2p = rp;
 							if (np == r2p)		/* If N and R share space, put ... */
 								r2p += nn - qn; /* intermediate remainder at N's upper end. */
-							mpn_mu_div_qr(qp, r2p, n2p, 2 * qn, d2p, qn, scratch);
+							gpmpn_mu_div_qr(qp, r2p, n2p, 2 * qn, d2p, qn, scratch);
 							MPN_COPY(n2p, r2p, qn);
 						}
 					}
@@ -315,8 +315,8 @@ namespace gpgmp
 						{
 							mp_limb_t cy;
 
-							mpn_decr_u(qp, (mp_limb_t)1);
-							cy = mpn_add_n(n2p, n2p, d2p, qn);
+							gpmpn_decr_u(qp, (mp_limb_t)1);
+							cy = gpmpn_add_n(n2p, n2p, d2p, qn);
 							if (cy)
 							{
 								/* The partial remainder is safely large.  */
@@ -332,11 +332,11 @@ namespace gpgmp
 						mp_limb_t cy1, cy2;
 
 						/* Append partially used numerator limb to partial remainder.  */
-						cy1 = mpn_lshift(n2p, n2p, rn, GMP_NUMB_BITS - cnt);
+						cy1 = gpmpn_lshift(n2p, n2p, rn, GMP_NUMB_BITS - cnt);
 						n2p[0] |= np[in - 1] & (GMP_NUMB_MASK >> cnt);
 
 						/* Update partial remainder with partially used divisor limb.  */
-						cy2 = mpn_submul_1(n2p, qp, qn, dp[in - 1] & (GMP_NUMB_MASK >> cnt));
+						cy2 = gpmpn_submul_1(n2p, qp, qn, dp[in - 1] & (GMP_NUMB_MASK >> cnt));
 						if (qn != rn)
 						{
 							ASSERT_ALWAYS(n2p[qn] >= cy2);
@@ -363,22 +363,22 @@ namespace gpgmp
 							ASSERT_ALWAYS(rn == dn);
 							goto foo;
 						}
-						mpn_mul(tp, qp, qn, dp, in);
+						gpmpn_mul(tp, qp, qn, dp, in);
 					}
 					else
-						mpn_mul(tp, dp, in, qp, qn);
+						gpmpn_mul(tp, dp, in, qp, qn);
 
-					cy = mpn_sub(n2p, n2p, rn, tp + in, qn);
+					cy = gpmpn_sub(n2p, n2p, rn, tp + in, qn);
 					MPN_COPY(rp + in, n2p, dn - in);
 					quotient_too_large |= cy;
-					cy = mpn_sub_n(rp, np, tp, in);
-					cy = mpn_sub_1(rp + in, rp + in, rn, cy);
+					cy = gpmpn_sub_n(rp, np, tp, in);
+					cy = gpmpn_sub_1(rp + in, rp + in, rn, cy);
 					quotient_too_large |= cy;
 				foo:
 					if (quotient_too_large)
 					{
-						mpn_decr_u(qp, (mp_limb_t)1);
-						mpn_add_n(rp, rp, dp, dn);
+						gpmpn_decr_u(qp, (mp_limb_t)1);
+						gpmpn_add_n(rp, rp, dp, dn);
 					}
 				}
 				TMP_FREE;

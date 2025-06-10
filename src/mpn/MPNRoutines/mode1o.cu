@@ -1,4 +1,4 @@
-/* mpn_modexact_1c_odd -- mpn by limb exact division style remainder.
+/* gpmpn_modexact_1c_odd -- mpn by limb exact division style remainder.
 
    THE FUNCTIONS IN THIS FILE ARE FOR INTERNAL USE ONLY.  THEY'RE ALMOST
    CERTAIN TO BE SUBJECT TO INCOMPATIBLE CHANGES OR DISAPPEAR COMPLETELY IN
@@ -58,8 +58,8 @@ namespace gpgmp
        obtained then a==c mod d.
 
 
-       r is a bit like the remainder returned by mpn_divexact_by3c, and is the
-       sort of remainder mpn_divexact_1 might return.  Like mpn_divexact_by3c, r
+       r is a bit like the remainder returned by gpmpn_divexact_by3c, and is the
+       sort of remainder gpmpn_divexact_1 might return.  Like gpmpn_divexact_by3c, r
        represents a borrow, since effectively quotient limbs are chosen so that
        subtracting that multiple of d from src at each step will produce a zero
        limb.
@@ -78,7 +78,7 @@ namespace gpgmp
 
 
        In terms of efficiency, this function is similar to a mul-by-inverse
-       mpn_mod_1.  Both are essentially two multiplies and are best suited to
+       gpmpn_mod_1.  Both are essentially two multiplies and are best suited to
        CPUs with low latency multipliers (in comparison to a divide instruction
        at least.)  But modexact has a few less supplementary operations, only
        needs low part and high part multiplies, and has fewer working quantities
@@ -113,7 +113,7 @@ namespace gpgmp
        high<divisor test.  mpn/x86/k6/mode1o.asm for instance finds neither
        useful.  */
 
-    ANYCALLER mp_limb_t mpn_modexact_1c_odd(mp_srcptr src, mp_size_t size, mp_limb_t d, mp_limb_t orig_c)
+    ANYCALLER mp_limb_t gpmpn_modexact_1c_odd(mp_srcptr src, mp_size_t size, mp_limb_t d, mp_limb_t orig_c)
     {
       mp_limb_t s, h, l, inverse, dummy, dmul, ret;
       mp_limb_t c = orig_c;
@@ -197,7 +197,7 @@ namespace gpgmp
    x=0xFF..FF and x-h cannot produce a borrow.  The c=(x>s) could become
    c=(x==0xFF..FF) too, if that helped.  */
 
-ANYCALLER mp_limb_t mpn_modexact_1c_odd (mp_srcptr src, mp_size_t size, mp_limb_t d, mp_limb_t h)
+ANYCALLER mp_limb_t gpmpn_modexact_1c_odd (mp_srcptr src, mp_size_t size, mp_limb_t d, mp_limb_t h)
 {
   mp_limb_t  s, x, y, inverse, dummy, dmul, c1, c2;
   mp_limb_t  c = 0;

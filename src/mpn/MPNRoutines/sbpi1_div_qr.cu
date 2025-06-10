@@ -1,4 +1,4 @@
-/* mpn_sbpi1_div_qr -- Schoolbook division using the Möller-Granlund 3/2
+/* gpmpn_sbpi1_div_qr -- Schoolbook division using the Möller-Granlund 3/2
    division algorithm.
 
    Contributed to the GNU project by Torbjorn Granlund.
@@ -43,7 +43,7 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-    ANYCALLER mp_limb_t mpn_sbpi1_div_qr(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_limb_t dinv)
+    ANYCALLER mp_limb_t gpmpn_sbpi1_div_qr(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_limb_t dinv)
     {
       mp_limb_t qh;
       mp_size_t i;
@@ -58,14 +58,14 @@ namespace gpgmp
 
       np += nn;
 
-      qh = mpn_cmp(np - dn, dp, dn) >= 0;
+      qh = gpmpn_cmp(np - dn, dp, dn) >= 0;
       if (qh != 0)
-        mpn_sub_n(np - dn, np - dn, dp, dn);
+        gpmpn_sub_n(np - dn, np - dn, dp, dn);
 
       qp += nn - dn;
 
       dn -= 2; /* offset dn by 2 for main division loops,
-          saving two iterations in mpn_submul_1.  */
+          saving two iterations in gpmpn_submul_1.  */
       d1 = dp[dn + 1];
       d0 = dp[dn + 0];
 
@@ -79,14 +79,14 @@ namespace gpgmp
         if (UNLIKELY(n1 == d1) && np[1] == d0)
         {
           q = GMP_NUMB_MASK;
-          mpn_submul_1(np - dn, dp, dn + 2, q);
+          gpmpn_submul_1(np - dn, dp, dn + 2, q);
           n1 = np[1]; /* update n1, last loop's value will now be invalid */
         }
         else
         {
           udiv_qr_3by2(q, n1, n0, n1, np[1], np[0], d1, d0, dinv);
 
-          cy = mpn_submul_1(np - dn, dp, dn, q);
+          cy = gpmpn_submul_1(np - dn, dp, dn, q);
 
           cy1 = n0 < cy;
           n0 = (n0 - cy) & GMP_NUMB_MASK;
@@ -96,7 +96,7 @@ namespace gpgmp
 
           if (UNLIKELY(cy != 0))
           {
-            n1 += d1 + mpn_add_n(np - dn, np - dn, dp, dn + 1);
+            n1 += d1 + gpmpn_add_n(np - dn, np - dn, dp, dn + 1);
             q--;
           }
         }

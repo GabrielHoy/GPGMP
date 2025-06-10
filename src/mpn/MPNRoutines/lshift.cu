@@ -1,4 +1,4 @@
-/* mpn_lshift -- Shift left low level.
+/* gpmpn_lshift -- Shift left low level.
 
 Copyright 1991, 1993, 1994, 1996, 2000-2002 Free Software Foundation, Inc.
 
@@ -43,7 +43,7 @@ namespace gpgmp {
       2. If the result is to be written over the input, rp must be >= up.
     */
 
-    ANYCALLER mp_limb_t mpn_lshift (mp_ptr rp, mp_srcptr up, mp_size_t n, unsigned int cnt)
+    ANYCALLER mp_limb_t gpmpn_lshift (mp_ptr rp, mp_srcptr up, mp_size_t n, unsigned int cnt)
     {
       mp_limb_t high_limb, low_limb;
       unsigned int tnc;

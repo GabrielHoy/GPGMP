@@ -1,4 +1,4 @@
-/* mpn_div_qr_1n_pi2.
+/* gpmpn_div_qr_1n_pi2.
 
    THIS FILE CONTAINS AN INTERNAL FUNCTION WITH A MUTABLE INTERFACE.  IT IS
    ONLY SAFE TO REACH IT THROUGH DOCUMENTED INTERFACES.  IN FACT, IT IS ALMOST
@@ -115,7 +115,7 @@ namespace gpgmp {
       int norm_cnt;
     };
 
-    ANYCALLER mp_limb_t mpn_div_qr_1n_pi2 (mp_ptr qp, mp_srcptr up, mp_size_t un, struct precomp_div_1_pi2 *pd)
+    ANYCALLER mp_limb_t gpmpn_div_qr_1n_pi2 (mp_ptr qp, mp_srcptr up, mp_size_t un, struct precomp_div_1_pi2 *pd)
     {
       mp_limb_t most_significant_q_limb;
       mp_size_t i;

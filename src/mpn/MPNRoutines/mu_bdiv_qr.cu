@@ -1,4 +1,4 @@
-/* mpn_mu_bdiv_qr(qp,rp,np,nn,dp,dn,tp) -- Compute {np,nn} / {dp,dn} mod B^qn,
+/* gpmpn_mu_bdiv_qr(qp,rp,np,nn,dp,dn,tp) -- Compute {np,nn} / {dp,dn} mod B^qn,
    where qn = nn-dn, storing the result in {qp,qn}.  Overlap allowed between Q
    and N; all other overlap disallowed.
 
@@ -59,7 +59,7 @@ namespace gpgmp
          D odd
          dn >= 2
          nn >= 2
-         scratch space as determined by mpn_mu_bdiv_qr_itch(nn,dn).
+         scratch space as determined by gpmpn_mu_bdiv_qr_itch(nn,dn).
 
        Write quotient to Q = {qp,nn-dn}.
 
@@ -68,7 +68,7 @@ namespace gpgmp
        FIXME: Trim allocation for (qn > dn) case, 3*dn might be possible.  In
         particular, when dn==in, tp and rp could use the same space.
     */
-    ANYCALLER static mp_limb_t mpn_mu_bdiv_qr_old(mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr scratch)
+    ANYCALLER static mp_limb_t gpmpn_mu_bdiv_qr_old(mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr scratch)
     {
       mp_size_t qn;
       mp_size_t in;
@@ -97,13 +97,13 @@ namespace gpgmp
 
         /* Some notes on allocation:
 
-     When in = dn, R dies when mpn_mullo returns, if in < dn the low in
+     When in = dn, R dies when gpmpn_mullo returns, if in < dn the low in
      limbs of R dies at that point.  We could save memory by letting T live
      just under R, and let the upper part of T expand into R. These changes
      should reduce itch to perhaps 3dn.
          */
 
-        mpn_binvert(ip, dp, in, tp);
+        gpmpn_binvert(ip, dp, in, tp);
 
         MPN_COPY(rp, np, dn);
         np += dn;
@@ -111,19 +111,19 @@ namespace gpgmp
 
         while (qn > in)
         {
-          mpn_mullo_n(qp, rp, ip, in);
+          gpmpn_mullo_n(qp, rp, ip, in);
 
           if (BELOW_THRESHOLD(in, MUL_TO_MULMOD_BNM1_FOR_2NXN_THRESHOLD))
-            mpn_mul(tp, dp, dn, qp, in); /* mulhi, need tp[dn+in-1...in] */
+            gpmpn_mul(tp, dp, dn, qp, in); /* mulhi, need tp[dn+in-1...in] */
           else
           {
-            tn = mpn_mulmod_bnm1_next_size(dn);
-            mpn_mulmod_bnm1(tp, tn, dp, dn, qp, in, scratch_out);
+            tn = gpmpn_mulmod_bnm1_next_size(dn);
+            gpmpn_mulmod_bnm1(tp, tn, dp, dn, qp, in, scratch_out);
             wn = dn + in - tn; /* number of wrapped limbs */
             if (wn > 0)
             {
-              c0 = mpn_sub_n(tp + tn, tp, rp, wn);
-              mpn_decr_u(tp + wn, c0);
+              c0 = gpmpn_sub_n(tp + tn, tp, rp, wn);
+              gpmpn_decr_u(tp + wn, c0);
             }
           }
 
@@ -133,45 +133,45 @@ namespace gpgmp
           if (dn != in)
           {
             /* Subtract tp[dn-1...in] from partial remainder.  */
-            cy += mpn_sub_n(rp, rp + in, tp + in, dn - in);
+            cy += gpmpn_sub_n(rp, rp + in, tp + in, dn - in);
             if (cy == 2)
             {
-              mpn_incr_u(tp + dn, 1);
+              gpmpn_incr_u(tp + dn, 1);
               cy = 1;
             }
           }
           /* Subtract tp[dn+in-1...dn] from dividend.  */
-          cy = mpn_sub_nc(rp + dn - in, np, tp + dn, in, cy);
+          cy = gpmpn_sub_nc(rp + dn - in, np, tp + dn, in, cy);
           np += in;
         }
 
         /* Generate last qn limbs.  */
-        mpn_mullo_n(qp, rp, ip, qn);
+        gpmpn_mullo_n(qp, rp, ip, qn);
 
         if (BELOW_THRESHOLD(qn, MUL_TO_MULMOD_BNM1_FOR_2NXN_THRESHOLD))
-          mpn_mul(tp, dp, dn, qp, qn); /* mulhi, need tp[qn+in-1...in] */
+          gpmpn_mul(tp, dp, dn, qp, qn); /* mulhi, need tp[qn+in-1...in] */
         else
         {
-          tn = mpn_mulmod_bnm1_next_size(dn);
-          mpn_mulmod_bnm1(tp, tn, dp, dn, qp, qn, scratch_out);
+          tn = gpmpn_mulmod_bnm1_next_size(dn);
+          gpmpn_mulmod_bnm1(tp, tn, dp, dn, qp, qn, scratch_out);
           wn = dn + qn - tn; /* number of wrapped limbs */
           if (wn > 0)
           {
-            c0 = mpn_sub_n(tp + tn, tp, rp, wn);
-            mpn_decr_u(tp + wn, c0);
+            c0 = gpmpn_sub_n(tp + tn, tp, rp, wn);
+            gpmpn_decr_u(tp + wn, c0);
           }
         }
 
         if (dn != qn)
         {
-          cy += mpn_sub_n(rp, rp + qn, tp + qn, dn - qn);
+          cy += gpmpn_sub_n(rp, rp + qn, tp + qn, dn - qn);
           if (cy == 2)
           {
-            mpn_incr_u(tp + dn, 1);
+            gpmpn_incr_u(tp + dn, 1);
             cy = 1;
           }
         }
-        return mpn_sub_nc(rp + dn - qn, np, tp + dn, qn, cy);
+        return gpmpn_sub_nc(rp + dn - qn, np, tp + dn, qn, cy);
 
 #undef ip
 #undef tp
@@ -189,51 +189,51 @@ namespace gpgmp
         /* Compute half-sized inverse.  */
         in = qn - (qn >> 1);
 
-        mpn_binvert(ip, dp, in, tp);
+        gpmpn_binvert(ip, dp, in, tp);
 
-        mpn_mullo_n(qp, np, ip, in); /* low `in' quotient limbs */
+        gpmpn_mullo_n(qp, np, ip, in); /* low `in' quotient limbs */
 
         if (BELOW_THRESHOLD(in, MUL_TO_MULMOD_BNM1_FOR_2NXN_THRESHOLD))
-          mpn_mul(tp, dp, dn, qp, in); /* mulhigh */
+          gpmpn_mul(tp, dp, dn, qp, in); /* mulhigh */
         else
         {
-          tn = mpn_mulmod_bnm1_next_size(dn);
-          mpn_mulmod_bnm1(tp, tn, dp, dn, qp, in, scratch_out);
+          tn = gpmpn_mulmod_bnm1_next_size(dn);
+          gpmpn_mulmod_bnm1(tp, tn, dp, dn, qp, in, scratch_out);
           wn = dn + in - tn; /* number of wrapped limbs */
           if (wn > 0)
           {
-            c0 = mpn_sub_n(tp + tn, tp, np, wn);
-            mpn_decr_u(tp + wn, c0);
+            c0 = gpmpn_sub_n(tp + tn, tp, np, wn);
+            gpmpn_decr_u(tp + wn, c0);
           }
         }
 
         qp += in;
         qn -= in;
 
-        cy = mpn_sub_n(rp, np + in, tp + in, dn);
-        mpn_mullo_n(qp, rp, ip, qn); /* high qn quotient limbs */
+        cy = gpmpn_sub_n(rp, np + in, tp + in, dn);
+        gpmpn_mullo_n(qp, rp, ip, qn); /* high qn quotient limbs */
 
         if (BELOW_THRESHOLD(qn, MUL_TO_MULMOD_BNM1_FOR_2NXN_THRESHOLD))
-          mpn_mul(tp, dp, dn, qp, qn); /* mulhigh */
+          gpmpn_mul(tp, dp, dn, qp, qn); /* mulhigh */
         else
         {
-          tn = mpn_mulmod_bnm1_next_size(dn);
-          mpn_mulmod_bnm1(tp, tn, dp, dn, qp, qn, scratch_out);
+          tn = gpmpn_mulmod_bnm1_next_size(dn);
+          gpmpn_mulmod_bnm1(tp, tn, dp, dn, qp, qn, scratch_out);
           wn = dn + qn - tn; /* number of wrapped limbs */
           if (wn > 0)
           {
-            c0 = mpn_sub_n(tp + tn, tp, rp, wn);
-            mpn_decr_u(tp + wn, c0);
+            c0 = gpmpn_sub_n(tp + tn, tp, rp, wn);
+            gpmpn_decr_u(tp + wn, c0);
           }
         }
 
-        cy += mpn_sub_n(rp, rp + qn, tp + qn, dn - qn);
+        cy += gpmpn_sub_n(rp, rp + qn, tp + qn, dn - qn);
         if (cy == 2)
         {
-          mpn_incr_u(tp + dn, 1);
+          gpmpn_incr_u(tp + dn, 1);
           cy = 1;
         }
-        return mpn_sub_nc(rp + dn - qn, np + dn + in, tp + dn, qn, cy);
+        return gpmpn_sub_nc(rp + dn - qn, np + dn + in, tp + dn, qn, cy);
 
 #undef ip
 #undef tp
@@ -242,13 +242,13 @@ namespace gpgmp
     }
 
     ANYCALLER mp_limb_t
-    mpn_mu_bdiv_qr(mp_ptr qp,
+    gpmpn_mu_bdiv_qr(mp_ptr qp,
                    mp_ptr rp,
                    mp_srcptr np, mp_size_t nn,
                    mp_srcptr dp, mp_size_t dn,
                    mp_ptr scratch)
     {
-      mp_limb_t cy = mpn_mu_bdiv_qr_old(qp, rp, np, nn, dp, dn, scratch);
+      mp_limb_t cy = gpmpn_mu_bdiv_qr_old(qp, rp, np, nn, dp, dn, scratch);
 
       /* R' B^{qn} = U - Q' D
        *
@@ -258,7 +258,7 @@ namespace gpgmp
        *          = B^{qn} D + R'
        */
 
-      if (UNLIKELY(!mpn_neg(qp, qp, nn - dn)))
+      if (UNLIKELY(!gpmpn_neg(qp, qp, nn - dn)))
       {
         /* Zero quotient. */
         ASSERT(cy == 0);
@@ -266,7 +266,7 @@ namespace gpgmp
       }
       else
       {
-        mp_limb_t cy2 = mpn_add_n(rp, rp, dp, dn);
+        mp_limb_t cy2 = gpmpn_add_n(rp, rp, dp, dn);
         ASSERT(cy2 >= cy);
 
         return cy2 - cy;
@@ -274,7 +274,7 @@ namespace gpgmp
     }
 
     ANYCALLER mp_size_t
-    mpn_mu_bdiv_qr_itch(mp_size_t nn, mp_size_t dn)
+    gpmpn_mu_bdiv_qr_itch(mp_size_t nn, mp_size_t dn)
     {
       mp_size_t qn, in, tn, itch_binvert, itch_out, itches;
       mp_size_t b;
@@ -300,11 +300,11 @@ namespace gpgmp
       }
       else
       {
-        tn = mpn_mulmod_bnm1_next_size(dn);
-        itch_out = mpn_mulmod_bnm1_itch(tn, dn, in);
+        tn = gpmpn_mulmod_bnm1_next_size(dn);
+        itch_out = gpmpn_mulmod_bnm1_itch(tn, dn, in);
       }
 
-      itch_binvert = mpn_binvert_itch(in);
+      itch_binvert = gpmpn_binvert_itch(in);
       itches = tn + itch_out;
       return in + MAX(itches, itch_binvert);
     }

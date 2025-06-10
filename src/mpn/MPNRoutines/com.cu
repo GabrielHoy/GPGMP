@@ -1,4 +1,4 @@
-/* mpn_com - complement an mpn.
+/* gpmpn_com - complement an mpn.
 
 Copyright 2009 Free Software Foundation, Inc.
 
@@ -30,14 +30,14 @@ see https://www.gnu.org/licenses/.  */
 #pragma once
 #include "gpgmp-impl.cuh"
 
-#undef mpn_com
-#define mpn_com __MPN(com)
+#undef gpmpn_com
+#define gpmpn_com __GPGMP_MPN(com)
 
 namespace gpgmp {
 
 	namespace mpnRoutines {
 
-		ANYCALLER void mpn_com (mp_ptr result_ptr, mp_srcptr operand_ptr, mp_size_t size)
+		ANYCALLER void gpmpn_com (mp_ptr result_ptr, mp_srcptr operand_ptr, mp_size_t size)
     {
       mp_limb_t operand_limb;
       do {

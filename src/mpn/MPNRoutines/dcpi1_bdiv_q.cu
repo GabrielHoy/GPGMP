@@ -1,4 +1,4 @@
-/* mpn_dcpi1_bdiv_q -- divide-and-conquer Hensel division with precomputed
+/* gpmpn_dcpi1_bdiv_q -- divide-and-conquer Hensel division with precomputed
    inverse, returning quotient.
 
    Contributed to the GNU project by Niels Möller and Torbjorn Granlund.
@@ -43,9 +43,9 @@ namespace gpgmp {
 
     #if 0				/* unused, so leave out for now */
     static mp_size_t
-    mpn_dcpi1_bdiv_q_n_itch (mp_size_t n)
+    gpmpn_dcpi1_bdiv_q_n_itch (mp_size_t n)
     {
-      /* NOTE: Depends on mullo_n and mpn_dcpi1_bdiv_qr_n interface */
+      /* NOTE: Depends on mullo_n and gpmpn_dcpi1_bdiv_qr_n interface */
       return n;
     }
     #endif
@@ -55,7 +55,7 @@ namespace gpgmp {
       N = {np,n}
       D = {dp,n}
     */
-    ANYCALLER static void mpn_dcpi1_bdiv_q_n (mp_ptr qp, mp_ptr np, mp_srcptr dp, mp_size_t n, mp_limb_t dinv, mp_ptr tp)
+    ANYCALLER static void gpmpn_dcpi1_bdiv_q_n (mp_ptr qp, mp_ptr np, mp_srcptr dp, mp_size_t n, mp_limb_t dinv, mp_ptr tp)
     {
       while (ABOVE_THRESHOLD (n, DC_BDIV_Q_THRESHOLD))
       {
@@ -65,21 +65,21 @@ namespace gpgmp {
         lo = n >> 1;			/* floor(n/2) */
         hi = n - lo;			/* ceil(n/2) */
 
-        cy = mpn_dcpi1_bdiv_qr_n (qp, np, dp, lo, dinv, tp);
+        cy = gpmpn_dcpi1_bdiv_qr_n (qp, np, dp, lo, dinv, tp);
 
-        mpn_mullo_n (tp, qp, dp + hi, lo);
-        mpn_add_n (np + hi, np + hi, tp, lo);
+        gpmpn_mullo_n (tp, qp, dp + hi, lo);
+        gpmpn_add_n (np + hi, np + hi, tp, lo);
 
         if (lo < hi)
         {
-          cy += mpn_addmul_1 (np + lo, qp, lo, dp[lo]);
+          cy += gpmpn_addmul_1 (np + lo, qp, lo, dp[lo]);
           np[n - 1] += cy;
         }
         qp += lo;
         np += lo;
         n -= lo;
       }
-      mpn_sbpi1_bdiv_q (qp, np, n, dp, n, dinv);
+      gpmpn_sbpi1_bdiv_q (qp, np, n, dp, n, dinv);
     }
 
     /* Computes Q = - N / D mod B^nn, destroys N.
@@ -87,7 +87,7 @@ namespace gpgmp {
       N = {np,nn}
       D = {dp,dn}
     */
-    ANYCALLER void mpn_dcpi1_bdiv_q (mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_limb_t dinv)
+    ANYCALLER void gpmpn_dcpi1_bdiv_q (mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_limb_t dinv)
     {
       mp_size_t qn;
       mp_limb_t cy;
@@ -113,19 +113,19 @@ namespace gpgmp {
 
         /* Perform the typically smaller block first.  */
         if (BELOW_THRESHOLD (qn, DC_BDIV_QR_THRESHOLD))
-          cy = mpn_sbpi1_bdiv_qr (qp, np, 2 * qn, dp, qn, dinv);
+          cy = gpmpn_sbpi1_bdiv_qr (qp, np, 2 * qn, dp, qn, dinv);
         else
-          cy = mpn_dcpi1_bdiv_qr_n (qp, np, dp, qn, dinv, tp);
+          cy = gpmpn_dcpi1_bdiv_qr_n (qp, np, dp, qn, dinv, tp);
 
         if (qn != dn)
         {
           if (qn > dn - qn)
-            mpn_mul (tp, qp, qn, dp + qn, dn - qn);
+            gpmpn_mul (tp, qp, qn, dp + qn, dn - qn);
           else
-            mpn_mul (tp, dp + qn, dn - qn, qp, qn);
-          mpn_incr_u (tp + qn, cy);
+            gpmpn_mul (tp, dp + qn, dn - qn, qp, qn);
+          gpmpn_incr_u (tp + qn, cy);
 
-          mpn_add (np + qn, np + qn, nn - qn, tp, dn);
+          gpmpn_add (np + qn, np + qn, nn - qn, tp, dn);
           cy = 0;
         }
 
@@ -135,20 +135,20 @@ namespace gpgmp {
         qn = nn - qn;
         while (qn > dn)
         {
-          mpn_add_1 (np + dn, np + dn, qn - dn, cy);
-          cy = mpn_dcpi1_bdiv_qr_n (qp, np, dp, dn, dinv, tp);
+          gpmpn_add_1 (np + dn, np + dn, qn - dn, cy);
+          cy = gpmpn_dcpi1_bdiv_qr_n (qp, np, dp, dn, dinv, tp);
           qp += dn;
           np += dn;
           qn -= dn;
         }
-        mpn_dcpi1_bdiv_q_n (qp, np, dp, dn, dinv, tp);
+        gpmpn_dcpi1_bdiv_q_n (qp, np, dp, dn, dinv, tp);
       }
       else
       {
         if (BELOW_THRESHOLD (qn, DC_BDIV_Q_THRESHOLD))
-          mpn_sbpi1_bdiv_q (qp, np, qn, dp, qn, dinv);
+          gpmpn_sbpi1_bdiv_q (qp, np, qn, dp, qn, dinv);
         else
-          mpn_dcpi1_bdiv_q_n (qp, np, dp, qn, dinv, tp);
+          gpmpn_dcpi1_bdiv_q_n (qp, np, dp, qn, dinv, tp);
       }
 
       TMP_FREE;

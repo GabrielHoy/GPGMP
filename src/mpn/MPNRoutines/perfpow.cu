@@ -1,4 +1,4 @@
-/* mpn_perfect_power_p -- mpn perfect power detection.
+/* gpmpn_perfect_power_p -- mpn perfect power detection.
 
    Contributed to the GNU project by Martin Boij.
 
@@ -48,7 +48,7 @@ namespace gpgmp
            {np,nn}.
 
        FIXME: Low xn limbs can be expected to always match, if computed as a mod
-       B^{xn} root. So instead of using mpn_powlo, compute an approximation of the
+       B^{xn} root. So instead of using gpmpn_powlo, compute an approximation of the
        most significant (normalized) limb of {xp,xn} ^ k (and an error bound), and
        compare to {np, nn}. Or use an even cruder approximation based on fix-point
        base 2 logarithm.  */
@@ -72,8 +72,8 @@ namespace gpgmp
       z = 1 + (n >> 1);
       for (bn = 1; bn < z; bn <<= 1)
       {
-        mpn_powlo(tp, xp, &k, 1, bn, tp + bn);
-        if (mpn_cmp(tp, np, bn) != 0)
+        gpmpn_powlo(tp, xp, &k, 1, bn, tp + bn);
+        if (gpmpn_cmp(tp, np, bn) != 0)
           return 0;
       }
 
@@ -105,8 +105,8 @@ namespace gpgmp
         y = 2 + size / GMP_LIMB_BITS;
         tp2 = TMP_ALLOC_LIMBS(y);
 
-        i = mpn_pow_1(tp, xp, xn, k, tp2);
-        if (i == n && mpn_cmp(tp, np, n) == 0)
+        i = gpmpn_pow_1(tp, xp, xn, k, tp2);
+        if (i == n && gpmpn_cmp(tp, np, n) == 0)
           ans = 1;
         else
           ans = 0;
@@ -136,7 +136,7 @@ namespace gpgmp
       {
         b = (f + 1) >> 1;
         rn = 1 + b / GMP_LIMB_BITS;
-        if (mpn_bsqrtinv(rp, ip, b, tp) != 0)
+        if (gpmpn_bsqrtinv(rp, ip, b, tp) != 0)
         {
           rp[rn - 1] &= (CNST_LIMB(1) << (b % GMP_LIMB_BITS)) - 1;
           xn = rn;
@@ -145,7 +145,7 @@ namespace gpgmp
             return 1;
 
           /* Check if (2^b - r)^2 == n */
-          mpn_neg(rp, rp, rn);
+          gpmpn_neg(rp, rp, rn);
           rp[rn - 1] &= (CNST_LIMB(1) << (b % GMP_LIMB_BITS)) - 1;
           MPN_NORMALIZE(rp, rn);
           if (pow_equals(np, n, rp, rn, k, f, tp) != 0)
@@ -156,7 +156,7 @@ namespace gpgmp
       {
         b = 1 + (f - 1) / k;
         rn = 1 + (b - 1) / GMP_LIMB_BITS;
-        mpn_brootinv(rp, ip, rn, k, tp);
+        gpmpn_brootinv(rp, ip, rn, k, tp);
         if ((b % GMP_LIMB_BITS) != 0)
           rp[rn - 1] &= (CNST_LIMB(1) << (b % GMP_LIMB_BITS)) - 1;
         MPN_NORMALIZE(rp, rn);
@@ -197,7 +197,7 @@ namespace gpgmp
          n * n^{-1/2}, with a mullo instead of a binvert. And we can do something
          similar for kth roots if we switch to an iteration converging to n^{1/k -
          1}, and we can then eliminate this binvert call. */
-      mpn_binvert(ip, np, 1 + (b - 1) / GMP_LIMB_BITS, tp);
+      gpmpn_binvert(ip, np, 1 + (b - 1) / GMP_LIMB_BITS, tp);
       if (b % GMP_LIMB_BITS)
         ip[(b - 1) / GMP_LIMB_BITS] &= (CNST_LIMB(1) << (b % GMP_LIMB_BITS)) - 1;
 
@@ -254,7 +254,7 @@ namespace gpgmp
 
 
     ANYCALLER int
-    mpn_perfect_power_p(mp_srcptr np, mp_size_t n)
+    gpmpn_perfect_power_p(mp_srcptr np, mp_size_t n)
     {
       mp_limb_t *nc, factor, g;
       mp_limb_t exp, d;
@@ -276,7 +276,7 @@ namespace gpgmp
 
       count = 0;
 
-      twos = mpn_scan1(np, 0);
+      twos = gpmpn_scan1(np, 0);
       if (twos != 0)
       {
         mp_size_t s;
@@ -295,7 +295,7 @@ namespace gpgmp
         if (count > 0)
         {
           nc = TMP_ALLOC_LIMBS(n);
-          mpn_rshift(nc, np, n, count);
+          gpmpn_rshift(nc, np, n, count);
           n -= (nc[n - 1] == 0);
           np = nc;
         }
@@ -305,7 +305,7 @@ namespace gpgmp
       trial = (n > SMALL) + (n > MEDIUM);
 
       where = 0;
-      factor = mpn_trialdiv(np, n, nrtrial[trial], &where);
+      factor = gpmpn_trialdiv(np, n, nrtrial[trial], &where);
 
       if (factor != 0)
       {
@@ -322,12 +322,12 @@ namespace gpgmp
           binvert_limb(d, factor);
 
           /* After the first round we always have nc == np */
-          exp = mpn_remove(nc, &n, np, n, &d, 1, ~(mp_bitcnt_t)0);
+          exp = gpmpn_remove(nc, &n, np, n, &d, 1, ~(mp_bitcnt_t)0);
 
           if (g == 0)
             g = exp;
           else
-            g = mpn_gcd_1(&g, 1, exp);
+            g = gpmpn_gcd_1(&g, 1, exp);
 
           if (g == 1)
           {
@@ -342,7 +342,7 @@ namespace gpgmp
           }
 
           np = nc;
-          factor = mpn_trialdiv(np, n, nrtrial[trial], &where);
+          factor = gpmpn_trialdiv(np, n, nrtrial[trial], &where);
         } while (factor != 0);
       }
 

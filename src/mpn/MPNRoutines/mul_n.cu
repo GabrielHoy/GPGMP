@@ -37,60 +37,17 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-    ANYCALLER void
-    gpmpn_mul_n(mp_ptr p, mp_srcptr a, mp_srcptr b, mp_size_t n)
+    //This function has been significantly trimmed down and all TOOM multiplication removed for the sake of minimizing Warp Divergence.
+    //It is likely that this won't be as fast as GMP due to this.
+    ANYCALLER void gpmpn_mul_n(mp_ptr p, mp_srcptr a, mp_srcptr b, mp_size_t n)
     {
       ASSERT(n >= 1);
       ASSERT(!MPN_OVERLAP_P(p, 2 * n, a, n));
       ASSERT(!MPN_OVERLAP_P(p, 2 * n, b, n));
 
-      if (BELOW_THRESHOLD(n, MUL_TOOM22_THRESHOLD))
+      if (BELOW_THRESHOLD(n, MUL_FFT_THRESHOLD))
       {
         gpmpn_mul_basecase(p, a, n, b, n);
-      }
-      else if (BELOW_THRESHOLD(n, MUL_TOOM33_THRESHOLD))
-      {
-        /* Allocate workspace of fixed size on stack: fast! */
-        mp_limb_t ws[gpmpn_toom22_mul_itch(MUL_TOOM33_THRESHOLD_LIMIT - 1,
-                                         MUL_TOOM33_THRESHOLD_LIMIT - 1)];
-        ASSERT(MUL_TOOM33_THRESHOLD <= MUL_TOOM33_THRESHOLD_LIMIT);
-        gpmpn_toom22_mul(p, a, n, b, n, ws);
-      }
-      else if (BELOW_THRESHOLD(n, MUL_TOOM44_THRESHOLD))
-      {
-        mp_ptr ws;
-        TMP_SDECL;
-        TMP_SMARK;
-        ws = TMP_SALLOC_LIMBS(gpmpn_toom33_mul_itch(n, n));
-        gpmpn_toom33_mul(p, a, n, b, n, ws);
-        TMP_SFREE;
-      }
-      else if (BELOW_THRESHOLD(n, MUL_TOOM6H_THRESHOLD))
-      {
-        mp_ptr ws;
-        TMP_SDECL;
-        TMP_SMARK;
-        ws = TMP_SALLOC_LIMBS(gpmpn_toom44_mul_itch(n, n));
-        gpmpn_toom44_mul(p, a, n, b, n, ws);
-        TMP_SFREE;
-      }
-      else if (BELOW_THRESHOLD(n, MUL_TOOM8H_THRESHOLD))
-      {
-        mp_ptr ws;
-        TMP_SDECL;
-        TMP_SMARK;
-        ws = TMP_SALLOC_LIMBS(gpmpn_toom6_mul_n_itch(n));
-        gpmpn_toom6h_mul(p, a, n, b, n, ws);
-        TMP_SFREE;
-      }
-      else if (BELOW_THRESHOLD(n, MUL_FFT_THRESHOLD))
-      {
-        mp_ptr ws;
-        TMP_DECL;
-        TMP_MARK;
-        ws = TMP_ALLOC_LIMBS(gpmpn_toom8_mul_n_itch(n));
-        gpmpn_toom8h_mul(p, a, n, b, n, ws);
-        TMP_FREE;
       }
       else
       {

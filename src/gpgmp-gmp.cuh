@@ -305,7 +305,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_sec_invert_itch(mp_size_t) _
             }                                                          \
         }                                                              \
         if ((wp) != (xp))                                              \
-            __GMPN_COPY_REST(wp, xp, xsize, __gmp_i);                  \
+            __GPGMPN_COPY_REST(wp, xp, xsize, __gmp_i);                  \
         (cout) = 0;                                                    \
     __gmp_done:;                                                       \
     } while (0)
@@ -366,7 +366,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_sec_invert_itch(mp_size_t) _
                 if (!CB(__gmp_r, __gmp_x, 1))                   \
                 {                                               \
                     if ((src) != (dst))                         \
-                        __GMPN_COPY_REST(dst, src, n, __gmp_i); \
+                        __GPGMPN_COPY_REST(dst, src, n, __gmp_i); \
                     (cout) = 0;                                 \
                     break;                                      \
                 }                                               \
@@ -375,7 +375,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_sec_invert_itch(mp_size_t) _
         else                                                    \
         {                                                       \
             if ((src) != (dst))                                 \
-                __GMPN_COPY_REST(dst, src, n, 1);               \
+                __GPGMPN_COPY_REST(dst, src, n, 1);               \
             (cout) = 0;                                         \
         }                                                       \
     } while (0)
@@ -406,7 +406,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_sec_invert_itch(mp_size_t) _
                 if (__gmp_r >> GMP_NUMB_BITS == 0)              \
                 {                                               \
                     if ((src) != (dst))                         \
-                        __GMPN_COPY_REST(dst, src, n, __gmp_i); \
+                        __GPGMPN_COPY_REST(dst, src, n, __gmp_i); \
                     (cout) = 0;                                 \
                     break;                                      \
                 }                                               \
@@ -415,7 +415,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_sec_invert_itch(mp_size_t) _
         else                                                    \
         {                                                       \
             if ((src) != (dst))                                 \
-                __GMPN_COPY_REST(dst, src, n, 1);               \
+                __GPGMPN_COPY_REST(dst, src, n, 1);               \
             (cout) = 0;                                         \
         }                                                       \
     } while (0)
@@ -455,21 +455,21 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_sec_invert_itch(mp_size_t) _
         }                                                                 \
     } while (0)
 
-#if defined(__GMPN_COPY) && !defined(__GMPN_COPY_REST)
-#define __GMPN_COPY_REST(dst, src, size, start)                          \
+#if defined(__GPGMPN_COPY) && !defined(__GPGMPN_COPY_REST)
+#define __GPGMPN_COPY_REST(dst, src, size, start)                          \
     do                                                                   \
     {                                                                    \
         /* ASSERT ((start) >= 0); */                                     \
         /* ASSERT ((start) <= (size)); */                                \
-        __GMPN_COPY((dst) + (start), (src) + (start), (size) - (start)); \
+        __GPGMPN_COPY((dst) + (start), (src) + (start), (size) - (start)); \
     } while (0)
 #endif
 
 /* Copy {src,size} to {dst,size}, starting at "start".  This is designed to
    keep the indexing dst[j] and src[j] nice and simple for __GMPN_ADD_1,
    __GMPN_ADD, etc.  */
-#if !defined(__GMPN_COPY_REST)
-#define __GMPN_COPY_REST(dst, src, size, start)                 \
+#if !defined(__GPGMPN_COPY_REST)
+#define __GPGMPN_COPY_REST(dst, src, size, start)                 \
     do                                                          \
     {                                                           \
         mp_size_t __gmp_j;                                      \
@@ -487,8 +487,8 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_sec_invert_itch(mp_size_t) _
    gpmpn_copyi if there's a native version, and if we don't mind demanding
    binary compatibility for it (on targets which use it).  */
 
-#if !defined(__GMPN_COPY)
-#define __GMPN_COPY(dst, src, size) __GMPN_COPY_REST(dst, src, size, 0)
+#if !defined(__GPGMPN_COPY)
+#define __GPGMPN_COPY(dst, src, size) __GPGMPN_COPY_REST(dst, src, size, 0)
 #endif
 
 #if defined(__GMP_EXTERN_INLINE) || defined(__GMP_FORCE_gpmpn_add)
@@ -499,7 +499,7 @@ ANYCALLER static inline  mp_limb_t
 gpmpn_add(mp_ptr __gmp_wp, mp_srcptr __gmp_xp, mp_size_t __gmp_xsize, mp_srcptr __gmp_yp, mp_size_t __gmp_ysize)
 {
     mp_limb_t __gmp_c;
-    __GMPN_ADD(__gmp_c, __gmp_wp, __gmp_xp, __gmp_xsize, __gmp_yp, __gmp_ysize);
+    __GPGMPN_ADD(__gmp_c, __gmp_wp, __gmp_xp, __gmp_xsize, __gmp_yp, __gmp_ysize);
     return __gmp_c;
 }
 #endif
@@ -512,7 +512,7 @@ ANYCALLER static inline  mp_limb_t
 gpmpn_add_1(mp_ptr __gmp_dst, mp_srcptr __gmp_src, mp_size_t __gmp_size, mp_limb_t __gmp_n) __GMP_NOTHROW
 {
     mp_limb_t __gmp_c;
-    __GMPN_ADD_1(__gmp_c, __gmp_dst, __gmp_src, __gmp_size, __gmp_n);
+    __GPGMPN_ADD_1(__gmp_c, __gmp_dst, __gmp_src, __gmp_size, __gmp_n);
     return __gmp_c;
 }
 #endif
@@ -525,7 +525,7 @@ ANYCALLER static inline  int
 gpmpn_cmp(mp_srcptr __gmp_xp, mp_srcptr __gmp_yp, mp_size_t __gmp_size) __GMP_NOTHROW
 {
     int __gmp_result;
-    __GMPN_CMP(__gmp_result, __gmp_xp, __gmp_yp, __gmp_size);
+    __GPGMPN_CMP(__gmp_result, __gmp_xp, __gmp_yp, __gmp_size);
     return __gmp_result;
 }
 #endif
@@ -554,7 +554,7 @@ ANYCALLER static inline  mp_limb_t
 gpmpn_sub(mp_ptr __gmp_wp, mp_srcptr __gmp_xp, mp_size_t __gmp_xsize, mp_srcptr __gmp_yp, mp_size_t __gmp_ysize)
 {
     mp_limb_t __gmp_c;
-    __GMPN_SUB(__gmp_c, __gmp_wp, __gmp_xp, __gmp_xsize, __gmp_yp, __gmp_ysize);
+    __GPGMPN_SUB(__gmp_c, __gmp_wp, __gmp_xp, __gmp_xsize, __gmp_yp, __gmp_ysize);
     return __gmp_c;
 }
 #endif
@@ -567,7 +567,7 @@ ANYCALLER static inline  mp_limb_t
 gpmpn_sub_1(mp_ptr __gmp_dst, mp_srcptr __gmp_src, mp_size_t __gmp_size, mp_limb_t __gmp_n) __GMP_NOTHROW
 {
     mp_limb_t __gmp_c;
-    __GMPN_SUB_1(__gmp_c, __gmp_dst, __gmp_src, __gmp_size, __gmp_n);
+    __GPGMPN_SUB_1(__gmp_c, __gmp_dst, __gmp_src, __gmp_size, __gmp_n);
     return __gmp_c;
 }
 #endif

@@ -5229,7 +5229,12 @@ GPGMP_MPN_NAMESPACE_END
         } while (0)
 
         /* State for the Jacobi computation using Lehmer. */
+
 #define jacobi_table __gmp_jacobi_table
+
+#ifdef __CUDA_ARCH__
+__device__
+#endif
         __GPGMP_DECLSPEC const unsigned char jacobi_table[208] = {
             0,
             0,
@@ -5441,6 +5446,7 @@ GPGMP_MPN_NAMESPACE_END
             10,
         };
 
+
         /* Bit layout for the initial state. b must be odd.
 
               3  2  1 0
@@ -5449,7 +5455,7 @@ GPGMP_MPN_NAMESPACE_END
            +--+--+--+--+
 
          */
-        static inline unsigned
+        ANYCALLER static inline unsigned
         gpmpn_jacobi_init(unsigned a, unsigned b, unsigned s)
         {
             ASSERT(b & 1);
@@ -5457,7 +5463,7 @@ GPGMP_MPN_NAMESPACE_END
             return ((a & 3) << 2) + (b & 2) + s;
         }
 
-        static inline int
+        ANYCALLER static inline int
         gpmpn_jacobi_finish(unsigned bits)
         {
             /* (a, b) = (1,0) or (0,1) */
@@ -5466,7 +5472,7 @@ GPGMP_MPN_NAMESPACE_END
             return 1 - 2 * (bits & 1);
         }
 
-        static inline unsigned
+        ANYCALLER static inline unsigned
         gpmpn_jacobi_update(unsigned bits, unsigned denominator, unsigned q)
         {
             /* FIXME: Could halve table size by not including the e bit in the
@@ -6487,7 +6493,7 @@ GPGMP_MPN_NAMESPACE_END
          MAX(((MUL_TOOM8H_MIN * 15) >> 3) + GMP_NUMB_BITS * 6, \
              gpmpn_toom6_mul_n_itch(MUL_TOOM8H_MIN)))
 
-    static inline mp_size_t
+    ANYCALLER static inline mp_size_t
     gpmpn_toom8h_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t estimatedN;
@@ -6495,7 +6501,7 @@ GPGMP_MPN_NAMESPACE_END
         return gpmpn_toom8_mul_n_itch(estimatedN * 8);
     }
 
-    static inline mp_size_t
+    ANYCALLER static inline mp_size_t
     gpmpn_toom32_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (2 * an >= 3 * bn ? (an - 1) / (size_t)3 : (bn - 1) >> 1);
@@ -6504,14 +6510,14 @@ GPGMP_MPN_NAMESPACE_END
         return itch;
     }
 
-    static inline mp_size_t
+    ANYCALLER static inline mp_size_t
     gpmpn_toom42_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = an >= 2 * bn ? (an + 3) >> 2 : (bn + 1) >> 1;
         return 6 * n + 3;
     }
 
-    static inline mp_size_t
+    ANYCALLER static inline mp_size_t
     gpmpn_toom43_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (3 * an >= 4 * bn ? (an - 1) >> 2 : (bn - 1) / (size_t)3);
@@ -6519,35 +6525,35 @@ GPGMP_MPN_NAMESPACE_END
         return 6 * n + 4;
     }
 
-    static inline mp_size_t
+    ANYCALLER static inline mp_size_t
     gpmpn_toom52_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (2 * an >= 5 * bn ? (an - 1) / (size_t)5 : (bn - 1) >> 1);
         return 6 * n + 4;
     }
 
-    static inline mp_size_t
+    ANYCALLER static inline mp_size_t
     gpmpn_toom53_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (3 * an >= 5 * bn ? (an - 1) / (size_t)5 : (bn - 1) / (size_t)3);
         return 10 * n + 10;
     }
 
-    static inline mp_size_t
+    ANYCALLER static inline mp_size_t
     gpmpn_toom62_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (an >= 3 * bn ? (an - 1) / (size_t)6 : (bn - 1) >> 1);
         return 10 * n + 10;
     }
 
-    static inline mp_size_t
+    ANYCALLER static inline mp_size_t
     gpmpn_toom63_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (an >= 2 * bn ? (an - 1) / (size_t)6 : (bn - 1) / (size_t)3);
         return 9 * n + 3;
     }
 
-    static inline mp_size_t
+    ANYCALLER static inline mp_size_t
     gpmpn_toom54_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t n = 1 + (4 * an >= 5 * bn ? (an - 1) / (size_t)5 : (bn - 1) / (size_t)4);

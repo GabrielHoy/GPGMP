@@ -53,7 +53,7 @@ namespace gpgmp
 
 			ASSERT(nn >= 0);
 			ASSERT(dn >= 0);
-			ASSERT(dn == 0 || dp[dn - 1] != 0);
+			ASSERT(dn == 0 || dp[dn - 1] != 0 && "The most significant limb of the divisor is not non-zero, it must be non-zero.");
 			ASSERT(!MPN_OVERLAP_P(qp, nn - dn + 1 + qxn, np, nn));
 			ASSERT(!MPN_OVERLAP_P(qp, nn - dn + 1 + qxn, dp, dn));
 
@@ -68,7 +68,7 @@ namespace gpgmp
 				return;
 			}
 
-			case 2:
+			case 2: //TODO: dynamic allocation bad
 			{
 				mp_ptr n2p;
 				mp_limb_t qhl, cy;

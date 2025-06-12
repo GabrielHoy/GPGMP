@@ -43,20 +43,35 @@ namespace gpgmp {
     } __mpz_struct;
   */
 
-  //Struct used to store an array of mpz_t's in a manner that allows for better GPU memory coalescence.
-  //This struct is NOT designed to be used directly, instead use mpn_array_allocate_X() to retrieve one!
-  //Every time this struct is allocated, space for its arrays is also allocated directly after the struct.
-  //!IMPORTANT: mpn_array's behave differently than GMP's mpz_t structs! They do not dynamically reallocate memory to contain bigger numbers.
-  //This means that you must make sure you have enough precision allocated to hold whatever numbers you're going to end up storing.
+  /*
+    Struct used to store an array of mpz_t's in a manner that allows for better GPU memory coalescence.
+    This struct is NOT designed to be created directly, instead use mpn_array_allocate_X() to retrieve one!
+    Every time this struct is allocated, space for its arrays is also allocated directly after the struct.
+
+    !IMPORTANT: mpn_array's behave differently than GMP's mpz_t structs! They do not dynamically reallocate memory to contain bigger numbers.
+    This means that you must make sure you have enough precision allocated to hold whatever numbers you're going to end up storing.
+
+    You can access the limbs for a particular number in the array via array->operator[](idx); however you CANNOT treat the standalone "array" as index 0 - you need to explicitly index the 0th element!
+    This is because the [] operator is actually indexing the memory directly after the mpn_array struct, where the limbs for the actual numbers are stored -- it also handles offsetting based on limb count per number accordingly,
+    so all you need to do to get number X is array->operator[](x) instead of dealing with limb sizes etc etc... This still isn't pretty but I'm not too sure how to improve it and this works.
+  */
   struct __align__(128) mpn_array {
       int numIntegersInArray; //Number of integers that this array contains.
-
       int numLimbsPerInteger; //Number of limbs allocated for each integer in the array to use(not all of these limbs will likely be used, this is a maximum.)
 
-      //!IMPORTANT: Where are the 'array data' and 'integer sizes' arrays?
-      //The array data and sizes for this array are stored directly after the struct as a contiguous block of memory.
+      //If you're familiar with GMP, you may ask 'where is the mp_d and mp_size data?'
+      //The array data and sizes for numbers in this array are stored directly after the struct as a contiguous block of memory.
       //The MPN_ARRAY_DATA and MPN_ARRAY_SIZES macros can be used to easily access these arrays.
       //It would be cleaner to define mp_limb_t* _mp_array_data and int* _mp_sizes in this struct and have them point to other dynamically allocated arrays, but that would be less performant.
+
+    //Helper operators for array indexing so that doing something like arr[0], arr[1], arr[2]...
+    ANYCALLER mp_limb_t& operator[](int index) {
+      return *(MPN_ARRAY_DATA(this) + (index * this->numLimbsPerInteger));
+    }
+
+    ANYCALLER const mp_limb_t& operator[](int index) const {
+      return *(MPN_ARRAY_DATA_CONST(this) + (index * this->numLimbsPerInteger));
+    }
   };
 
   //This is a direct alias for an mpn_array pointer; it is used to facilitate better type clarity within user code so that confusion does not arise between whether an mpn_array is on the host or the device.

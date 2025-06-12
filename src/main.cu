@@ -2,7 +2,6 @@
 #include "gpgmp.cuh"
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
-#define SGN(x) ((x)<0 ? -1 : (x) != 0)
 double ConvertBackToDouble(mpf_t val) {
     uint64_t intPart = 0;
     double fracPart = 0;
@@ -77,6 +76,16 @@ ANYCALLER void PrintDataAboutMPNArray(gpgmp::mpn_array* array) {
 __global__ void testKernel(gpgmp::mpn_device_array deviceArray) {
     printf("Hello, world! I'm a kernel with a thread index of %d!\n", threadIdx.x);
 
+    //gpgmp::mpnRoutines::gpmpn_add_n(&(*deviceArray)[0], &(*deviceArray)[0], &(*deviceArray)[idxAdd], deviceArray->numLimbsPerInteger);
+    //gpgmp::mpnRoutines::gpmpn_sub(&(*deviceArray)[0], &(*deviceArray)[1], 2, &(*deviceArray)[2], 2);
+    //gpgmp::mpnRoutines::gpmpn_sqr(&(*deviceArray)[1], &(*deviceArray)[3], 2);
+    //gpgmp::mpnRoutines::gpmpn_mul_n(&(*deviceArray)[0], &(*deviceArray)[1], &(*deviceArray)[3], 2);
+    gpgmp::mpnRoutines::gpmpn_mul(&(*deviceArray)[0], &(*deviceArray)[1], 2, &(*deviceArray)[2], 2);
+    //gpgmp::mpnRoutines::gpmpn_lshift(&(*deviceArray)[1], &(*deviceArray)[1], 4, 2);
+    //gpgmp::mpnRoutines::gpmpn_rshift(&(*deviceArray)[1], &(*deviceArray)[1], 4, 1);
+    //gpgmp::mpnRoutines::gpmpn_tdiv_qr(&(*deviceArray)[3], &(*deviceArray)[0], 0, &(*deviceArray)[0], 2, &(*deviceArray)[1], 2);
+
+
     PrintDataAboutMPNArray(deviceArray);
 }
 
@@ -88,8 +97,8 @@ __global__ void testKernel(gpgmp::mpn_device_array deviceArray) {
 } while (0)
 
 
-#define NUM_INTEGERS_IN_ARRAY 5
-#define PRECISION_PER_INTEGER 64*2
+#define NUM_INTEGERS_IN_ARRAY 4
+#define PRECISION_PER_INTEGER 64*4
 int main(int argc, char** argv) {
     __gmpf_set_default_prec(64*5);
     cudaError_t err;
@@ -108,10 +117,11 @@ int main(int argc, char** argv) {
         mpz_init_set_si(mpzArray[i], i);
     }
     mpz_init_set_d(mpzArray[0], UINT64_MAX);
-    mpz_init_set_d(mpzArray[1], UINT64_MAX);
-    mpz_init_set_d(mpzArray[2], UINT64_MAX);
+    mpz_init_set_d(mpzArray[1], 1337.0);
+    mpz_init_set_d(mpzArray[2], 2.0);
+    mpz_init_set_d(mpzArray[3], 0.0);
 
-    err = gpgmp::host::mpn_array_init_on_device_from_mpz_array(testArray, mpzArray, NUM_INTEGERS_IN_ARRAY, PRECISION_PER_INTEGER, 5);
+    err = gpgmp::host::mpn_array_init_on_device_from_mpz_array(testArray, mpzArray, NUM_INTEGERS_IN_ARRAY, PRECISION_PER_INTEGER, NUM_INTEGERS_IN_ARRAY);
     CHECK_CUDA_ERROR(err);
     printf("Array initialized!\n");
 
@@ -119,8 +129,12 @@ int main(int argc, char** argv) {
 
     testKernel<<<1, 1>>>(testArray);
     cudaDeviceSynchronize();
+    cudaError_t cudaErr = cudaGetLastError();
+    if (cudaErr != cudaSuccess) {
+        printf("CUDA error: %s\n", cudaGetErrorString(cudaErr));
+        exit(1);
+    }
     printf("Kernel finished!\n");
-
 
     printf("Testing custom mpn_add_n...\n");
     mpz_t mpzResult, mpzTest1, mpzTest2;
@@ -135,8 +149,8 @@ int main(int argc, char** argv) {
     mp_srcptr operand2_ptr = mpzTest2->_mp_d;
     mp_size_t size = mpzTest1->_mp_size;
 
-    //mp_limb_t carry = gpgmp::mpnRoutines::mpn_add_n(mpzResult->_mp_d, operand1_ptr, operand2_ptr, size);
-    //printf("(Final Carry = %llu)\n", carry);
+    mp_limb_t carry = gpgmp::mpnRoutines::gpmpn_add_n(mpzResult->_mp_d, operand1_ptr, operand2_ptr, size);
+    printf("(Final Carry = %llu)\n", carry);
 
     printf("(CPU) mpzTest1 = (%llu*(2^64)) + %llu\n", mpzTest1->_mp_d[1], mpzTest1->_mp_d[0]);
     printf("(CPU) mpzTest2 = (%llu*(2^64)) + %llu\n", mpzTest2->_mp_d[1], mpzTest2->_mp_d[0]);

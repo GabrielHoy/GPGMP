@@ -32,22 +32,3 @@
 #define MPN_ARRAY_DATA_NO_PTR_INDEXING(array) MPN_ARRAY_DATA(array)
 //Equivalent formula to MPN_ARRAY_SIZES, without indexing any struct fields. This allows us to use this formula with device pointers on the host.
 #define MPN_ARRAY_SIZES_NO_PTR_INDEXING(array, arraySize, precision) (reinterpret_cast<int*>(reinterpret_cast<char*>(MPN_ARRAY_DATA_NO_PTR_INDEXING(array)) + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(mp_limb_t) * MPN_ARRAY_LIMB_COUNT_FROM_BITS(precision) * arraySize)));
-//One of the most complicated lines I've ever seen....
-#define GPGMP_NAMESPACE_BEGIN namespace gpgmp {
-#define GPGMP_NAMESPACE_END }
-
-
-
-
-
-
-
-
-/* BEGIN MPN INTERNALS PORTING VOMIT */
-
-
-
-/* END MPN INTERNALS PORTING VOMIT */
-
-
-

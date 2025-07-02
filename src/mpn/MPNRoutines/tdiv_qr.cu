@@ -49,6 +49,7 @@ namespace gpgmp
 
 		ANYCALLER void gpmpn_tdiv_qr(mp_ptr qp, mp_ptr rp, mp_size_t qxn, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
 		{
+			//NOTE: sec_div_qr may be a better fit for GPU use rather than attempting to refactor this to take in scratch space or do something 'fancier' like preallocating division memory pools etc etc...
 			ASSERT_ALWAYS(qxn == 0);
 
 			ASSERT(nn >= 0);

@@ -145,6 +145,13 @@ see https://www.gnu.org/licenses/.  */
 //--------GPGMP MODIFICATIONS-------//
 //----------------------------------//
 
+//Helpful macro to determine whether to 'make a fuss' when dynamic memory is allocated - by default we do this inside any CUDA code since dynamic allocation is awful practice in CUDA kernels...
+#ifdef __CUDA_ARCH__
+#define FUSS_WHEN_DYNAMIC_ALLOCATING 1
+#else
+#define FUSS_WHEN_DYNAMIC_ALLOCATING 0
+#endif
+
 //----------------------------------//
 //--------GMP FILE INLININGS--------//
 //----------------------------------//
@@ -655,9 +662,17 @@ typedef size_t gmp_intptr_t;
 #endif /* WANT_TMP_DEBUG */
 
         /* Allocating various types. */
+
+
+#if FUSS_WHEN_DYNAMIC_ALLOCATING
+#define TMP_ALLOC_TYPE(n, type) (printf("TMP_ALLOC_TYPE Dynamic Allocation is being performed, this should not happen in a GPU environment, refactoring needed...\n") ? ((type *)TMP_ALLOC((n) * sizeof(type))) : ((type *)TMP_ALLOC((n) * sizeof(type))))
+#define TMP_SALLOC_TYPE(n, type) (printf("TMP_SALLOC_TYPE Dynamic Allocation is being performed, this should not happen in a GPU environment, refactoring needed...\n") ? ((type *)TMP_SALLOC((n) * sizeof(type))) : ((type *)TMP_SALLOC((n) * sizeof(type))))
+#define TMP_BALLOC_TYPE(n, type) (printf("TMP_BALLOC_TYPE Dynamic Allocation is being performed, this should not happen in a GPU environment, refactoring needed...\n") ? ((type *)TMP_BALLOC((n) * sizeof(type))) : ((type *)TMP_BALLOC((n) * sizeof(type))))
+#else
 #define TMP_ALLOC_TYPE(n, type) ((type *)TMP_ALLOC((n) * sizeof(type)))
 #define TMP_SALLOC_TYPE(n, type) ((type *)TMP_SALLOC((n) * sizeof(type)))
 #define TMP_BALLOC_TYPE(n, type) ((type *)TMP_BALLOC((n) * sizeof(type)))
+#endif
 #define TMP_ALLOC_LIMBS(n) TMP_ALLOC_TYPE(n, mp_limb_t)
 #define TMP_SALLOC_LIMBS(n) TMP_SALLOC_TYPE(n, mp_limb_t)
 #define TMP_BALLOC_LIMBS(n) TMP_BALLOC_TYPE(n, mp_limb_t)
@@ -6473,7 +6488,7 @@ GPGMP_MPN_NAMESPACE_END
          MAX(MUL_TOOM6H_MIN * 2 + GMP_NUMB_BITS * 6, \
              gpmpn_toom44_mul_itch(MUL_TOOM6H_MIN, MUL_TOOM6H_MIN)))
 
-    static inline mp_size_t
+    ANYCALLER static inline mp_size_t
     gpmpn_toom6h_mul_itch(mp_size_t an, mp_size_t bn)
     {
         mp_size_t estimatedN;

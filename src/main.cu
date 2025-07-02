@@ -1,6 +1,11 @@
 #include <iostream>
 #include "gpgmp.cuh"
 
+#define NUM_INTEGERS_IN_ARRAY 8294400
+#define PRECISION_PER_INTEGER 64*64
+#define MULTIPLICATIONS_TO_PERFORM 100
+#define NUM_RUNS_FOR_AVG_TIME_GATHERING 100
+
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 double ConvertBackToDouble(mpf_t val) {
     uint64_t intPart = 0;
@@ -73,20 +78,50 @@ ANYCALLER void PrintDataAboutMPNArray(gpgmp::mpn_array* array) {
     }
 }
 
-__global__ void testKernel(gpgmp::mpn_device_array deviceArray) {
-    printf("Hello, world! I'm a kernel with a thread index of %d!\n", threadIdx.x);
+__global__ void testKernel(gpgmp::mpn_device_array deviceArray, mp_limb_t* scratchSpaceArray) {
+    int threadIdentifier = (blockIdx.y * gridDim.x * blockDim.x + blockIdx.x * blockDim.x + threadIdx.x);
+    if (threadIdentifier > (NUM_INTEGERS_IN_ARRAY / 2) - 1) {
+        return;
+    }
+    //printf("Hello, world! I'm a kernel with a thread index of %d!\n", threadIdentifier);
 
     //gpgmp::mpnRoutines::gpmpn_add_n(&(*deviceArray)[0], &(*deviceArray)[0], &(*deviceArray)[idxAdd], deviceArray->numLimbsPerInteger);
     //gpgmp::mpnRoutines::gpmpn_sub(&(*deviceArray)[0], &(*deviceArray)[1], 2, &(*deviceArray)[2], 2);
     //gpgmp::mpnRoutines::gpmpn_sqr(&(*deviceArray)[1], &(*deviceArray)[3], 2);
-    //gpgmp::mpnRoutines::gpmpn_mul_n(&(*deviceArray)[0], &(*deviceArray)[1], &(*deviceArray)[3], 2);
-    gpgmp::mpnRoutines::gpmpn_mul(&(*deviceArray)[0], &(*deviceArray)[1], 2, &(*deviceArray)[2], 2);
+    int doubleThreadIdent = threadIdentifier * 2;
+    gpgmp::mpn_array_init_idx_set_si(deviceArray, (doubleThreadIdent) + 1, 1000000);
+
+    //TMP_DECL;
+    //TMP_MARK;
+
+    //mp_limb_t* scratchSpace = (mp_limb_t*)__gpgmp_tmp_reentrant_alloc(&__tmp_marker, gpgmp::mpnRoutines::gpmpn_sec_div_qr_itch(PRECISION_PER_INTEGER/64, 1));
+    mp_limb_t* scratchSpace = scratchSpaceArray + threadIdentifier * gpgmp::mpnRoutines::gpmpn_sec_div_qr_itch(PRECISION_PER_INTEGER/64, 1);
+
+    mp_limb_t multBy = 2;
+    for (int i = 0; i < MULTIPLICATIONS_TO_PERFORM; i++) {
+        //gpgmp::mpnRoutines::gpmpn_mul(&(*deviceArray)[doubleThreadIdent], &(*deviceArray)[(doubleThreadIdent) + 1], (PRECISION_PER_INTEGER/64) - 1, &multBy, 1);
+        //gpgmp::mpnRoutines::gpmpn_tdiv_qr(&(*deviceArray)[doubleThreadIdent], &(*deviceArray)[(doubleThreadIdent) + 1], 0, &(*deviceArray)[(doubleThreadIdent) + 1], 2, &multBy, 1);
+        gpgmp::mpnRoutines::gpmpn_sec_div_qr(&(*deviceArray)[doubleThreadIdent], &(*deviceArray)[doubleThreadIdent + 1], (PRECISION_PER_INTEGER/64), &multBy, 1, scratchSpace);
+
+        //gpgmp::mpnRoutines::gpmpn_copyd(&(*deviceArray)[(doubleThreadIdent) + 1], &(*deviceArray)[doubleThreadIdent], PRECISION_PER_INTEGER/64);
+    }
+
+    //TMP_FREE;
+    //gpgmp::mpnRoutines::gpmpn_mul(&(*deviceArray)[0], &(*deviceArray)[1], 2, &(*deviceArray)[2], 2);
     //gpgmp::mpnRoutines::gpmpn_lshift(&(*deviceArray)[1], &(*deviceArray)[1], 4, 2);
     //gpgmp::mpnRoutines::gpmpn_rshift(&(*deviceArray)[1], &(*deviceArray)[1], 4, 1);
     //gpgmp::mpnRoutines::gpmpn_tdiv_qr(&(*deviceArray)[3], &(*deviceArray)[0], 0, &(*deviceArray)[0], 2, &(*deviceArray)[1], 2);
 
 
+    //PrintDataAboutMPNArray(deviceArray);
+}
+
+__global__ void printDeviceArrayData(gpgmp::mpn_device_array deviceArray) {
     PrintDataAboutMPNArray(deviceArray);
+}
+
+__global__ void initKernel() {
+    printf("CUDA Initialized...\n");
 }
 
 #define CHECK_CUDA_ERROR(err) do { \
@@ -97,8 +132,6 @@ __global__ void testKernel(gpgmp::mpn_device_array deviceArray) {
 } while (0)
 
 
-#define NUM_INTEGERS_IN_ARRAY 4
-#define PRECISION_PER_INTEGER 64*4
 int main(int argc, char** argv) {
     __gmpf_set_default_prec(64*5);
     cudaError_t err;
@@ -111,29 +144,68 @@ int main(int argc, char** argv) {
 
     printf("Array allocated!\n");
 
-    printf("Initializing array on GPU from CPU...\n");
-    mpz_t mpzArray[NUM_INTEGERS_IN_ARRAY];
-    for (int i = 0; i < NUM_INTEGERS_IN_ARRAY; i++) {
-        mpz_init_set_si(mpzArray[i], i);
-    }
-    mpz_init_set_d(mpzArray[0], UINT64_MAX);
-    mpz_init_set_d(mpzArray[1], 1337.0);
-    mpz_init_set_d(mpzArray[2], 2.0);
-    mpz_init_set_d(mpzArray[3], 0.0);
+    //printf("Initializing array on GPU from CPU...\n");
+    //mpz_t mpzArray[NUM_INTEGERS_IN_ARRAY];
+    //for (int i = 0; i < NUM_INTEGERS_IN_ARRAY; i++) {
+    //    mpz_init_set_si(mpzArray[i], 1);
+    //}
+    //mpz_init_set_d(mpzArray[0], UINT64_MAX);
+    //mpz_init_set_d(mpzArray[1], 1337.0);
+    //mpz_init_set_d(mpzArray[2], 2.0);
+    //mpz_init_set_d(mpzArray[0], 5.0);
+    //mpz_init_set_d(mpzArray[1], 2.0);
 
-    err = gpgmp::host::mpn_array_init_on_device_from_mpz_array(testArray, mpzArray, NUM_INTEGERS_IN_ARRAY, PRECISION_PER_INTEGER, NUM_INTEGERS_IN_ARRAY);
-    CHECK_CUDA_ERROR(err);
-    printf("Array initialized!\n");
+    //err = gpgmp::host::mpn_array_init_on_device_from_mpz_array(testArray, mpzArray, NUM_INTEGERS_IN_ARRAY, PRECISION_PER_INTEGER, NUM_INTEGERS_IN_ARRAY);
+    //CHECK_CUDA_ERROR(err);
+    //printf("Array initialized!\n");
 
-    printf("Launching kernel...\n");
-
-    testKernel<<<1, 1>>>(testArray);
+    printf("Initializing GPGMP on the GPU...Kernel will run momentarily...\n");
+    initKernel<<<1,1>>>();
     cudaDeviceSynchronize();
-    cudaError_t cudaErr = cudaGetLastError();
-    if (cudaErr != cudaSuccess) {
-        printf("CUDA error: %s\n", cudaGetErrorString(cudaErr));
-        exit(1);
+    printf("Executing Kernel - crunching %u integers with %u bits of precision per integer...\n", NUM_INTEGERS_IN_ARRAY * MULTIPLICATIONS_TO_PERFORM, PRECISION_PER_INTEGER);
+
+
+
+    float avgTime = 0;
+
+    mp_limb_t* scratchSpace;
+    cudaMalloc(&scratchSpace, gpgmp::mpnRoutines::gpmpn_sec_div_qr_itch(PRECISION_PER_INTEGER/64, 1) * sizeof(mp_limb_t) * (NUM_INTEGERS_IN_ARRAY / 2));
+    printf("Scratch space necessary.... %llu bytes\n", gpgmp::mpnRoutines::gpmpn_sec_div_qr_itch(PRECISION_PER_INTEGER/64, 1) * sizeof(mp_limb_t) * (NUM_INTEGERS_IN_ARRAY / 2));
+
+    for (int i = 0; i < NUM_RUNS_FOR_AVG_TIME_GATHERING; i++) {
+        cudaEvent_t start, stop;
+        cudaEventCreate(&start);
+        cudaEventCreate(&stop);
+
+        cudaEventRecord(start, 0);
+        int gridDimXandY = static_cast<int>(ceil(sqrt(ceil(static_cast<float>(NUM_INTEGERS_IN_ARRAY) / 512.f))));
+        testKernel<<<dim3(gridDimXandY, gridDimXandY, 1), dim3(512, 1, 1)>>>(testArray, scratchSpace);
+        cudaEventRecord(stop, 0);
+
+        cudaEventSynchronize(stop);
+
+        float milliseconds = 0;
+        cudaEventElapsedTime(&milliseconds, start, stop);
+        cudaDeviceSynchronize();
+        cudaError_t cudaErr = cudaGetLastError();
+        if (cudaErr != cudaSuccess) {
+            printf("CUDA error: %s\n", cudaGetErrorString(cudaErr));
+            exit(1);
+        }
+
+        printf("Kernel %u execution time: %.2f milliseconds\n", i, milliseconds);
+        avgTime += milliseconds;
+        cudaEventDestroy(start);
+        cudaEventDestroy(stop);
     }
+    avgTime /= static_cast<float>(NUM_RUNS_FOR_AVG_TIME_GATHERING);
+
+    cudaFree(scratchSpace);
+
+    printf("Average execution time for kernels over %u runs: %.2f milliseconds\n", NUM_RUNS_FOR_AVG_TIME_GATHERING, avgTime);
+
+    //printDeviceArrayData<<<1,1>>>(testArray);
+    cudaDeviceSynchronize();
     printf("Kernel finished!\n");
 
     printf("Testing custom mpn_add_n...\n");

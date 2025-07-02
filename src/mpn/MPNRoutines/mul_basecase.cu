@@ -68,102 +68,21 @@ namespace gpgmp
          availability, limbs).  This result can be stored, not added, to rp.  We
          also avoid a loop for zeroing this way.  */
 
-#if HAVE_NATIVE_gpmpn_mul_2
-      if (vn >= 2)
-      {
-        rp[un + 1] = gpmpn_mul_2(rp, up, un, vp);
-        rp += 2, vp += 2, vn -= 2;
-      }
-      else
-      {
-        rp[un] = gpmpn_mul_1(rp, up, un, vp[0]);
-        return;
-      }
-#else
       rp[un] = gpmpn_mul_1(rp, up, un, vp[0]);
       rp += 1, vp += 1, vn -= 1;
-#endif
 
       /* Now accumulate the product of up[] and the next higher limb (or depending
          on optional function availability, limbs) from vp[].  */
 
 #define MAX_LEFT MP_SIZE_T_MAX /* Used to simplify loops into if statements */
 
-#if HAVE_NATIVE_gpmpn_addmul_6
-      while (vn >= 6)
-      {
-        rp[un + 6 - 1] = gpmpn_addmul_6(rp, up, un, vp);
-        if (MAX_LEFT == 6)
-          return;
-        rp += 6, vp += 6, vn -= 6;
-        if (MAX_LEFT < 2 * 6)
-          break;
-      }
-#undef MAX_LEFT
-#define MAX_LEFT (6 - 1)
-#endif
-
-#if HAVE_NATIVE_gpmpn_addmul_5
-      while (vn >= 5)
-      {
-        rp[un + 5 - 1] = gpmpn_addmul_5(rp, up, un, vp);
-        if (MAX_LEFT == 5)
-          return;
-        rp += 5, vp += 5, vn -= 5;
-        if (MAX_LEFT < 2 * 5)
-          break;
-      }
-#undef MAX_LEFT
-#define MAX_LEFT (5 - 1)
-#endif
-
-#if HAVE_NATIVE_gpmpn_addmul_4
-      while (vn >= 4)
-      {
-        rp[un + 4 - 1] = gpmpn_addmul_4(rp, up, un, vp);
-        if (MAX_LEFT == 4)
-          return;
-        rp += 4, vp += 4, vn -= 4;
-        if (MAX_LEFT < 2 * 4)
-          break;
-      }
-#undef MAX_LEFT
-#define MAX_LEFT (4 - 1)
-#endif
-
-#if HAVE_NATIVE_gpmpn_addmul_3
-      while (vn >= 3)
-      {
-        rp[un + 3 - 1] = gpmpn_addmul_3(rp, up, un, vp);
-        if (MAX_LEFT == 3)
-          return;
-        rp += 3, vp += 3, vn -= 3;
-        if (MAX_LEFT < 2 * 3)
-          break;
-      }
-#undef MAX_LEFT
-#define MAX_LEFT (3 - 1)
-#endif
-
-#if HAVE_NATIVE_gpmpn_addmul_2
-      while (vn >= 2)
-      {
-        rp[un + 2 - 1] = gpmpn_addmul_2(rp, up, un, vp);
-        if (MAX_LEFT == 2)
-          return;
-        rp += 2, vp += 2, vn -= 2;
-        if (MAX_LEFT < 2 * 2)
-          break;
-      }
-#undef MAX_LEFT
-#define MAX_LEFT (2 - 1)
-#endif
-
       while (vn >= 1)
       {
         rp[un] = gpmpn_addmul_1(rp, up, un, vp[0]);
-        if (MAX_LEFT == 1)
-          return;
+        //I do not understand why this check was here originally; with the decade+ of development GMP has I'm sure there's something I'm missing but after a little bit of searching it seems like this would never actually trigger a return....
+        //I've removed it for now for the sake of speed since this is very much a hotpath.
+        //if (MAX_LEFT == 1)
+        //  return;
         rp += 1, vp += 1, vn -= 1;
       }
     }

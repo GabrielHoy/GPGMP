@@ -67,55 +67,55 @@ namespace gpgmp
       return 3 * nn + 4;
     }
 
-    mp_limb_t gpmpn_sec_div_qr(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr tp)
+    ANYCALLER mp_limb_t gpmpn_sec_div_qr(mp_ptr quotient_ptr, mp_ptr numerator_ptr, mp_size_t numerator_size, mp_srcptr divisor_ptr, mp_size_t divisor_size, mp_ptr temp_ptr)
     {
-      mp_limb_t d1, d0;
-      unsigned int cnt;
-      mp_limb_t inv32;
+      mp_limb_t divisor_high, divisor_normalized;
+      unsigned int leading_zeros;
+      mp_limb_t inverse_32;
 
-      ASSERT(dn >= 1);
-      ASSERT(nn >= dn);
-      ASSERT(dp[dn - 1] != 0);
+      ASSERT(divisor_size >= 1);
+      ASSERT(numerator_size >= divisor_size);
+      ASSERT(divisor_ptr[divisor_size - 1] != 0);
 
-      d1 = dp[dn - 1];
-      count_leading_zeros(cnt, d1);
+      divisor_high = divisor_ptr[divisor_size - 1];
+      count_leading_zeros(leading_zeros, divisor_high);
 
-      if (cnt != 0)
+      if (leading_zeros != 0)
       {
-        mp_limb_t qh, cy;
-        mp_ptr np2, dp2;
-        dp2 = tp; /* dn limbs */
-        gpmpn_lshift(dp2, dp, dn, cnt);
+        mp_limb_t quotient_high, carry;
+        mp_ptr normalized_numerator, normalized_divisor;
+        normalized_divisor = temp_ptr; /* divisor_size limbs */
+        gpmpn_lshift(normalized_divisor, divisor_ptr, divisor_size, leading_zeros);
 
-        np2 = tp + dn; /* (nn + 1) limbs */
-        cy = gpmpn_lshift(np2, np, nn, cnt);
-        np2[nn++] = cy;
+        normalized_numerator = temp_ptr + divisor_size; /* (numerator_size + 1) limbs */
+        carry = gpmpn_lshift(normalized_numerator, numerator_ptr, numerator_size, leading_zeros);
+        normalized_numerator[numerator_size++] = carry;
 
-        d0 = dp2[dn - 1];
-        d0 += (~d0 != 0);
-        invert_limb(inv32, d0);
+        divisor_normalized = normalized_divisor[divisor_size - 1];
+        divisor_normalized += (~divisor_normalized != 0);
+        invert_limb(inverse_32, divisor_normalized);
 
-        /* We add nn + dn to tp here, not nn + 1 + dn, as expected.  This is
-     since nn here will have been incremented.  */
-        qh = gpmpn_sec_pi1_div_qr(np2 + dn, np2, nn, dp2, dn, inv32, tp + nn + dn);
-        ASSERT(qh == 0); /* FIXME: this indicates inefficiency! */
-        MPN_COPY(qp, np2 + dn, nn - dn - 1);
-        qh = np2[nn - 1];
+        /* We add numerator_size + divisor_size to temp_ptr here, not numerator_size + 1 + divisor_size, as expected.  This is
+           since numerator_size here will have been incremented.  */
+        quotient_high = gpmpn_sec_pi1_div_qr(normalized_numerator + divisor_size, normalized_numerator, numerator_size, normalized_divisor, divisor_size, inverse_32, temp_ptr + numerator_size + divisor_size);
+        ASSERT(quotient_high == 0); /* FIXME: this indicates inefficiency! */
+        MPN_COPY(quotient_ptr, normalized_numerator + divisor_size, numerator_size - divisor_size - 1);
+        quotient_high = normalized_numerator[numerator_size - 1];
 
-        gpmpn_rshift(np, np2, dn, cnt);
+        gpmpn_rshift(numerator_ptr, normalized_numerator, divisor_size, leading_zeros);
 
-        return qh;
+        return quotient_high;
       }
       else
       {
-        /* FIXME: Consider copying np => np2 here, adding a 0-limb at the top.
-     That would simplify the underlying pi1 function, since then it could
-     assume nn > dn.  */
-        d0 = dp[dn - 1];
-        d0 += (~d0 != 0);
-        invert_limb(inv32, d0);
+        /* FIXME: Consider copying numerator_ptr => normalized_numerator here, adding a 0-limb at the top.
+           That would simplify the underlying pi1 function, since then it could
+           assume numerator_size > divisor_size.  */
+        divisor_normalized = divisor_ptr[divisor_size - 1];
+        divisor_normalized += (~divisor_normalized != 0);
+        invert_limb(inverse_32, divisor_normalized);
 
-        return gpmpn_sec_pi1_div_qr(qp, np, nn, dp, dn, inv32, tp);
+        return gpmpn_sec_pi1_div_qr(quotient_ptr, numerator_ptr, numerator_size, divisor_ptr, divisor_size, inverse_32, temp_ptr);
       }
     }
 

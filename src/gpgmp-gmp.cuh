@@ -106,7 +106,6 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_lshift(mp_ptr, mp_srcptr, mp
 #define gpmpn_mod_1 __GPGMP_MPN(mod_1)
 __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mod_1(mp_srcptr, mp_size_t, mp_limb_t) __GMP_ATTRIBUTE_PURE;
 
-#define gpmpn_mul __GPGMP_MPN(mul)
 __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mul(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
 
 #define gpmpn_mul_1 __GPGMP_MPN(mul_1)

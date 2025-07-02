@@ -34,6 +34,11 @@ see https://www.gnu.org/licenses/.  */
 #include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
+//This speeds up (most) multiplication operations by quite a bit on the GPU due to not having the overhead of checking which multiplication algorithm to use.
+//This means that serial multiplication will likely be significantly slower than the original GMP library, though when run with massive parallelization it should outperform by quite a bit...
+//Regardless, you can re-enable the multiplication checks here if you'd like.
+#define FORWARD_ALL_MULTIPLICATIONS_TO_BASECASE 1
+
 namespace gpgmp
 {
 	namespace mpnRoutines
@@ -125,6 +130,9 @@ namespace gpgmp
 			ASSERT(!MPN_OVERLAP_P(prodp, un + vn, up, un));
 			ASSERT(!MPN_OVERLAP_P(prodp, un + vn, vp, vn));
 
+#if (FORWARD_ALL_MULTIPLICATIONS_TO_BASECASE)
+			gpmpn_mul_basecase(prodp, up, un, vp, vn);
+#else
 			if (BELOW_THRESHOLD(un, MUL_TOOM22_THRESHOLD))
 			{
 				/* When un (and thus vn) is below the toom22 range, do mul_basecase.
@@ -139,7 +147,6 @@ namespace gpgmp
 			}
 			else if (vn < MUL_TOOM22_THRESHOLD)
 			{ /* plain schoolbook multiplication */
-
 				/* Unless un is very large, or else if have an applicable gpmpn_mul_N,
 			   perform basecase multiply directly.  */
 				if (un <= MUL_BASECASE_MAX_UN
@@ -148,8 +155,9 @@ namespace gpgmp
 #else
 					|| vn == 1
 #endif
-				)
+				) {
 					gpmpn_mul_basecase(prodp, up, un, vp, vn);
+				}
 				else
 				{
 					/* We have un >> MUL_BASECASE_MAX_UN > vn.  For better memory
@@ -445,7 +453,7 @@ namespace gpgmp
 				else
 					gpmpn_fft_mul(prodp, up, un, vp, vn);
 			}
-
+#endif /* FORWARD_ALL_MULTIPLICATIONS_TO_BASECASE */
 			return prodp[un + vn - 1]; /* historic */
 		}
 

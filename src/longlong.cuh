@@ -62,7 +62,7 @@ see https://www.gnu.org/licenses/.  */
 /* This is used to make sure no undesirable sharing between different libraries
    that use this file takes place.  */
 #ifndef __MPN
-#define __MPN(x) __##x
+#define __MPN(x) __gpgmpn_##x
 #endif
 
 /* Define auxiliary asm macros.
@@ -2203,6 +2203,10 @@ __GMP_DECLSPEC UWtype __MPN(udiv_w_sdiv) (UWtype *, UWtype, UWtype, UWtype);
 
 /* If udiv_qrnnd was not defined for this processor, use __udiv_qrnnd_c.  */
 #if !defined (udiv_qrnnd)
+#define UDIV_NEEDS_NORMALIZATION 1
+#define udiv_qrnnd __udiv_qrnnd_c
+#else
+#undef udiv_qrnnd
 #define UDIV_NEEDS_NORMALIZATION 1
 #define udiv_qrnnd __udiv_qrnnd_c
 #endif

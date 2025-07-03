@@ -31,7 +31,7 @@ namespace gpgmp {
                 //Get the current mpz_t integer.
                 const mpz_t& mpzToCopy = mpzArray[i];
                 ASSERT(ABSIZ(mpzToCopy) <= array->numLimbsPerInteger); //Ensure that the current mpz_t integer actually fits inside of the mpn_array.
-                memcpy(dataArray + (i * array->numLimbsPerInteger), mpzToCopy->_mp_d, ABSIZ(mpzToCopy) * sizeof(mp_limb_t));
+                memcpy(dataArray + (i * array->numLimbsPerInteger), PTR(mpzToCopy), ABSIZ(mpzToCopy) * sizeof(mp_limb_t));
                 sizesArray[i] = SIZ(mpzToCopy);
             }
         }
@@ -48,7 +48,7 @@ namespace gpgmp {
                 return cudaMemsetAsync(
                     MPN_ARRAY_DATA_NO_PTR_INDEXING(deviceArrayPtr),
                     0, //...setting the memory to 0's...
-                    ALIGN_TO_128_BYTE_MULTIPLE(sizeof(mp_limb_t) * MPN_ARRAY_LIMB_COUNT_FROM_BITS(precision) * arraySize) //Byte count to set to 0's...Size of the data array after the struct
+                    ALIGN_TO_128_BYTE_MULTIPLE(sizeof(mp_limb_t) * LIMB_COUNT_FROM_PRECISION_BITS(precision) * arraySize) //Byte count to set to 0's...Size of the data array after the struct
                         + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(int) * arraySize), //...and the "sizes" array after the data array, too.
                     stream //...and we're using the given stream for synchronization.
                 );
@@ -58,7 +58,7 @@ namespace gpgmp {
                 return cudaMemset(
                     MPN_ARRAY_DATA_NO_PTR_INDEXING(deviceArrayPtr),
                     0, //...setting the memory to 0's...
-                    ALIGN_TO_128_BYTE_MULTIPLE(sizeof(mp_limb_t) * MPN_ARRAY_LIMB_COUNT_FROM_BITS(precision) * arraySize)
+                    ALIGN_TO_128_BYTE_MULTIPLE(sizeof(mp_limb_t) * LIMB_COUNT_FROM_PRECISION_BITS(precision) * arraySize)
                         + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(int) * arraySize)
                 );
             }
@@ -70,7 +70,7 @@ namespace gpgmp {
         // **OPTIMIZATION FOR LATER** - I should 1,000% be using cudaMemcpyBatchAsync and cudaMemcpyBatch. I am not for now for the sake of simplicity and getting a working product. I realize that this is not a good excuse, and that this is a significant source of performance loss.
         HOSTONLY cudaError_t mpn_array_init_on_device_from_mpz_array(mpn_device_array deviceArrayPtr, const mpz_t* mpzArray, const int arraySize, const mp_bitcnt_t precision, const int mpzArraySize, cudaStream_t stream = 0) {
             mp_limb_t* deviceDataArrayPtr = MPN_ARRAY_DATA_NO_PTR_INDEXING(deviceArrayPtr);
-            size_t limbsPerInteger = MPN_ARRAY_LIMB_COUNT_FROM_BITS(precision); //equivalent to deviceArrayPtr->numLimbsPerInteger...
+            size_t limbsPerInteger = LIMB_COUNT_FROM_PRECISION_BITS(precision); //equivalent to deviceArrayPtr->numLimbsPerInteger...
             int* deviceSizesArrayPtr = MPN_ARRAY_SIZES_NO_PTR_INDEXING(deviceArrayPtr, arraySize, precision);
 
             cudaError_t err;

@@ -5644,7 +5644,7 @@ GPGMP_MPN_NAMESPACE_END
         };
 GPGMP_MPN_NAMESPACE_BEGIN
 #define gpmpn_gcdext_hook __GPGMP_MPN(gcdext_hook)
-        gcd_subdiv_step_hook gpmpn_gcdext_hook;
+        ANYCALLER gcd_subdiv_step_hook gpmpn_gcdext_hook;
 GPGMP_MPN_NAMESPACE_END
 
 #define MPN_GCDEXT_LEHMER_N_ITCH(n) (4 * (n) + 3)

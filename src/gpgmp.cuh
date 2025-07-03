@@ -79,5 +79,44 @@ namespace gpgmp {
   //This is a direct alias for an mpn_array pointer; it is used to facilitate better type clarity within user code so that confusion does not arise between whether an mpn_array is on the host or the device.
   typedef mpn_array* mpn_host_array;
 
+
+  /*
+
+  Original GMP mpf struct for reference:
+  typedef struct
+  {
+    int _mp_prec;			// Max precision, in number of `mp_limb_t's.
+            Set by mpf_init and modified by
+            mpf_set_prec.  The area pointed to by the
+            _mp_d field contains `prec' + 1 limbs.
+    int _mp_size;			// abs(_mp_size) is the number of limbs the
+            last field points to.  If _mp_size is
+            negative this is a negative number.
+    mp_exp_t _mp_exp;		// Exponent, in the base of `mp_limb_t'.
+    mp_limb_t *_mp_d;		// Pointer to the limbs.
+  } __mpf_struct;
+  */
+
+  struct __align__(128) mpf_array {
+    int numFloatsInArray;
+    int limbsPerArrayFloat;
+
+    //...Also contains arrays immediately following the struct similar to mpn_array - these arrays are:
+    //- "_mp_sizes" - an array of SIGNED ints, representing how many limbs are used by each float in the array.
+    //- "_mp_exponents" - an array of mp_exp_t's(usually typedefed long int's) - representing the exponent of each float in the array.
+    //- "_mp_data" - an array - of arrays - of mp_limb_t's, flattened out into 1D - representing the total limb data for each float in the array. i.e an mpf_array[2] with a precision of 2 limbs could have a data array that reads {0,42,1,0}, thereby arr[0] = ((2^64)*0) + 42 and arr[1] = ((2^64)*1) + 0
+    //
+    //Important note about the "_mp_data" array that differs from GMP behavior:
+    // Usually GMP "lies" about the number of limbs that are allocated by a float and adds one to the actual desired precision from the user; they however still store the desired, lower precision value inside of _mp_prec.
+    // We replicate most of this behavior, but we more directly expose the actual precision that the float "has" by storing the "value+1" count of limbs inside limbsPerArrayFloat, instead of storing the user-specified number and just allocating n+1 limbs.
+    // This means that when implementing any formulas you can simply use limbsPerArrayFloat as the source-of-truth for stride values etc, without needing to worry about this "trailing" limb interfering with any of your pointer offsets, etc.
+  };
+
+  //This is a direct alias for an mpf_array pointer; it is used to facilitate better type clarity within user code so that confusion does not arise between whether an mpf_array is on the host or the device.
+  typedef mpf_array* mpf_device_array;
+  //This is a direct alias for an mpf_array pointer; it is used to facilitate better type clarity within user code so that confusion does not arise between whether an mpf_array is on the host or the device.
+  typedef mpf_array* mpf_host_array;
 }
+
 #include "mpn/mpn.cuh"
+#include "mpf/mpf.cuh"

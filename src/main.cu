@@ -78,7 +78,7 @@ ANYCALLER void PrintDataAboutMPNArray(gpgmp::mpn_array* array) {
     }
 }
 
-__global__ void testKernel(gpgmp::mpn_device_array deviceArray, mp_limb_t* scratchSpaceArray) {
+__global__ void testKernel(gpgmp::mpn_device_array deviceArray) {
     int threadIdentifier = (blockIdx.y * gridDim.x * blockDim.x + blockIdx.x * blockDim.x + threadIdx.x);
     if (threadIdentifier > (NUM_INTEGERS_IN_ARRAY / 2) - 1) {
         return;
@@ -91,22 +91,14 @@ __global__ void testKernel(gpgmp::mpn_device_array deviceArray, mp_limb_t* scrat
     int doubleThreadIdent = threadIdentifier * 2;
     gpgmp::mpn_array_init_idx_set_si(deviceArray, (doubleThreadIdent) + 1, 1000000);
 
-    //TMP_DECL;
-    //TMP_MARK;
-
-    //mp_limb_t* scratchSpace = (mp_limb_t*)__gpgmp_tmp_reentrant_alloc(&__tmp_marker, gpgmp::mpnRoutines::gpmpn_sec_div_qr_itch(PRECISION_PER_INTEGER/64, 1));
-    mp_limb_t* scratchSpace = scratchSpaceArray + threadIdentifier * gpgmp::mpnRoutines::gpmpn_sec_div_qr_itch(PRECISION_PER_INTEGER/64, 1);
-
     mp_limb_t multBy = 2;
     for (int i = 0; i < MULTIPLICATIONS_TO_PERFORM; i++) {
-        //gpgmp::mpnRoutines::gpmpn_mul(&(*deviceArray)[doubleThreadIdent], &(*deviceArray)[(doubleThreadIdent) + 1], (PRECISION_PER_INTEGER/64) - 1, &multBy, 1);
+        gpgmp::mpnRoutines::gpmpn_mul(&(*deviceArray)[doubleThreadIdent], &(*deviceArray)[(doubleThreadIdent) + 1], (PRECISION_PER_INTEGER/64) - 1, &multBy, 1);
         //gpgmp::mpnRoutines::gpmpn_tdiv_qr(&(*deviceArray)[doubleThreadIdent], &(*deviceArray)[(doubleThreadIdent) + 1], 0, &(*deviceArray)[(doubleThreadIdent) + 1], 2, &multBy, 1);
-        gpgmp::mpnRoutines::gpmpn_sec_div_qr(&(*deviceArray)[doubleThreadIdent], &(*deviceArray)[doubleThreadIdent + 1], (PRECISION_PER_INTEGER/64), &multBy, 1, scratchSpace);
 
         //gpgmp::mpnRoutines::gpmpn_copyd(&(*deviceArray)[(doubleThreadIdent) + 1], &(*deviceArray)[doubleThreadIdent], PRECISION_PER_INTEGER/64);
     }
 
-    //TMP_FREE;
     //gpgmp::mpnRoutines::gpmpn_mul(&(*deviceArray)[0], &(*deviceArray)[1], 2, &(*deviceArray)[2], 2);
     //gpgmp::mpnRoutines::gpmpn_lshift(&(*deviceArray)[1], &(*deviceArray)[1], 4, 2);
     //gpgmp::mpnRoutines::gpmpn_rshift(&(*deviceArray)[1], &(*deviceArray)[1], 4, 1);
@@ -168,10 +160,6 @@ int main(int argc, char** argv) {
 
     float avgTime = 0;
 
-    mp_limb_t* scratchSpace;
-    cudaMalloc(&scratchSpace, gpgmp::mpnRoutines::gpmpn_sec_div_qr_itch(PRECISION_PER_INTEGER/64, 1) * sizeof(mp_limb_t) * (NUM_INTEGERS_IN_ARRAY / 2));
-    printf("Scratch space necessary.... %llu bytes\n", gpgmp::mpnRoutines::gpmpn_sec_div_qr_itch(PRECISION_PER_INTEGER/64, 1) * sizeof(mp_limb_t) * (NUM_INTEGERS_IN_ARRAY / 2));
-
     for (int i = 0; i < NUM_RUNS_FOR_AVG_TIME_GATHERING; i++) {
         cudaEvent_t start, stop;
         cudaEventCreate(&start);
@@ -179,7 +167,7 @@ int main(int argc, char** argv) {
 
         cudaEventRecord(start, 0);
         int gridDimXandY = static_cast<int>(ceil(sqrt(ceil(static_cast<float>(NUM_INTEGERS_IN_ARRAY) / 512.f))));
-        testKernel<<<dim3(gridDimXandY, gridDimXandY, 1), dim3(512, 1, 1)>>>(testArray, scratchSpace);
+        testKernel<<<dim3(gridDimXandY, gridDimXandY, 1), dim3(512, 1, 1)>>>(testArray);
         cudaEventRecord(stop, 0);
 
         cudaEventSynchronize(stop);
@@ -199,8 +187,6 @@ int main(int argc, char** argv) {
         cudaEventDestroy(stop);
     }
     avgTime /= static_cast<float>(NUM_RUNS_FOR_AVG_TIME_GATHERING);
-
-    cudaFree(scratchSpace);
 
     printf("Average execution time for kernels over %u runs: %.2f milliseconds\n", NUM_RUNS_FOR_AVG_TIME_GATHERING, avgTime);
 

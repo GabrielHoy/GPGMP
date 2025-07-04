@@ -152,7 +152,7 @@ see https://www.gnu.org/licenses/.  */
 
 #if !defined(__GMP_WITHIN_CONFIGURE)
 #include "config.cuh"
-#include "gmp.h"
+#include "gmp.cuh"
 #include "gpgmp-gmp.cuh"
 
 //=========================GMP-MPARAM.H

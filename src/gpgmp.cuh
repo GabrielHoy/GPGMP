@@ -21,7 +21,7 @@
 //In particular, there is zero support currently attempted to facilitate GMP_NAIL_BITS != 0.
 //If you're having trouble with this library, it's possible that the version of gmp.h you're using is not supported. Try using the version that comes with gpgmp if you can.
 #ifndef __GMP_H__
-#include "gmp.h"
+#include "gmp.cuh"
 #endif
 
 #include "Definitions.cuh"

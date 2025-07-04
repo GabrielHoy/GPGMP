@@ -1,6 +1,6 @@
 //"Wrapper" header meant to mimic gmp.h
 #pragma once
-#include "gmp.h"
+#include "gmp.cuh"
 #include "Definitions.cuh"
 
 // GPGMP's equivalent of __GPGMP_DECLSPEC.

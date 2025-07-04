@@ -52,7 +52,6 @@ see https://www.gnu.org/licenses/.  */
 
 #include "gpgmp-impl.cuh"
 #include "longlong.cuh"
-#include "gmp.h"
 
 namespace gpgmp
 {

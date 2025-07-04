@@ -190,15 +190,20 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpgmp_invalid_operation(void) {
 
 #ifdef __CUDA_ARCH__
 __GPGMP_DECLSPEC __device__ int __gpgmp_junk;
-__GPGMP_DECLSPEC __device__ int gpgmp_errno = 0;
+__GPGMP_DECLSPEC __device__ extern int gpgmp_errno;
 #else
-__GPGMP_DECLSPEC int gpgmp_errno = 0;
+__GPGMP_DECLSPEC extern int gpgmp_errno;
 __GPGMP_DECLSPEC int __gpgmp_junk;
 #endif
 
 
-
+#ifdef __CUDA_ARCH__
+__device__
+#endif
 __GPGMP_DECLSPEC char __gpgmp_rands_initialized = 0;
+#ifdef __CUDA_ARCH__
+__device__
+#endif
 __GPGMP_DECLSPEC gmp_randstate_t  __gpgmp_rands;
 
 

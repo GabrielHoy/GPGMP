@@ -51,9 +51,9 @@
 #define MPF_ARRAY_DATA(array) (reinterpret_cast<mp_limb_t*>(reinterpret_cast<char*>(MPF_ARRAY_EXPONENTS(array)) + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(mp_exp_t) * array->numFloatsInArray)))
 
 //MPF_ARRAY_SIZES, but const.
-#define MPF_ARRAY_SIZES_CONST(array) (reinterpret_cast<const int*>(reinterpret_cast<char*>(array) + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(gpgmp::mpf_array))))
+#define MPF_ARRAY_SIZES_CONST(array) (reinterpret_cast<const int*>(reinterpret_cast<const char*>(array) + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(gpgmp::mpf_array))))
 //MPF_ARRAY_EXPONENTS, but const.
-#define MPF_ARRAY_EXPONENTS_CONST(array) (reinterpret_cast<const mp_exp_t*>(reinterpret_cast<char*>(MPF_ARRAY_SIZES_CONST(array)) + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(int) * array->numFloatsInArray)))
+#define MPF_ARRAY_EXPONENTS_CONST(array) (reinterpret_cast<const mp_exp_t*>(reinterpret_cast<const char*>(MPF_ARRAY_SIZES_CONST(array)) + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(int) * array->numFloatsInArray)))
 //MPF_ARRAY_DATA, but const.
 #define MPF_ARRAY_DATA_CONST(array) (reinterpret_cast<const mp_limb_t*>(reinterpret_cast<const char*>(MPF_ARRAY_EXPONENTS_CONST(array)) + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(mp_exp_t) * array->numFloatsInArray)))
 

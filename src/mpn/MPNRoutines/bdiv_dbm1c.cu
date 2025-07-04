@@ -34,7 +34,6 @@ GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
 #include "gpgmp-impl.cuh"
-#include "gmp.h"
 #include "longlong.cuh"
 
 namespace gpgmp {

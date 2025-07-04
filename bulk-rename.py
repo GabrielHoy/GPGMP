@@ -31,10 +31,10 @@ def changeExt(directory, extChangeFrom, extChangeTo):
 
 if __name__ == "__main__":
     # Directory containing the files
-    directory = "src/mpn/MPNRoutines"
+    directory = "src/mpf/MPFRoutines"
 
     # Check if directory exists
     if not os.path.exists(directory):
         print(f"Error: Directory '{directory}' does not exist")
     else:
-        changeExt(directory, '.cuh.cu', '.cu')
+        changeExt(directory, '.c.TODO', '.cu')

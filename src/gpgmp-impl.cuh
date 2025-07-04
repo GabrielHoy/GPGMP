@@ -141,9 +141,6 @@ see https://www.gnu.org/licenses/.  */
 #define DECL_submul_1(name) \
     DECL_addmul_1(name)
 
-//----------------------------------//
-//--------GPGMP MODIFICATIONS-------//
-//----------------------------------//
 
 //Helpful macro to determine whether to 'make a fuss' when dynamic memory is allocated - by default we do this inside any CUDA code since dynamic allocation is awful practice in CUDA kernels...
 #ifdef __CUDA_ARCH__
@@ -152,9 +149,6 @@ see https://www.gnu.org/licenses/.  */
 #define FUSS_WHEN_DYNAMIC_ALLOCATING 0
 #endif
 
-//----------------------------------//
-//--------GMP FILE INLININGS--------//
-//----------------------------------//
 
 #if !defined(__GMP_WITHIN_CONFIGURE)
 #include "config.cuh"
@@ -298,9 +292,7 @@ see https://www.gnu.org/licenses/.  */
 #include <string>  /* for std::string */
 #endif
 
-    //----------------------------------//
-    //------EOF GMP FILE INLININGS------//
-    //----------------------------------//
+
 
 #include "Definitions.cuh"
 
@@ -325,9 +317,6 @@ namespace gpgmp
         }                           \
         }
 
-    //----------------------------------//
-    //------EOF GPGMP MODIFICATIONS-----//
-    //----------------------------------//
 
 #ifndef WANT_TMP_DEBUG /* for TMP_ALLOC_LIMBS_2 and others */
 #define WANT_TMP_DEBUG 0
@@ -1566,9 +1555,9 @@ GPGMP_MPN_NAMESPACE_END
             gmp_randstate_ptr __rstate = (state);                                        \
             (*((gmp_randfnptr_t *)RNG_FNPTR(__rstate))->randget_fn)(__rstate, rp, bits); \
         } while (0)
-GPGMP_MPN_NAMESPACE_BEGIN
+
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gmp_randinit_mt_noseed(gmp_randstate_ptr);
-GPGMP_MPN_NAMESPACE_END
+
         /* __gpgmp_rands is the global state for the old-style random functions, and
            is also used in the test programs (hence the __GPGMP_DECLSPEC __GPGMP_CALLERTYPE).
 
@@ -1580,8 +1569,13 @@ GPGMP_MPN_NAMESPACE_END
            something that would work reliably everywhere.  In any case the new style
            functions are recommended to applications which care about randomness, so
            the old functions aren't too important.  */
-
+        #ifdef __CUDA_ARCH__
+        __device__
+        #endif
         __GPGMP_DECLSPEC extern char __gpgmp_rands_initialized;
+        #ifdef __CUDA_ARCH__
+        __device__
+        #endif
         __GPGMP_DECLSPEC extern gmp_randstate_t __gpgmp_rands;
 
 #define RANDS                                                                \
@@ -3158,7 +3152,7 @@ GPGMP_MPN_NAMESPACE_END
         do                                                \
         {                                                 \
             ASSERT((size) >= 1);                          \
-            ASSERT_NOCARRY(gpmpn_add_1(ptr, ptr, size, n)); \
+            ASSERT_NOCARRY(gpgmp::mpnRoutines::gpmpn_add_1(ptr, ptr, size, n)); \
         } while (0)
 #else
 #define MPN_INCR_U(ptr, size, n) gpmpn_incr_u(ptr, n)
@@ -3171,7 +3165,7 @@ GPGMP_MPN_NAMESPACE_END
         do                                                \
         {                                                 \
             ASSERT((size) >= 1);                          \
-            ASSERT_NOCARRY(gpmpn_sub_1(ptr, ptr, size, n)); \
+            ASSERT_NOCARRY(gpgmp::mpnRoutines::gpmpn_sub_1(ptr, ptr, size, n)); \
         } while (0)
 #else
 #define MPN_DECR_U(ptr, size, n) gpmpn_decr_u(ptr, n)
@@ -3506,7 +3500,11 @@ GPGMP_MPN_NAMESPACE_END
 
 #ifndef gpmpn_preinv_divrem_1 /* if not done with cpuvec in a fat binary */
 #define gpmpn_preinv_divrem_1 __GPGMP_MPN(preinv_divrem_1)
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_preinv_divrem_1(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t, int);
+namespace gpgmp {
+        namespace mpnRoutines {
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_preinv_divrem_1(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t, int);
+        }
+}
 #endif
 
         /* USE_PREINV_DIVREM_1 is whether to use gpmpn_preinv_divrem_1, as opposed to the
@@ -3518,7 +3516,7 @@ GPGMP_MPN_NAMESPACE_END
 
 #if USE_PREINV_DIVREM_1
 #define MPN_DIVREM_OR_PREINV_DIVREM_1(qp, xsize, ap, size, d, dinv, shift) \
-        gpmpn_preinv_divrem_1(qp, xsize, ap, size, d, dinv, shift)
+        gpgmp::mpnRoutines::gpmpn_preinv_divrem_1(qp, xsize, ap, size, d, dinv, shift)
 #else
 #define MPN_DIVREM_OR_PREINV_DIVREM_1(qp, xsize, ap, size, d, dinv, shift) \
         gpmpn_divrem_1(qp, xsize, ap, size, d)
@@ -4181,8 +4179,8 @@ typedef unsigned long int UDItype;
         /* Maximum number of limbs it will take to store any `double'.
            We assume doubles have 53 mantissa bits.  */
 #define LIMBS_PER_DOUBLE ((53 + GMP_NUMB_BITS - 2) / GMP_NUMB_BITS + 1)
-GPGMP_MPN_NAMESPACE_BEGIN
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int __gmp_extract_double(mp_ptr, double);
+GPGMP_MPN_NAMESPACE_BEGIN
 
 #define gpmpn_get_d __ggpmpn_get_d
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE double gpmpn_get_d(mp_srcptr, mp_size_t, mp_size_t, long) __GMP_ATTRIBUTE_PURE;
@@ -4270,7 +4268,16 @@ GPGMP_MPN_NAMESPACE_END
         } while (0)
 #endif
 
+__GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gmp_exception (int) ATTRIBUTE_NORETURN;
+__GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gmp_divide_by_zero (void) ATTRIBUTE_NORETURN;
+__GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gmp_sqrt_of_negative (void) ATTRIBUTE_NORETURN;
+__GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gmp_overflow_in_mpz (void) ATTRIBUTE_NORETURN;
+__GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gmp_invalid_operation (void) ATTRIBUTE_NORETURN;
+
 #define X 0xff
+#ifdef __CUDA_ARCH__
+__device__
+#endif
         __GPGMP_DECLSPEC const unsigned char __gmp_digit_value_tab[] =
             {
                 X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
@@ -5705,7 +5712,10 @@ GPGMP_MPN_NAMESPACE_END
 #define __GMPF_PREC_TO_BITS(n) \
         ((mp_bitcnt_t)(n) * GMP_NUMB_BITS - GMP_NUMB_BITS)
 
-        __GPGMP_DECLSPEC extern mp_size_t __gmp_default_fp_limb_precision; // TODO: Don't overlook this when implementing MPF's
+                        #ifdef __CUDA_ARCH__
+                                __device__
+                        #endif
+                        __GPGMP_DECLSPEC extern mp_size_t __gmp_default_fp_limb_precision; // TODO: Don't overlook this when implementing MPF's
 
         /* Compute the number of base-b digits corresponding to nlimbs limbs, rounding
            down.  */

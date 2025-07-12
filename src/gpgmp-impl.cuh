@@ -644,14 +644,15 @@ typedef size_t gmp_intptr_t;
             /* Allocating various types. */
 
 #if FUSS_WHEN_DYNAMIC_ALLOCATING
-#define TMP_ALLOC_TYPE(n, type) (printf("TMP_ALLOC_TYPE Dynamic Allocation is being performed, this should not happen in a GPU environment, refactoring needed...\n") ? ((type *)TMP_ALLOC((n) * sizeof(type))) : ((type *)TMP_ALLOC((n) * sizeof(type))))
-#define TMP_SALLOC_TYPE(n, type) (printf("TMP_SALLOC_TYPE Dynamic Allocation is being performed, this should not happen in a GPU environment, refactoring needed...\n") ? ((type *)TMP_SALLOC((n) * sizeof(type))) : ((type *)TMP_SALLOC((n) * sizeof(type))))
-#define TMP_BALLOC_TYPE(n, type) (printf("TMP_BALLOC_TYPE Dynamic Allocation is being performed, this should not happen in a GPU environment, refactoring needed...\n") ? ((type *)TMP_BALLOC((n) * sizeof(type))) : ((type *)TMP_BALLOC((n) * sizeof(type))))
+#define TMP_ALLOC_TYPE(n, type) (printf("[GPGMP]: TMP_ALLOC_TYPE Dynamic Allocation is being performed, this should not happen in a GPU environment, refactoring needed...\n") ? ((type *)TMP_ALLOC((n) * sizeof(type))) : ((type *)TMP_ALLOC((n) * sizeof(type))))
+#define TMP_SALLOC_TYPE(n, type) (printf("[GPGMP]: TMP_SALLOC_TYPE Dynamic Allocation is being performed, this should not happen in a GPU environment, refactoring needed...\n") ? ((type *)TMP_SALLOC((n) * sizeof(type))) : ((type *)TMP_SALLOC((n) * sizeof(type))))
+#define TMP_BALLOC_TYPE(n, type) (printf("[GPGMP]: TMP_BALLOC_TYPE Dynamic Allocation is being performed, this should not happen in a GPU environment, refactoring needed...\n") ? ((type *)TMP_BALLOC((n) * sizeof(type))) : ((type *)TMP_BALLOC((n) * sizeof(type))))
 #else
 #define TMP_ALLOC_TYPE(n, type) ((type *)TMP_ALLOC((n) * sizeof(type)))
 #define TMP_SALLOC_TYPE(n, type) ((type *)TMP_SALLOC((n) * sizeof(type)))
 #define TMP_BALLOC_TYPE(n, type) ((type *)TMP_BALLOC((n) * sizeof(type)))
 #endif
+
 #define TMP_ALLOC_LIMBS(n) TMP_ALLOC_TYPE(n, mp_limb_t)
 #define TMP_SALLOC_LIMBS(n) TMP_SALLOC_TYPE(n, mp_limb_t)
 #define TMP_BALLOC_LIMBS(n) TMP_BALLOC_TYPE(n, mp_limb_t)

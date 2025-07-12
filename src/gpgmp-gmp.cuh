@@ -16,16 +16,28 @@ namespace gpgmp
 
         enum UsedOperationFlags
             {
-                    OP_NONE = 0,         // Ignore...
-                    OP_ADD = 1 << 0,     // Addition between two floating-point numbers.
-                    OP_SUB = 1 << 1,     // Subtraction between two floating-point numbers.
-                    OP_MUL = 1 << 2,     // Multiplication between two floating-point numbers.
-                    OP_DIV = 1 << 3,     // Division between two floating-point numbers.
-                    OP_UI_DIV = 1 << 4,  // Division of unsigned integers by floating-point numbers.
-                    OP_DIV_UI = 1 << 5,  // Division of floating-point numbers by unsigned integers.
-                    OP_SQRT = 1 << 6,    // Square root of a floating-point number.
-                    OP_SQRT_UI = 1 << 7, // Square root of an unsigned integer.
-                    OP_RELDIFF = 1 << 8 // Absolute difference between two floating-point numbers.
+                // Ignore...
+                    OP_NONE = 0,
+                    // Addition between two floating-point numbers.
+                    OP_ADD = 1 << 0,
+                    // Subtraction between two floating-point numbers.
+                    OP_SUB = 1 << 1,
+                    // Multiplication between two floating-point numbers.
+                    OP_MUL = 1 << 2,
+                    // Division between two floating-point numbers.
+                    OP_DIV = 1 << 3,
+                    // Division of unsigned integers by floating-point numbers.
+                    OP_UI_DIV = 1 << 4,
+                    // Division of floating-point numbers by unsigned integers.
+                    OP_DIV_UI = 1 << 5,
+                    // Square root of a floating-point number.
+                    OP_SQRT = 1 << 6,
+                    // Square root of an unsigned integer.
+                    OP_SQRT_UI = 1 << 7,
+                    // Absolute difference between two floating-point numbers.
+                    OP_RELDIFF = 1 << 8,
+                    // Ensure all operations listed in this enum are available; this will allocate a lot of extra memory for scratch space, caution is advised...
+                    OP_ALL = UINT32_MAX
             };
 
             // A direct alias for uint32_t, used to identify the enum type used inside of available operation bit-fields in a more readable manner.

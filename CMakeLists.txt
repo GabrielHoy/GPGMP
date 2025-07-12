@@ -105,8 +105,8 @@ target_precompile_headers(GPGMP PRIVATE
 # Set CUDA properties
 set_target_properties(GPGMP PROPERTIES
   CUDA_SEPARABLE_COMPILATION ON
-  CUDA_ARCHITECTURES "60"
 )
+set(CMAKE_CUDA_ARCHITECTURES "60; 70; 75; 80; 86" CACHE STRING "CUDA Architectures to target")
 
 # Base compiler options that apply to all configurations - MSVC Specific
 if(MSVC)

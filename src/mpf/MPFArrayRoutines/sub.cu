@@ -417,12 +417,14 @@ namespace gpgmp
 				/* Signs are now known to be the same.  */
 				negate = usize < 0;
 
+				bool utilizeEffectiveUV = false;
 				mpf_srcptr effectiveU;
 				mpf_t effectiveV;
 
 				/* Make U be the operand with the largest exponent.  */
 				if (MPF_ARRAY_EXPONENTS(u.array)[u.idx] < EXP(v))
 				{
+					utilizeEffectiveUV = true;
 					effectiveU = v;
 					effectiveV->_mp_exp = MPF_ARRAY_EXPONENTS(u.array)[u.idx];
 					effectiveV->_mp_size = MPF_ARRAY_SIZES(u.array)[u.idx];
@@ -435,12 +437,12 @@ namespace gpgmp
 
 				usize = ABS(usize);
 				vsize = ABS(vsize);
-				up = effectiveU ? PTR(effectiveU) : MPF_ARRAY_DATA_AT_IDX(u.array, u.idx);
-				vp = PTR(effectiveV ? effectiveV : v);
+				up = utilizeEffectiveUV ? PTR(effectiveU) : MPF_ARRAY_DATA_AT_IDX(u.array, u.idx);
+				vp = PTR(utilizeEffectiveUV ? effectiveV : v);
 				rp = MPF_ARRAY_DATA_AT_IDX(r.array, r.idx);
 				prec = r.array->userSpecifiedPrecisionLimbCount + 1;
-				exp = effectiveU ? effectiveU->_mp_exp : MPF_ARRAY_EXPONENTS(u.array)[u.idx];
-				ediff = exp - EXP(effectiveV ? effectiveV : v);
+				exp = utilizeEffectiveUV ? effectiveU->_mp_exp : MPF_ARRAY_EXPONENTS(u.array)[u.idx];
+				ediff = exp - EXP(utilizeEffectiveUV ? effectiveV : v);
 
 				/* If ediff is 0 or 1, we might have a situation where the operands are
 				   extremely close.  We need to scan the operands from the most significant

@@ -70,6 +70,8 @@ namespace gpgmp
                     }
             };
 
+            //mpf_array_idx's are simple structs pairing an mpf_array* and an int, representing an index in a array.
+            //Nearly all routines having to do with mpf_array's will use this struct to represent their input parameters, since they need a reference to both the array and the index in it.
             struct mpf_array_idx
             {
                     mpf_array *array;

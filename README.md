@@ -4,24 +4,27 @@
 
 ## This is a library built ontop of the GNU MP library, intended to enable mass-parallelized GPU computation of arbitrary precision numbers.
 
-I will write a more complete README(and docs) if and when I flesh out this library to a point where I feel comfortable publishing it as "production usable" code...
+I will write a more complete README - and docs - if/when I flesh out this library to a point where I feel comfortable publishing it as "production usable" code...
 
 > **CURRENT FUNCTIONALITY:**
 - GPU-Compatible `mpn` routines, under `gpgmp::mpnRoutines::gp<normal_mpn_routine_name>` *(As of 07/04/2025 These have not been optimized for Warp Divergence or Memory Coalescence. I have primarily focused on porting to CUDA C; there are many optimizations to be had yet.)*
 - GPU-Compatible `mpf` routines, under `gpgmp::mpfRoutines::gp<normal_mpf_routine_name>` *(As of 07/04/2025 These have not been optimized for Warp Divergence or Memory Coalescence. I have primarily focused on porting to CUDA C; there are many optimizations to be had yet.)*
+- Routines tailored to working with `mpf_array`'s and their optimized memory format for the GPU, located under `gpgmp::mpfArrayRoutines::gp<equivalent_mpf_routine_name>` *(As of 07/12/2025 These have not been optimized for Warp Divergence or Memory Coalescence. I have primarily focused on porting to CUDA C; there are many optimizations to be had yet.)*
 - `gpgmp::mpn_device_array` and `gpgmp::mpn_host_array` types which operate similarly to mpz_t[] array's, with the benefit of optimized Memory Coalescence and GPU compatibility.
 - `gpgmp::mpf_device_array` and `gpgmp::mpf_host_array` types which operate similarly to mpf_t[] array's, with the benefit of optimized Memory Coalescence and GPU compatibility.
 
 > **KNOWN ISSUES:**
+- There is scaffolding currently setup for "availableOperations" on `mpf_array`'s, but no actual assertations nor checks are performed to make sure that the user actually declared their 'intent' to use a function - and thereby whether necessary scratch space was pre-allocated - during `mpf_array` routines.
+- `gpmpf_pow_ui` requires special logic to accomodate ahead-of-time scratch space allocation depending on the maximum exponent the user desires to raise something to the power of.
 - Using `mpf` routines can be clunky and unintuitive at the moment due to some routines requiring dedicated scratch space to be allocated by the user ahead of time. There is no doubt a way to abstract this allocation.
 - A few `mpn` routines don't currently play well with the GPU and can cause kernels to hang. Need to properly test mpn functions in the future to find all occurances of this and refactor.
 - Unit Tests have not been written yet.
 
 > **TODO:**
-- Refactor several few `mpn` routines to use pre-allocated scratch space instead of trying to dynamically allocate on the GPU
-- Optimize `gpmpn` routines for parallelized processing
-- Optimize `gpmpf` routines for parallelized processing
-- Create equivalent versions of all `gpmpf` routines using the `mpf_array` structure
+- Refactor several `mpn` routines to use pre-allocated scratch space instead of trying to dynamically allocate on the GPU
+- Optimize `gpgmp::mpnRoutines` routines for parallelized processing
+- Optimize `gpgmp::mpfRoutines` routines for parallelized processing
+- Optimize `gpgmp::mpfArrayRoutines` routines for parallelized processing
 - Write Usage Documentation
 - Ensure no possible legal issues exist with this library extending off of GMP. *(Until I get to this, if you're with the GMP legal team and have any concerns feel free to reach out at legal@tamperedreality.net!)*
 - Generally clean the codebase up, standardize used naming conventions, remove zombie code left over from porting, etc.

@@ -8,222 +8,493 @@
 #define __GPGMP_CALLERTYPE ANYCALLER
 #define __GPGMP_MPN(x) __gpgmpn_##x
 
+//extern struct mpf_array_idx;
+
+
 namespace gpgmp
 {
+
+        enum UsedOperationFlags
+            {
+                    OP_NONE = 0,         // Ignore...
+                    OP_ADD = 1 << 0,     // Addition between two floating-point numbers.
+                    OP_SUB = 1 << 1,     // Subtraction between two floating-point numbers.
+                    OP_MUL = 1 << 2,     // Multiplication between two floating-point numbers.
+                    OP_DIV = 1 << 3,     // Division between two floating-point numbers.
+                    OP_UI_DIV = 1 << 4,  // Division of unsigned integers by floating-point numbers.
+                    OP_DIV_UI = 1 << 5,  // Division of floating-point numbers by unsigned integers.
+                    OP_SQRT = 1 << 6,    // Square root of a floating-point number.
+                    OP_SQRT_UI = 1 << 7, // Square root of an unsigned integer.
+                    OP_RELDIFF = 1 << 8 // Absolute difference between two floating-point numbers.
+            };
+
+            // A direct alias for uint32_t, used to identify the enum type used inside of available operation bit-fields in a more readable manner.
+            typedef uint32_t _UsedOperationFlags;
+
+            struct __align__(128) mpf_array
+            {
+                    int numFloatsInArray;                    // Number of floating-point numbers that this array contains.
+                    int userSpecifiedPrecisionLimbCount;     // Number of limbs that the user specified for the precision of each floating-point number in this array.
+                    int limbsPerArrayFloat;                  // Number of limbs *actually allocated* for each floating-point number in this array to use - this accounts for any "scratch space" limbs.
+                    _UsedOperationFlags availableOperations; // Bitfield of UsedOperationFlags - Flags specifying which operations are available for use on a given floating-point number.
+
+                    //...Also contains arrays immediately following the struct similar to mpn_array - these arrays are:
+                    //- "_mp_sizes" - an array of SIGNED ints, representing how many limbs are used by each float in the array.
+                    //- "_mp_exponents" - an array of mp_exp_t's(usually typedefed long int's) - representing the exponent of each float in the array.
+                    //- "_mp_data" - an array - of arrays - of mp_limb_t's, flattened out into 1D - representing the total limb data for each float in the array. i.e an mpf_array[2] with a precision of 2 limbs could have a data array that reads {0,42,1,0}, thereby arr[0] = ((2^64)*0) + 42 and arr[1] = ((2^64)*1) + 0
+                    //
+                    // Important notes about the "_mp_data" array that differs from GMP behavior:
+                    // Usually GMP "lies" about the number of limbs that are allocated by a float and adds one to the actual desired precision from the user; they however still store the desired, lower precision value inside of _mp_prec.
+                    // We replicate most of this behavior, but we more directly expose the actual precision that the float "has" by storing the "value+1" count of limbs inside limbsPerArrayFloat, instead of storing the user-specified number and just allocating n+1 limbs.
+                    // This means that when implementing any formulas you can simply use limbsPerArrayFloat as the source-of-truth for stride values etc, without needing to worry about this "trailing" limb interfering with any of your pointer offsets, etc.
+
+                    // Helper operators for array indexing so that users can use common syntax like arr[0], arr[1], arr[2]...
+                    ANYCALLER mp_limb_t &operator[](int index)
+                    {
+                            return *(MPF_ARRAY_DATA(this) + (index * this->limbsPerArrayFloat));
+                    }
+
+                    ANYCALLER const mp_limb_t &operator[](int index) const
+                    {
+                            return *(MPF_ARRAY_DATA_CONST(this) + (index * this->limbsPerArrayFloat));
+                    }
+            };
+
+            struct mpf_array_idx
+            {
+                    mpf_array *array;
+                    int idx;
+            };
+
+
+        //This is a direct alias for an mpf_array pointer; it is used to facilitate better type clarity within user code so that confusion does not arise between whether an mpf_array is on the host or the device.
+        typedef mpf_array* mpf_device_array;
+        //This is a direct alias for an mpf_array pointer; it is used to facilitate better type clarity within user code so that confusion does not arise between whether an mpf_array is on the host or the device.
+        typedef mpf_array* mpf_host_array;
+
+
         /**************** Float (i.e. F) routines.  ****************/
-    namespace mpfRoutines
+        namespace mpfRoutines
+        {
+
+    #define gpmpf_abs __gpmpf_abs
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_abs(mpf_ptr, mpf_srcptr);
+
+    #define gpmpf_add __gpmpf_add
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_add(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+
+    #define gpmpf_add_ui __gpmpf_add_ui
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_add_ui(mpf_ptr, mpf_srcptr, unsigned long int, mp_limb_t*);
+    #define gpmpf_ceil __gpmpf_ceil
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_ceil(mpf_ptr, mpf_srcptr);
+
+    #define gpmpf_clear __gpmpf_clear
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_clear(mpf_ptr);
+
+    #define gpmpf_clears __gpmpf_clears
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_clears(mpf_ptr, ...);
+
+    #define gpmpf_cmp __gpmpf_cmp
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp(mpf_srcptr, mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_cmp_z __gpmpf_cmp_z
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_z(mpf_srcptr, mpz_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_cmp_d __gpmpf_cmp_d
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_d(mpf_srcptr, double) __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_cmp_si __gpmpf_cmp_si
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_si(mpf_srcptr, signed long int) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_cmp_ui __gpmpf_cmp_ui
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_ui(mpf_srcptr, unsigned long int) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_div __gpmpf_div
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+
+    #define gpmpf_div_2exp __gpmpf_div_2exp
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div_2exp(mpf_ptr, mpf_srcptr, mp_bitcnt_t);
+
+    #define gpmpf_div_ui __gpmpf_div_ui
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div_ui(mpf_ptr, mpf_srcptr, unsigned long int, mp_limb_t*);
+
+    #define gpmpf_dump __gpmpf_dump
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_dump(mpf_srcptr);
+
+    #define gpmpf_eq __gpmpf_eq
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_eq(mpf_srcptr, mpf_srcptr, mp_bitcnt_t) __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_fits_sint_p __gpmpf_fits_sint_p
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_sint_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_fits_slong_p __gpmpf_fits_slong_p
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_slong_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_fits_sshort_p __gpmpf_fits_sshort_p
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_sshort_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_fits_uint_p __gpmpf_fits_uint_p
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_uint_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_fits_ulong_p __gpmpf_fits_ulong_p
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_ulong_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_fits_ushort_p __gpmpf_fits_ushort_p
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_ushort_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_floor __gpmpf_floor
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_floor(mpf_ptr, mpf_srcptr);
+
+    #define gpmpf_get_d __gpmpf_get_d
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE double gpmpf_get_d(mpf_srcptr) __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_get_d_2exp __gpmpf_get_d_2exp
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE double gpmpf_get_d_2exp(signed long int *, mpf_srcptr);
+
+    #define gpmpf_get_default_prec __gpmpf_get_default_prec
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_bitcnt_t gpmpf_get_default_prec(void) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_get_prec __gpmpf_get_prec
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_bitcnt_t gpmpf_get_prec(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_get_si __gpmpf_get_si
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE long gpmpf_get_si(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_get_str __gpmpf_get_str
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE char *gpmpf_get_str(char *, mp_exp_t *, int, size_t, mpf_srcptr);
+
+    #define gpmpf_get_ui __gpmpf_get_ui
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE unsigned long gpmpf_get_ui(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_init __gpmpf_init
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_init(mpf_ptr);
+
+    #define gpmpf_init2 __gpmpf_init2
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_init2(mpf_ptr, mp_bitcnt_t);
+
+    #define gpmpf_inits __gpmpf_inits
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_inits(mpf_ptr, ...);
+
+    #define gpmpf_init_set __gpmpf_init_set
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_init_set(mpf_ptr, mpf_srcptr);
+
+    #define gpmpf_init_set_d __gpmpf_init_set_d
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_init_set_d(mpf_ptr, double);
+
+    #define gpmpf_init_set_si __gpmpf_init_set_si
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_init_set_si(mpf_ptr, signed long int);
+
+    #define gpmpf_init_set_str __gpmpf_init_set_str
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_init_set_str(mpf_ptr, const char *, int);
+
+    #define gpmpf_init_set_ui __gpmpf_init_set_ui
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_init_set_ui(mpf_ptr, unsigned long int);
+
+    #define gpmpf_inp_str __gpmpf_inp_str
+    #ifdef _GMP_H_HAVE_FILE
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t gpmpf_inp_str(mpf_ptr, FILE *, int);
+    #endif
+
+    #define gpmpf_integer_p __gpmpf_integer_p
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_integer_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_mul __gpmpf_mul
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+
+    #define gpmpf_mul_2exp __gpmpf_mul_2exp
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul_2exp(mpf_ptr, mpf_srcptr, mp_bitcnt_t);
+
+    #define gpmpf_mul_ui __gpmpf_mul_ui
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul_ui(mpf_ptr, mpf_srcptr, unsigned long int);
+
+    #define gpmpf_neg __gpmpf_neg
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_neg(mpf_ptr, mpf_srcptr);
+
+    #define gpmpf_out_str __gpmpf_out_str
+    #ifdef _GMP_H_HAVE_FILE
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t gpmpf_out_str(FILE *, int, size_t, mpf_srcptr);
+    #endif
+
+    #define gpmpf_pow_ui __gpmpf_pow_ui
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_pow_ui(mpf_ptr, mpf_srcptr, unsigned long int, mp_limb_t*);
+
+    #define gpmpf_random2 __gpmpf_random2
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_random2(mpf_ptr, mp_size_t, mp_exp_t);
+
+    #define gpmpf_reldiff __gpmpf_reldiff
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_reldiff(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+
+    #define gpmpf_set __gpmpf_set
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set(mpf_ptr, mpf_srcptr);
+
+    #define gpmpf_set_d __gpmpf_set_d
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_d(mpf_ptr, double);
+
+    #define gpmpf_set_default_prec __gpmpf_set_default_prec
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_default_prec(mp_bitcnt_t) __GMP_NOTHROW;
+
+    #define gpmpf_set_prec __gpmpf_set_prec
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_prec(mpf_ptr, mp_bitcnt_t);
+
+    #define gpmpf_set_prec_raw __gpmpf_set_prec_raw
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_prec_raw(mpf_ptr, mp_bitcnt_t) __GMP_NOTHROW;
+
+    #define gpmpf_set_q __gpmpf_set_q
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_q(mpf_ptr, mpq_srcptr);
+
+    #define gpmpf_set_si __gpmpf_set_si
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_si(mpf_ptr, signed long int);
+
+    #define gpmpf_set_str __gpmpf_set_str
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_set_str(mpf_ptr, const char *, int);
+
+    #define gpmpf_set_ui __gpmpf_set_ui
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_ui(mpf_ptr, unsigned long int);
+
+    #define gpmpf_set_z __gpmpf_set_z
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_z(mpf_ptr, mpz_srcptr);
+
+    #define gpmpf_size __gpmpf_size
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t gpmpf_size(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+
+    #define gpmpf_sqrt __gpmpf_sqrt
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sqrt(mpf_ptr, mpf_srcptr, mp_limb_t*);
+
+    #define gpmpf_sqrt_ui __gpmpf_sqrt_ui
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sqrt_ui(mpf_ptr, unsigned long int, mp_limb_t*);
+
+    #define gpmpf_sub __gpmpf_sub
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sub(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+
+    #define gpmpf_sub_ui __gpmpf_sub_ui
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sub_ui(mpf_ptr, mpf_srcptr, unsigned long int, mp_limb_t*);
+
+    #define gpmpf_swap __gpmpf_swap
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_swap(mpf_ptr, mpf_ptr) __GMP_NOTHROW;
+
+    #define gpmpf_trunc __gpmpf_trunc
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_trunc(mpf_ptr, mpf_srcptr);
+
+    #define gpmpf_ui_div __gpmpf_ui_div
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_ui_div(mpf_ptr, unsigned long int, mpf_srcptr, mp_limb_t*);
+
+    #define gpmpf_ui_sub __gpmpf_ui_sub
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_ui_sub(mpf_ptr, unsigned long int, mpf_srcptr, mp_limb_t*);
+
+    #define gpmpf_urandomb __gpmpf_urandomb
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_urandomb(mpf_ptr, gmp_randstate_ptr, mp_bitcnt_t);
+
+        }
+
+
+        /**************** Float Array (i.e. mpf_array) routines.  ****************/
+    namespace mpfArrayRoutines
     {
 
 #define gpmpf_abs __gpmpf_abs
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_abs(mpf_ptr, mpf_srcptr);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_abs(mpf_array_idx, mpf_array_idx);
 
 #define gpmpf_add __gpmpf_add
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_add(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_add(mpf_array_idx, mpf_array_idx, mpf_array_idx);
 
 #define gpmpf_add_ui __gpmpf_add_ui
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_add_ui(mpf_ptr, mpf_srcptr, unsigned long int, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_add_ui(mpf_array_idx, mpf_array_idx, unsigned long int);
 #define gpmpf_ceil __gpmpf_ceil
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_ceil(mpf_ptr, mpf_srcptr);
-
-#define gpmpf_clear __gpmpf_clear
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_clear(mpf_ptr);
-
-#define gpmpf_clears __gpmpf_clears
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_clears(mpf_ptr, ...);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_ceil(mpf_array_idx, mpf_array_idx);
 
 #define gpmpf_cmp __gpmpf_cmp
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp(mpf_srcptr, mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp(mpf_array_idx, mpf_array_idx) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_cmp_z __gpmpf_cmp_z
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_z(mpf_srcptr, mpz_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_z(mpf_array_idx, mpz_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_cmp_d __gpmpf_cmp_d
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_d(mpf_srcptr, double) __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_d(mpf_array_idx, double) __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_cmp_si __gpmpf_cmp_si
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_si(mpf_srcptr, signed long int) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_si(mpf_array_idx, signed long int) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_cmp_ui __gpmpf_cmp_ui
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_ui(mpf_srcptr, unsigned long int) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_ui(mpf_array_idx, unsigned long int) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_div __gpmpf_div
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div(mpf_array_idx, mpf_array_idx, mpf_array_idx);
 
 #define gpmpf_div_2exp __gpmpf_div_2exp
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div_2exp(mpf_ptr, mpf_srcptr, mp_bitcnt_t);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div_2exp(mpf_array_idx, mpf_array_idx, mp_bitcnt_t);
 
 #define gpmpf_div_ui __gpmpf_div_ui
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div_ui(mpf_ptr, mpf_srcptr, unsigned long int, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div_ui(mpf_array_idx, mpf_array_idx, unsigned long int);
 
 #define gpmpf_dump __gpmpf_dump
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_dump(mpf_srcptr);
+        __GPGMP_DECLSPEC HOSTONLY void gpmpf_dump(mpf_array_idx);
 
 #define gpmpf_eq __gpmpf_eq
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_eq(mpf_srcptr, mpf_srcptr, mp_bitcnt_t) __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_eq(mpf_array_idx, mpf_array_idx, mp_bitcnt_t) __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_fits_sint_p __gpmpf_fits_sint_p
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_sint_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_sint_p(mpf_array_idx) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_fits_slong_p __gpmpf_fits_slong_p
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_slong_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_slong_p(mpf_array_idx) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_fits_sshort_p __gpmpf_fits_sshort_p
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_sshort_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_sshort_p(mpf_array_idx) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_fits_uint_p __gpmpf_fits_uint_p
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_uint_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_uint_p(mpf_array_idx) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_fits_ulong_p __gpmpf_fits_ulong_p
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_ulong_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_ulong_p(mpf_array_idx) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_fits_ushort_p __gpmpf_fits_ushort_p
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_ushort_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_fits_ushort_p(mpf_array_idx) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_floor __gpmpf_floor
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_floor(mpf_ptr, mpf_srcptr);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_floor(mpf_array_idx, mpf_array_idx);
 
 #define gpmpf_get_d __gpmpf_get_d
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE double gpmpf_get_d(mpf_srcptr) __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE double gpmpf_get_d(mpf_array_idx) __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_get_d_2exp __gpmpf_get_d_2exp
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE double gpmpf_get_d_2exp(signed long int *, mpf_srcptr);
-
-#define gpmpf_get_default_prec __gpmpf_get_default_prec
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_bitcnt_t gpmpf_get_default_prec(void) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE double gpmpf_get_d_2exp(signed long int *, mpf_array_idx);
 
 #define gpmpf_get_prec __gpmpf_get_prec
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_bitcnt_t gpmpf_get_prec(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_bitcnt_t gpmpf_get_prec(mpf_array_idx) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_get_si __gpmpf_get_si
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE long gpmpf_get_si(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE long gpmpf_get_si(mpf_array_idx) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_get_str __gpmpf_get_str
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE char *gpmpf_get_str(char *, mp_exp_t *, int, size_t, mpf_srcptr);
+        __GPGMP_DECLSPEC HOSTONLY char *gpmpf_get_str(char *, mp_exp_t *, int, size_t, mpf_array_idx);
 
 #define gpmpf_get_ui __gpmpf_get_ui
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE unsigned long gpmpf_get_ui(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
-
-#define gpmpf_init __gpmpf_init
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_init(mpf_ptr);
-
-#define gpmpf_init2 __gpmpf_init2
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_init2(mpf_ptr, mp_bitcnt_t);
-
-#define gpmpf_inits __gpmpf_inits
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_inits(mpf_ptr, ...);
-
-#define gpmpf_init_set __gpmpf_init_set
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_init_set(mpf_ptr, mpf_srcptr);
-
-#define gpmpf_init_set_d __gpmpf_init_set_d
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_init_set_d(mpf_ptr, double);
-
-#define gpmpf_init_set_si __gpmpf_init_set_si
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_init_set_si(mpf_ptr, signed long int);
-
-#define gpmpf_init_set_str __gpmpf_init_set_str
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_init_set_str(mpf_ptr, const char *, int);
-
-#define gpmpf_init_set_ui __gpmpf_init_set_ui
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_init_set_ui(mpf_ptr, unsigned long int);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE unsigned long gpmpf_get_ui(mpf_array_idx) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_inp_str __gpmpf_inp_str
 #ifdef _GMP_H_HAVE_FILE
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t gpmpf_inp_str(mpf_ptr, FILE *, int);
+        __GPGMP_DECLSPEC HOSTONLY size_t gpmpf_inp_str(mpf_array_idx, FILE *, int);
 #endif
 
 #define gpmpf_integer_p __gpmpf_integer_p
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_integer_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_integer_p(mpf_array_idx) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_mul __gpmpf_mul
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul(mpf_array_idx, mpf_array_idx, mpf_array_idx);
 
 #define gpmpf_mul_2exp __gpmpf_mul_2exp
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul_2exp(mpf_ptr, mpf_srcptr, mp_bitcnt_t);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul_2exp(mpf_array_idx, mpf_array_idx, mp_bitcnt_t);
 
 #define gpmpf_mul_ui __gpmpf_mul_ui
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul_ui(mpf_ptr, mpf_srcptr, unsigned long int);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul_ui(mpf_array_idx, mpf_array_idx, unsigned long int);
 
 #define gpmpf_neg __gpmpf_neg
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_neg(mpf_ptr, mpf_srcptr);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_neg(mpf_array_idx, mpf_array_idx);
 
 #define gpmpf_out_str __gpmpf_out_str
 #ifdef _GMP_H_HAVE_FILE
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t gpmpf_out_str(FILE *, int, size_t, mpf_srcptr);
+        __GPGMP_DECLSPEC HOSTONLY size_t gpmpf_out_str(FILE *, int, size_t, mpf_array_idx);
 #endif
 
 #define gpmpf_pow_ui __gpmpf_pow_ui
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_pow_ui(mpf_ptr, mpf_srcptr, unsigned long int, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_pow_ui(mpf_array_idx, mpf_array_idx, unsigned long int);
 
 #define gpmpf_random2 __gpmpf_random2
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_random2(mpf_ptr, mp_size_t, mp_exp_t);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_random2(mpf_array_idx, mp_size_t, mp_exp_t);
 
 #define gpmpf_reldiff __gpmpf_reldiff
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_reldiff(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_reldiff(mpf_array_idx, mpf_array_idx, mpf_array_idx);
 
 #define gpmpf_set __gpmpf_set
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set(mpf_ptr, mpf_srcptr);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set(mpf_array_idx, mpf_array_idx);
 
 #define gpmpf_set_d __gpmpf_set_d
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_d(mpf_ptr, double);
-
-#define gpmpf_set_default_prec __gpmpf_set_default_prec
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_default_prec(mp_bitcnt_t) __GMP_NOTHROW;
-
-#define gpmpf_set_prec __gpmpf_set_prec
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_prec(mpf_ptr, mp_bitcnt_t);
-
-#define gpmpf_set_prec_raw __gpmpf_set_prec_raw
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_prec_raw(mpf_ptr, mp_bitcnt_t) __GMP_NOTHROW;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_d(mpf_array_idx, double);
 
 #define gpmpf_set_q __gpmpf_set_q
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_q(mpf_ptr, mpq_srcptr);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_q(mpf_array_idx, mpq_srcptr);
 
 #define gpmpf_set_si __gpmpf_set_si
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_si(mpf_ptr, signed long int);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_si(mpf_array_idx, signed long int);
 
 #define gpmpf_set_str __gpmpf_set_str
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_set_str(mpf_ptr, const char *, int);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_set_str(mpf_array_idx, const char *, int, char*);
 
 #define gpmpf_set_ui __gpmpf_set_ui
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_ui(mpf_ptr, unsigned long int);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_ui(mpf_array_idx, unsigned long int);
 
 #define gpmpf_set_z __gpmpf_set_z
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_z(mpf_ptr, mpz_srcptr);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_z(mpf_array_idx, mpz_srcptr);
 
 #define gpmpf_size __gpmpf_size
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t gpmpf_size(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t gpmpf_size(mpf_array_idx) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
 #define gpmpf_sqrt __gpmpf_sqrt
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sqrt(mpf_ptr, mpf_srcptr, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sqrt(mpf_array_idx, mpf_array_idx);
 
 #define gpmpf_sqrt_ui __gpmpf_sqrt_ui
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sqrt_ui(mpf_ptr, unsigned long int, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sqrt_ui(mpf_array_idx, unsigned long int);
 
 #define gpmpf_sub __gpmpf_sub
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sub(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sub(mpf_array_idx, mpf_array_idx, mpf_array_idx);
 
 #define gpmpf_sub_ui __gpmpf_sub_ui
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sub_ui(mpf_ptr, mpf_srcptr, unsigned long int, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sub_ui(mpf_array_idx, mpf_array_idx, unsigned long int);
 
 #define gpmpf_swap __gpmpf_swap
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_swap(mpf_ptr, mpf_ptr) __GMP_NOTHROW;
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_swap(mpf_array_idx, mpf_array_idx) __GMP_NOTHROW;
 
 #define gpmpf_trunc __gpmpf_trunc
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_trunc(mpf_ptr, mpf_srcptr);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_trunc(mpf_array_idx, mpf_array_idx);
 
 #define gpmpf_ui_div __gpmpf_ui_div
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_ui_div(mpf_ptr, unsigned long int, mpf_srcptr, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_ui_div(mpf_array_idx, unsigned long int, mpf_array_idx);
 
 #define gpmpf_ui_sub __gpmpf_ui_sub
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_ui_sub(mpf_ptr, unsigned long int, mpf_srcptr, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_ui_sub(mpf_array_idx, unsigned long int, mpf_array_idx);
 
 #define gpmpf_urandomb __gpmpf_urandomb
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_urandomb(mpf_ptr, gmp_randstate_ptr, mp_bitcnt_t);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_urandomb(mpf_array_idx, gmp_randstate_ptr, mp_bitcnt_t);
 
     }
 
+    namespace internal {
 
+        //These primarily exist to allow for user-facing mpfArrayRoutines to be used in conjunction with mpf_t objects.
+        namespace mpfArrayRoutines
+        {
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sub_mpf_t_from_array_idx(mpf_array_idx, mpf_array_idx, mpf_srcptr);
+
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_add_mpf_t_to_array_idx(mpf_array_idx, mpf_array_idx, mpf_srcptr);
+
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul_mpf_t_by_mpf_t(mpf_array_idx, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul_mpf_t_by_mpf_array_idx(mpf_array_idx, mpf_srcptr, mpf_array_idx, mp_limb_t*);
+
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div_mpf_t_by_mpf_array_idx(mpf_array_idx, mpf_srcptr, mpf_array_idx, mp_limb_t*);
+
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_array_idx_to_mpf_t(mpf_array_idx, mpf_srcptr);
+
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_neg_set_array_idx_from_mpf_t(mpf_array_idx, mpf_srcptr);
+
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_array_idx_to_mpf_t(mpf_array_idx, mpf_srcptr) __GMP_NOTHROW;
+        }
+
+        //These primarily exist to allow for user-facing mpfRoutines to be used in conjunction with mpf_t objects.
+        namespace mpfRoutines
+        {
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_add_mpf_array_idx_to_mpf_array_idx(mpf_ptr, mpf_array_idx, mpf_array_idx, mp_limb_t*);
+
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sub_mpf_array_idx_from_mpf_array_idx(mpf_ptr, mpf_array_idx, mpf_array_idx, mp_limb_t*);
+
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_mpf_t_to_array_idx(mpf_ptr, mpf_array_idx);
+
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul_mpf_t_by_mpf_array_idx(mpf_ptr, mpf_srcptr, mpf_array_idx, mp_limb_t*);
+
+                __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_neg_mpf_array_idx(mpf_ptr, mpf_array_idx);
+        }
+
+    }
 
 
     /************ Low level positive-integer (i.e. N) routines.  ************/
@@ -810,6 +1081,8 @@ namespace gpgmp
             return 1;
         }
 #endif
+
+#define mpf_array_sgn(mpfArrayIdxStruct) (MPF_ARRAY_SIZES(mpfArrayIdxStruct.array)[mpfArrayIdxStruct.idx] < 0 ? -1 : MPF_ARRAY_SIZES(mpfArrayIdxStruct.array)[mpfArrayIdxStruct.idx] > 0)
 
     }
 }

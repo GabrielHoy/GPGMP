@@ -36,8 +36,7 @@ namespace gpgmp
   namespace mpfRoutines
   {
 
-    ANYCALLER void
-    gpmpf_mul(mpf_ptr r, mpf_srcptr u, mpf_srcptr v, mp_limb_t* scratchSpace)
+    ANYCALLER void gpmpf_mul(mpf_ptr r, mpf_srcptr u, mpf_srcptr v, mp_limb_t* scratchSpace)
     {
       mp_size_t sign_product;
       mp_size_t prec = PREC(r);

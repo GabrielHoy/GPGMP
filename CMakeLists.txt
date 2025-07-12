@@ -75,8 +75,14 @@ include_directories(
   ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
 )
 
+# Should dramatically reduce build times by precompiling gpgmp-impl.cuh
+# ...a file which is included by all 313 CUDA source files :)
 
+set(CMAKE_CUDA_PCH ON)
 
+# Create a precompiled header source file
+set(PCH_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/pch.cu")
+file(WRITE "${PCH_SOURCE}" "#include \"gpgmp-impl.cuh\"\n")
 
 # Collect C/++ source files
 file(GLOB_RECURSE PROJECT_SOURCES
@@ -84,14 +90,17 @@ file(GLOB_RECURSE PROJECT_SOURCES
   "src/*.c"
 )
 
-# Collect CUDA source files
+# Collect CUDA source files (excluding the PCH source)
 file(GLOB_RECURSE CUDA_SOURCES "src/*.cu")
-
-
-
+list(REMOVE_ITEM CUDA_SOURCES "${PCH_SOURCE}")
 
 # Create executable
 add_executable(GPGMP ${PROJECT_SOURCES} ${CUDA_SOURCES})
+
+# Set precompiled header for the target
+target_precompile_headers(GPGMP PRIVATE
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/gpgmp-impl.cuh"
+)
 
 # Set CUDA properties
 set_target_properties(GPGMP PROPERTIES

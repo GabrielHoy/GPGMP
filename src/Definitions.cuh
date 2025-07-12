@@ -49,6 +49,14 @@
 #define MPF_ARRAY_EXPONENTS(array) (reinterpret_cast<mp_exp_t*>(reinterpret_cast<char*>(MPF_ARRAY_SIZES(array)) + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(int) * array->numFloatsInArray)))
 //Array data is stored directly after exponent data in mpf_array's, as one contiguous block of memory.
 #define MPF_ARRAY_DATA(array) (reinterpret_cast<mp_limb_t*>(reinterpret_cast<char*>(MPF_ARRAY_EXPONENTS(array)) + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(mp_exp_t) * array->numFloatsInArray)))
+//Array scratch space is stored directly after the array data per-index.
+#define MPF_ARRAY_SCRATCH_SPACE_FOR_IDX(array, idx) (MPF_ARRAY_DATA_AT_IDX(array, idx) + array->limbsPerArrayFloat)
+
+//Helper macro to get a pointer to a number's index inside of an mpf_array, accounting for the stride between numbers.
+#define MPF_ARRAY_DATA_AT_IDX(array, idx) (MPF_ARRAY_DATA(array) + (idx * array->limbsPerArrayFloat))
+
+//Used to ensure that scratch space is available for a certain operation.
+#define MPF_ARRAY_ASSERT_OP_AVAILABLE(array, op) ASSERT(array->availableOperations & op)
 
 //MPF_ARRAY_SIZES, but const.
 #define MPF_ARRAY_SIZES_CONST(array) (reinterpret_cast<const int*>(reinterpret_cast<const char*>(array) + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(gpgmp::mpf_array))))

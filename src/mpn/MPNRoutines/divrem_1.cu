@@ -52,6 +52,14 @@ namespace gpgmp
 #define DIVREM_1_UNNORM_THRESHOLD 0
 #endif
 
+		//This serves as a direct wrapper for performing the udiv_qrnnd_preinv function.
+		//This is done to avoid CUDA kernel launches erroring due to resource allocation issues when this macro is used inline in the gpmpn_divrem_1 function.
+		ANYCALLER void perform_udiv_qrnnd_preinv(mp_limb_t& q, mp_limb_t& r, mp_limb_t& nh, mp_limb_t nl, mp_limb_t &d, mp_limb_t &dinv)
+		{
+			udiv_qrnnd_preinv(q, r, nh, nl, d, dinv);
+		}
+
+
 		/* If the cpu only has multiply-by-inverse division (eg. alpha), then NORM
 		and UNNORM thresholds are 0 and only the inversion code is included.
 
@@ -86,57 +94,57 @@ namespace gpgmp
 		than what the compiler can generate for EXTRACT.  But this is left to CPU
 		specific implementations to consider, especially since EXTRACT isn't on
 		the dependent chain.  */
-		ANYCALLER mp_limb_t gpmpn_divrem_1(mp_ptr qp, mp_size_t qxn, mp_srcptr up, mp_size_t un, mp_limb_t d)
+		ANYCALLER mp_limb_t gpmpn_divrem_1(mp_ptr quotientStoreIn, mp_size_t fractionLimbs, mp_srcptr toDivide, mp_size_t numLimbsToDivide, mp_limb_t limbDivideBy)
 		{
 			mp_size_t n;
 			mp_size_t i;
 			mp_limb_t n1, n0;
 			mp_limb_t r = 0;
 
-			ASSERT(qxn >= 0);
-			ASSERT(un >= 0);
-			ASSERT(d != 0);
+			ASSERT(fractionLimbs >= 0);
+			ASSERT(numLimbsToDivide >= 0);
+			ASSERT(limbDivideBy != 0);
 			/* FIXME: What's the correct overlap rule when qxn!=0? */
-			ASSERT(MPN_SAME_OR_SEPARATE_P(qp + qxn, up, un));
+			ASSERT(MPN_SAME_OR_SEPARATE_P(quotientStoreIn + fractionLimbs, toDivide, numLimbsToDivide));
 
-			n = un + qxn;
+			n = numLimbsToDivide + fractionLimbs;
 			if (n == 0)
 				return 0;
 
-			d <<= GMP_NAIL_BITS;
+				limbDivideBy <<= GMP_NAIL_BITS;
 
-			qp += (n - 1); /* Make qp point at most significant quotient limb */
+			quotientStoreIn += (n - 1); /* Make quotientStoreIn point at most significant quotient limb */
 
-			if ((d & GMP_LIMB_HIGHBIT) != 0)
+			if ((limbDivideBy & GMP_LIMB_HIGHBIT) != 0)
 			{
-				if (un != 0)
+				if (numLimbsToDivide != 0)
 				{
 					/* High quotient limb is 0 or 1, skip a divide step. */
 					mp_limb_t q;
-					r = up[un - 1] << GMP_NAIL_BITS;
-					q = (r >= d);
-					*qp-- = q;
-					r -= (d & -q);
+					r = toDivide[numLimbsToDivide - 1] << GMP_NAIL_BITS;
+					q = (r >= limbDivideBy);
+					*quotientStoreIn-- = q;
+					r -= (limbDivideBy & -q);
 					r >>= GMP_NAIL_BITS;
 					n--;
-					un--;
+					numLimbsToDivide--;
 				}
 
 				if (BELOW_THRESHOLD(n, DIVREM_1_NORM_THRESHOLD))
 				{
 				plain:
-					for (i = un - 1; i >= 0; i--)
+					for (i = numLimbsToDivide - 1; i >= 0; i--)
 					{
-						n0 = up[i] << GMP_NAIL_BITS;
-						udiv_qrnnd(*qp, r, r, n0, d);
+						n0 = toDivide[i] << GMP_NAIL_BITS;
+						udiv_qrnnd(*quotientStoreIn, r, r, n0, limbDivideBy);
 						r >>= GMP_NAIL_BITS;
-						qp--;
+						quotientStoreIn--;
 					}
-					for (i = qxn - 1; i >= 0; i--)
+					for (i = fractionLimbs - 1; i >= 0; i--)
 					{
-						udiv_qrnnd(*qp, r, r, CNST_LIMB(0), d);
+						udiv_qrnnd(*quotientStoreIn, r, r, CNST_LIMB(0), limbDivideBy);
 						r >>= GMP_NAIL_BITS;
-						qp--;
+						quotientStoreIn--;
 					}
 					return r;
 				}
@@ -144,20 +152,20 @@ namespace gpgmp
 				{
 					/* Multiply-by-inverse, divisor already normalized. */
 					mp_limb_t dinv;
-					invert_limb(dinv, d);
+					invert_limb(dinv, limbDivideBy);
 
-					for (i = un - 1; i >= 0; i--)
+					for (i = numLimbsToDivide - 1; i >= 0; i--)
 					{
-						n0 = up[i] << GMP_NAIL_BITS;
-						udiv_qrnnd_preinv(*qp, r, r, n0, d, dinv);
+						n0 = toDivide[i] << GMP_NAIL_BITS;
+						udiv_qrnnd_preinv(*quotientStoreIn, r, r, n0, limbDivideBy, dinv);
 						r >>= GMP_NAIL_BITS;
-						qp--;
+						quotientStoreIn--;
 					}
-					for (i = qxn - 1; i >= 0; i--)
+					for (i = fractionLimbs - 1; i >= 0; i--)
 					{
-						udiv_qrnnd_preinv(*qp, r, r, CNST_LIMB(0), d, dinv);
+						perform_udiv_qrnnd_preinv(*quotientStoreIn, r, r, CNST_LIMB(0), limbDivideBy, dinv);
 						r >>= GMP_NAIL_BITS;
-						qp--;
+						quotientStoreIn--;
 					}
 					return r;
 				}
@@ -169,85 +177,88 @@ namespace gpgmp
 
 				/* Skip a division if high < divisor (high quotient 0).  Testing here
 				before normalizing will still skip as often as possible.  */
-				if (un != 0)
+				if (numLimbsToDivide != 0)
 				{
-					n1 = up[un - 1] << GMP_NAIL_BITS;
-					if (n1 < d)
+					n1 = toDivide[numLimbsToDivide - 1] << GMP_NAIL_BITS;
+					if (n1 < limbDivideBy)
 					{
 						r = n1 >> GMP_NAIL_BITS;
-						*qp-- = 0;
+						*quotientStoreIn-- = 0;
 						n--;
 						if (n == 0)
 							return r;
-						un--;
+						numLimbsToDivide--;
 					}
 				}
 
 				if (!UDIV_NEEDS_NORMALIZATION && BELOW_THRESHOLD(n, DIVREM_1_UNNORM_THRESHOLD))
 					goto plain;
 
-				count_leading_zeros(cnt, d);
-				d <<= cnt;
+				count_leading_zeros(cnt, limbDivideBy);
+				limbDivideBy <<= cnt;
 				r <<= cnt;
 
 				if (UDIV_NEEDS_NORMALIZATION && BELOW_THRESHOLD(n, DIVREM_1_UNNORM_THRESHOLD))
 				{
 					mp_limb_t nshift;
-					if (un != 0)
+					if (numLimbsToDivide != 0)
 					{
-						n1 = up[un - 1] << GMP_NAIL_BITS;
+						n1 = toDivide[numLimbsToDivide - 1] << GMP_NAIL_BITS;
 						r |= (n1 >> (GMP_LIMB_BITS - cnt));
-						for (i = un - 2; i >= 0; i--)
+						for (i = numLimbsToDivide - 2; i >= 0; i--)
 						{
-							n0 = up[i] << GMP_NAIL_BITS;
+							n0 = toDivide[i] << GMP_NAIL_BITS;
 							nshift = (n1 << cnt) | (n0 >> (GMP_NUMB_BITS - cnt));
-							udiv_qrnnd(*qp, r, r, nshift, d);
+							udiv_qrnnd(*quotientStoreIn, r, r, nshift, limbDivideBy);
 							r >>= GMP_NAIL_BITS;
-							qp--;
+							quotientStoreIn--;
 							n1 = n0;
 						}
-						udiv_qrnnd(*qp, r, r, n1 << cnt, d);
+						udiv_qrnnd(*quotientStoreIn, r, r, n1 << cnt, limbDivideBy);
 						r >>= GMP_NAIL_BITS;
-						qp--;
+						quotientStoreIn--;
 					}
-					for (i = qxn - 1; i >= 0; i--)
+					for (i = fractionLimbs - 1; i >= 0; i--)
 					{
-						udiv_qrnnd(*qp, r, r, CNST_LIMB(0), d);
+						udiv_qrnnd(*quotientStoreIn, r, r, CNST_LIMB(0), limbDivideBy);
 						r >>= GMP_NAIL_BITS;
-						qp--;
+						quotientStoreIn--;
 					}
 					return r >> cnt;
 				}
 				else
 				{
 					mp_limb_t dinv, nshift;
-					invert_limb(dinv, d);
-					if (un != 0)
+					invert_limb(dinv, limbDivideBy);
+					if (numLimbsToDivide != 0)
 					{
-						n1 = up[un - 1] << GMP_NAIL_BITS;
+						n1 = toDivide[numLimbsToDivide - 1] << GMP_NAIL_BITS;
 						r |= (n1 >> (GMP_LIMB_BITS - cnt));
-						for (i = un - 2; i >= 0; i--)
+						for (i = numLimbsToDivide - 2; i >= 0; i--)
 						{
-							n0 = up[i] << GMP_NAIL_BITS;
+							n0 = toDivide[i] << GMP_NAIL_BITS;
 							nshift = (n1 << cnt) | (n0 >> (GMP_NUMB_BITS - cnt));
-							udiv_qrnnd_preinv(*qp, r, r, nshift, d, dinv);
+							udiv_qrnnd_preinv(*quotientStoreIn, r, r, nshift, limbDivideBy, dinv);
 							r >>= GMP_NAIL_BITS;
-							qp--;
+							quotientStoreIn--;
 							n1 = n0;
 						}
-						udiv_qrnnd_preinv(*qp, r, r, n1 << cnt, d, dinv);
+						udiv_qrnnd_preinv(*quotientStoreIn, r, r, n1 << cnt, limbDivideBy, dinv);
 						r >>= GMP_NAIL_BITS;
-						qp--;
+						quotientStoreIn--;
 					}
-					for (i = qxn - 1; i >= 0; i--)
+					for (i = fractionLimbs - 1; i >= 0; i--)
 					{
-						udiv_qrnnd_preinv(*qp, r, r, CNST_LIMB(0), d, dinv);
+						 udiv_qrnnd_preinv(*quotientStoreIn, r, r, CNST_LIMB(0), limbDivideBy, dinv);
 						r >>= GMP_NAIL_BITS;
-						qp--;
+						quotientStoreIn--;
 					}
 					return r >> cnt;
 				}
 			}
+
+			//This should never be reached, but is here to satisfy CUDA.
+			return 0;
 		}
 
 	}

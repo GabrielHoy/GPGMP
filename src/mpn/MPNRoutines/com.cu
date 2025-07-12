@@ -30,8 +30,9 @@ see https://www.gnu.org/licenses/.  */
 #pragma once
 #include "gpgmp-impl.cuh"
 
+#ifdef __GPGMP_MPN(com)
 #undef gpmpn_com
-#define gpmpn_com __GPGMP_MPN(com)
+#endif
 
 namespace gpgmp {
 

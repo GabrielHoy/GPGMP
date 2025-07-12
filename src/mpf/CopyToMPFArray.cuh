@@ -41,15 +41,21 @@ namespace gpgmp {
 
             for (int idxToCopy = 0; idxToCopy < arrayCopyFrom->numFloatsInArray; idxToCopy++) {
                 mpf_t& copyInto = arrayCopyInto[idxToCopy];
+
+                int abSizForIdx = ABS(sizesArray[idxToCopy]);
                 //copyInto at this point is assumed to be uninitialized - initialize it now with the precision we need to perform the copy operation.
-                mpf_init2(copyInto, PRECISION_BITS_FROM_LIMB_COUNT(sizesArray[idxToCopy]));
+                mpf_init2(copyInto, PRECISION_BITS_FROM_LIMB_COUNT(arrayCopyFrom->userSpecifiedPrecisionLimbCount));
 
                 //Update the mpf_t's size and exponent to match the value in the mpf_array
                 SIZ(copyInto) = sizesArray[idxToCopy];
                 EXP(copyInto) = exponentsArray[idxToCopy];
 
                 //Then copy the limb data from the mpf_array to the mpf_t
-                memcpy(PTR(copyInto), limbDataArrays + (idxToCopy * arrayCopyFrom->limbsPerArrayFloat), sizesArray[idxToCopy] * sizeof(mp_limb_t));
+                memcpy(
+                    PTR(copyInto),
+                    limbDataArrays + (idxToCopy * arrayCopyFrom->limbsPerArrayFloat),
+                    abSizForIdx * sizeof(mp_limb_t)
+                );
             }
         }
     }

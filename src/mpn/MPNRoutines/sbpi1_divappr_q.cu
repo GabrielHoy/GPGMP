@@ -139,7 +139,7 @@ namespace gpgmp
 					}
 					else
 					{
-						udiv_qr_3by2(q, n1, n0, n1, np[1], np[0], d1, d0, dinv);
+						perform_udiv_qr_3by2(q, n1, n0, n1, np[1], np[0], d1, d0, dinv);
 
 						cy = gpmpn_submul_1(np - dn, dp, dn, q);
 

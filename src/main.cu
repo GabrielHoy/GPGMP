@@ -136,8 +136,8 @@ __global__ void performDivision(gpgmp::mpf_device_array testArray)
     }
 
     double valueBeforeOp = gpgmp::mpfArrayRoutines::gpmpf_get_d({testArray, threadIdentifier});
-    gpgmp::mpfArrayRoutines::gpmpf_div_ui({testArray, threadIdentifier}, {testArray, threadIdentifier}, 2);
-    //gpgmp::mpfArrayRoutines::gpmpf_div({testArray, threadIdentifier}, {testArray, threadIdentifier}, {testArray, ARRAY_LENGTH-1});
+    //gpgmp::mpfArrayRoutines::gpmpf_div_ui({testArray, threadIdentifier}, {testArray, threadIdentifier}, 2);
+    gpgmp::mpfArrayRoutines::gpmpf_div({testArray, threadIdentifier}, {testArray, threadIdentifier}, {testArray, ARRAY_LENGTH-1});
     printf("[GPU]: Array[%d] Division Result: %f -> %f!\n", threadIdentifier, valueBeforeOp, gpgmp::mpfArrayRoutines::gpmpf_get_d({testArray, threadIdentifier}));
 }
 
@@ -209,8 +209,8 @@ int main(int argc, char** argv) {
 
         printf("\nTesting Division...Will divide each array element by 2...\n\n");
         for (int i = 0; i < testArray->numFloatsInArray; i++) {
-            gpgmp::mpfArrayRoutines::gpmpf_div({testArray, i}, {testArray, i}, {testArray, ARRAY_LENGTH-1});
-            //gpgmp::mpfArrayRoutines::gpmpf_div_ui({testArray, i}, {testArray, i}, 2);
+            //gpgmp::mpfArrayRoutines::gpmpf_div({testArray, i}, {testArray, i}, {testArray, ARRAY_LENGTH-1});
+            gpgmp::mpfArrayRoutines::gpmpf_div_ui({testArray, i}, {testArray, i}, 2);
         }
 
         PrintDataAboutMPFArray_WithDigits(testArray, 6);

@@ -43,6 +43,16 @@ namespace gpgmp
 	namespace mpnRoutines
 	{
 
+		ANYCALLER mp_limb_t perform_gpmpn_submul_1(mp_ptr a, mp_srcptr b, mp_size_t c, mp_limb_t d)
+		{
+			return gpmpn_submul_1(a,b,c,d);
+		}
+
+		ANYCALLER mp_limb_t perform_gpmpn_add_n(mp_ptr a, mp_srcptr b, mp_srcptr c, mp_size_t d)
+		{
+			return gpmpn_add_n(a,b,c,d);
+		}
+
 		ANYCALLER mp_limb_t gpmpn_sbpi1_div_q(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_limb_t dinv)
 		{
 			mp_limb_t qh;
@@ -126,14 +136,14 @@ namespace gpgmp
 					if (UNLIKELY(n1 >= (d1 & flag)))
 					{
 						q = GMP_NUMB_MASK;
-						cy = gpmpn_submul_1(np - dn, dp, dn + 2, q);
+						cy = perform_gpmpn_submul_1(np - dn, dp, dn + 2, q);
 
 						if (UNLIKELY(n1 != cy))
 						{
 							if (n1 < (cy & flag))
 							{
 								q--;
-								gpmpn_add_n(np - dn, np - dn, dp, dn + 2);
+								perform_gpmpn_add_n(np - dn, np - dn, dp, dn + 2);
 							}
 							else
 								flag = 0;
@@ -142,9 +152,9 @@ namespace gpgmp
 					}
 					else
 					{
-						udiv_qr_3by2(q, n1, n0, n1, np[1], np[0], d1, d0, dinv);
+						perform_udiv_qr_3by2(q, n1, n0, n1, np[1], np[0], d1, d0, dinv);
 
-						cy = gpmpn_submul_1(np - dn, dp, dn, q);
+						 cy = perform_gpmpn_submul_1(np - dn, dp, dn, q);
 
 						cy1 = n0 < cy;
 						n0 = (n0 - cy) & GMP_NUMB_MASK;
@@ -170,7 +180,7 @@ namespace gpgmp
 				if (UNLIKELY(n1 >= (d1 & flag)))
 				{
 					q = GMP_NUMB_MASK;
-					cy = gpmpn_submul_1(np, dp, 2, q);
+					 cy = perform_gpmpn_submul_1(np, dp, 2, q);
 
 					if (UNLIKELY(n1 != cy))
 					{
@@ -186,7 +196,7 @@ namespace gpgmp
 				}
 				else
 				{
-					udiv_qr_3by2(q, n1, n0, n1, np[1], np[0], d1, d0, dinv);
+					perform_udiv_qr_3by2(q, n1, n0, n1, np[1], np[0], d1, d0, dinv);
 
 					np[0] = n0;
 					np[1] = n1;
@@ -237,7 +247,7 @@ namespace gpgmp
 					for (i = dn - 3; i >= 0; i--)
 					{
 						q = qp[i];
-						cy = gpmpn_submul_1(np - (dn - i), dp, dn - i - 2, q);
+						 cy = perform_gpmpn_submul_1(np - (dn - i), dp, dn - i - 2, q);
 
 						if (y < cy)
 						{

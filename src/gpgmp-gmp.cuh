@@ -908,6 +908,14 @@ namespace gpgmp
         }
 #endif
 
+ANYCALLER void perform_udiv_qr_3by2(mp_limb_t& a, mp_limb_t& b, mp_limb_t& c, mp_limb_t& d, mp_limb_t& e, mp_limb_t f, mp_limb_t& g, mp_limb_t& h, mp_limb_t& i);
+
+ANYCALLER mp_limb_t perform_gpmpn_submul_1(mp_ptr a, mp_srcptr b, mp_size_t c, mp_limb_t d);
+
+ANYCALLER mp_limb_t perform_gpmpn_add_n(mp_ptr a, mp_srcptr b, mp_srcptr c, mp_size_t d);
+
+ANYCALLER void perform_MPN_COPY(mp_ptr qp, mp_srcptr tp, mp_size_t qn);
+
 #define mpf_array_sgn(mpfArrayIdxStruct) (MPF_ARRAY_SIZES(mpfArrayIdxStruct.array)[mpfArrayIdxStruct.idx] < 0 ? -1 : MPF_ARRAY_SIZES(mpfArrayIdxStruct.array)[mpfArrayIdxStruct.idx] > 0)
 
     }

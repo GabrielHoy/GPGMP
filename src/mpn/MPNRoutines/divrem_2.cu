@@ -55,6 +55,11 @@ namespace gpgmp
           the quotient in the high part of {np,nn}, right above the remainder.
       3. nn >= 2, even if qxn is non-zero.  */
 
+      ANYCALLER void perform_udiv_qr_3by2(mp_limb_t& a, mp_limb_t& b, mp_limb_t& c, mp_limb_t& d, mp_limb_t& e, mp_limb_t f, mp_limb_t& g, mp_limb_t& h, mp_limb_t& i)
+      {
+        udiv_qr_3by2(a,b,c,d,e,f,g,h,i);
+      }
+
     ANYCALLER mp_limb_t gpmpn_divrem_2(mp_ptr qp, mp_size_t qxn, mp_ptr np, mp_size_t nn, mp_srcptr dp)
     {
       mp_limb_t most_significant_q_limb;
@@ -96,7 +101,7 @@ namespace gpgmp
       {
         mp_limb_t n0, q;
         n0 = np[-1];
-        udiv_qr_3by2(q, r1, r0, r1, r0, n0, d1, d0, di.inv32);
+        perform_udiv_qr_3by2(q, r1, r0, r1, r0, n0, d1, d0, di.inv32);
         np--;
         qp[i] = q;
       }
@@ -107,7 +112,7 @@ namespace gpgmp
         for (i = qxn - 1; i >= 0; i--)
         {
           mp_limb_t q;
-          udiv_qr_3by2(q, r1, r0, r1, r0, CNST_LIMB(0), d1, d0, di.inv32);
+          perform_udiv_qr_3by2(q, r1, r0, r1, r0, CNST_LIMB(0), d1, d0, di.inv32);
           qp[i] = q;
         }
       }

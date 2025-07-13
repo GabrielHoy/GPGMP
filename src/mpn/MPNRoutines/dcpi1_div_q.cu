@@ -61,7 +61,7 @@ namespace gpgmp {
       qn = nn - dn;
       wp = TMP_ALLOC_LIMBS (qn + 1);
 
-      qh = gpmpn_dcpi1_divappr_q (wp, tp, nn + 1, dp, dn, dinv);
+       qh = gpmpn_dcpi1_divappr_q (wp, tp, nn + 1, dp, dn, dinv);
 
       if (wp[0] == 0)
       {

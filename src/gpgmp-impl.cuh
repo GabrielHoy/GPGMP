@@ -1816,7 +1816,9 @@ typedef size_t gmp_intptr_t;
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_mu_div_q_itch(mp_size_t, mp_size_t, int) ATTRIBUTE_CONST;
 
 #define gpmpn_div_q __GPGMP_MPN(div_q)
-            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_div_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_div_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr, mp_ptr);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_div_q_itch_intermediary(mp_size_t, mp_size_t);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_div_q_itch_intermediary_maximum(mp_size_t);
 
 #define gpmpn_invert __GPGMP_MPN(invert)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_invert(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);

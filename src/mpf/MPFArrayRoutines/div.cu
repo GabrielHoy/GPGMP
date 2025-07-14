@@ -98,7 +98,7 @@ namespace gpgmp
       }
 
       ASSERT(usize - vsize + 1 == rsize);
-      gpgmp::mpnRoutines::gpmpn_div_q(rp, up, usize, vp, vsize, scratchSpace);
+      gpgmp::mpnRoutines::gpmpn_div_q(rp, up, usize, vp, vsize, scratchSpace, scratchSpace + scratchSpaceOffsetForNewVP + vsize);
 
       /* strip possible zero high limb */
       high_zero = (rp[rsize - 1] == 0);
@@ -185,7 +185,7 @@ namespace gpgmp
         }
 
         ASSERT(usize - vsize + 1 == rsize);
-        gpgmp::mpnRoutines::gpmpn_div_q(rp, up, usize, vp, vsize, scratchSpace);
+        gpgmp::mpnRoutines::gpmpn_div_q(rp, up, usize, vp, vsize, scratchSpace, scratchSpace + scratchSpaceOffsetForNewVP + vsize);
 
         /* strip possible zero high limb */
         high_zero = (rp[rsize - 1] == 0);

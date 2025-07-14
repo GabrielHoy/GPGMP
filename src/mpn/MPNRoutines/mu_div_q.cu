@@ -172,14 +172,15 @@ namespace gpgmp
     }
 
     ANYCALLER mp_size_t
-    gpmpn_mu_div_q_itch(mp_size_t nn, mp_size_t dn, int mua_k)
+    gpmpn_mu_div_q_itch(mp_size_t numeratorNumLimbs, mp_size_t denominatorNumLimbs, int mua_k)
     {
+
       mp_size_t qn;
 
-      qn = nn - dn;
-      if (qn >= dn)
+      qn = numeratorNumLimbs - denominatorNumLimbs;
+      if (qn >= denominatorNumLimbs)
       {
-        return gpmpn_mu_divappr_q_itch(nn + 1, dn, mua_k);
+        return gpmpn_mu_divappr_q_itch(numeratorNumLimbs + 1, denominatorNumLimbs, mua_k);
       }
       else
       {

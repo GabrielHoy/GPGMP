@@ -54,15 +54,13 @@ namespace gpgmp
        could make that comparison and use qsize==prec instead of qsize==prec+1,
        to save one limb in the division.  */
 
-    ANYCALLER void
-    gpmpf_set_q(mpf_ptr r, mpq_srcptr q)
+    ANYCALLER void gpmpf_set_q(mpf_ptr r, mpq_srcptr q, mp_limb_t* scratchSpace)
     {
       mp_srcptr np, dp;
       mp_size_t prec, nsize, dsize, qsize, prospective_qsize, tsize, zeros;
       mp_size_t sign_quotient, high_zero;
       mp_ptr qp, tp;
       mp_exp_t exp;
-      TMP_DECL;
 
       ASSERT(SIZ(&q->_mp_den) > 0); /* canonical q */
 
@@ -75,8 +73,6 @@ namespace gpgmp
         EXP(r) = 0;
         return;
       }
-
-      TMP_MARK;
 
       prec = PREC(r);
       qp = PTR(r);
@@ -92,7 +88,8 @@ namespace gpgmp
 
       zeros = qsize - prospective_qsize; /* n zeros to get desired qsize */
       tsize = nsize + zeros;             /* size of intermediate numerator */
-      tp = TMP_ALLOC_LIMBS(tsize + 1);   /* +1 for mpn_div_q's scratch */
+      tp = scratchSpace;
+      scratchSpace += (tsize + 1);
 
       if (zeros > 0)
       {
@@ -108,7 +105,7 @@ namespace gpgmp
       }
 
       ASSERT(tsize - dsize + 1 == qsize);
-      gpgmp::mpnRoutines::gpmpn_div_q(qp, np, tsize, dp, dsize, tp);
+      gpgmp::mpnRoutines::gpmpn_div_q(qp, np, tsize, dp, dsize, tp, scratchSpace);
 
       /* strip possible zero high limb */
       high_zero = (qp[qsize - 1] == 0);
@@ -117,8 +114,6 @@ namespace gpgmp
 
       EXP(r) = exp;
       SIZ(r) = sign_quotient >= 0 ? qsize : -qsize;
-
-      TMP_FREE;
     }
 
   }

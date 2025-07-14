@@ -363,8 +363,7 @@ namespace gpgmp
 			}
 		}
 
-		ANYCALLER mp_size_t
-		gpmpn_mulmod_bnm1_next_size(mp_size_t n)
+		ANYCALLER mp_size_t gpmpn_mulmod_bnm1_next_size(mp_size_t n)
 		{
 			mp_size_t nh;
 

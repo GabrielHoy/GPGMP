@@ -105,11 +105,11 @@ namespace gpgmp
 
       tsize = usize + zeros; /* size for possible copy of u */
 
-      int scratchSpaceOffsetForNewVP = 0;
+      int scratchSpaceOffset = 0;
       /* copy and possibly extend u if necessary */
       if (copy_u)
       {
-        scratchSpaceOffsetForNewVP = tsize + 1; /* +1 for mpn_div_q's scratch needs */
+        scratchSpaceOffset = tsize + 1; /* +1 for mpn_div_q's scratch needs */
         MPN_ZERO(scratchSpace, zeros);
         MPN_COPY(scratchSpace + zeros, up, usize);
         up = scratchSpace;
@@ -117,19 +117,19 @@ namespace gpgmp
       }
       else
       {
-        scratchSpaceOffsetForNewVP = usize + 1;
+        scratchSpaceOffset = usize + 1;
       }
 
       /* ensure divisor doesn't overlap quotient */
       if (rp == vp)
       {
-        new_vp = scratchSpace + scratchSpaceOffsetForNewVP;
+        new_vp = scratchSpace + scratchSpaceOffset;
         MPN_COPY(new_vp, vp, vsize);
         vp = new_vp;
       }
 
       ASSERT(usize - vsize + 1 == rsize);
-      gpgmp::mpnRoutines::gpmpn_div_q(rp, up, usize, vp, vsize, scratchSpace);
+      gpgmp::mpnRoutines::gpmpn_div_q(rp, up, usize, vp, vsize, scratchSpace, scratchSpace + scratchSpaceOffset + vsize);
 
       /* strip possible zero high limb */
       high_zero = (rp[rsize - 1] == 0);

@@ -6,4 +6,5 @@
 #include "Init.cuh"
 #include "CopyArrayToArray.cuh"
 #include "CopyToMPZArray.cuh"
+#include "MPNItchRoutines.cuh"
 #include "gpgmp.cuh"

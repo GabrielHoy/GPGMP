@@ -398,7 +398,9 @@ namespace gpgmp
 #if USE_DIVAPPR_Q
       gpmpn_divappr_q(qp, tp, n + 1, sp + l, h, scratch);
 #else
-      gpmpn_div_q(qp, tp, n + 1, sp + l, h, scratch);
+      mp_size_t divIntermediaryScratchSizeNeeded = gpmpn_div_q_itch_intermediary(n + 1, h);
+      mp_ptr divIntermediaryScratch = TMP_ALLOC_LIMBS(divIntermediaryScratchSizeNeeded);
+      gpmpn_div_q(qp, tp, n + 1, sp + l, h, scratch, divIntermediaryScratch);
 #endif
       q += qp[l + 1];
       c = 1;

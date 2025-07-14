@@ -7,9 +7,9 @@
 I will write a more complete README - and docs - if/when I flesh out this library to a point where I feel comfortable publishing it as "production usable" code...
 
 > **CURRENT FUNCTIONALITY:**
-- GPU-Compatible `mpn` routines, under `gpgmp::mpnRoutines::gp<normal_mpn_routine_name>` *(As of 07/04/2025 These have not been optimized for Warp Divergence or Memory Coalescence. I have primarily focused on porting to CUDA C; there are many optimizations to be had yet.)*
-- GPU-Compatible `mpf` routines, under `gpgmp::mpfRoutines::gp<normal_mpf_routine_name>` *(As of 07/04/2025 These have not been optimized for Warp Divergence or Memory Coalescence. I have primarily focused on porting to CUDA C; there are many optimizations to be had yet.)*
-- Routines tailored to working with `mpf_array`'s and their optimized memory format for the GPU, located under `gpgmp::mpfArrayRoutines::gp<equivalent_mpf_routine_name>` *(As of 07/12/2025 These have not been optimized for Warp Divergence or Memory Coalescence. I have primarily focused on porting to CUDA C; there are many optimizations to be had yet.)*
+- GPU-Compatible `mpn` routines, under `gpgmp::mpnRoutines::gp<normal_mpn_routine_name>` *(As of 07/04/2025 These have not been optimized for Warp Divergence. I have primarily focused on porting to CUDA C; there are many optimizations to be had yet.)*
+- GPU-Compatible `mpf` routines, under `gpgmp::mpfRoutines::gp<normal_mpf_routine_name>` *(As of 07/04/2025 These have not been optimized for Warp Divergence. I have primarily focused on porting to CUDA C; there are many optimizations to be had yet.)*
+- Routines tailored to working with `mpf_array`'s and their optimized memory format for the GPU, located under `gpgmp::mpfArrayRoutines::gp<equivalent_mpf_routine_name>` *(As of 07/12/2025 These have not been optimized for Warp Divergence. I have primarily focused on porting to CUDA C; there are many optimizations to be had yet.)*
 - `gpgmp::mpn_device_array` and `gpgmp::mpn_host_array` types which operate similarly to mpz_t[] array's, with the benefit of optimized Memory Coalescence and GPU compatibility.
 - `gpgmp::mpf_device_array` and `gpgmp::mpf_host_array` types which operate similarly to mpf_t[] array's, with the benefit of optimized Memory Coalescence and GPU compatibility.
 
@@ -21,7 +21,7 @@ I will write a more complete README - and docs - if/when I flesh out this librar
 - Unit Tests have not been written yet.
 
 > **TODO:**
-- Refactor several `mpn` routines to use pre-allocated scratch space instead of trying to dynamically allocate on the GPU
+- Refactor many `mpn` routines to use pre-allocated scratch space instead of trying to dynamically allocate on the GPU
 - Optimize `gpgmp::mpnRoutines` routines for parallelized processing
 - Optimize `gpgmp::mpfRoutines` routines for parallelized processing
 - Optimize `gpgmp::mpfArrayRoutines` routines for parallelized processing

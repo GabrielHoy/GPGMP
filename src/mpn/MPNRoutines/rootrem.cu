@@ -449,7 +449,9 @@ namespace gpgmp
           qn = rn - wn; /* expected quotient size */
           if (qn <= bn)
           { /* Divide only if result is not too big. */
-            gpmpn_div_q(qp, rp, rn, wp, wn, scratch);
+            mp_size_t divIntermediaryScratchSizeNeeded = gpmpn_div_q_itch_intermediary(rn, wn);
+            mp_ptr divIntermediaryScratch = TMP_ALLOC_LIMBS(divIntermediaryScratchSizeNeeded);
+            gpmpn_div_q(qp, rp, rn, wp, wn, scratch, divIntermediaryScratch);
             qn += qp[qn] != 0;
           }
 

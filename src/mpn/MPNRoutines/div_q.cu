@@ -42,57 +42,59 @@ namespace gpgmp
 	namespace mpnRoutines
 	{
 
-		//This serves as a direct wrapper for the MPN_COPY macro.
-		//This is done to avoid CUDA kernel launch errors when this macro is used inline in the gpmpn_div_q function.
-		ANYCALLER void perform_MPN_COPY(mp_ptr qp, mp_srcptr tp, mp_size_t qn)
+		// This serves as a direct wrapper for the MPN_COPY macro.
+		// This is done to avoid CUDA kernel launch errors when this macro is used inline in GPGMP GPU routines.
+		ANYCALLER void perform_MPN_COPY(mp_ptr a, mp_srcptr b, mp_size_t c)
 		{
-			MPN_COPY(qp, tp + 1, qn);
+			MPN_COPY(a, b + 1, c);
 		}
 
-		ANYCALLER int perform_gpmpn_cmp(mp_srcptr np, mp_srcptr rp, mp_size_t nn)
+		// This serves as a direct wrapper for the gpmpn_cmp function.
+		// This is done to avoid CUDA kernel launch errors when this function is used inline in GPGMP GPU routines.
+		ANYCALLER int perform_gpmpn_cmp(mp_srcptr a, mp_srcptr b, mp_size_t c)
 		{
-			return gpmpn_cmp(np, rp, nn);
+			return gpmpn_cmp(a, b, c);
 		}
 
 /* Compute Q = N/D with truncation.
-	N = {np,nn}
-	D = {dp,dn}
-	Q = {qp,nn-dn+1}
-	T = {scratch,nn+1} is scratch space
+	N = {np,numeratorNumLimbs}
+	D = {dp,denominatorNumLimbs}
+	Q = {quotientStoreIn,numeratorNumLimbs-denominatorNumLimbs+1}
+	T = {scratch,numeratorNumLimbs+1} is scratch space
 N and D are both untouched by the computation.
 N and T may overlap; pass the same space if N is irrelevant after the call,
 but note that tp needs an extra limb.
 
 Operand requirements:
 	N >= D > 0
-	dp[dn-1] != 0
+	dp[denominatorNumLimbs-1] != 0
 	No overlap between the N, D, and Q areas.
 
 This division function does not clobber its input operands, since it is
 intended to support average-O(qn) division, and for that to be effective, it
-cannot put requirements on callers to copy a O(nn) operand.
+cannot put requirements on callers to copy a O(numeratorNumLimbs) operand.
 
-If a caller does not care about the value of {np,nn+1} after calling this
+If a caller does not care about the value of {np,numeratorNumLimbs+1} after calling this
 function, it should pass np also for the scratch argument.  This function
 will then save some time and space by avoiding allocation and copying.
 (FIXME: Is this a good design?  We only really save any copying for
 already-normalised divisors, which should be rare.  It also prevents us from
 reasonably asking for all scratch space we need.)
 
-We write nn-dn+1 limbs for the quotient, but return void.  Why not return
+We write numeratorNumLimbs-denominatorNumLimbs+1 limbs for the quotient, but return void.  Why not return
 the most significant quotient limb?  Look at the 4 main code blocks below
 (consisting of an outer if-else where each arm contains an if-else). It is
 tricky for the first code block, since the gpmpn_*_div_q calls will typically
-generate all nn-dn+1 and return 0 or 1.  I don't see how to fix that unless
+generate all numeratorNumLimbs-denominatorNumLimbs+1 and return 0 or 1.  I don't see how to fix that unless
 we generate the most significant quotient limb here, before calling
 gpmpn_*_div_q, or put the quotient in a temporary area.  Since this is a
 critical division case (the SB sub-case in particular) copying is not a good
 idea.
 
 It might make sense to split the if-else parts of the (qn + FUDGE
->= dn) blocks into separate functions, since we could promise quite
+>= denominatorNumLimbs) blocks into separate functions, since we could promise quite
 different things to callers in these two cases.  The 'then' case
-benefits from np=scratch, and it could perhaps even tolerate qp=np,
+benefits from np=scratch, and it could perhaps even tolerate quotientStoreIn=np,
 saving some headache for many callers.
 
 FIXME: Scratch allocation leaves a lot to be desired.  E.g., for the MU size
@@ -112,220 +114,468 @@ for the code to be correct.  */
 #define MUPI_DIVAPPR_Q_THRESHOLD MUPI_DIV_QR_THRESHOLD
 #endif
 
-		ANYCALLER void gpmpn_div_q(mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr scratch)
+		ANYCALLER void gpmpn_div_q(mp_ptr quotientStoreIn, mp_srcptr numeratorPtr, mp_size_t numeratorNumLimbs, mp_srcptr denominatorPtr, mp_size_t denominatorNumLimbs, mp_ptr scratch, mp_ptr intermediaryScratch)
 		{
-			mp_ptr new_dp, new_np, tp, rp;
-			mp_limb_t cy, dh, qh;
-			mp_size_t new_nn, qn;
-			gmp_pi1_t dinv;
-			int cnt;
+			mp_ptr new_denominatorPtr, new_numeratorPtr, scratch2, remainderProduct;
+			mp_limb_t carry, highDenominatorLimb, quotientHighLimb;
+			mp_size_t shiftedNumeratorLimbNum, quotientNumLimbs;
+			gmp_pi1_t inverseOfDenominator;
+			int leadingZerosInQuotientHighLimb;
 			TMP_DECL;
 			TMP_MARK;
 
-			ASSERT(nn >= dn);
-			ASSERT(dn > 0);
-			ASSERT(dp[dn - 1] != 0);
-			ASSERT(!MPN_OVERLAP_P(qp, nn - dn + 1, np, nn));
-			ASSERT(!MPN_OVERLAP_P(qp, nn - dn + 1, dp, dn));
-			ASSERT(MPN_SAME_OR_SEPARATE_P(np, scratch, nn));
+			ASSERT(numeratorNumLimbs >= denominatorNumLimbs);
+			ASSERT(denominatorNumLimbs > 0);
+			ASSERT(denominatorPtr[denominatorNumLimbs - 1] != 0);
+			ASSERT(!MPN_OVERLAP_P(quotientStoreIn, numeratorNumLimbs - denominatorNumLimbs + 1, numeratorPtr, numeratorNumLimbs));
+			ASSERT(!MPN_OVERLAP_P(quotientStoreIn, numeratorNumLimbs - denominatorNumLimbs + 1, denominatorPtr, denominatorNumLimbs));
+			ASSERT(MPN_SAME_OR_SEPARATE_P(numeratorPtr, scratch, numeratorNumLimbs));
 
 			ASSERT_ALWAYS(FUDGE >= 2);
 
-			dh = dp[dn - 1];
-			if (dn == 1)
+			highDenominatorLimb = denominatorPtr[denominatorNumLimbs - 1];
+			if (denominatorNumLimbs == 1)
 			{
-				gpmpn_divrem_1(qp, 0L, np, nn, dh);
+				gpmpn_divrem_1(quotientStoreIn, 0L, numeratorPtr, numeratorNumLimbs, highDenominatorLimb);
 				return;
 			}
 
-			qn = nn - dn + 1; /* Quotient size, high limb might be zero */
+			quotientNumLimbs = numeratorNumLimbs - denominatorNumLimbs + 1; /* Quotient size, high limb might be zero */
 
-			if (qn + FUDGE >= dn)
+			if (quotientNumLimbs + FUDGE >= denominatorNumLimbs)
 			{
 				/* |________________________|
 									|_______|  */
-				new_np = scratch;
+				new_numeratorPtr = scratch;
 
-				if (LIKELY((dh & GMP_NUMB_HIGHBIT) == 0))
+				if (LIKELY((highDenominatorLimb & GMP_NUMB_HIGHBIT) == 0))
 				{
-					count_leading_zeros(cnt, dh);
+					count_leading_zeros(leadingZerosInQuotientHighLimb, highDenominatorLimb);
 
-					cy = gpmpn_lshift(new_np, np, nn, cnt);
-					new_np[nn] = cy;
-					new_nn = nn + (cy != 0);
+					carry = gpmpn_lshift(new_numeratorPtr, numeratorPtr, numeratorNumLimbs, leadingZerosInQuotientHighLimb);
+					new_numeratorPtr[numeratorNumLimbs] = carry;
+					shiftedNumeratorLimbNum = numeratorNumLimbs + (carry != 0);
 
-					new_dp = TMP_ALLOC_LIMBS(dn);
-					gpmpn_lshift(new_dp, dp, dn, cnt);
+					new_denominatorPtr = intermediaryScratch;
+					intermediaryScratch += denominatorNumLimbs;
 
-					if (dn == 2)
+					gpmpn_lshift(new_denominatorPtr, denominatorPtr, denominatorNumLimbs, leadingZerosInQuotientHighLimb);
+
+					if (denominatorNumLimbs == 2)
 					{
-						 qh = gpmpn_divrem_2(qp, 0L, new_np, new_nn, new_dp);
+						quotientHighLimb = gpmpn_divrem_2(quotientStoreIn, 0L, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr);
 					}
-					else if (BELOW_THRESHOLD(dn, DC_DIV_Q_THRESHOLD) ||
-							 BELOW_THRESHOLD(new_nn - dn, DC_DIV_Q_THRESHOLD))
+					else if (BELOW_THRESHOLD(denominatorNumLimbs, DC_DIV_Q_THRESHOLD) ||
+							 BELOW_THRESHOLD(shiftedNumeratorLimbNum - denominatorNumLimbs, DC_DIV_Q_THRESHOLD))
 					{
-						invert_pi1(dinv, new_dp[dn - 1], new_dp[dn - 2]);
-						qh = gpmpn_sbpi1_div_q(qp, new_np, new_nn, new_dp, dn, dinv.inv32);
+						invert_pi1(inverseOfDenominator, new_denominatorPtr[denominatorNumLimbs - 1], new_denominatorPtr[denominatorNumLimbs - 2]);
+						quotientHighLimb = gpmpn_sbpi1_div_q(quotientStoreIn, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, denominatorNumLimbs, inverseOfDenominator.inv32);
 					}
-					else if (BELOW_THRESHOLD(dn, MUPI_DIV_Q_THRESHOLD) ||					/* fast condition */
-							 BELOW_THRESHOLD(nn, 2 * MU_DIV_Q_THRESHOLD) ||					/* fast condition */
-							 (double)(2 * (MU_DIV_Q_THRESHOLD - MUPI_DIV_Q_THRESHOLD)) * dn /* slow... */
-									 + (double)MUPI_DIV_Q_THRESHOLD * nn >
-								 (double)dn * nn) /* ...condition */
+					else if (BELOW_THRESHOLD(denominatorNumLimbs, MUPI_DIV_Q_THRESHOLD) ||					 /* fast condition */
+							 BELOW_THRESHOLD(numeratorNumLimbs, 2 * MU_DIV_Q_THRESHOLD) ||					 /* fast condition */
+							 (double)(2 * (MU_DIV_Q_THRESHOLD - MUPI_DIV_Q_THRESHOLD)) * denominatorNumLimbs /* slow... */
+									 + (double)MUPI_DIV_Q_THRESHOLD * numeratorNumLimbs >
+								 (double)denominatorNumLimbs * numeratorNumLimbs) /* ...condition */
 					{
-						invert_pi1(dinv, new_dp[dn - 1], new_dp[dn - 2]);
-						qh = gpmpn_dcpi1_div_q(qp, new_np, new_nn, new_dp, dn, &dinv);
+						invert_pi1(inverseOfDenominator, new_denominatorPtr[denominatorNumLimbs - 1], new_denominatorPtr[denominatorNumLimbs - 2]);
+						quotientHighLimb = gpmpn_dcpi1_div_q(quotientStoreIn, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, denominatorNumLimbs, &inverseOfDenominator);
 					}
 					else
 					{
-						mp_size_t itch = gpmpn_mu_div_q_itch(new_nn, dn, 0);
-						mp_ptr scratch = TMP_ALLOC_LIMBS(itch);
-						qh = gpmpn_mu_div_q(qp, new_np, new_nn, new_dp, dn, scratch);
+						mp_size_t itch = gpmpn_mu_div_q_itch(shiftedNumeratorLimbNum, denominatorNumLimbs, 0);
+						mp_ptr moreScratch = intermediaryScratch;
+						intermediaryScratch += itch;
+						quotientHighLimb = gpmpn_mu_div_q(quotientStoreIn, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, denominatorNumLimbs, moreScratch);
 					}
-					if (cy == 0)
+					if (carry == 0)
 					{
-						qp[qn - 1] = qh;
+						quotientStoreIn[quotientNumLimbs - 1] = quotientHighLimb;
 					}
 					else
 					{
-						ASSERT(qh == 0);
+						ASSERT(quotientHighLimb == 0);
 					}
 				}
 				else /* divisor is already normalised */
 				{
-					if (new_np != np)
-						MPN_COPY(new_np, np, nn);
+					if (new_numeratorPtr != numeratorPtr)
+						MPN_COPY(new_numeratorPtr, numeratorPtr, numeratorNumLimbs);
 
-					if (dn == 2)
+					if (denominatorNumLimbs == 2)
 					{
-						qh = gpmpn_divrem_2(qp, 0L, new_np, nn, dp);
+						quotientHighLimb = gpmpn_divrem_2(quotientStoreIn, 0L, new_numeratorPtr, numeratorNumLimbs, denominatorPtr);
 					}
-					else if (BELOW_THRESHOLD(dn, DC_DIV_Q_THRESHOLD) ||
-							 BELOW_THRESHOLD(nn - dn, DC_DIV_Q_THRESHOLD))
+					else if (BELOW_THRESHOLD(denominatorNumLimbs, DC_DIV_Q_THRESHOLD) ||
+							 BELOW_THRESHOLD(numeratorNumLimbs - denominatorNumLimbs, DC_DIV_Q_THRESHOLD))
 					{
-						invert_pi1(dinv, dh, dp[dn - 2]);
-						qh = gpmpn_sbpi1_div_q(qp, new_np, nn, dp, dn, dinv.inv32);
+						invert_pi1(inverseOfDenominator, highDenominatorLimb, denominatorPtr[denominatorNumLimbs - 2]);
+						quotientHighLimb = gpmpn_sbpi1_div_q(quotientStoreIn, new_numeratorPtr, numeratorNumLimbs, denominatorPtr, denominatorNumLimbs, inverseOfDenominator.inv32);
 					}
-					else if (BELOW_THRESHOLD(dn, MUPI_DIV_Q_THRESHOLD) ||					/* fast condition */
-							 BELOW_THRESHOLD(nn, 2 * MU_DIV_Q_THRESHOLD) ||					/* fast condition */
-							 (double)(2 * (MU_DIV_Q_THRESHOLD - MUPI_DIV_Q_THRESHOLD)) * dn /* slow... */
-									 + (double)MUPI_DIV_Q_THRESHOLD * nn >
-								 (double)dn * nn) /* ...condition */
+					else if (BELOW_THRESHOLD(denominatorNumLimbs, MUPI_DIV_Q_THRESHOLD) ||					 /* fast condition */
+							 BELOW_THRESHOLD(numeratorNumLimbs, 2 * MU_DIV_Q_THRESHOLD) ||					 /* fast condition */
+							 (double)(2 * (MU_DIV_Q_THRESHOLD - MUPI_DIV_Q_THRESHOLD)) * denominatorNumLimbs /* slow... */
+									 + (double)MUPI_DIV_Q_THRESHOLD * numeratorNumLimbs >
+								 (double)denominatorNumLimbs * numeratorNumLimbs) /* ...condition */
 					{
-						invert_pi1(dinv, dh, dp[dn - 2]);
-						qh = gpmpn_dcpi1_div_q(qp, new_np, nn, dp, dn, &dinv);
+						invert_pi1(inverseOfDenominator, highDenominatorLimb, denominatorPtr[denominatorNumLimbs - 2]);
+						quotientHighLimb = gpmpn_dcpi1_div_q(quotientStoreIn, new_numeratorPtr, numeratorNumLimbs, denominatorPtr, denominatorNumLimbs, &inverseOfDenominator);
 					}
 					else
 					{
-						mp_size_t itch = gpmpn_mu_div_q_itch(nn, dn, 0);
-						mp_ptr scratch = TMP_ALLOC_LIMBS(itch);
-						qh = gpmpn_mu_div_q(qp, np, nn, dp, dn, scratch);
+						mp_size_t itch = gpmpn_mu_div_q_itch(numeratorNumLimbs, denominatorNumLimbs, 0);
+						mp_ptr moreScratch = intermediaryScratch;
+						intermediaryScratch += itch;
+						quotientHighLimb = gpmpn_mu_div_q(quotientStoreIn, numeratorPtr, numeratorNumLimbs, denominatorPtr, denominatorNumLimbs, moreScratch);
 					}
-					qp[nn - dn] = qh;
+					quotientStoreIn[numeratorNumLimbs - denominatorNumLimbs] = quotientHighLimb;
 				}
 			}
 			else
 			{
 				/* |________________________|
 							|_________________|  */
-				tp = TMP_ALLOC_LIMBS(qn + 1);
+				scratch2 = intermediaryScratch;
+				intermediaryScratch += (quotientNumLimbs + 1);
 
-				new_np = scratch;
-				new_nn = 2 * qn + 1;
-				if (new_np == np)
-					/* We need {np,nn} to remain untouched until the final adjustment, so
-					we need to allocate separate space for new_np.  */
-					new_np = TMP_ALLOC_LIMBS(new_nn + 1);
-
-				if (LIKELY((dh & GMP_NUMB_HIGHBIT) == 0))
+				new_numeratorPtr = scratch;
+				shiftedNumeratorLimbNum = 2 * quotientNumLimbs + 1;
+				if (new_numeratorPtr == numeratorPtr)
 				{
-					count_leading_zeros(cnt, dh);
+					/* We need {np,nn} to remain untouched until the final adjustment, so
+					we need to allocate separate space for new_numeratorPtr.  */
+					new_numeratorPtr = intermediaryScratch;
+					intermediaryScratch += (shiftedNumeratorLimbNum + 1);
+				}
 
-					cy = gpmpn_lshift(new_np, np + nn - new_nn, new_nn, cnt);
-					new_np[new_nn] = cy;
+				if (LIKELY((highDenominatorLimb & GMP_NUMB_HIGHBIT) == 0))
+				{
+					count_leading_zeros(leadingZerosInQuotientHighLimb, highDenominatorLimb);
 
-					new_nn += (cy != 0);
+					carry = gpmpn_lshift(new_numeratorPtr, numeratorPtr + numeratorNumLimbs - shiftedNumeratorLimbNum, shiftedNumeratorLimbNum, leadingZerosInQuotientHighLimb);
+					new_numeratorPtr[shiftedNumeratorLimbNum] = carry;
 
-					new_dp = TMP_ALLOC_LIMBS(qn + 1);
-					gpmpn_lshift(new_dp, dp + dn - (qn + 1), qn + 1, cnt);
-					new_dp[0] |= dp[dn - (qn + 1) - 1] >> (GMP_NUMB_BITS - cnt);
+					shiftedNumeratorLimbNum += (carry != 0);
 
-					if (qn + 1 == 2)
+					new_denominatorPtr = intermediaryScratch;
+					intermediaryScratch += (quotientNumLimbs + 1);
+					gpmpn_lshift(new_denominatorPtr, denominatorPtr + denominatorNumLimbs - (quotientNumLimbs + 1), quotientNumLimbs + 1, leadingZerosInQuotientHighLimb);
+					new_denominatorPtr[0] |= denominatorPtr[denominatorNumLimbs - (quotientNumLimbs + 1) - 1] >> (GMP_NUMB_BITS - leadingZerosInQuotientHighLimb);
+
+					if (quotientNumLimbs + 1 == 2)
 					{
-						qh = gpmpn_divrem_2(tp, 0L, new_np, new_nn, new_dp);
+						quotientHighLimb = gpmpn_divrem_2(scratch2, 0L, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr);
 					}
-					else if (BELOW_THRESHOLD(qn, DC_DIVAPPR_Q_THRESHOLD - 1))
+					else if (BELOW_THRESHOLD(quotientNumLimbs, DC_DIVAPPR_Q_THRESHOLD - 1))
 					{
-						invert_pi1(dinv, new_dp[qn], new_dp[qn - 1]);
-						qh = gpmpn_sbpi1_divappr_q(tp, new_np, new_nn, new_dp, qn + 1, dinv.inv32);
+						invert_pi1(inverseOfDenominator, new_denominatorPtr[quotientNumLimbs], new_denominatorPtr[quotientNumLimbs - 1]);
+						quotientHighLimb = gpmpn_sbpi1_divappr_q(scratch2, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, quotientNumLimbs + 1, inverseOfDenominator.inv32);
 					}
-					else if (BELOW_THRESHOLD(qn, MU_DIVAPPR_Q_THRESHOLD - 1))
+					else if (BELOW_THRESHOLD(quotientNumLimbs, MU_DIVAPPR_Q_THRESHOLD - 1))
 					{
-						invert_pi1(dinv, new_dp[qn], new_dp[qn - 1]);
-						qh = gpmpn_dcpi1_divappr_q(tp, new_np, new_nn, new_dp, qn + 1, &dinv);
+						invert_pi1(inverseOfDenominator, new_denominatorPtr[quotientNumLimbs], new_denominatorPtr[quotientNumLimbs - 1]);
+						quotientHighLimb = gpmpn_dcpi1_divappr_q(scratch2, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, quotientNumLimbs + 1, &inverseOfDenominator);
 					}
 					else
 					{
-						mp_size_t itch = gpmpn_mu_divappr_q_itch(new_nn, qn + 1, 0);
-						mp_ptr scratch = TMP_ALLOC_LIMBS(itch);
-						qh = gpmpn_mu_divappr_q(tp, new_np, new_nn, new_dp, qn + 1, scratch);
+						mp_size_t itch = gpmpn_mu_divappr_q_itch(shiftedNumeratorLimbNum, quotientNumLimbs + 1, 0);
+						mp_ptr moreScratch = intermediaryScratch;
+						intermediaryScratch += itch;
+						quotientHighLimb = gpmpn_mu_divappr_q(scratch2, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, quotientNumLimbs + 1, moreScratch);
 					}
-					if (cy == 0)
-						tp[qn] = qh;
-					else if (UNLIKELY(qh != 0))
+
+					if (carry == 0)
+					{
+						scratch2[quotientNumLimbs] = quotientHighLimb;
+					}
+					else if (UNLIKELY(quotientHighLimb != 0))
 					{
 						/* This happens only when the quotient is close to B^n and
 						gpmpn_*_divappr_q returned B^n.  */
 						mp_size_t i, n;
-						n = new_nn - (qn + 1);
+						n = shiftedNumeratorLimbNum - (quotientNumLimbs + 1);
 						for (i = 0; i < n; i++)
-							tp[i] = GMP_NUMB_MAX;
-						qh = 0; /* currently ignored */
+							scratch2[i] = GMP_NUMB_MAX;
+						quotientHighLimb = 0; /* currently ignored */
 					}
 				}
 				else /* divisor is already normalised */
 				{
-					MPN_COPY(new_np, np + nn - new_nn, new_nn); /* pointless if MU will be used */
+					MPN_COPY(new_numeratorPtr, numeratorPtr + numeratorNumLimbs - shiftedNumeratorLimbNum, shiftedNumeratorLimbNum); /* pointless if MU will be used */
 
-					new_dp = (mp_ptr)dp + dn - (qn + 1);
+					new_denominatorPtr = (mp_ptr)denominatorPtr + denominatorNumLimbs - (quotientNumLimbs + 1);
 
-					if (qn == 2 - 1)
+					if (quotientNumLimbs == 2 - 1)
 					{
-						qh = gpmpn_divrem_2(tp, 0L, new_np, new_nn, new_dp);
+						quotientHighLimb = gpmpn_divrem_2(scratch2, 0L, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr);
 					}
-					else if (BELOW_THRESHOLD(qn, DC_DIVAPPR_Q_THRESHOLD - 1))
+					else if (BELOW_THRESHOLD(quotientNumLimbs, DC_DIVAPPR_Q_THRESHOLD - 1))
 					{
-						invert_pi1(dinv, dh, new_dp[qn - 1]);
-						qh = gpmpn_sbpi1_divappr_q(tp, new_np, new_nn, new_dp, qn + 1, dinv.inv32);
+						invert_pi1(inverseOfDenominator, highDenominatorLimb, new_denominatorPtr[quotientNumLimbs - 1]);
+						quotientHighLimb = gpmpn_sbpi1_divappr_q(scratch2, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, quotientNumLimbs + 1, inverseOfDenominator.inv32);
 					}
-					else if (BELOW_THRESHOLD(qn, MU_DIVAPPR_Q_THRESHOLD - 1))
+					else if (BELOW_THRESHOLD(quotientNumLimbs, MU_DIVAPPR_Q_THRESHOLD - 1))
 					{
-						invert_pi1(dinv, dh, new_dp[qn - 1]);
-						qh = gpmpn_dcpi1_divappr_q(tp, new_np, new_nn, new_dp, qn + 1, &dinv);
+						invert_pi1(inverseOfDenominator, highDenominatorLimb, new_denominatorPtr[quotientNumLimbs - 1]);
+						quotientHighLimb = gpmpn_dcpi1_divappr_q(scratch2, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, quotientNumLimbs + 1, &inverseOfDenominator);
 					}
 					else
 					{
-						mp_size_t itch = gpmpn_mu_divappr_q_itch(new_nn, qn + 1, 0);
-						mp_ptr scratch = TMP_ALLOC_LIMBS(itch);
-						qh = gpmpn_mu_divappr_q(tp, new_np, new_nn, new_dp, qn + 1, scratch);
+						mp_size_t itch = gpmpn_mu_divappr_q_itch(shiftedNumeratorLimbNum, quotientNumLimbs + 1, 0);
+						mp_ptr moreScratch = intermediaryScratch;
+						intermediaryScratch += itch;
+						quotientHighLimb = gpmpn_mu_divappr_q(scratch2, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, quotientNumLimbs + 1, moreScratch);
 					}
-					tp[qn] = qh;
+					scratch2[quotientNumLimbs] = quotientHighLimb;
 				}
 
-				perform_MPN_COPY(qp, tp + 1, qn);
-				if (tp[0] <= 4)
+				perform_MPN_COPY(quotientStoreIn, scratch2 + 1, quotientNumLimbs);
+				if (scratch2[0] <= 4)
 				{
 					mp_size_t rn;
 
-					rp = TMP_ALLOC_LIMBS(dn + qn);
-					gpmpn_mul(rp, dp, dn, tp + 1, qn);
-					rn = dn + qn;
-					rn -= rp[rn - 1] == 0;
+					remainderProduct = intermediaryScratch;
+					intermediaryScratch += (denominatorNumLimbs + quotientNumLimbs);
+					gpmpn_mul(remainderProduct, denominatorPtr, denominatorNumLimbs, scratch2 + 1, quotientNumLimbs);
+					rn = denominatorNumLimbs + quotientNumLimbs;
+					rn -= remainderProduct[rn - 1] == 0;
 
-					int cmpResult = perform_gpmpn_cmp(np, rp, nn);
-					if (rn > nn || cmpResult < 0)
+					int cmpResult = perform_gpmpn_cmp(numeratorPtr, remainderProduct, numeratorNumLimbs);
+					if (rn > numeratorNumLimbs || cmpResult < 0)
 					{
-							MPN_DECR_U(qp, qn, 1);
+						MPN_DECR_U(quotientStoreIn, quotientNumLimbs, 1);
+					}
+					return;
+				}
+			}
+
+			return;
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		/* ORIGINAL MPN_DIV_Q CODE W/O DYNAMIC ALLOCATIONS REMOVED FOR INTERMEDIARIES
+
+		ANYCALLER void gpmpn_div_q(mp_ptr quotientStoreIn, mp_srcptr numeratorPtr, mp_size_t numeratorNumLimbs, mp_srcptr denominatorPtr, mp_size_t denominatorNumLimbs, mp_ptr scratch)
+		{
+			mp_ptr new_denominatorPtr, new_numeratorPtr, scratch2, remainderProduct;
+			mp_limb_t carry, highDenominatorLimb, quotientHighLimb;
+			mp_size_t shiftedNumeratorLimbNum, quotientNumLimbs;
+			gmp_pi1_t inverseOfDenominator;
+			int leadingZerosInQuotientHighLimb;
+			TMP_DECL;
+			TMP_MARK;
+
+			ASSERT(numeratorNumLimbs >= denominatorNumLimbs);
+			ASSERT(denominatorNumLimbs > 0);
+			ASSERT(denominatorPtr[denominatorNumLimbs - 1] != 0);
+			ASSERT(!MPN_OVERLAP_P(quotientStoreIn, numeratorNumLimbs - denominatorNumLimbs + 1, numeratorPtr, numeratorNumLimbs));
+			ASSERT(!MPN_OVERLAP_P(quotientStoreIn, numeratorNumLimbs - denominatorNumLimbs + 1, denominatorPtr, denominatorNumLimbs));
+			ASSERT(MPN_SAME_OR_SEPARATE_P(numeratorPtr, scratch, numeratorNumLimbs));
+
+			ASSERT_ALWAYS(FUDGE >= 2);
+
+			highDenominatorLimb = denominatorPtr[denominatorNumLimbs - 1];
+			if (denominatorNumLimbs == 1)
+			{
+				gpmpn_divrem_1(quotientStoreIn, 0L, numeratorPtr, numeratorNumLimbs, highDenominatorLimb);
+				return;
+			}
+
+			quotientNumLimbs = numeratorNumLimbs - denominatorNumLimbs + 1;
+
+			if (quotientNumLimbs + FUDGE >= denominatorNumLimbs)
+			{
+				new_numeratorPtr = scratch;
+
+				if (LIKELY((highDenominatorLimb & GMP_NUMB_HIGHBIT) == 0))
+				{
+					count_leading_zeros(leadingZerosInQuotientHighLimb, highDenominatorLimb);
+
+					carry = gpmpn_lshift(new_numeratorPtr, numeratorPtr, numeratorNumLimbs, leadingZerosInQuotientHighLimb);
+					new_numeratorPtr[numeratorNumLimbs] = carry;
+					shiftedNumeratorLimbNum = numeratorNumLimbs + (carry != 0);
+
+					new_denominatorPtr = TMP_ALLOC_LIMBS(denominatorNumLimbs);
+					gpmpn_lshift(new_denominatorPtr, denominatorPtr, denominatorNumLimbs, leadingZerosInQuotientHighLimb);
+
+					if (denominatorNumLimbs == 2)
+					{
+						quotientHighLimb = gpmpn_divrem_2(quotientStoreIn, 0L, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr);
+					}
+					else if (BELOW_THRESHOLD(denominatorNumLimbs, DC_DIV_Q_THRESHOLD) ||
+							 BELOW_THRESHOLD(shiftedNumeratorLimbNum - denominatorNumLimbs, DC_DIV_Q_THRESHOLD))
+					{
+						invert_pi1(inverseOfDenominator, new_denominatorPtr[denominatorNumLimbs - 1], new_denominatorPtr[denominatorNumLimbs - 2]);
+						quotientHighLimb = gpmpn_sbpi1_div_q(quotientStoreIn, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, denominatorNumLimbs, inverseOfDenominator.inv32);
+					}
+					else if (BELOW_THRESHOLD(denominatorNumLimbs, MUPI_DIV_Q_THRESHOLD) ||
+							 BELOW_THRESHOLD(numeratorNumLimbs, 2 * MU_DIV_Q_THRESHOLD) ||
+							 (double)(2 * (MU_DIV_Q_THRESHOLD - MUPI_DIV_Q_THRESHOLD)) * denominatorNumLimbs
+									 + (double)MUPI_DIV_Q_THRESHOLD * numeratorNumLimbs >
+								 (double)denominatorNumLimbs * numeratorNumLimbs)
+					{
+						invert_pi1(inverseOfDenominator, new_denominatorPtr[denominatorNumLimbs - 1], new_denominatorPtr[denominatorNumLimbs - 2]);
+						quotientHighLimb = gpmpn_dcpi1_div_q(quotientStoreIn, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, denominatorNumLimbs, &inverseOfDenominator);
+					}
+					else
+					{
+						mp_size_t itch = gpmpn_mu_div_q_itch(shiftedNumeratorLimbNum, denominatorNumLimbs, 0);
+						mp_ptr moreScratch = TMP_ALLOC_LIMBS(itch);
+						quotientHighLimb = gpmpn_mu_div_q(quotientStoreIn, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, denominatorNumLimbs, moreScratch);
+					}
+					if (carry == 0)
+					{
+						quotientStoreIn[quotientNumLimbs - 1] = quotientHighLimb;
+					}
+					else
+					{
+						ASSERT(quotientHighLimb == 0);
+					}
+				}
+				else
+				{
+					if (new_numeratorPtr != numeratorPtr)
+						MPN_COPY(new_numeratorPtr, numeratorPtr, numeratorNumLimbs);
+
+					if (denominatorNumLimbs == 2)
+					{
+						quotientHighLimb = gpmpn_divrem_2(quotientStoreIn, 0L, new_numeratorPtr, numeratorNumLimbs, denominatorPtr);
+					}
+					else if (BELOW_THRESHOLD(denominatorNumLimbs, DC_DIV_Q_THRESHOLD) ||
+							 BELOW_THRESHOLD(numeratorNumLimbs - denominatorNumLimbs, DC_DIV_Q_THRESHOLD))
+					{
+						invert_pi1(inverseOfDenominator, highDenominatorLimb, denominatorPtr[denominatorNumLimbs - 2]);
+						quotientHighLimb = gpmpn_sbpi1_div_q(quotientStoreIn, new_numeratorPtr, numeratorNumLimbs, denominatorPtr, denominatorNumLimbs, inverseOfDenominator.inv32);
+					}
+					else if (BELOW_THRESHOLD(denominatorNumLimbs, MUPI_DIV_Q_THRESHOLD) ||
+							 BELOW_THRESHOLD(numeratorNumLimbs, 2 * MU_DIV_Q_THRESHOLD) ||
+							 (double)(2 * (MU_DIV_Q_THRESHOLD - MUPI_DIV_Q_THRESHOLD)) * denominatorNumLimbs
+									 + (double)MUPI_DIV_Q_THRESHOLD * numeratorNumLimbs >
+								 (double)denominatorNumLimbs * numeratorNumLimbs)
+					{
+						invert_pi1(inverseOfDenominator, highDenominatorLimb, denominatorPtr[denominatorNumLimbs - 2]);
+						quotientHighLimb = gpmpn_dcpi1_div_q(quotientStoreIn, new_numeratorPtr, numeratorNumLimbs, denominatorPtr, denominatorNumLimbs, &inverseOfDenominator);
+					}
+					else
+					{
+						mp_size_t itch = gpmpn_mu_div_q_itch(numeratorNumLimbs, denominatorNumLimbs, 0);
+						mp_ptr moreScratch = TMP_ALLOC_LIMBS(itch);
+						quotientHighLimb = gpmpn_mu_div_q(quotientStoreIn, numeratorPtr, numeratorNumLimbs, denominatorPtr, denominatorNumLimbs, moreScratch);
+					}
+					quotientStoreIn[numeratorNumLimbs - denominatorNumLimbs] = quotientHighLimb;
+				}
+			}
+			else
+			{
+				scratch2 = TMP_ALLOC_LIMBS(quotientNumLimbs + 1);
+
+				new_numeratorPtr = scratch;
+				shiftedNumeratorLimbNum = 2 * quotientNumLimbs + 1;
+				if (new_numeratorPtr == numeratorPtr)
+					new_numeratorPtr = TMP_ALLOC_LIMBS(shiftedNumeratorLimbNum + 1);
+
+				if (LIKELY((highDenominatorLimb & GMP_NUMB_HIGHBIT) == 0))
+				{
+					count_leading_zeros(leadingZerosInQuotientHighLimb, highDenominatorLimb);
+
+					carry = gpmpn_lshift(new_numeratorPtr, numeratorPtr + numeratorNumLimbs - shiftedNumeratorLimbNum, shiftedNumeratorLimbNum, leadingZerosInQuotientHighLimb);
+					new_numeratorPtr[shiftedNumeratorLimbNum] = carry;
+
+					shiftedNumeratorLimbNum += (carry != 0);
+
+					new_denominatorPtr = TMP_ALLOC_LIMBS(quotientNumLimbs + 1);
+					gpmpn_lshift(new_denominatorPtr, denominatorPtr + denominatorNumLimbs - (quotientNumLimbs + 1), quotientNumLimbs + 1, leadingZerosInQuotientHighLimb);
+					new_denominatorPtr[0] |= denominatorPtr[denominatorNumLimbs - (quotientNumLimbs + 1) - 1] >> (GMP_NUMB_BITS - leadingZerosInQuotientHighLimb);
+
+					if (quotientNumLimbs + 1 == 2)
+					{
+						quotientHighLimb = gpmpn_divrem_2(scratch2, 0L, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr);
+					}
+					else if (BELOW_THRESHOLD(quotientNumLimbs, DC_DIVAPPR_Q_THRESHOLD - 1))
+					{
+						invert_pi1(inverseOfDenominator, new_denominatorPtr[quotientNumLimbs], new_denominatorPtr[quotientNumLimbs - 1]);
+						quotientHighLimb = gpmpn_sbpi1_divappr_q(scratch2, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, quotientNumLimbs + 1, inverseOfDenominator.inv32);
+					}
+					else if (BELOW_THRESHOLD(quotientNumLimbs, MU_DIVAPPR_Q_THRESHOLD - 1))
+					{
+						invert_pi1(inverseOfDenominator, new_denominatorPtr[quotientNumLimbs], new_denominatorPtr[quotientNumLimbs - 1]);
+						quotientHighLimb = gpmpn_dcpi1_divappr_q(scratch2, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, quotientNumLimbs + 1, &inverseOfDenominator);
+					}
+					else
+					{
+						mp_size_t itch = gpmpn_mu_divappr_q_itch(shiftedNumeratorLimbNum, quotientNumLimbs + 1, 0);
+						mp_ptr moreScratch = TMP_ALLOC_LIMBS(itch);
+						quotientHighLimb = gpmpn_mu_divappr_q(scratch2, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, quotientNumLimbs + 1, moreScratch);
+					}
+
+					if (carry == 0)
+					{
+						scratch2[quotientNumLimbs] = quotientHighLimb;
+					}
+					else if (UNLIKELY(quotientHighLimb != 0))
+					{
+						mp_size_t i, n;
+						n = shiftedNumeratorLimbNum - (quotientNumLimbs + 1);
+						for (i = 0; i < n; i++)
+							scratch2[i] = GMP_NUMB_MAX;
+						quotientHighLimb = 0;
+					}
+				}
+				else
+				{
+					MPN_COPY(new_numeratorPtr, numeratorPtr + numeratorNumLimbs - shiftedNumeratorLimbNum, shiftedNumeratorLimbNum);
+
+					new_denominatorPtr = (mp_ptr)denominatorPtr + denominatorNumLimbs - (quotientNumLimbs + 1);
+
+					if (quotientNumLimbs == 2 - 1)
+					{
+						quotientHighLimb = gpmpn_divrem_2(scratch2, 0L, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr);
+					}
+					else if (BELOW_THRESHOLD(quotientNumLimbs, DC_DIVAPPR_Q_THRESHOLD - 1))
+					{
+						invert_pi1(inverseOfDenominator, highDenominatorLimb, new_denominatorPtr[quotientNumLimbs - 1]);
+						quotientHighLimb = gpmpn_sbpi1_divappr_q(scratch2, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, quotientNumLimbs + 1, inverseOfDenominator.inv32);
+					}
+					else if (BELOW_THRESHOLD(quotientNumLimbs, MU_DIVAPPR_Q_THRESHOLD - 1))
+					{
+						invert_pi1(inverseOfDenominator, highDenominatorLimb, new_denominatorPtr[quotientNumLimbs - 1]);
+						quotientHighLimb = gpmpn_dcpi1_divappr_q(scratch2, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, quotientNumLimbs + 1, &inverseOfDenominator);
+					}
+					else
+					{
+						mp_size_t itch = gpmpn_mu_divappr_q_itch(shiftedNumeratorLimbNum, quotientNumLimbs + 1, 0);
+						mp_ptr moreScratch = TMP_ALLOC_LIMBS(itch);
+						quotientHighLimb = gpmpn_mu_divappr_q(scratch2, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, quotientNumLimbs + 1, moreScratch);
+					}
+					scratch2[quotientNumLimbs] = quotientHighLimb;
+				}
+
+				perform_MPN_COPY(quotientStoreIn, scratch2 + 1, quotientNumLimbs);
+				if (scratch2[0] <= 4)
+				{
+					mp_size_t rn;
+
+					remainderProduct = TMP_ALLOC_LIMBS(denominatorNumLimbs + quotientNumLimbs);
+					gpmpn_mul(remainderProduct, denominatorPtr, denominatorNumLimbs, scratch2 + 1, quotientNumLimbs);
+					rn = denominatorNumLimbs + quotientNumLimbs;
+					rn -= remainderProduct[rn - 1] == 0;
+
+					int cmpResult = perform_gpmpn_cmp(numeratorPtr, remainderProduct, numeratorNumLimbs);
+					if (rn > numeratorNumLimbs || cmpResult < 0)
+					{
+						MPN_DECR_U(quotientStoreIn, quotientNumLimbs, 1);
 					}
 					TMP_FREE;
 					return;
@@ -335,6 +585,7 @@ for the code to be correct.  */
 			TMP_FREE;
 			return;
 		}
+		*/
 
 	}
 }

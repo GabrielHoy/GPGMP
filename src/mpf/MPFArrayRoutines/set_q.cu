@@ -25,8 +25,7 @@ namespace gpgmp
        to save one limb in the division.  */
 
     //TODO: Refactor to avoid dynamic allocation.
-    ANYCALLER void
-    gpmpf_set_q(mpf_array_idx r, mpq_srcptr q)
+    ANYCALLER void gpmpf_set_q(mpf_array_idx r, mpq_srcptr q)
     {
       mp_srcptr np, dp;
       mp_size_t prec, nsize, dsize, qsize, prospective_qsize, tsize, zeros;
@@ -79,7 +78,9 @@ namespace gpgmp
       }
 
       ASSERT(tsize - dsize + 1 == qsize);
-      gpgmp::mpnRoutines::gpmpn_div_q(qp, np, tsize, dp, dsize, tp);
+      mp_size_t divIntermediaryScratchSizeNeeded = gpgmp::mpnRoutines::gpmpn_div_q_itch_intermediary(tsize, dsize);
+      mp_ptr divIntermediaryScratch = TMP_ALLOC_LIMBS(divIntermediaryScratchSizeNeeded);
+      gpgmp::mpnRoutines::gpmpn_div_q(qp, np, tsize, dp, dsize, tp, divIntermediaryScratch);
 
       /* strip possible zero high limb */
       high_zero = (qp[qsize - 1] == 0);

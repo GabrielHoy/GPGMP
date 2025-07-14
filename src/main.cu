@@ -3,7 +3,7 @@
 #include "gpgmp.cuh"
 
 #define ARRAY_LENGTH 5
-#define PRECISION_BITS 64*3
+#define PRECISION_BITS 64*5
 
 ANYCALLER void PrintDataAboutMPFArray_AsDoubles(gpgmp::mpf_array* testArray) {
     for (int i = 0; i < testArray->numFloatsInArray; i++) {
@@ -266,9 +266,6 @@ int main(int argc, char** argv) {
     CHECK_CUDA_ERROR(cudaDeviceSynchronize());
     printf("Current Last Error after Division Synchronization: %s\n", cudaGetErrorString(cudaGetLastError()));
     printf("\n");
-
-
-
 
 
     printf("Program run finished!\n");

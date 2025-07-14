@@ -91,6 +91,7 @@ namespace gpgmp
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_abs(mpf_ptr, mpf_srcptr);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_add(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE static int gpmpf_add_itch(mp_size_t);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_add_ui(mpf_ptr, mpf_srcptr, unsigned long int, mp_limb_t*);
 
@@ -111,10 +112,12 @@ namespace gpgmp
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_cmp_ui(mpf_srcptr, unsigned long int) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE static int gpmpf_div_itch(mp_size_t);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div_2exp(mpf_ptr, mpf_srcptr, mp_bitcnt_t);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_div_ui(mpf_ptr, mpf_srcptr, unsigned long int, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE static int gpmpf_div_ui_itch(mp_size_t);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_dump(mpf_srcptr);
 
@@ -171,6 +174,7 @@ namespace gpgmp
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpf_integer_p(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE static int gpmpf_mul_itch(mp_size_t);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_mul_2exp(mpf_ptr, mpf_srcptr, mp_bitcnt_t);
 
@@ -187,6 +191,7 @@ namespace gpgmp
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_random2(mpf_ptr, mp_size_t, mp_exp_t);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_reldiff(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE static int gpmpf_reldiff_itch(mp_size_t);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set(mpf_ptr, mpf_srcptr);
 
@@ -211,10 +216,13 @@ namespace gpgmp
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t gpmpf_size(mpf_srcptr) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sqrt(mpf_ptr, mpf_srcptr, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE static int gpmpf_sqrt_itch(mp_size_t);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sqrt_ui(mpf_ptr, unsigned long int, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE static int gpmpf_sqrt_ui_itch(mp_size_t);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sub(mpf_ptr, mpf_srcptr, mpf_srcptr, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE static int gpmpf_sub_itch(mp_size_t);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_sub_ui(mpf_ptr, mpf_srcptr, unsigned long int, mp_limb_t*);
 
@@ -223,6 +231,7 @@ namespace gpgmp
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_trunc(mpf_ptr, mpf_srcptr);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_ui_div(mpf_ptr, unsigned long int, mpf_srcptr, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE static int gpmpf_ui_div_itch(mp_size_t);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_ui_sub(mpf_ptr, unsigned long int, mpf_srcptr, mp_limb_t*);
 

@@ -12,33 +12,39 @@ namespace gpgmp {
             int scratchSpaceLimbsRequired = 0;
 
             if (operations & OP_ADD) {
-                scratchSpaceLimbsRequired = precisionInLimbs;
+                scratchSpaceLimbsRequired = gpgmp::mpfRoutines::gpmpf_add_itch(precisionInLimbs);
             }
 
-            if (operations & OP_SUB || operations & OP_DIV_UI) { //both div_ui and sub need prec(r)+1 limbs for scratch space
-                scratchSpaceLimbsRequired = precisionInLimbs + 1;
+            if (operations & OP_SUB) {
+                scratchSpaceLimbsRequired = MAX(scratchSpaceLimbsRequired, gpgmp::mpfRoutines::gpmpf_sub_itch(precisionInLimbs));
             }
 
-            if (operations & OP_MUL || operations & OP_SQRT) {
-                //OP_MUL: MAX(MAX(ABSIZ(u), prec) + MAX(ABSIZ(v), prec), 2 * ABSIZ(u))
-                //OP_SQRT: 2 * (PREC(r)) - (EXP(u) & 1);
-                scratchSpaceLimbsRequired = MAX(scratchSpaceLimbsRequired, precisionInLimbs * 2);
+            if (operations & OP_DIV_UI) {
+                scratchSpaceLimbsRequired = MAX(scratchSpaceLimbsRequired, gpgmp::mpfRoutines::gpmpf_div_ui_itch(precisionInLimbs));
             }
 
-            if (operations & OP_RELDIFF || operations & OP_DIV) {
-                //RELDIFF: PREC(rdiff) + ABSIZ(x) + 1
-                //DIV: MAX((SIZ(u) - MAX(-(SIZ(u) - SIZ(V)), 0)) + (SIZ(u) - SIZ(v)) + 1, (SIZ(u) - MAX(-(SIZ(u) - SIZ(V)), 0)) + 1) + SIZ(v)
-                scratchSpaceLimbsRequired = MAX(scratchSpaceLimbsRequired, (precisionInLimbs * 2) + 1);
+            if (operations & OP_MUL) {
+                scratchSpaceLimbsRequired = MAX(scratchSpaceLimbsRequired, gpgmp::mpfRoutines::gpmpf_mul_itch(precisionInLimbs));
+            }
+
+            if (operations & OP_SQRT) {
+                scratchSpaceLimbsRequired = MAX(scratchSpaceLimbsRequired, gpgmp::mpfRoutines::gpmpf_sqrt_itch(precisionInLimbs));
+            }
+
+            if (operations & OP_RELDIFF) {
+                scratchSpaceLimbsRequired = MAX(scratchSpaceLimbsRequired, gpgmp::mpfRoutines::gpmpf_reldiff_itch(precisionInLimbs));
+            }
+
+            if (operations & OP_DIV) {
+                scratchSpaceLimbsRequired = MAX(scratchSpaceLimbsRequired, gpgmp::mpfRoutines::gpmpf_div_itch(precisionInLimbs));
             }
 
             if (operations & OP_SQRT_UI) {
-                //(2 * PREC(r) - 2) + 1 + U2
-                scratchSpaceLimbsRequired = MAX(scratchSpaceLimbsRequired, (2 * precisionInLimbs - 2) + 1 + (GMP_NUMB_BITS < BITS_PER_ULONG));
+                scratchSpaceLimbsRequired = MAX(scratchSpaceLimbsRequired, gpgmp::mpfRoutines::gpmpf_sqrt_ui_itch(precisionInLimbs));
             }
 
             if (operations & OP_UI_DIV) {
-                //ABSIZ(v) + (1 + ((PREC(r) + 1) - (1 - (ABSIZ(v)) + 1))) + (PTR(r) == PTR(v) ? ABSIZ(v) : 0)
-                scratchSpaceLimbsRequired = MAX(scratchSpaceLimbsRequired, precisionInLimbs * 4);
+                scratchSpaceLimbsRequired = MAX(scratchSpaceLimbsRequired, gpgmp::mpfRoutines::gpmpf_ui_div_itch(precisionInLimbs));
             }
 
             return scratchSpaceLimbsRequired;

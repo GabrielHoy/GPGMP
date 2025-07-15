@@ -1,27 +1,75 @@
 # **GPGMP:** The GPU-Accelerated GNU Multiple Precision Arithmetic Library
 
-# IN PROGRESS: ANYTHING AND EVERYTHING IS SUBJECT TO CHANGE AND CODE WILL BE VERY MESSY
-
 ## This is a library built ontop of the GNU MP library, intended to enable mass-parallelized GPU computation of arbitrary precision numbers.
+
+**IN PROGRESS:** ANYTHING AND EVERYTHING IS SUBJECT TO CHANGE AND CODE MAY NOT BE THUROUGHLY TESTED
 
 I will write a more complete README - and docs - if/when I flesh out this library to a point where I feel comfortable publishing it as "production usable" code...
 
 > **CURRENT FUNCTIONALITY:**
-- GPU-Compatible `mpn` routines, under `gpgmp::mpnRoutines::gp<normal_mpn_routine_name>` *(As of 07/04/2025 These have not been optimized for Warp Divergence. I have primarily focused on porting to CUDA C; there are many optimizations to be had yet.)*
-- GPU-Compatible `mpf` routines, under `gpgmp::mpfRoutines::gp<normal_mpf_routine_name>` *(As of 07/04/2025 These have not been optimized for Warp Divergence. I have primarily focused on porting to CUDA C; there are many optimizations to be had yet.)*
-- Routines tailored to working with `mpf_array`'s and their optimized memory format for the GPU, located under `gpgmp::mpfArrayRoutines::gp<equivalent_mpf_routine_name>` *(As of 07/12/2025 These have not been optimized for Warp Divergence. I have primarily focused on porting to CUDA C; there are many optimizations to be had yet.)*
+- GPU-Compatible `mpn` routines, under `gpgmp::mpnRoutines::gp<normal_mpn_routine_name>`
+- GPU-Compatible `mpf` routines, under `gpgmp::mpfRoutines::gp<normal_mpf_routine_name>`
+- Routines tailored to working with `mpf_array`'s and their optimized memory format for the GPU, located under `gpgmp::mpfArrayRoutines::gp<equivalent_mpf_routine_name>`
 - `gpgmp::mpn_device_array` and `gpgmp::mpn_host_array` types which operate similarly to mpz_t[] array's, with the benefit of optimized Memory Coalescence and GPU compatibility.
 - `gpgmp::mpf_device_array` and `gpgmp::mpf_host_array` types which operate similarly to mpf_t[] array's, with the benefit of optimized Memory Coalescence and GPU compatibility.
 
 > **KNOWN ISSUES:**
+- None of the routines have been *particularly* optimized to avoid Warp Divergence yet. I have primarily focused on porting this massive library to CUDA C and resolving the myriad of implications that running GMP on the GPU introduces; there are many optimizations to be had yet and this library is certainly not as fast as it *could* be.
 - There is scaffolding currently setup for "availableOperations" on `mpf_array`'s, but no actual assertations nor checks are performed to make sure that the user actually declared their 'intent' to use a function - and thereby whether necessary scratch space was pre-allocated - during `mpf_array` routines.
-- `gpmpf_pow_ui` requires special logic to accomodate ahead-of-time scratch space allocation depending on the maximum exponent the user desires to raise something to the power of.
+- availableOperations needs metadata associated with it instead of being a simple bit-field so we can reduce overall scratch space needed for some operations -- for example, mpf_div requires approx. ~12x the limb-count of scratch space in most cases currently, but this number *can* go much lower if the user doesn't plan to divide a numerator by a single-limb number.
+- `mpfArrayRoutines::gpmpf_pow_ui` requires special logic to accomodate ahead-of-time scratch space allocation depending on the maximum exponent the user desires to raise something to the power of.
 - Using `mpf` routines can be clunky and unintuitive at the moment due to some routines requiring dedicated scratch space to be allocated by the user ahead of time. There is no doubt a way to abstract this allocation.
 - A few `mpn` routines don't currently play well with the GPU and can cause kernels to hang. Need to properly test mpn functions in the future to find all occurances of this and refactor.
 - Unit Tests have not been written yet.
 
 > **TODO:**
-- Refactor many `mpn` routines to use pre-allocated scratch space instead of trying to dynamically allocate on the GPU
+- Refactor __**many**__ `mpn` routines to use pre-allocated scratch space instead of trying to dynamically allocate on the GPU:
+  - broot.cu
+  - dcpi_bdiv_q.cu
+  - dcpi_bdiv_qr.cu
+  - dcpi1_bdiv_q.cu
+  - dcpi1_div_qr.cu
+  - divexact.cu
+  - divis.cu
+  - divrem.cu
+  - dump.cu
+  - fib2_ui.cu
+  - fib2m.cu
+  - gcd.cu
+  - gcdext.cu
+  - get_str.cu
+  - hgcd_reduce.cu
+  - invertappr.cu
+  - jacobi.cu
+  - mu_div_q.cu
+  - mul_fft.cu
+  - mul.cu
+  - mullo_n.cu
+  - mulmid_n.cu
+  - mulmid.cu
+  - mulmod_bnm1.cu
+  - nussbaumer_mul.cu
+  - perfpow.cu
+  - perfsqr.cu
+  - powlo.cu
+  - powm.cu
+  - redc_n.cu
+  - remove.cu
+  - rootrem.cu
+  - set_str.cu
+  - sqrlo.cu
+  - sqrmod_bnm1.cu
+  - sqrtem.cu
+  - strongfibo.cu
+  - tdiv_qr.cu
+  - toom6_sqr.cu
+  - toom6h_mul.cu
+  - toom8_sqr.cu
+  - toom8h_mul.cu
+  - toom42_mul.cu
+  - toom53_mul.cu
+  - toom62_mul.cu
+  - toom63_mul.cu
 - Optimize `gpgmp::mpnRoutines` routines for parallelized processing
 - Optimize `gpgmp::mpfRoutines` routines for parallelized processing
 - Optimize `gpgmp::mpfArrayRoutines` routines for parallelized processing
@@ -42,5 +90,9 @@ I will write a more complete README - and docs - if/when I flesh out this librar
 
 > FOR CONTRIBUTORS
 
+- If you decide you'd like to contribute to the project, I'd more than welcome some help! Some of the most important items to tackle as it stands right now are:
+  - Rewriting many of the `mpn` routines to take pre-allocated scratch space instead of attempting dynamic allocation mid-routines
+  - Writing Unit Tests to ensure all `mpn`, `mpf` and `mpfArray` routines can run inside of GPU Kernels successfully
+  - Abstracting away the necessity for users to pre-allocate scratch space when they want to use `mpn` routines -- *possibly implement our own idea of an `mpz_array` which pre-allocates space, similar to the `mpf_array`'s?*
 - Some background on me which may explain oddities in the way I code; believe it or not I am an amateur C++ programmer, even newer than that at CUDA, and self taught! I work in a professional capacity with higher level languages like Luau for game dev, so for me this project is certainly diving into the deep end of low-level programming. You may see the ramnifications of that in the library's code, it may be very non-standard or messy in comparision to modern C++ programming practices or paradigms.
 - If you're browsing the code and see me committing any 'mortal sins' - or have a suggestion about an optimization - by all means make a fuss with an issue/PR, I'm always trying to learn more and welcome contributions!

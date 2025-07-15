@@ -86,7 +86,7 @@ namespace gpgmp {
 			return qh;
 		}
 
-		ANYCALLER mp_limb_t gpmpn_dcpi1_div_qr (mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, gmp_pi1_t *dinv)
+		HOSTONLY mp_limb_t gpmpn_dcpi1_div_qr (mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, gmp_pi1_t *dinv)
 		{
 			mp_size_t qn;
 			mp_limb_t qh, cy;

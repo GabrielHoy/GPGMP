@@ -156,7 +156,7 @@ namespace gpgmp
       is allocated apart.
     */
 
-    ANYCALLER mp_limb_t gpmpn_ni_invertappr(mp_ptr ip, mp_srcptr dp, mp_size_t n, mp_ptr scratch)
+    HOSTONLY mp_limb_t gpmpn_ni_invertappr(mp_ptr ip, mp_srcptr dp, mp_size_t n, mp_ptr scratch)
     {
       mp_limb_t cy;
       mp_size_t rn, mn;

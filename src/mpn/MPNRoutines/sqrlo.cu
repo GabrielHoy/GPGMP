@@ -194,8 +194,7 @@ namespace gpgmp
        accepts a pointer tp, and handle the case tp == rp, do the same here.
     */
 
-    void
-    gpmpn_sqrlo(mp_ptr rp, mp_srcptr xp, mp_size_t n)
+    HOSTONLY void gpmpn_sqrlo(mp_ptr rp, mp_srcptr xp, mp_size_t n)
     {
       ASSERT(n >= 1);
       ASSERT(!MPN_OVERLAP_P(rp, n, xp, n));

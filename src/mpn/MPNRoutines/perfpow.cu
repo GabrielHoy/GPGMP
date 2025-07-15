@@ -52,11 +52,7 @@ namespace gpgmp
        most significant (normalized) limb of {xp,xn} ^ k (and an error bound), and
        compare to {np, nn}. Or use an even cruder approximation based on fix-point
        base 2 logarithm.  */
-    ANYCALLER static int
-    pow_equals(mp_srcptr np, mp_size_t n,
-               mp_srcptr xp, mp_size_t xn,
-               mp_limb_t k, mp_bitcnt_t f,
-               mp_ptr tp)
+    HOSTONLY static int pow_equals(mp_srcptr np, mp_size_t n, mp_srcptr xp, mp_size_t xn, mp_limb_t k, mp_bitcnt_t f, mp_ptr tp)
     {
       mp_bitcnt_t y, z;
       mp_size_t bn;

@@ -80,10 +80,7 @@ namespace gpgmp
        Uses scratch space tp[3n-1..0], i.e., 3n words.  */
     /* We only use n words in the scratch space, we should pass tp + n to
        mullo/sqrlo as a temporary area, it is needed. */
-    ANYCALLER void
-    gpmpn_powlo(mp_ptr rp, mp_srcptr bp,
-              mp_srcptr ep, mp_size_t en,
-              mp_size_t n, mp_ptr tp)
+    HOSTONLY void gpmpn_powlo(mp_ptr rp, mp_srcptr bp, mp_srcptr ep, mp_size_t en, mp_size_t n, mp_ptr tp)
     {
       unsigned cnt;
       mp_bitcnt_t ebi;

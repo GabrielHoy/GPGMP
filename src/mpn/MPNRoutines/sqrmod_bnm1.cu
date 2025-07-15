@@ -64,7 +64,7 @@ namespace gpgmp
        normalised representation, computation is mod B^rn + 1. Needs
        a scratch area of 2rn limbs at tp; tp == rp is allowed.
        Output is normalised. */
-    ANYCALLER static void gpmpn_bc_sqrmod_bnp1(mp_ptr rp, mp_srcptr ap, mp_size_t rn, mp_ptr tp)
+    HOSTONLY static void gpmpn_bc_sqrmod_bnp1(mp_ptr rp, mp_srcptr ap, mp_size_t rn, mp_ptr tp)
     {
       mp_limb_t cy;
       unsigned k;

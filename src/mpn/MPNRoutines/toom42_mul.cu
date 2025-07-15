@@ -68,11 +68,7 @@ namespace gpgmp
     gpmpn_mul_n(p, a, b, n);               \
   } while (0)
 
-    ANYCALLER void
-    gpmpn_toom42_mul(mp_ptr pp,
-                   mp_srcptr ap, mp_size_t an,
-                   mp_srcptr bp, mp_size_t bn,
-                   mp_ptr scratch)
+    HOSTONLY void gpmpn_toom42_mul(mp_ptr pp, mp_srcptr ap, mp_size_t an, mp_srcptr bp, mp_size_t bn, mp_ptr scratch)
     {
       mp_size_t n, s, t;
       int vm1_neg;

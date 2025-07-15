@@ -167,7 +167,7 @@ namespace gpgmp
       return mn;
     }
 
-    ANYCALLER int gpmpn_strongfibo(mp_srcptr mp, mp_size_t mn, mp_ptr scratch)
+    HOSTONLY int gpmpn_strongfibo(mp_srcptr mp, mp_size_t mn, mp_ptr scratch)
     {
       mp_ptr lp, sp;
       mp_size_t en;

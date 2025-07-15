@@ -67,10 +67,7 @@ namespace gpgmp
        indicates a flaw in the current itch mechanism: Which operands not greater
        than un,un will incur the worst itch?  We need a parallel foo_maxitch set
        of functions.  */
-    ANYCALLER static void
-    gpmpn_bdiv_qr_wrap(mp_ptr qp, mp_ptr rp,
-                     mp_srcptr np, mp_size_t nn,
-                     mp_srcptr dp, mp_size_t dn)
+    HOSTONLY static void gpmpn_bdiv_qr_wrap(mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
     {
       mp_ptr scratch_out;
       TMP_DECL;
@@ -82,10 +79,7 @@ namespace gpgmp
       TMP_FREE;
     }
 
-    mp_bitcnt_t
-    gpmpn_remove(mp_ptr wp, mp_size_t *wn,
-               mp_srcptr up, mp_size_t un, mp_srcptr vp, mp_size_t vn,
-               mp_bitcnt_t cap)
+    HOSTONLY mp_bitcnt_t gpmpn_remove(mp_ptr wp, mp_size_t *wn, mp_srcptr up, mp_size_t un, mp_srcptr vp, mp_size_t vn, mp_bitcnt_t cap)
     {
       mp_srcptr pwpsp[LOG];
       mp_size_t pwpsn[LOG];

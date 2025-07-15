@@ -40,8 +40,7 @@ namespace gpgmp {
 
     #if GMP_NUMB_BITS % 4 == 0
 
-      void
-      gpmpn_dump (mp_srcptr ptr, mp_size_t n)
+      ANYCALLER void gpmpn_dump (mp_srcptr ptr, mp_size_t n)
       {
         MPN_NORMALIZE (ptr, n);
 
@@ -90,7 +89,7 @@ namespace gpgmp {
           }
       }
 
-      void
+      HOSTONLY void
       gpmpn_dump (mp_srcptr p, mp_size_t n)
       {
         mp_ptr tp;

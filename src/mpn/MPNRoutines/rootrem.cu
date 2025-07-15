@@ -54,27 +54,27 @@ namespace gpgmp
 
     ANYCALLER static mp_size_t gpmpn_rootrem_internal(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, int);
 
-#define MPN_RSHIFT(rp, up, un, cnt) \
-  do                                \
-  {                                 \
-    if ((cnt) != 0)                 \
-      gpmpn_rshift(rp, up, un, cnt);  \
-    else                            \
-    {                               \
-      MPN_COPY_INCR(rp, up, un);    \
-    }                               \
+#define MPN_RSHIFT(rp, up, un, cnt)  \
+  do                                 \
+  {                                  \
+    if ((cnt) != 0)                  \
+      gpmpn_rshift(rp, up, un, cnt); \
+    else                             \
+    {                                \
+      MPN_COPY_INCR(rp, up, un);     \
+    }                                \
   } while (0)
 
-#define MPN_LSHIFT(cy, rp, up, un, cnt) \
-  do                                    \
-  {                                     \
-    if ((cnt) != 0)                     \
+#define MPN_LSHIFT(cy, rp, up, un, cnt)   \
+  do                                      \
+  {                                       \
+    if ((cnt) != 0)                       \
       cy = gpmpn_lshift(rp, up, un, cnt); \
-    else                                \
-    {                                   \
-      MPN_COPY_DECR(rp, up, un);        \
-      cy = 0;                           \
-    }                                   \
+    else                                  \
+    {                                     \
+      MPN_COPY_DECR(rp, up, un);          \
+      cy = 0;                             \
+    }                                     \
   } while (0)
 
     /* Put in {rootp, ceil(un/k)} the kth root of {up, un}, rounded toward zero.
@@ -90,7 +90,7 @@ namespace gpgmp
        The auxiliary memory usage is 3*un+2 if remp = NULL,
        and 2*un+2 if remp <> NULL.  FIXME: This is an incorrect comment.
     */
-    ANYCALLER mp_size_t gpmpn_rootrem(mp_ptr rootp, mp_ptr remp, mp_srcptr up, mp_size_t un, mp_limb_t k)
+    HOSTONLY mp_size_t gpmpn_rootrem(mp_ptr rootp, mp_ptr remp, mp_srcptr up, mp_size_t un, mp_limb_t k)
     {
       ASSERT(un > 0);
       ASSERT(up[un - 1] != 0);
@@ -204,9 +204,7 @@ namespace gpgmp
     }
 
     /* if approx is non-zero, does not compute the final remainder */
-    ANYCALLER static mp_size_t
-    gpmpn_rootrem_internal(mp_ptr rootp, mp_ptr remp, mp_srcptr up, mp_size_t un,
-                         mp_limb_t k, int approx)
+    HOSTONLY static mp_size_t gpmpn_rootrem_internal(mp_ptr rootp, mp_ptr remp, mp_srcptr up, mp_size_t un, mp_limb_t k, int approx)
     {
       mp_ptr qp, rp, sp, wp, scratch;
       mp_size_t qn, rn, sn, wn, nl, bn;

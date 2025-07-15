@@ -60,7 +60,7 @@ namespace gpgmp
 		low limb.
 		*/
 
-		ANYCALLER mp_size_t gpmpn_fib2_ui(mp_ptr fp, mp_ptr f1p, unsigned long int n)
+		HOSTONLY mp_size_t gpmpn_fib2_ui(mp_ptr fp, mp_ptr f1p, unsigned long int n)
 		{
 			mp_size_t size;
 			unsigned long nfirst, mask;

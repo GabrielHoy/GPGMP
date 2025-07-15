@@ -120,10 +120,7 @@ namespace gpgmp
 			THRESHOLD variables there.
 		*/
 
-		ANYCALLER mp_limb_t
-		gpmpn_mul(mp_ptr prodp,
-				mp_srcptr up, mp_size_t un,
-				mp_srcptr vp, mp_size_t vn)
+		ANYCALLER mp_limb_t gpmpn_mul(mp_ptr prodp, mp_srcptr up, mp_size_t un, mp_srcptr vp, mp_size_t vn)
 		{
 			ASSERT(un >= vn);
 			ASSERT(vn >= 1);

@@ -77,7 +77,7 @@ namespace gpgmp {
       ctx->gn = gn;
     }
 
-    ANYCALLER mp_size_t gpmpn_gcd (mp_ptr gp, mp_ptr up, mp_size_t usize, mp_ptr vp, mp_size_t n)
+    HOSTONLY mp_size_t gpmpn_gcd (mp_ptr gp, mp_ptr up, mp_size_t usize, mp_ptr vp, mp_size_t n)
     {
       mp_size_t talloc;
       mp_size_t scratch;

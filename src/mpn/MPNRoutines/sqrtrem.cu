@@ -330,7 +330,7 @@ namespace gpgmp
     }
 
 #if USE_DIVAPPR_Q
-    ANYCALLER static void gpmpn_divappr_q(mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr scratch)
+    HOSTONLY static void gpmpn_divappr_q(mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr scratch)
     {
       gmp_pi1_t inv;
       mp_limb_t qh;
@@ -364,7 +364,7 @@ namespace gpgmp
        THINK: In the odd case, three more (dummy) limbs are taken into account,
        when nsh is maximal, two limbs are discarded from the result of the
        division. Too much? Is a single dummy limb enough? */
-    ANYCALLER static int gpmpn_dc_sqrt(mp_ptr sp, mp_srcptr np, mp_size_t n, unsigned nsh, unsigned odd)
+    HOSTONLY static int gpmpn_dc_sqrt(mp_ptr sp, mp_srcptr np, mp_size_t n, unsigned nsh, unsigned odd)
     {
       mp_limb_t q; /* carry out of {sp, n} */
       int c;       /* carry out of remainder */

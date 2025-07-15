@@ -42,7 +42,7 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-    ANYCALLER void gpmpn_mulmid_n(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t n)
+    HOSTONLY void gpmpn_mulmid_n(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t n)
     {
       ASSERT(n >= 1);
       ASSERT(!MPN_OVERLAP_P(rp, n + 2, ap, 2 * n - 1));

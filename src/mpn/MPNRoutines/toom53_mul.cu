@@ -63,11 +63,7 @@ namespace gpgmp
       vinf=                     a4 *          b2  #  A(inf)*B(inf)
     */
 
-    ANYCALLER void
-    gpmpn_toom53_mul(mp_ptr pp,
-                   mp_srcptr ap, mp_size_t an,
-                   mp_srcptr bp, mp_size_t bn,
-                   mp_ptr scratch)
+    HOSTONLY void gpmpn_toom53_mul(mp_ptr pp, mp_srcptr ap, mp_size_t an, mp_srcptr bp, mp_size_t bn, mp_ptr scratch)
     {
       mp_size_t n, s, t;
       mp_limb_t cy;

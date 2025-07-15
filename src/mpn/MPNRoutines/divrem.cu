@@ -37,7 +37,7 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-    ANYCALLER mp_limb_t gpmpn_divrem(mp_ptr qp, mp_size_t qxn, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
+    HOSTONLY mp_limb_t gpmpn_divrem(mp_ptr qp, mp_size_t qxn, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
     {
       ASSERT(qxn >= 0);
       ASSERT(nn >= dn);

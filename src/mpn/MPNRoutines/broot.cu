@@ -75,7 +75,7 @@ namespace gpgmp {
       where we still have cancellation of low limbs.
 
     */
-    ANYCALLER void gpmpn_broot_invm1 (mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t k)
+    HOSTONLY void gpmpn_broot_invm1 (mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t k)
     {
       mp_size_t sizes[GMP_LIMB_BITS * 2];
       mp_ptr akm1, tp, rnp, ep;
@@ -171,7 +171,7 @@ namespace gpgmp {
     }
 
     /* Computes a^{1/k} (mod B^n). Both a and k must be odd. */
-    ANYCALLER void gpmpn_broot (mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t k)
+    HOSTONLY void gpmpn_broot (mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t k)
     {
       mp_ptr tp;
       TMP_DECL;

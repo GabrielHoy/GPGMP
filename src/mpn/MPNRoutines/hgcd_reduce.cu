@@ -41,7 +41,7 @@ namespace gpgmp {
 
         /* Computes R -= A * B. Result must be non-negative. Normalized down
       to size an, and resulting size is returned. */
-    ANYCALLER static mp_size_t submul (mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr bp, mp_size_t bn)
+      HOSTONLY static mp_size_t submul (mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr bp, mp_size_t bn)
     {
       mp_ptr tp;
       TMP_DECL;
@@ -71,7 +71,7 @@ namespace gpgmp {
 
         x Use some fallback for small M->n?
     */
-    ANYCALLER mp_size_t hgcd_matrix_apply (const struct hgcd_matrix *M, mp_ptr ap, mp_ptr bp, mp_size_t n)
+   HOSTONLY mp_size_t hgcd_matrix_apply (const struct hgcd_matrix *M, mp_ptr ap, mp_ptr bp, mp_size_t n)
     {
       mp_size_t an, bn, un, vn, nn;
       mp_size_t mn[2][2];

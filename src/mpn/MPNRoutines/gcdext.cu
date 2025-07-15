@@ -191,7 +191,7 @@ namespace gpgmp {
     #define CHOOSE_P_1(n) ((n) / 2)
     #define CHOOSE_P_2(n) ((n) / 3)
 
-    ANYCALLER mp_size_t gpmpn_gcdext (mp_ptr gp, mp_ptr up, mp_size_t *usizep, mp_ptr ap, mp_size_t an, mp_ptr bp, mp_size_t n)
+    HOSTONLY mp_size_t gpmpn_gcdext (mp_ptr gp, mp_ptr up, mp_size_t *usizep, mp_ptr ap, mp_size_t an, mp_ptr bp, mp_size_t n)
     {
       mp_size_t talloc;
       mp_size_t scratch;

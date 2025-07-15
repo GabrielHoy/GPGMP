@@ -204,8 +204,7 @@ namespace gpgmp
         gpmpn_mul_n?
     */
 
-    ANYCALLER void
-    gpmpn_mullo_n(mp_ptr rp, mp_srcptr xp, mp_srcptr yp, mp_size_t n)
+    HOSTONLY void gpmpn_mullo_n(mp_ptr rp, mp_srcptr xp, mp_srcptr yp, mp_size_t n)
     {
       ASSERT(n >= 1);
       ASSERT(!MPN_OVERLAP_P(rp, n, xp, n));

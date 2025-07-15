@@ -238,8 +238,7 @@ namespace gpgmp
     }                                                   \
   } while (0)
 
-    ANYCALLER int
-    gpmpn_perfect_square_p(mp_srcptr up, mp_size_t usize)
+    HOSTONLY int gpmpn_perfect_square_p(mp_srcptr up, mp_size_t usize)
     {
       ASSERT(usize >= 1);
 

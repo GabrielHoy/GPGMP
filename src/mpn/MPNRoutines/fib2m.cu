@@ -91,7 +91,7 @@ namespace gpgmp
       Should the call to gpmpn_fib2_ui() obtain (up to) 2*mn limbs?
     */
 
-    ANYCALLER int gpmpn_fib2m(mp_ptr fp, mp_ptr f1p, mp_srcptr np, mp_size_t nn, mp_srcptr mp, mp_size_t mn)
+    HOSTONLY int gpmpn_fib2m(mp_ptr fp, mp_ptr f1p, mp_srcptr np, mp_size_t nn, mp_srcptr mp, mp_size_t mn)
     {
       unsigned long nfirst;
       mp_limb_t nh;

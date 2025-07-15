@@ -367,7 +367,7 @@ namespace gpgmp
 
 #define CHOOSE_P(n) (2 * (n) / 3)
 
-    ANYCALLER int gpmpn_jacobi_n(mp_ptr ap, mp_ptr bp, mp_size_t n, unsigned bits)
+    HOSTONLY int gpmpn_jacobi_n(mp_ptr ap, mp_ptr bp, mp_size_t n, unsigned bits)
     {
       mp_size_t scratch;
       mp_size_t matrix_scratch;

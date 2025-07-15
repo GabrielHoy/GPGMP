@@ -44,10 +44,7 @@ namespace gpgmp
   {
 
     /* Multiply {ap,an} by {bp,bn}, and put the result in {pp, an+bn} */
-    ANYCALLER void
-    gpmpn_nussbaumer_mul(mp_ptr pp,
-                       mp_srcptr ap, mp_size_t an,
-                       mp_srcptr bp, mp_size_t bn)
+    HOSTONLY void gpmpn_nussbaumer_mul(mp_ptr pp, mp_srcptr ap, mp_size_t an, mp_srcptr bp, mp_size_t bn)
     {
       mp_size_t rn;
       mp_ptr tp;

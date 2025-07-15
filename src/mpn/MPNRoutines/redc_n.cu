@@ -50,8 +50,7 @@ namespace gpgmp {
   * Consider removing the residue canonicalisation.
 */
 
-ANYCALLER void
-gpmpn_redc_n (mp_ptr rp, mp_ptr up, mp_srcptr mp, mp_size_t n, mp_srcptr ip)
+HOSTONLY void gpmpn_redc_n (mp_ptr rp, mp_ptr up, mp_srcptr mp, mp_size_t n, mp_srcptr ip)
 {
   mp_ptr xp, yp, scratch;
   mp_limb_t cy;

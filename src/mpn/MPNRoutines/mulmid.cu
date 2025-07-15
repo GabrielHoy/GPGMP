@@ -44,10 +44,7 @@ namespace gpgmp
 
 #define CHUNK (200 + MULMID_TOOM42_THRESHOLD)
 
-    ANYCALLER void
-    gpmpn_mulmid(mp_ptr rp,
-               mp_srcptr ap, mp_size_t an,
-               mp_srcptr bp, mp_size_t bn)
+    HOSTONLY void gpmpn_mulmid(mp_ptr rp, mp_srcptr ap, mp_size_t an, mp_srcptr bp, mp_size_t bn)
     {
       mp_size_t rn, k;
       mp_ptr scratch, temp;

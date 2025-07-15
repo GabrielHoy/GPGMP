@@ -47,9 +47,7 @@ namespace gpgmp
 		   mod B^rn - 1, and values are semi-normalised; zero is represented
 		   as either 0 or B^n - 1.  Needs a scratch of 2rn limbs at tp.
 		   tp==rp is allowed. */
-		ANYCALLER void
-		gpmpn_bc_mulmod_bnm1(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t rn,
-						   mp_ptr tp)
+		HOSTONLY void gpmpn_bc_mulmod_bnm1(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t rn, mp_ptr tp)
 		{
 			mp_limb_t cy;
 
@@ -66,9 +64,7 @@ namespace gpgmp
 		   normalised representation, computation is mod B^rn + 1. Needs
 		   a scratch area of 2rn limbs at tp; tp == rp is allowed.
 		   Output is normalised. */
-		ANYCALLER static void
-		gpmpn_bc_mulmod_bnp1(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t rn,
-						   mp_ptr tp)
+		HOSTONLY static void gpmpn_bc_mulmod_bnp1(mp_ptr rp, mp_srcptr ap, mp_srcptr bp, mp_size_t rn, mp_ptr tp)
 		{
 			mp_limb_t cy;
 			unsigned k;

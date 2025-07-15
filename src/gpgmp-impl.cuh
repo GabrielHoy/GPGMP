@@ -1981,8 +1981,8 @@ typedef size_t gmp_intptr_t;
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t mpz_inp_str_nowhite(mpz_ptr, FILE *, int, int, size_t);
 #endif
 
-#define gpmpn_divisible_p __GPGMP_MPN(divisible_p)
-            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_divisible_p(mp_srcptr, mp_size_t, mp_srcptr, mp_size_t) __GMP_ATTRIBUTE_PURE;
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_divisible_p(mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t*) __GMP_ATTRIBUTE_PURE;
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_divisible_p_itch(mp_size_t, mp_size_t);
 
 #define gpmpn_rootrem __GPGMP_MPN(rootrem)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_rootrem(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);

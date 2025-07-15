@@ -60,15 +60,29 @@ namespace gpgmp
       suppress the bit-shifting of A down, as long as it's already been checked
       that A has at least as many trailing zero bits as D.  */
 
-    ANYCALLER int gpmpn_divisible_p(mp_srcptr ap, mp_size_t an,
-                                  mp_srcptr dp, mp_size_t dn)
+    ANYCALLER mp_size_t gpmpn_divisible_p_itch(mp_size_t numeratorNumLimbs, mp_size_t denominatorNumLimbs)
+    {
+      mp_size_t totalScratchNeeded = 0;
+
+      totalScratchNeeded += (numeratorNumLimbs + 1);
+      totalScratchNeeded += (numeratorNumLimbs - denominatorNumLimbs + 1);
+
+      totalScratchNeeded += (denominatorNumLimbs);
+
+      if (!(BELOW_THRESHOLD(denominatorNumLimbs, DC_BDIV_QR_THRESHOLD) || BELOW_THRESHOLD(numeratorNumLimbs - denominatorNumLimbs, DC_BDIV_QR_THRESHOLD) || BELOW_THRESHOLD(denominatorNumLimbs, MU_BDIV_QR_THRESHOLD))) {
+        totalScratchNeeded += gpmpn_mu_bdiv_qr_itch(numeratorNumLimbs, denominatorNumLimbs);
+      }
+
+      return totalScratchNeeded;
+    }
+
+    ANYCALLER int gpmpn_divisible_p(mp_srcptr ap, mp_size_t an, mp_srcptr dp, mp_size_t dn, mp_limb_t* scratchSpace)
     {
       mp_limb_t alow, dlow, dmask;
       mp_ptr qp, rp, tp;
       mp_limb_t di;
       unsigned twos;
       int c;
-      TMP_DECL;
 
       ASSERT(an >= 0);
       ASSERT(an == 0 || ap[an - 1] != 0);
@@ -138,14 +152,16 @@ namespace gpgmp
         P = 3 * 5 * 7 * 11 ..., and then check if any prime factor from P
         dividing D' also divides A'.  */
 
-      TMP_MARK;
 
-      TMP_ALLOC_LIMBS_2(rp, an + 1,
-                        qp, an - dn + 1); /* FIXME: Could we avoid this? */
+      rp = scratchSpace;
+      scratchSpace += (an + 1);
+      qp = scratchSpace;
+      scratchSpace += (an - dn + 1);
 
       if (twos != 0)
       {
-        tp = TMP_ALLOC_LIMBS(dn);
+        tp = scratchSpace;//TMP_ALLOC_LIMBS(dn);
+        scratchSpace += (dn);
         ASSERT_NOCARRY(gpmpn_rshift(tp, dp, dn, twos));
         dp = tp;
 
@@ -162,7 +178,6 @@ namespace gpgmp
       }
       else if (an == dn)
       {
-        TMP_FREE;
         return 0;
       }
 
@@ -183,7 +198,8 @@ namespace gpgmp
       }
       else
       {
-        tp = TMP_ALLOC_LIMBS(gpmpn_mu_bdiv_qr_itch(an, dn));
+        tp = scratchSpace;
+        //no need to further increment scratchSpace since we're not using it again after this
         gpmpn_mu_bdiv_qr(qp, rp, rp, an, dp, dn, tp);
       }
 
@@ -194,7 +210,6 @@ namespace gpgmp
 
       MPN_CMP(c, rp, dp, dn);
 
-      TMP_FREE;
       return c == 0;
     }
 

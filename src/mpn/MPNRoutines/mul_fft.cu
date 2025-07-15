@@ -47,7 +47,7 @@ see https://www.gnu.org/licenses/.  */
    Tapes versus Pointers, a study in implementing fast algorithms, by Arnold
    Schoenhage, Bulletin of the EATCS, 30, p. 23-32, 1986.
 
-   TODO:
+   TODO_IN_ORIG_GMP:
 
    Implement some of the tricks published at ISSAC'2007 by Gaudry, Kruppa, and
    Zimmermann.

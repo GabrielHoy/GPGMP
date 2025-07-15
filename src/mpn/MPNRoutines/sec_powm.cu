@@ -45,7 +45,7 @@ see https://www.gnu.org/licenses/.  */
   execution traces", https://gmplib.org/~tege/modexp-silent.pdf, has details.
 
 
-  TODO:
+  TODO_IN_ORIG_GMP:
 
    * Make getbits a macro, thereby allowing it to update the index operand.
      That will simplify the code using getbits.  (Perhaps make getbits' sibling

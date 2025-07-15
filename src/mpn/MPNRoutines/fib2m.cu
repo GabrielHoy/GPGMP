@@ -87,7 +87,7 @@ namespace gpgmp
       In F[2k+1] with k odd, -2 is applied to F[k-1]^2 just by ORing into the
       low limb.
 
-      TODO: Should {tp, 2 * mn} be passed as a scratch pointer?
+      TODO_IN_ORIG_GMP: Should {tp, 2 * mn} be passed as a scratch pointer?
       Should the call to gpmpn_fib2_ui() obtain (up to) 2*mn limbs?
     */
 

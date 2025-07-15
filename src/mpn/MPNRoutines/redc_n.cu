@@ -39,7 +39,7 @@ namespace gpgmp {
   namespace mpnRoutines {
 
 /*
-  TODO
+  TODO_IN_ORIG_GMP
 
   * We assume gpmpn_mulmod_bnm1 is always faster than plain gpmpn_mul_n (or a
     future gpmpn_mulhi) for the range we will be called.  Follow up that

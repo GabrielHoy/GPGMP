@@ -146,12 +146,7 @@ namespace gpgmp
       return nn + 2 * dn + 2;
     }
 
-    void
-    gpmpn_sec_div_r(
-              mp_ptr np,
-          mp_size_t nn,
-          mp_srcptr dp, mp_size_t dn,
-          mp_ptr tp)
+    void gpmpn_sec_div_r( mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr tp)
     {
       mp_limb_t d1, d0;
       unsigned int cnt;

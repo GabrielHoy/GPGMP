@@ -37,7 +37,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
-/* TODO:
+/* TODO_IN_ORIG_GMP:
 
       Perhaps do not compute the highest power?
       Instead, multiply twice by the 2nd highest power:

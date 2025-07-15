@@ -48,7 +48,7 @@ see https://www.gnu.org/licenses/.  */
        W <- power left-to-right base-k
 
 
-  TODO:
+  TODO_IN_ORIG_GMP:
 
    * Make getbits a macro, thereby allowing it to update the index operand.
      That will simplify the code using getbits.  (Perhaps make getbits' sibling
@@ -274,7 +274,7 @@ gpmpn_2powm (mp_ptr rp, mp_srcptr ep, mp_size_t en,
       m0 = *mp;
 
       /* redcify (rp, tp, tn + 1, mp, n); */
-      /* TODO: test direct use of udiv_qrnnd */
+      /* TODO_IN_ORIG_GMP: test direct use of udiv_qrnnd */
       ASSERT (tbi < GMP_LIMB_BITS);
       tp[1] = CNST_LIMB (1) << tbi;
       tp[0] = CNST_LIMB (0);

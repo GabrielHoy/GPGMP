@@ -23,6 +23,7 @@ I will write a more complete README - and docs - if/when I flesh out this librar
 - Unit Tests have not been written yet.
 
 > **TODO:**
+- Actually set this up with build steps etc to be a library instead of compiling to an executable for ease of testing
 - Refactor __**many**__ `mpn` routines to use pre-allocated scratch space instead of trying to dynamically allocate on the GPU:
   - broot.cu
   - dcpi_bdiv_q.cu

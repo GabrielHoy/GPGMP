@@ -2,7 +2,7 @@
 
 ## This is a library built ontop of the GNU MP library, intended to enable mass-parallelized GPU computation of arbitrary precision numbers.
 
-**IN PROGRESS:** ANYTHING AND EVERYTHING IS SUBJECT TO CHANGE AND CODE MAY NOT BE THUROUGHLY TESTED
+**IN PROGRESS:** ANYTHING AND EVERYTHING IS SUBJECT TO CHANGE AND CODE MAY NOT BE THUROUGHLY TESTED. Many functions will not currently work; I have currently only confirmed the basic division, multiplication, subtraction and addition functions to be operational as one would expect.
 
 I will write a more complete README - and docs - if/when I flesh out this library to a point where I feel comfortable publishing it as "production usable" code...
 

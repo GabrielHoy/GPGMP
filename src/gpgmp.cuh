@@ -32,9 +32,9 @@ namespace gpgmp { //Shared functions callable between both host and device are p
   namespace device {} //Device-only functions
   namespace internal {} //Internal functions primarily meant for use within the GPGMP library itself, and not particularly for use/useful by end users.
 
+  //Syntax is NOT equivalent to the GMP library! Functions have equivalent names, however a lot of them now take an additional mp_ptr "scratchSpace" and are paired with an itch function to measure said scratch space.
   //Functions shared between both host and device for performing operations on GMP's integer numbers - the mpn_t struct.
   //This is (an attempt) at a port of all of the GMP "mpn_X" routines to be runnable on the GPU.
-  //Syntax should be equivalent to the GMP library.
   namespace mpnRoutines {}
 
   //Functions shared between both host and device for performing operations on GMP's floating-point numbers - the mpf_t struct.

@@ -173,7 +173,12 @@ namespace gpgmp {
       }
         }
 
-      gpmpn_tdiv_qr (tp, bp, 0, bp, bn, ap, an);
+      TMP_DECL;
+      TMP_MARK;
+      mp_limb_t* scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(bn, an));
+      gpmpn_tdiv_qr (tp, bp, 0, bp, bn, ap, an, scratchForTDivQR);
+      TMP_FREE;
+
       qn = bn - an + 1;
       bn = an;
       MPN_NORMALIZE (bp, bn);

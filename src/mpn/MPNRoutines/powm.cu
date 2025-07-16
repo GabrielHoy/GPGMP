@@ -34,52 +34,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
-/*
-  BASIC ALGORITHM, Compute U^E mod M, where M < B^n is odd.
-
-  1. W <- U
-
-  2. T <- (B^n * U) mod M                Convert to REDC form
-
-  3. Compute table U^1, U^3, U^5... of E-dependent size
-
-  4. While there are more bits in E
-       W <- power left-to-right base-k
-
-
-  TODO_IN_ORIG_GMP:
-
-   * Make getbits a macro, thereby allowing it to update the index operand.
-     That will simplify the code using getbits.  (Perhaps make getbits' sibling
-     getbit then have similar form, for symmetry.)
-
-   * Write an itch function.  Or perhaps get rid of tp parameter since the huge
-     pp area is allocated locally anyway?
-
-   * Choose window size without looping.  (Superoptimize or think(tm).)
-
-   * Handle small bases with initial, reduction-free exponentiation.
-
-   * Call new division functions, not gpmpn_tdiv_qr.
-
-   * Consider special code for one-limb M.
-
-   * How should we handle the redc1/redc2/redc_n choice?
-     - redc1:  T(binvert_1limb)  + e * (n)   * (T(mullo-1x1) + n*T(addmul_1))
-     - redc2:  T(binvert_2limbs) + e * (n/2) * (T(mullo-2x2) + n*T(addmul_2))
-     - redc_n: T(binvert_nlimbs) + e * (T(mullo-nxn) + T(M(n)))
-     This disregards the addmul_N constant term, but we could think of
-     that as part of the respective mullo.
-
-   * When U (the base) is small, we should start the exponentiation with plain
-     operations, then convert that partial result to REDC form.
-
-   * When U is just one limb, should it be handled without the k-ary tricks?
-     We could keep a factor of B^n in W, but use U' = BU as base.  After
-     multiplying by this (pseudo two-limb) number, we need to multiply by 1/B
-     mod M.
-*/
-
 #include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
@@ -188,7 +142,8 @@ namespace gpgmp
 
       MPN_ZERO(tp, n);
       MPN_COPY(tp + n, up, un);
-      gpmpn_tdiv_qr(qp, rp, 0L, tp, un + n, mp, n);
+      mp_limb_t* scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(un + n, n));
+      gpmpn_tdiv_qr(qp, rp, 0L, tp, un + n, mp, n, scratchForTDivQR);
       TMP_FREE;
     }
 

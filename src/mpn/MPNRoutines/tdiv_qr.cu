@@ -47,9 +47,45 @@ namespace gpgmp
 	namespace mpnRoutines
 	{
 
-		HOSTONLY void gpmpn_tdiv_qr(mp_ptr qp, mp_ptr rp, mp_size_t qxn, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
+		ANYCALLER mp_size_t gpmpn_tdiv_qr_itch(mp_size_t numeratorNumLimbs, mp_size_t denominatorNumLimbs)
 		{
-			//NOTE: sec_div_qr may be a better fit for GPU use rather than attempting to refactor this to take in scratch space or do something 'fancier' like preallocating division memory pools etc etc...
+			switch (denominatorNumLimbs)
+			{
+				case 1:
+				{
+					return 0;
+				}
+				case 2:
+				{
+					return numeratorNumLimbs + 1;
+				}
+				default:
+				{
+					mp_size_t totalScratchNeeded = 0;
+					totalScratchNeeded += (denominatorNumLimbs + numeratorNumLimbs + 1);
+					totalScratchNeeded += gpmpn_mu_div_qr_itch(numeratorNumLimbs, denominatorNumLimbs, 0);
+
+					mp_size_t qn = numeratorNumLimbs - denominatorNumLimbs + 1;
+					totalScratchNeeded += qn;
+					totalScratchNeeded += (2 * qn + 1);
+
+					totalScratchNeeded += gpmpn_mu_div_qr_itch(2 * qn, qn, 0);
+
+					totalScratchNeeded += denominatorNumLimbs;
+
+					return totalScratchNeeded;
+				}
+			}
+		}
+
+		//TODO: This 12.3X is based on maximum permutation analytics of the above algorithm, it is *much* larger than necessary in most cases.
+		ANYCALLER mp_size_t gpmpn_tdiv_qr_itch(mp_size_t maxNumberLimbsInEitherNumOrDenom)
+		{
+			return static_cast<mp_size_t>(ceil(static_cast<double>(maxNumberLimbsInEitherNumOrDenom) * 12.333333));
+		}
+
+		HOSTONLY void gpmpn_tdiv_qr(mp_ptr qp, mp_ptr rp, mp_size_t qxn, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_limb_t* scratchSpace)
+		{
 			ASSERT_ALWAYS(qxn == 0);
 
 			ASSERT(nn >= 0);
@@ -69,12 +105,10 @@ namespace gpgmp
 				return;
 			}
 
-			case 2: //TODO: dynamic allocation bad
+			case 2:
 			{
 				mp_ptr n2p;
 				mp_limb_t qhl, cy;
-				TMP_DECL;
-				TMP_MARK;
 				if ((dp[1] & GMP_NUMB_HIGHBIT) == 0)
 				{
 					int cnt;
@@ -83,7 +117,7 @@ namespace gpgmp
 					cnt -= GMP_NAIL_BITS;
 					d2p[1] = (dp[1] << cnt) | (dp[0] >> (GMP_NUMB_BITS - cnt));
 					d2p[0] = (dp[0] << cnt) & GMP_NUMB_MASK;
-					n2p = TMP_ALLOC_LIMBS(nn + 1);
+					n2p = scratchSpace;
 					cy = gpmpn_lshift(n2p, np, nn, cnt);
 					n2p[nn] = cy;
 					qhl = gpmpn_divrem_2(qp, 0L, n2p, nn + (cy != 0), d2p);
@@ -94,14 +128,13 @@ namespace gpgmp
 				}
 				else
 				{
-					n2p = TMP_ALLOC_LIMBS(nn);
+					n2p = scratchSpace;
 					MPN_COPY(n2p, np, nn);
 					qhl = gpmpn_divrem_2(qp, 0L, n2p, nn, dp);
 					qp[nn - 2] = qhl; /* always store nn-2+1 quotient limbs */
 					rp[0] = n2p[0];
 					rp[1] = n2p[1];
 				}
-				TMP_FREE;
 				return;
 			}
 
@@ -109,8 +142,6 @@ namespace gpgmp
 			{
 				int adjust;
 				gmp_pi1_t dinv;
-				TMP_DECL;
-				TMP_MARK;
 				adjust = np[nn - 1] >= dp[dn - 1]; /* conservative tests for quotient size */
 				if (nn + adjust >= 2 * dn)
 				{
@@ -123,9 +154,11 @@ namespace gpgmp
 					{
 						count_leading_zeros(cnt, dp[dn - 1]);
 						cnt -= GMP_NAIL_BITS;
-						d2p = TMP_ALLOC_LIMBS(dn);
+						d2p = scratchSpace;
+						scratchSpace += dn;
 						gpmpn_lshift(d2p, dp, dn, cnt);
-						n2p = TMP_ALLOC_LIMBS(nn + 1);
+						n2p = scratchSpace;
+						scratchSpace += (nn + 1);
 						cy = gpmpn_lshift(n2p, np, nn, cnt);
 						n2p[nn] = cy;
 						nn += adjust;
@@ -134,7 +167,8 @@ namespace gpgmp
 					{
 						cnt = 0;
 						d2p = (mp_ptr)dp;
-						n2p = TMP_ALLOC_LIMBS(nn + 1);
+						n2p = scratchSpace;
+						scratchSpace += (nn + 1);
 						MPN_COPY(n2p, np, nn);
 						n2p[nn] = 0;
 						nn += adjust;
@@ -152,7 +186,8 @@ namespace gpgmp
 					else
 					{
 						mp_size_t itch = gpmpn_mu_div_qr_itch(nn, dn, 0);
-						mp_ptr scratch = TMP_ALLOC_LIMBS(itch);
+						mp_ptr scratch = scratchSpace;
+						scratchSpace += itch;
 						gpmpn_mu_div_qr(qp, rp, n2p, nn, d2p, dn, scratch);
 						n2p = rp;
 					}
@@ -161,7 +196,6 @@ namespace gpgmp
 						gpmpn_rshift(rp, n2p, dn, cnt);
 					else
 						MPN_COPY(rp, n2p, dn);
-					TMP_FREE;
 					return;
 				}
 
@@ -216,7 +250,6 @@ namespace gpgmp
 					if (qn == 0)
 					{
 						MPN_COPY(rp, np, dn);
-						TMP_FREE;
 						return;
 					}
 
@@ -229,11 +262,13 @@ namespace gpgmp
 						count_leading_zeros(cnt, dp[dn - 1]);
 						cnt -= GMP_NAIL_BITS;
 
-						d2p = TMP_ALLOC_LIMBS(qn);
+						d2p = scratchSpace;
+						scratchSpace += qn;
 						gpmpn_lshift(d2p, dp + in, qn, cnt);
 						d2p[0] |= dp[in - 1] >> (GMP_NUMB_BITS - cnt);
 
-						n2p = TMP_ALLOC_LIMBS(2 * qn + 1);
+						n2p = scratchSpace;
+						scratchSpace += (2 * qn + 1);
 						cy = gpmpn_lshift(n2p, np + nn - 2 * qn, 2 * qn, cnt);
 						if (adjust)
 						{
@@ -250,7 +285,8 @@ namespace gpgmp
 						cnt = 0;
 						d2p = (mp_ptr)dp + in;
 
-						n2p = TMP_ALLOC_LIMBS(2 * qn + 1);
+						n2p = scratchSpace;
+						scratchSpace += (2 * qn + 1);
 						MPN_COPY(n2p, np + nn - 2 * qn, 2 * qn);
 						if (adjust)
 						{
@@ -279,7 +315,8 @@ namespace gpgmp
 						else
 						{
 							mp_size_t itch = gpmpn_mu_div_qr_itch(2 * qn, qn, 0);
-							mp_ptr scratch = TMP_ALLOC_LIMBS(itch);
+							mp_ptr scratch = scratchSpace;
+							scratchSpace += itch;
 							mp_ptr r2p = rp;
 							if (np == r2p)		/* If N and R share space, put ... */
 								r2p += nn - qn; /* intermediate remainder at N's upper end. */
@@ -354,7 +391,8 @@ namespace gpgmp
 					}
 					/* True: partial remainder now is neutral, i.e., it is not shifted up.  */
 
-					tp = TMP_ALLOC_LIMBS(dn);
+					tp = scratchSpace;
+					scratchSpace += dn;
 
 					if (in < qn)
 					{
@@ -382,7 +420,6 @@ namespace gpgmp
 						gpmpn_add_n(rp, rp, dp, dn);
 					}
 				}
-				TMP_FREE;
 				return;
 			}
 			}

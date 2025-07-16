@@ -396,8 +396,7 @@ namespace gpgmp
       return in;
     }
 
-    ANYCALLER mp_size_t
-    gpmpn_mu_div_qr_itch(mp_size_t nn, mp_size_t dn, int mua_k)
+    ANYCALLER mp_size_t gpmpn_mu_div_qr_itch(mp_size_t nn, mp_size_t dn, int mua_k)
     {
       mp_size_t in = gpmpn_mu_div_qr_choose_in(nn - dn, dn, mua_k);
       mp_size_t itch_preinv = gpmpn_preinv_mu_div_qr_itch(nn, dn, in);

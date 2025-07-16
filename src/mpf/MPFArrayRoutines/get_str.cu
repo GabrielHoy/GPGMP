@@ -200,7 +200,8 @@ namespace gpgmp
         MPN_COPY(xp + off, up, un);
 
         dummyp = TMP_ALLOC_LIMBS(pn);
-        gpgmp::mpnRoutines::gpmpn_tdiv_qr(tp, dummyp, (mp_size_t)0, xp, xn, pp, pn);
+        mp_limb_t* scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(xn, pn));
+        gpgmp::mpnRoutines::gpmpn_tdiv_qr(tp, dummyp, (mp_size_t)0, xp, xn, pp, pn, scratchForTDivQR);
         tn = xn - pn + 1;
         tn -= tp[tn - 1] == 0;
         n_digits_computed = gpgmp::mpnRoutines::gpmpn_get_str(tstr, base, tp, tn);

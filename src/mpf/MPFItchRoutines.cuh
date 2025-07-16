@@ -30,7 +30,7 @@ namespace gpgmp
 
     ANYCALLER static int gpmpf_ui_div_itch(mpf_ptr r, unsigned long int u, mpf_srcptr v)
     {
-      return ABSIZ(v) + (1 + ((PREC(r) + 1) - (1 - (ABSIZ(v)) + 1))) + (PTR(r) == PTR(v) ? ABSIZ(v) : 0);
+      return ABSIZ(v) + (1 + ((PREC(r) + 1) - (1 - (ABSIZ(v)) + 1))) + (PTR(r) == PTR(v) ? ABSIZ(v) : 0) + gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(ABSIZ(r), ABSIZ(v));
     }
     ANYCALLER static int gpmpf_ui_div_itch(mp_size_t maxPrecisionLimbCountOfOperands)
     {
@@ -41,7 +41,8 @@ namespace gpgmp
             (1 - (maxPrecisionLimbCountOfOperands) + 1)
           )
         ) +
-        maxPrecisionLimbCountOfOperands;
+        maxPrecisionLimbCountOfOperands +
+        gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(maxPrecisionLimbCountOfOperands);
     }
 
 

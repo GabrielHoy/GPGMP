@@ -1797,7 +1797,7 @@ typedef size_t gmp_intptr_t;
 
 #define gpmpn_mu_div_qr __GPGMP_MPN(mu_div_qr)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mu_div_qr(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define gpmpn_mu_div_qr_itch __GPGMP_MPN(mu_div_qr_itch)
+
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_mu_div_qr_itch(mp_size_t, mp_size_t, int) ATTRIBUTE_CONST;
 
 #define gpmpn_preinv_mu_div_qr __GPGMP_MPN(preinv_mu_div_qr)

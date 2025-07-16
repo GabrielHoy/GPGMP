@@ -43,76 +43,6 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
-/* Conversion of U {up,un} to a string in base b.  Internally, we convert to
-   base B = b^m, the largest power of b that fits a limb.  Basic algorithms:
-
-  A) Divide U repeatedly by B, generating a quotient and remainder, until the
-     quotient becomes zero.  The remainders hold the converted digits.  Digits
-     come out from right to left.  (Used in gpmpn_bc_get_str.)
-
-  B) Divide U by b^g, for g such that 1/b <= U/b^g < 1, generating a fraction.
-     Then develop digits by multiplying the fraction repeatedly by b.  Digits
-     come out from left to right.  (Currently not used herein, except for in
-     code for converting single limbs to individual digits.)
-
-  C) Compute B^1, B^2, B^4, ..., B^s, for s such that B^s is just above
-     sqrt(U).  Then divide U by B^s, generating quotient and remainder.
-     Recursively convert the quotient, then the remainder, using the
-     precomputed powers.  Digits come out from left to right.  (Used in
-     gpmpn_dc_get_str.)
-
-  When using algorithm C, algorithm B might be suitable for basecase code,
-  since the required b^g power will be readily accessible.
-
-  Optimization ideas:
-  1. The recursive function of (C) could use less temporary memory.  The powtab
-     allocation could be trimmed with some computation, and the tmp area could
-     be reduced, or perhaps eliminated if up is reused for both quotient and
-     remainder (it is currently used just for remainder).
-  2. Store the powers of (C) in normalized form, with the normalization count.
-     Quotients will usually need to be left-shifted before each divide, and
-     remainders will either need to be left-shifted of right-shifted.
-  3. In the code for developing digits from a single limb, we could avoid using
-     a full umul_ppmm except for the first (or first few) digits, provided base
-     is even.  Subsequent digits can be developed using plain multiplication.
-     (This saves on register-starved machines (read x86) and on all machines
-     that generate the upper product half using a separate instruction (alpha,
-     powerpc, IA-64) or lacks such support altogether (sparc64, hppa64).
-  4. Separate gpmpn_dc_get_str basecase code from code for small conversions. The
-     former code will have the exact right power readily available in the
-     powtab parameter for dividing the current number into a fraction.  Convert
-     that using algorithm B.
-  5. Completely avoid division.  Compute the inverses of the powers now in
-     powtab instead of the actual powers.
-  6. Decrease powtab allocation for even bases.  E.g. for base 10 we could save
-     about 30% (1-log(5)/log(10)).
-
-  Basic structure of (C):
-    gpmpn_get_str:
-      if POW2_P (n)
-  ...
-      else
-  if (un < GET_STR_PRECOMPUTE_THRESHOLD)
-    gpmpn_bx_get_str (str, base, up, un);
-  else
-    precompute_power_tables
-    gpmpn_dc_get_str
-
-    gpmpn_dc_get_str:
-  gpmpn_tdiv_qr
-  if (qn < GET_STR_DC_THRESHOLD)
-    gpmpn_bc_get_str
-  else
-    gpmpn_dc_get_str
-  if (rn < GET_STR_DC_THRESHOLD)
-    gpmpn_bc_get_str
-  else
-    gpmpn_dc_get_str
-
-
-  The reason for the two threshold values is the cost of
-  precompute_power_tables.  GET_STR_PRECOMPUTE_THRESHOLD will be
-  considerably larger than GET_STR_DC_THRESHOLD.  */
 
 /* The x86s and m68020 have a quotient and remainder "div" instruction and
    gcc recognises an adjacent "/" and "%" can be combined using that.
@@ -301,10 +231,7 @@ namespace gpgmp
        the left.  If LEN is zero, generate as many characters as required.
        Return a pointer immediately after the last digit of the result string.
        This uses divide-and-conquer and is intended for large conversions.  */
-    ANYCALLER static unsigned char *
-    gpmpn_dc_get_str(unsigned char *str, size_t len,
-                     mp_ptr up, mp_size_t un,
-                     const powers_t *powtab, mp_ptr tmp)
+    ANYCALLER static unsigned char * gpmpn_dc_get_str(unsigned char *str, size_t len, mp_ptr up, mp_size_t un, const powers_t *powtab, mp_ptr tmp)
     {
       if (BELOW_THRESHOLD(un, GET_STR_DC_THRESHOLD))
       {
@@ -338,7 +265,12 @@ namespace gpgmp
           qp = tmp; /* (un - pwn + 1) limbs for qp */
           rp = up;  /* pwn limbs for rp; overwrite up area */
 
-          gpmpn_tdiv_qr(qp, rp + sn, 0L, up + sn, un - sn, pwp, pwn);
+          TMP_DECL;
+          TMP_MARK;
+          mp_limb_t* scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(un - sn, pwn));
+          gpmpn_tdiv_qr(qp, rp + sn, 0L, up + sn, un - sn, pwp, pwn, scratchForTDivQR);
+          TMP_FREE;
+
           qn = un - sn - pwn;
           qn += qp[qn] != 0; /* quotient size */
 

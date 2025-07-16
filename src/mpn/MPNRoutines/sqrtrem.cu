@@ -281,7 +281,7 @@ namespace gpgmp
        Assumes {np, 2n} is normalized, i.e. np[2n-1] >= B/4
        where B=2^GMP_NUMB_BITS.
        Needs a scratch of n/2+1 limbs. */
-    ANYCALLER static mp_limb_t gpmpn_dc_sqrtrem(mp_ptr sp, mp_ptr np, mp_size_t n, mp_limb_t approx, mp_ptr scratch)
+    HOSTONLY static mp_limb_t gpmpn_dc_sqrtrem(mp_ptr sp, mp_ptr np, mp_size_t n, mp_limb_t approx, mp_ptr scratch)
     {
       mp_limb_t q; /* carry out of {sp, n} */
       int c, b;    /* carry out of remainder */
@@ -299,7 +299,13 @@ namespace gpgmp
       if (q != 0)
         ASSERT_CARRY(gpmpn_sub_n(np + 2 * l, np + 2 * l, sp + l, h));
       TRACE(printf("tdiv_qr(,,,,%u,,%u) -> %u\n", (unsigned)n, (unsigned)h, (unsigned)(n - h + 1)));
-      gpmpn_tdiv_qr(scratch, np + l, 0, np + l, n, sp + l, h);
+
+      TMP_DECL;
+      TMP_MARK;
+      mp_limb_t* scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(n, h));
+      gpmpn_tdiv_qr(scratch, np + l, 0, np + l, n, sp + l, h, scratchForTDivQR);
+      TMP_FREE;
+
       q += scratch[l];
       c = scratch[0] & 1;
       gpmpn_rshift(sp, scratch, l, 1);

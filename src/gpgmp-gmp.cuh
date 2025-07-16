@@ -523,7 +523,9 @@ namespace gpgmp
 
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_submul_1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_tdiv_qr(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_tdiv_qr(mp_ptr, mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_tdiv_qr_itch(mp_size_t, mp_size_t);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_tdiv_qr_itch(mp_size_t);
 
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_and_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
 

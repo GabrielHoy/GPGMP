@@ -32,37 +32,39 @@ see https://www.gnu.org/licenses/.  */
 #include "gpgmp-impl.cuh"
 #include "longlong.cuh"
 
-namespace gpgmp {
-  namespace mpnRoutines {
+namespace gpgmp
+{
+  namespace mpnRoutines
+  {
 
-    /* Uses the HGCD operation described in
+/* Uses the HGCD operation described in
 
-        N. Möller, On Schönhage's algorithm and subquadratic integer gcd
-        computation, Math. Comp. 77 (2008), 589-607.
+    N. Möller, On Schönhage's algorithm and subquadratic integer gcd
+    computation, Math. Comp. 77 (2008), 589-607.
 
-      to reduce inputs until they are of size below GCD_DC_THRESHOLD, and
-      then uses Lehmer's algorithm.
-    */
+  to reduce inputs until they are of size below GCD_DC_THRESHOLD, and
+  then uses Lehmer's algorithm.
+*/
 
-    /* Some reasonable choices are n / 2 (same as in hgcd), and p = (n +
-    * 2)/3, which gives a balanced multiplication in
-    * gpmpn_hgcd_matrix_adjust. However, p = 2 n/3 gives slightly better
-    * performance. The matrix-vector multiplication is then
-    * 4:1-unbalanced, with matrix elements of size n/6, and vector
-    * elements of size p = 2n/3. */
+/* Some reasonable choices are n / 2 (same as in hgcd), and p = (n +
+ * 2)/3, which gives a balanced multiplication in
+ * gpmpn_hgcd_matrix_adjust. However, p = 2 n/3 gives slightly better
+ * performance. The matrix-vector multiplication is then
+ * 4:1-unbalanced, with matrix elements of size n/6, and vector
+ * elements of size p = 2n/3. */
 
-    /* From analysis of the theoretical running time, it appears that when
-    * multiplication takes time O(n^alpha), p should be chosen so that
-    * the ratio of the time for the gpmpn_hgcd call, and the time for the
-    * multiplication in gpmpn_hgcd_matrix_adjust, is roughly 1/(alpha -
-    * 1). */
-    #ifdef TUNE_GCD_P
-    #define P_TABLE_SIZE 10000
+/* From analysis of the theoretical running time, it appears that when
+ * multiplication takes time O(n^alpha), p should be chosen so that
+ * the ratio of the time for the gpmpn_hgcd call, and the time for the
+ * multiplication in gpmpn_hgcd_matrix_adjust, is roughly 1/(alpha -
+ * 1). */
+#ifdef TUNE_GCD_P
+#define P_TABLE_SIZE 10000
     mp_size_t p_table[P_TABLE_SIZE];
-    #define CHOOSE_P(n) ( (n) < P_TABLE_SIZE ? p_table[n] : 2*(n)/3)
-    #else
-    #define CHOOSE_P(n) (2*(n) / 3)
-    #endif
+#define CHOOSE_P(n) ((n) < P_TABLE_SIZE ? p_table[n] : 2 * (n) / 3)
+#else
+#define CHOOSE_P(n) (2 * (n) / 3)
+#endif
 
     struct gcd_ctx
     {
@@ -70,14 +72,14 @@ namespace gpgmp {
       mp_size_t gn;
     };
 
-    ANYCALLER static void gcd_hook (void *p, mp_srcptr gp, mp_size_t gn, mp_srcptr qp, mp_size_t qn, int d)
+    ANYCALLER static void gcd_hook(void *p, mp_srcptr gp, mp_size_t gn, mp_srcptr qp, mp_size_t qn, int d)
     {
-      struct gcd_ctx *ctx = (struct gcd_ctx *) p;
-      MPN_COPY (ctx->gp, gp, gn);
+      struct gcd_ctx *ctx = (struct gcd_ctx *)p;
+      MPN_COPY(ctx->gp, gp, gn);
       ctx->gn = gn;
     }
 
-    HOSTONLY mp_size_t gpmpn_gcd (mp_ptr gp, mp_ptr up, mp_size_t usize, mp_ptr vp, mp_size_t n)
+    HOSTONLY mp_size_t gpmpn_gcd(mp_ptr gp, mp_ptr up, mp_size_t usize, mp_ptr vp, mp_size_t n)
     {
       mp_size_t talloc;
       mp_size_t scratch;
@@ -87,9 +89,9 @@ namespace gpgmp {
       mp_ptr tp;
       TMP_DECL;
 
-      ASSERT (usize >= n);
-      ASSERT (n > 0);
-      ASSERT (vp[n-1] > 0);
+      ASSERT(usize >= n);
+      ASSERT(n > 0);
+      ASSERT(vp[n - 1] > 0);
 
       /* FIXME: Check for small sizes first, before setting up temporary
         storage etc. */
@@ -100,127 +102,130 @@ namespace gpgmp {
       if (scratch > talloc)
         talloc = scratch;
 
-    #if TUNE_GCD_P
-      if (CHOOSE_P (n) > 0)
-    #else
-      if (ABOVE_THRESHOLD (n, GCD_DC_THRESHOLD))
-    #endif
-        {
-          mp_size_t hgcd_scratch;
-          mp_size_t update_scratch;
-          mp_size_t p = CHOOSE_P (n);
-          mp_size_t scratch;
-    #if TUNE_GCD_P
-          /* Worst case, since we don't guarantee that n - CHOOSE_P(n)
-      is increasing */
-          matrix_scratch = MPN_HGCD_MATRIX_INIT_ITCH (n);
-          hgcd_scratch = gpmpn_hgcd_itch (n);
-          update_scratch = 2*(n - 1);
-    #else
-          matrix_scratch = MPN_HGCD_MATRIX_INIT_ITCH (n - p);
-          hgcd_scratch = gpmpn_hgcd_itch (n - p);
-          update_scratch = p + n - 1;
-    #endif
-          scratch = matrix_scratch + MAX(hgcd_scratch, update_scratch);
-          if (scratch > talloc)
-      talloc = scratch;
-        }
+#if TUNE_GCD_P
+      if (CHOOSE_P(n) > 0)
+#else
+      if (ABOVE_THRESHOLD(n, GCD_DC_THRESHOLD))
+#endif
+      {
+        mp_size_t hgcd_scratch;
+        mp_size_t update_scratch;
+        mp_size_t p = CHOOSE_P(n);
+        mp_size_t scratch;
+#if TUNE_GCD_P
+        /* Worst case, since we don't guarantee that n - CHOOSE_P(n)
+    is increasing */
+        matrix_scratch = MPN_HGCD_MATRIX_INIT_ITCH(n);
+        hgcd_scratch = gpmpn_hgcd_itch(n);
+        update_scratch = 2 * (n - 1);
+#else
+        matrix_scratch = MPN_HGCD_MATRIX_INIT_ITCH(n - p);
+        hgcd_scratch = gpmpn_hgcd_itch(n - p);
+        update_scratch = p + n - 1;
+#endif
+        scratch = matrix_scratch + MAX(hgcd_scratch, update_scratch);
+        if (scratch > talloc)
+          talloc = scratch;
+      }
 
       TMP_MARK;
       tp = TMP_ALLOC_LIMBS(talloc);
 
       if (usize > n)
-        {
-          gpmpn_tdiv_qr (tp, up, 0, up, usize, vp, n);
-
-          if (gpmpn_zero_p (up, n))
       {
-        MPN_COPY (gp, vp, n);
-        ctx.gn = n;
-        goto done;
-      }
+        mp_limb_t *scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(usize, n));
+        gpmpn_tdiv_qr(tp, up, 0, up, usize, vp, n, scratchForTDivQR);
+
+        if (gpmpn_zero_p(up, n))
+        {
+          MPN_COPY(gp, vp, n);
+          ctx.gn = n;
+          goto done;
         }
+      }
 
       ctx.gp = gp;
 
-    #if TUNE_GCD_P
-      while (CHOOSE_P (n) > 0)
-    #else
-      while (ABOVE_THRESHOLD (n, GCD_DC_THRESHOLD))
-    #endif
+#if TUNE_GCD_P
+      while (CHOOSE_P(n) > 0)
+#else
+      while (ABOVE_THRESHOLD(n, GCD_DC_THRESHOLD))
+#endif
+      {
+        struct hgcd_matrix M;
+        mp_size_t p = CHOOSE_P(n);
+        mp_size_t matrix_scratch = MPN_HGCD_MATRIX_INIT_ITCH(n - p);
+        mp_size_t nn;
+        gpmpn_hgcd_matrix_init(&M, n - p, tp);
+        nn = gpmpn_hgcd(up + p, vp + p, n - p, &M, tp + matrix_scratch);
+        if (nn > 0)
         {
-          struct hgcd_matrix M;
-          mp_size_t p = CHOOSE_P (n);
-          mp_size_t matrix_scratch = MPN_HGCD_MATRIX_INIT_ITCH (n - p);
-          mp_size_t nn;
-          gpmpn_hgcd_matrix_init (&M, n - p, tp);
-          nn = gpmpn_hgcd (up + p, vp + p, n - p, &M, tp + matrix_scratch);
-          if (nn > 0)
-      {
-        ASSERT (M.n <= (n - p - 1)/2);
-        ASSERT (M.n + p <= (p + n - 1) / 2);
-        /* Temporary storage 2 (p + M->n) <= p + n - 1. */
-        n = gpmpn_hgcd_matrix_adjust (&M, p + nn, up, vp, p, tp + matrix_scratch);
-      }
-          else
-      {
-        /* Temporary storage n */
-        n = gpmpn_gcd_subdiv_step (up, vp, n, 0, gcd_hook, &ctx, tp);
-        if (n == 0)
-          goto done;
-      }
+          ASSERT(M.n <= (n - p - 1) / 2);
+          ASSERT(M.n + p <= (p + n - 1) / 2);
+          /* Temporary storage 2 (p + M->n) <= p + n - 1. */
+          n = gpmpn_hgcd_matrix_adjust(&M, p + nn, up, vp, p, tp + matrix_scratch);
         }
+        else
+        {
+          /* Temporary storage n */
+          n = gpmpn_gcd_subdiv_step(up, vp, n, 0, gcd_hook, &ctx, tp);
+          if (n == 0)
+            goto done;
+        }
+      }
 
       while (n > 2)
+      {
+        struct hgcd_matrix1 M;
+        mp_limb_t uh, ul, vh, vl;
+        mp_limb_t mask;
+
+        mask = up[n - 1] | vp[n - 1];
+        ASSERT(mask > 0);
+
+        if (mask & GMP_NUMB_HIGHBIT)
         {
-          struct hgcd_matrix1 M;
-          mp_limb_t uh, ul, vh, vl;
-          mp_limb_t mask;
+          uh = up[n - 1];
+          ul = up[n - 2];
+          vh = vp[n - 1];
+          vl = vp[n - 2];
+        }
+        else
+        {
+          int shift;
 
-          mask = up[n-1] | vp[n-1];
-          ASSERT (mask > 0);
-
-          if (mask & GMP_NUMB_HIGHBIT)
-      {
-        uh = up[n-1]; ul = up[n-2];
-        vh = vp[n-1]; vl = vp[n-2];
-      }
-          else
-      {
-        int shift;
-
-        count_leading_zeros (shift, mask);
-        uh = MPN_EXTRACT_NUMB (shift, up[n-1], up[n-2]);
-        ul = MPN_EXTRACT_NUMB (shift, up[n-2], up[n-3]);
-        vh = MPN_EXTRACT_NUMB (shift, vp[n-1], vp[n-2]);
-        vl = MPN_EXTRACT_NUMB (shift, vp[n-2], vp[n-3]);
-      }
-
-          /* Try an gpmpn_hgcd2 step */
-          if (gpmpn_hgcd2 (uh, ul, vh, vl, &M))
-      {
-        n = gpmpn_matrix22_mul1_inverse_vector (&M, tp, up, vp, n);
-        MP_PTR_SWAP (up, tp);
-      }
-          else
-      {
-        /* gpmpn_hgcd2 has failed. Then either one of a or b is very
-          small, or the difference is very small. Perform one
-          subtraction followed by one division. */
-
-        /* Temporary storage n */
-        n = gpmpn_gcd_subdiv_step (up, vp, n, 0, &gcd_hook, &ctx, tp);
-        if (n == 0)
-          goto done;
-      }
+          count_leading_zeros(shift, mask);
+          uh = MPN_EXTRACT_NUMB(shift, up[n - 1], up[n - 2]);
+          ul = MPN_EXTRACT_NUMB(shift, up[n - 2], up[n - 3]);
+          vh = MPN_EXTRACT_NUMB(shift, vp[n - 1], vp[n - 2]);
+          vl = MPN_EXTRACT_NUMB(shift, vp[n - 2], vp[n - 3]);
         }
 
-      ASSERT(up[n-1] | vp[n-1]);
+        /* Try an gpmpn_hgcd2 step */
+        if (gpmpn_hgcd2(uh, ul, vh, vl, &M))
+        {
+          n = gpmpn_matrix22_mul1_inverse_vector(&M, tp, up, vp, n);
+          MP_PTR_SWAP(up, tp);
+        }
+        else
+        {
+          /* gpmpn_hgcd2 has failed. Then either one of a or b is very
+            small, or the difference is very small. Perform one
+            subtraction followed by one division. */
+
+          /* Temporary storage n */
+          n = gpmpn_gcd_subdiv_step(up, vp, n, 0, &gcd_hook, &ctx, tp);
+          if (n == 0)
+            goto done;
+        }
+      }
+
+      ASSERT(up[n - 1] | vp[n - 1]);
 
       /* Due to the calling convention for gpmpn_gcd, at most one can be even. */
       if ((up[0] & 1) == 0)
-        MP_PTR_SWAP (up, vp);
-      ASSERT ((up[0] & 1) != 0);
+        MP_PTR_SWAP(up, vp);
+      ASSERT((up[0] & 1) != 0);
 
       {
         mp_limb_t u0, u1, v0, v1;
@@ -230,32 +235,32 @@ namespace gpgmp {
         v0 = vp[0];
 
         if (n == 1)
-          {
-      int cnt;
-      count_trailing_zeros (cnt, v0);
-      *gp = gpmpn_gcd_11 (u0, v0 >> cnt);
-      ctx.gn = 1;
-      goto done;
-          }
+        {
+          int cnt;
+          count_trailing_zeros(cnt, v0);
+          *gp = gpmpn_gcd_11(u0, v0 >> cnt);
+          ctx.gn = 1;
+          goto done;
+        }
 
         v1 = vp[1];
-        if (UNLIKELY (v0 == 0))
-          {
-      v0 = v1;
-      v1 = 0;
-      /* FIXME: We could invoke a gpmpn_gcd_21 here, just like gpmpn_gcd_22 could
-        when this situation occurs internally.  */
-          }
+        if (UNLIKELY(v0 == 0))
+        {
+          v0 = v1;
+          v1 = 0;
+          /* FIXME: We could invoke a gpmpn_gcd_21 here, just like gpmpn_gcd_22 could
+            when this situation occurs internally.  */
+        }
         if ((v0 & 1) == 0)
-          {
-      int cnt;
-      count_trailing_zeros (cnt, v0);
-      v0 = ((v1 << (GMP_NUMB_BITS - cnt)) & GMP_NUMB_MASK) | (v0 >> cnt);
-      v1 >>= cnt;
-          }
+        {
+          int cnt;
+          count_trailing_zeros(cnt, v0);
+          v0 = ((v1 << (GMP_NUMB_BITS - cnt)) & GMP_NUMB_MASK) | (v0 >> cnt);
+          v1 >>= cnt;
+        }
 
         u1 = up[1];
-        g = gpmpn_gcd_22 (u1, u0, v1, v0);
+        g = gpmpn_gcd_22(u1, u0, v1, v0);
         gp[0] = g.d0;
         gp[1] = g.d1;
         ctx.gn = 1 + (g.d1 > 0);

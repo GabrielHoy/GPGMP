@@ -79,18 +79,29 @@ namespace gpgmp
       {
         /* separate alloc blocks, for malloc debugging */
         remp = scratchSpace;
-        tp = scratchSpace + vsize;
+        scratchSpace += vsize;
+        tp = scratchSpace;
+        scratchSpace += tsize;
         new_vp = NULL;
         if (rp == vp)
-          new_vp = scratchSpace + vsize + tsize;
+        {
+          new_vp = scratchSpace;
+          scratchSpace += vsize;
+        }
       }
       else
       {
         /* one alloc with calculated size, for efficiency */
         mp_size_t size = vsize + tsize + (rp == vp ? vsize : 0);
         remp = scratchSpace;
-        tp = remp + vsize;
-        new_vp = tp + tsize;
+        scratchSpace += vsize;
+        tp = scratchSpace;
+        scratchSpace += tsize;
+        new_vp = scratchSpace;
+        if (rp == vp)
+        {
+          scratchSpace += vsize;
+        }
       }
 
       /* ensure divisor doesn't overlap quotient */
@@ -116,7 +127,7 @@ namespace gpgmp
 #endif
 
       ASSERT(tsize - vsize + 1 == rsize);
-      gpgmp::mpnRoutines::gpmpn_tdiv_qr(rp, remp, (mp_size_t)0, tp, tsize, vp, vsize);
+      gpgmp::mpnRoutines::gpmpn_tdiv_qr(rp, remp, (mp_size_t)0, tp, tsize, vp, vsize, scratchSpace);
 
       /* strip possible zero high limb */
       high_zero = (rp[rsize - 1] == 0);

@@ -164,8 +164,12 @@ namespace gpgmp
         if (fn == mn)
         {
           mp_limb_t qp[2];
-          gpmpn_tdiv_qr(qp, fp, 0, fp, fn, mp, mn);
-          gpmpn_tdiv_qr(qp, f1p, 0, f1p, fn, mp, mn);
+          TMP_DECL;
+          TMP_MARK;
+          mp_limb_t* scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(fn, mn));
+          gpmpn_tdiv_qr(qp, fp, 0, fp, fn, mp, mn, scratchForTDivQR);
+          gpmpn_tdiv_qr(qp, f1p, 0, f1p, fn, mp, mn, scratchForTDivQR);
+          TMP_FREE;
         }
 
         return 0;
@@ -242,8 +246,9 @@ namespace gpgmp
             neg = abs_sub_n(rp, fp, f1p, 2 * mn + 1) < 0;
           }
 
-          gpmpn_tdiv_qr(tp, fp, 0, fp, 2 * mn + 1, mp, mn);
-          gpmpn_tdiv_qr(tp, f1p, 0, f1p, 2 * mn + 1, mp, mn);
+          mp_limb_t* scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(2 * mn + 1, mn));
+          gpmpn_tdiv_qr(tp, fp, 0, fp, 2 * mn + 1, mp, mn, scratchForTDivQR);
+          gpmpn_tdiv_qr(tp, f1p, 0, f1p, 2 * mn + 1, mp, mn, scratchForTDivQR);
         } while (nbi != 0);
 
         TMP_FREE;

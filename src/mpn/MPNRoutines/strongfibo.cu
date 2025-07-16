@@ -87,12 +87,18 @@ namespace gpgmp
        Note: (+/-2)^2-2=2, (+/-1)^2-2=-1, 0^2-2=-2
      */
 
-    ANYCALLER static mp_bitcnt_t gpmpn_llriter(mp_ptr lp, mp_srcptr mp, mp_size_t mn, mp_bitcnt_t count, mp_ptr sp)
+    HOSTONLY static mp_bitcnt_t gpmpn_llriter(mp_ptr lp, mp_srcptr mp, mp_size_t mn, mp_bitcnt_t count, mp_ptr sp)
     {
       do
       {
         gpmpn_sqr(sp, lp, mn);
-        gpmpn_tdiv_qr(sp + 2 * mn, lp, 0, sp, 2 * mn, mp, mn);
+
+        TMP_DECL;
+        TMP_MARK;
+        mp_limb_t* scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(2 * mn, mn));
+        gpmpn_tdiv_qr(sp + 2 * mn, lp, 0, sp, 2 * mn, mp, mn, scratchForTDivQR);
+        TMP_FREE;
+
         if (lp[0] < 5)
         {
           /* If L^2 % M < 5, |L^2 % M - 2| <= 2 */
@@ -209,7 +215,10 @@ namespace gpgmp
         gpmpn_sqr(lp, sp, en);
         lp[0] |= 2; /* V^2 + 2 */
         if (LIKELY(2 * en >= mn))
-          gpmpn_tdiv_qr(sp, lp, 0, lp, 2 * en, mp, mn);
+        {
+          mp_limb_t* scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(2 * en, mn));
+          gpmpn_tdiv_qr(sp, lp, 0, lp, 2 * en, mp, mn, scratchForTDivQR);
+        }
         else
           MPN_ZERO(lp + 2 * en, mn - 2 * en);
         if (!gpmpn_zero_p(lp, mn) && LIKELY(--b0 != 0))

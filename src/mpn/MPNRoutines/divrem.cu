@@ -37,6 +37,32 @@ namespace gpgmp
   namespace mpnRoutines
   {
 
+    ANYCALLER mp_size_t gpmpn_divrem_itch(mp_size_t numeratorNumLimbs, mp_size_t denominatorNumLimbs, mp_size_t qxn)
+    {
+      if (denominatorNumLimbs == 1)
+      {
+        return numeratorNumLimbs + qxn;
+      }
+      else if (denominatorNumLimbs == 2)
+      {
+        return 0;
+      }
+      else
+      {
+        if (qxn != 0)
+        {
+          return (numeratorNumLimbs + qxn) +
+          (numeratorNumLimbs - denominatorNumLimbs + qxn + 1) +
+          gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(numeratorNumLimbs + qxn, denominatorNumLimbs);
+        }
+        else
+        {
+          return (numeratorNumLimbs - denominatorNumLimbs + 1) +
+          gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(numeratorNumLimbs, denominatorNumLimbs);
+        }
+      }
+    }
+
     HOSTONLY mp_limb_t gpmpn_divrem(mp_ptr qp, mp_size_t qxn, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
     {
       ASSERT(qxn >= 0);
@@ -86,7 +112,8 @@ namespace gpgmp
                             q2p, nn - dn + qxn + 1);
           MPN_ZERO(n2p, qxn);
           MPN_COPY(n2p + qxn, np, nn);
-          gpmpn_tdiv_qr(q2p, np, 0L, n2p, nn + qxn, dp, dn);
+          mp_limb_t* scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(nn + qxn, dn));
+          gpmpn_tdiv_qr(q2p, np, 0L, n2p, nn + qxn, dp, dn, scratchForTDivQR);
           qn = nn - dn + qxn;
           MPN_COPY(qp, q2p, qn);
           qhl = q2p[qn];
@@ -94,7 +121,8 @@ namespace gpgmp
         else
         {
           q2p = TMP_ALLOC_LIMBS(nn - dn + 1);
-          gpmpn_tdiv_qr(q2p, np, 0L, np, nn, dp, dn);
+          mp_limb_t* scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(nn, dn));
+          gpmpn_tdiv_qr(q2p, np, 0L, np, nn, dp, dn, scratchForTDivQR);
           qn = nn - dn;
           MPN_COPY(qp, q2p, qn);
           qhl = q2p[qn];

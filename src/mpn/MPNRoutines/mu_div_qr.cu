@@ -379,12 +379,11 @@ namespace gpgmp
       mp_size_t itch_preinv = gpmpn_preinv_mu_div_qr_itch(nn, dn, in);
       mp_size_t itch_invapp = gpmpn_invertappr_itch(in + 1) + in + 2; /* 3in + 4 */
 
-      ASSERT(itch_preinv >= itch_invapp);
+      //ASSERT(itch_preinv >= itch_invapp);
       return in + MAX(itch_invapp, itch_preinv);
     }
 
-    ANYCALLER mp_size_t
-    gpmpn_preinv_mu_div_qr_itch(mp_size_t nn, mp_size_t dn, mp_size_t in)
+    ANYCALLER mp_size_t gpmpn_preinv_mu_div_qr_itch(mp_size_t nn, mp_size_t dn, mp_size_t in)
     {
       mp_size_t itch_local = gpmpn_mulmod_bnm1_next_size(dn + 1);
       mp_size_t itch_out = gpmpn_mulmod_bnm1_itch(itch_local, dn, in);

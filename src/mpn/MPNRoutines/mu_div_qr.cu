@@ -95,14 +95,7 @@ namespace gpgmp
     ANYCALLER static mp_limb_t gpmpn_mu_div_qr2(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
     ANYCALLER static mp_size_t gpmpn_mu_div_qr_choose_in(mp_size_t, mp_size_t, int);
 
-    ANYCALLER mp_limb_t
-    gpmpn_mu_div_qr(mp_ptr qp,
-                  mp_ptr rp,
-                  mp_srcptr np,
-                  mp_size_t nn,
-                  mp_srcptr dp,
-                  mp_size_t dn,
-                  mp_ptr scratch)
+    ANYCALLER mp_limb_t gpmpn_mu_div_qr(mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr scratch)
     {
       mp_size_t qn;
       mp_limb_t cy, qh;
@@ -156,14 +149,7 @@ namespace gpgmp
       return qh;
     }
 
-    ANYCALLER static mp_limb_t
-    gpmpn_mu_div_qr2(mp_ptr qp,
-                   mp_ptr rp,
-                   mp_srcptr np,
-                   mp_size_t nn,
-                   mp_srcptr dp,
-                   mp_size_t dn,
-                   mp_ptr scratch)
+    ANYCALLER static mp_limb_t gpmpn_mu_div_qr2(mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr scratch)
     {
       mp_size_t qn, in;
       mp_limb_t cy, qh;
@@ -232,16 +218,7 @@ namespace gpgmp
       return qh;
     }
 
-    ANYCALLER mp_limb_t
-    gpmpn_preinv_mu_div_qr(mp_ptr qp,
-                         mp_ptr rp,
-                         mp_srcptr np,
-                         mp_size_t nn,
-                         mp_srcptr dp,
-                         mp_size_t dn,
-                         mp_srcptr ip,
-                         mp_size_t in,
-                         mp_ptr scratch)
+    ANYCALLER mp_limb_t gpmpn_preinv_mu_div_qr(mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_srcptr ip, mp_size_t in, mp_ptr scratch)
     {
       mp_size_t qn;
       mp_limb_t cy, cx, qh;

@@ -43,7 +43,7 @@ see https://www.gnu.org/licenses/.  */
 namespace gpgmp {
   namespace mpnRoutines {
 
-    HOSTONLY void gpmpn_divexact (mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
+    HOSTONLY void gpmpn_divexact(mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn)
     {
       unsigned shift;
       mp_size_t qn;

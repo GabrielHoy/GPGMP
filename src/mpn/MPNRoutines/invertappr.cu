@@ -163,7 +163,6 @@ namespace gpgmp
       mp_size_t sizes[NPOWS], *sizp;
       mp_ptr tp;
       TMP_DECL;
-#define xp scratch
 
       ASSERT(n > 4);
       ASSERT(dp[n - 1] & GMP_NUMB_HIGHBIT);
@@ -194,7 +193,7 @@ namespace gpgmp
       if (ABOVE_THRESHOLD(n, INV_MULMOD_BNM1_THRESHOLD))
       {
         mn = gpmpn_mulmod_bnm1_next_size(n + 1);
-        tp = TMP_ALLOC_LIMBS(gpmpn_mulmod_bnm1_itch(mn, n, (n >> 1) + 1));
+        tp = scratch + (2 * n);//Previous allocation performed here: (gpmpn_mulmod_bnm1_itch(gpmpn_mulmod_bnm1_next_size(n + 1), n, (n >> 1) + 1));
       }
       /* Use Newton's iterations to get the desired precision.*/
 
@@ -211,91 +210,91 @@ namespace gpgmp
         if (BELOW_THRESHOLD(n, INV_MULMOD_BNM1_THRESHOLD) || ((mn = gpmpn_mulmod_bnm1_next_size(n + 1)) > (n + rn)))
         {
           /* FIXME: We do only need {xp,n+1}*/
-          gpmpn_mul(xp, dp - n, n, ip - rn, rn);
-          gpmpn_add_n(xp + rn, xp + rn, dp - n, n - rn + 1);
+          gpmpn_mul(scratch, dp - n, n, ip - rn, rn);
+          gpmpn_add_n(scratch + rn, scratch + rn, dp - n, n - rn + 1);
           cy = CNST_LIMB(1); /* Remember we truncated, Mod B^(n+1) */
-          /* We computed (truncated) {xp,n+1} <- 1.{ip,rn} * 0.{dp,n} */
+          /* We computed (truncated) {scratch,n+1} <- 1.{ip,rn} * 0.{dp,n} */
         }
         else
         { /* Use B^mn-1 wraparound */
-          gpmpn_mulmod_bnm1(xp, mn, dp - n, n, ip - rn, rn, tp);
-          /* We computed {xp,mn} <- {ip,rn} * {dp,n} mod (B^mn-1) */
+          gpmpn_mulmod_bnm1(scratch, mn, dp - n, n, ip - rn, rn, tp);
+          /* We computed {scratch,mn} <- {ip,rn} * {dp,n} mod (B^mn-1) */
           /* We know that 2*|ip*dp + dp*B^rn - B^{rn+n}| < B^mn-1 */
           /* Add dp*B^rn mod (B^mn-1) */
           ASSERT(n >= mn - rn);
-          cy = gpmpn_add_n(xp + rn, xp + rn, dp - n, mn - rn);
-          cy = gpmpn_add_nc(xp, xp, dp - (n - (mn - rn)), n - (mn - rn), cy);
+          cy = gpmpn_add_n(scratch + rn, scratch + rn, dp - n, mn - rn);
+          cy = gpmpn_add_nc(scratch, scratch, dp - (n - (mn - rn)), n - (mn - rn), cy);
           /* Subtract B^{rn+n}, maybe only compensate the carry*/
-          xp[mn] = CNST_LIMB(1); /* set a limit for DECR_U */
-          MPN_DECR_U(xp + rn + n - mn, 2 * mn + 1 - rn - n, CNST_LIMB(1) - cy);
-          MPN_DECR_U(xp, mn, CNST_LIMB(1) - xp[mn]); /* if DECR_U eroded xp[mn] */
+          scratch[mn] = CNST_LIMB(1); /* set a limit for DECR_U */
+          MPN_DECR_U(scratch + rn + n - mn, 2 * mn + 1 - rn - n, CNST_LIMB(1) - cy);
+          MPN_DECR_U(scratch, mn, CNST_LIMB(1) - scratch[mn]); /* if DECR_U eroded scratch[mn] */
           cy = CNST_LIMB(0);                         /* Remember we are working Mod B^mn-1 */
         }
 
-        if (xp[n] < CNST_LIMB(2))
+        if (scratch[n] < CNST_LIMB(2))
         {             /* "positive" residue class */
-          cy = xp[n]; /* 0 <= cy <= 1 here. */
+          cy = scratch[n]; /* 0 <= cy <= 1 here. */
 #if HAVE_NATIVE_gpmpn_sublsh1_n
           if (cy++)
           {
-            if (gpmpn_cmp(xp, dp - n, n) > 0)
+            if (gpmpn_cmp(scratch, dp - n, n) > 0)
             {
               mp_limb_t chk;
-              chk = gpmpn_sublsh1_n(xp, xp, dp - n, n);
-              ASSERT(chk == xp[n]);
+              chk = gpmpn_sublsh1_n(scratch, scratch, dp - n, n);
+              ASSERT(chk == scratch[n]);
               ++cy;
             }
             else
-              ASSERT_CARRY(gpmpn_sub_n(xp, xp, dp - n, n));
+              ASSERT_CARRY(gpmpn_sub_n(scratch, scratch, dp - n, n));
           }
 #else /* no gpmpn_sublsh1_n*/
-          if (cy++ && !gpmpn_sub_n(xp, xp, dp - n, n))
+          if (cy++ && !gpmpn_sub_n(scratch, scratch, dp - n, n))
           {
-            ASSERT_CARRY(gpmpn_sub_n(xp, xp, dp - n, n));
+            ASSERT_CARRY(gpmpn_sub_n(scratch, scratch, dp - n, n));
             ++cy;
           }
 #endif
           /* 1 <= cy <= 3 here. */
 #if HAVE_NATIVE_gpmpn_rsblsh1_n
-          if (gpmpn_cmp(xp, dp - n, n) > 0)
+          if (gpmpn_cmp(scratch, dp - n, n) > 0)
           {
-            ASSERT_NOCARRY(gpmpn_rsblsh1_n(xp + n, xp, dp - n, n));
+            ASSERT_NOCARRY(gpmpn_rsblsh1_n(scratch + n, scratch, dp - n, n));
             ++cy;
           }
           else
-            ASSERT_NOCARRY(gpmpn_sub_nc(xp + 2 * n - rn, dp - rn, xp + n - rn, rn, gpmpn_cmp(xp, dp - n, n - rn) > 0));
+            ASSERT_NOCARRY(gpmpn_sub_nc(scratch + 2 * n - rn, dp - rn, scratch + n - rn, rn, gpmpn_cmp(scratch, dp - n, n - rn) > 0));
 #else /* no gpmpn_rsblsh1_n*/
-          if (gpmpn_cmp(xp, dp - n, n) > 0)
+          if (gpmpn_cmp(scratch, dp - n, n) > 0)
           {
-            ASSERT_NOCARRY(gpmpn_sub_n(xp, xp, dp - n, n));
+            ASSERT_NOCARRY(gpmpn_sub_n(scratch, scratch, dp - n, n));
             ++cy;
           }
-          ASSERT_NOCARRY(gpmpn_sub_nc(xp + 2 * n - rn, dp - rn, xp + n - rn, rn, gpmpn_cmp(xp, dp - n, n - rn) > 0));
+          ASSERT_NOCARRY(gpmpn_sub_nc(scratch + 2 * n - rn, dp - rn, scratch + n - rn, rn, gpmpn_cmp(scratch, dp - n, n - rn) > 0));
 #endif
           MPN_DECR_U(ip - rn, rn, cy); /* 1 <= cy <= 4 here. */
         }
         else
         { /* "negative" residue class */
-          ASSERT(xp[n] >= GMP_NUMB_MAX - CNST_LIMB(1));
-          MPN_DECR_U(xp, n + 1, cy);
-          if (xp[n] != GMP_NUMB_MAX)
+          ASSERT(scratch[n] >= GMP_NUMB_MAX - CNST_LIMB(1));
+          MPN_DECR_U(scratch, n + 1, cy);
+          if (scratch[n] != GMP_NUMB_MAX)
           {
             MPN_INCR_U(ip - rn, rn, CNST_LIMB(1));
-            ASSERT_CARRY(gpmpn_add_n(xp, xp, dp - n, n));
+            ASSERT_CARRY(gpmpn_add_n(scratch, scratch, dp - n, n));
           }
-          gpmpn_com(xp + 2 * n - rn, xp + n - rn, rn);
+          gpmpn_com(scratch + 2 * n - rn, scratch + n - rn, rn);
         }
 
-        /* Compute x_ju_j. FIXME:We need {xp+rn,rn}, mulhi? */
-        gpmpn_mul_n(xp, xp + 2 * n - rn, ip - rn, rn);
-        cy = gpmpn_add_n(xp + rn, xp + rn, xp + 2 * n - rn, 2 * rn - n);
-        cy = gpmpn_add_nc(ip - n, xp + 3 * rn - n, xp + n + rn, n - rn, cy);
+        /* Compute x_ju_j. FIXME:We need {scratch+rn,rn}, mulhi? */
+        gpmpn_mul_n(scratch, scratch + 2 * n - rn, ip - rn, rn);
+        cy = gpmpn_add_n(scratch + rn, scratch + rn, scratch + 2 * n - rn, 2 * rn - n);
+        cy = gpmpn_add_nc(ip - n, scratch + 3 * rn - n, scratch + n + rn, n - rn, cy);
         MPN_INCR_U(ip - rn, rn, cy);
         if (sizp == sizes)
         { /* Get out of the cycle */
           /* Check for possible carry propagation from below. */
-          cy = xp[3 * rn - n - 1] > GMP_NUMB_MAX - CNST_LIMB(7); /* Be conservative. */
-          /*    cy = gpmpn_add_1 (xp + rn, xp + rn, 2*rn - n, 4); */
+          cy = scratch[3 * rn - n - 1] > GMP_NUMB_MAX - CNST_LIMB(7); /* Be conservative. */
+          /*    cy = gpmpn_add_1 (scratch + rn, scratch + rn, 2*rn - n, 4); */
           break;
         }
         rn = n;
@@ -303,7 +302,6 @@ namespace gpgmp
       TMP_FREE;
 
       return cy;
-#undef xp
     }
 
     ANYCALLER mp_limb_t gpmpn_invertappr(mp_ptr ip, mp_srcptr dp, mp_size_t n, mp_ptr scratch)

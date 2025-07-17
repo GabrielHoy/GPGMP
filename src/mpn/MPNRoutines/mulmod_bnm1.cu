@@ -114,8 +114,7 @@ namespace gpgmp
 		 *
 		 * S(n) <= rn + MAX (rn + 4, S(n/2)) <= 2rn + 4
 		 */
-		ANYCALLER void
-		gpmpn_mulmod_bnm1(mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr bp, mp_size_t bn, mp_ptr tp)
+		ANYCALLER void gpmpn_mulmod_bnm1(mp_ptr rp, mp_size_t rn, mp_srcptr ap, mp_size_t an, mp_srcptr bp, mp_size_t bn, mp_ptr tp)
 		{
 			ASSERT(0 < bn);
 			ASSERT(bn <= an);

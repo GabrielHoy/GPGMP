@@ -1443,7 +1443,7 @@ typedef size_t gmp_intptr_t;
 
 #define gpmpn_bc_mulmod_bnm1 __GPGMP_MPN(bc_mulmod_bnm1)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_bc_mulmod_bnm1(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_ptr);
-#define gpmpn_mulmod_bnm1 __GPGMP_MPN(mulmod_bnm1)
+
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mulmod_bnm1(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
 #define gpmpn_mulmod_bnm1_next_size __GPGMP_MPN(mulmod_bnm1_next_size)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_mulmod_bnm1_next_size(mp_size_t) ATTRIBUTE_CONST;
@@ -1826,9 +1826,9 @@ typedef size_t gmp_intptr_t;
 
 #define gpmpn_ni_invertappr __GPGMP_MPN(ni_invertappr)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_ni_invertappr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
-#define gpmpn_invertappr __GPGMP_MPN(invertappr)
+
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_invertappr(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);
-#define gpmpn_invertappr_itch(n) (2 * (n))
+#define gpmpn_invertappr_itch(n) (2 * (n)) + ((ABOVE_THRESHOLD(n, INV_NEWTON_THRESHOLD)) ? (ABOVE_THRESHOLD(n, INV_MULMOD_BNM1_THRESHOLD)) ? gpmpn_mulmod_bnm1_itch(gpmpn_mulmod_bnm1_next_size(n + 1), n, (n >> 1) + 1) : 0 : 0 )
 
 #define gpmpn_binvert __GPGMP_MPN(binvert)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_binvert(mp_ptr, mp_srcptr, mp_size_t, mp_ptr);

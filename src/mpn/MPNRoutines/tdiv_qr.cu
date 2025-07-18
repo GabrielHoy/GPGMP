@@ -51,40 +51,45 @@ namespace gpgmp
 		{
 			switch (denominatorNumLimbs)
 			{
-				case 1:
-				{
-					return 0;
-				}
-				case 2:
-				{
-					return numeratorNumLimbs + 1;
-				}
-				default:
-				{
-					mp_size_t totalScratchNeeded = 0;
-					totalScratchNeeded += (denominatorNumLimbs + numeratorNumLimbs + 1);
-					totalScratchNeeded += gpmpn_mu_div_qr_itch(numeratorNumLimbs, denominatorNumLimbs, 0);
+			case 1:
+			{
+				return 0;
+			}
+			case 2:
+			{
+				return numeratorNumLimbs + 1;
+			}
+			default:
+			{
+				mp_size_t totalScratchNeeded = 0;
+				totalScratchNeeded += (denominatorNumLimbs + numeratorNumLimbs + 1);
+				totalScratchNeeded += gpmpn_mu_div_qr_itch(numeratorNumLimbs, denominatorNumLimbs, 0);
 
-					mp_size_t qn = numeratorNumLimbs - denominatorNumLimbs + 1;
-					totalScratchNeeded += qn;
-					totalScratchNeeded += (2 * qn + 1);
+				mp_size_t qn = numeratorNumLimbs - denominatorNumLimbs + 1;
+				totalScratchNeeded += qn;
+				totalScratchNeeded += (2 * qn + 1);
 
-					totalScratchNeeded += gpmpn_mu_div_qr_itch(2 * qn, qn, 0);
+				totalScratchNeeded += gpmpn_mu_div_qr_itch(2 * qn, qn, 0);
 
-					totalScratchNeeded += denominatorNumLimbs;
+				totalScratchNeeded += denominatorNumLimbs;
 
-					return totalScratchNeeded;
-				}
+				return totalScratchNeeded;
+			}
 			}
 		}
 
-		//TODO: This 12.3X is based on maximum permutation analytics of the above algorithm, it is *much* larger than necessary in most cases.
+		// TODO: This 12.3X is based on maximum permutation analytics of the above algorithm, it is *much* larger than necessary in most cases.
 		ANYCALLER mp_size_t gpmpn_tdiv_qr_itch(mp_size_t maxNumberLimbsInEitherNumOrDenom)
 		{
 			return static_cast<mp_size_t>(ceil(static_cast<double>(maxNumberLimbsInEitherNumOrDenom) * 12.333333));
 		}
 
-		ANYCALLER void gpmpn_tdiv_qr(mp_ptr qp, mp_ptr rp, mp_size_t qxn, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_limb_t* scratchSpace)
+		ANYCALLER void perform_invert_pi1(gmp_pi1_t& dinv, mp_limb_t& d1, mp_limb_t& d0)
+		{
+			invert_pi1(dinv, d1, d0);
+		}
+
+		ANYCALLER void gpmpn_tdiv_qr(mp_ptr qp, mp_ptr rp, mp_size_t qxn, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_limb_t *scratchSpace)
 		{
 			ASSERT_ALWAYS(qxn == 0);
 
@@ -94,18 +99,16 @@ namespace gpgmp
 			ASSERT(!MPN_OVERLAP_P(qp, nn - dn + 1 + qxn, np, nn));
 			ASSERT(!MPN_OVERLAP_P(qp, nn - dn + 1 + qxn, dp, dn));
 
-			switch (dn)
+			if (dn == 0)
 			{
-			case 0:
 				DIVIDE_BY_ZERO;
-
-			case 1:
+			}
+			else if (dn == 1)
 			{
 				rp[0] = gpmpn_divrem_1(qp, (mp_size_t)0, np, nn, dp[0]);
 				return;
 			}
-
-			case 2:
+			else if (dn == 2)
 			{
 				mp_ptr n2p;
 				mp_limb_t qhl, cy;
@@ -129,7 +132,7 @@ namespace gpgmp
 				else
 				{
 					n2p = scratchSpace;
-					MPN_COPY(n2p, np, nn);
+					perform_MPN_COPY(n2p, np, nn);
 					qhl = gpmpn_divrem_2(qp, 0L, n2p, nn, dp);
 					qp[nn - 2] = qhl; /* always store nn-2+1 quotient limbs */
 					rp[0] = n2p[0];
@@ -137,8 +140,7 @@ namespace gpgmp
 				}
 				return;
 			}
-
-			default:
+			else
 			{
 				int adjust;
 				gmp_pi1_t dinv;
@@ -176,13 +178,17 @@ namespace gpgmp
 
 					invert_pi1(dinv, d2p[dn - 1], d2p[dn - 2]);
 					if (BELOW_THRESHOLD(dn, DC_DIV_QR_THRESHOLD))
+					{
 						gpmpn_sbpi1_div_qr(qp, n2p, nn, d2p, dn, dinv.inv32);
+					}
 					else if (BELOW_THRESHOLD(dn, MUPI_DIV_QR_THRESHOLD) ||					  /* fast condition */
 							 BELOW_THRESHOLD(nn, 2 * MU_DIV_QR_THRESHOLD) ||				  /* fast condition */
 							 (double)(2 * (MU_DIV_QR_THRESHOLD - MUPI_DIV_QR_THRESHOLD)) * dn /* slow... */
 									 + (double)MUPI_DIV_QR_THRESHOLD * nn >
 								 (double)dn * nn) /* ...condition */
+					{
 						gpmpn_dcpi1_div_qr(qp, n2p, nn, d2p, dn, &dinv);
+					}
 					else
 					{
 						mp_size_t itch = gpmpn_mu_div_qr_itch(nn, dn, 0);
@@ -193,9 +199,13 @@ namespace gpgmp
 					}
 
 					if (cnt != 0)
+					{
 						gpmpn_rshift(rp, n2p, dn, cnt);
+					}
 					else
-						MPN_COPY(rp, n2p, dn);
+					{
+						perform_MPN_COPY(rp, n2p, dn);
+					}
 					return;
 				}
 
@@ -249,7 +259,7 @@ namespace gpgmp
 
 					if (qn == 0)
 					{
-						MPN_COPY(rp, np, dn);
+						perform_MPN_COPY(rp, np, dn);
 						return;
 					}
 
@@ -287,7 +297,7 @@ namespace gpgmp
 
 						n2p = scratchSpace;
 						scratchSpace += (2 * qn + 1);
-						MPN_COPY(n2p, np + nn - 2 * qn, 2 * qn);
+						perform_MPN_COPY(n2p, np + nn - 2 * qn, 2 * qn);
 						if (adjust)
 						{
 							n2p[2 * qn] = 0;
@@ -304,24 +314,32 @@ namespace gpgmp
 						qp[0] = q0;
 					}
 					else if (qn == 2)
+					{
 						gpmpn_divrem_2(qp, 0L, n2p, 4L, d2p); /* FIXME: obsolete function */
+					}
 					else
 					{
-						invert_pi1(dinv, d2p[qn - 1], d2p[qn - 2]);
+						perform_invert_pi1(dinv, d2p[qn - 1], d2p[qn - 2]);
 						if (BELOW_THRESHOLD(qn, DC_DIV_QR_THRESHOLD))
+						{
 							gpmpn_sbpi1_div_qr(qp, n2p, 2 * qn, d2p, qn, dinv.inv32);
+						}
 						else if (BELOW_THRESHOLD(qn, MU_DIV_QR_THRESHOLD))
+						{
 							gpmpn_dcpi1_div_qr(qp, n2p, 2 * qn, d2p, qn, &dinv);
+						}
 						else
 						{
 							mp_size_t itch = gpmpn_mu_div_qr_itch(2 * qn, qn, 0);
 							mp_ptr scratch = scratchSpace;
 							scratchSpace += itch;
 							mp_ptr r2p = rp;
-							if (np == r2p)		/* If N and R share space, put ... */
+							if (np == r2p) /* If N and R share space, put ... */
+							{
 								r2p += nn - qn; /* intermediate remainder at N's upper end. */
+							}
 							gpmpn_mu_div_qr(qp, r2p, n2p, 2 * qn, d2p, qn, scratch);
-							MPN_COPY(n2p, r2p, qn);
+							perform_MPN_COPY(n2p, r2p, qn);
 						}
 					}
 
@@ -340,13 +358,7 @@ namespace gpgmp
 						else
 							dl = dp[in - 2];
 
-#if GMP_NAIL_BITS == 0
 						x = (dp[in - 1] << cnt) | ((dl >> 1) >> ((~cnt) % GMP_LIMB_BITS));
-#else
-						x = (dp[in - 1] << cnt) & GMP_NUMB_MASK;
-						if (cnt != 0)
-							x |= dl >> (GMP_NUMB_BITS - cnt);
-#endif
 						umul_ppmm(h, dummy, x, qp[qn - 1] << GMP_NAIL_BITS);
 
 						if (n2p[qn - 1] < h)
@@ -398,30 +410,31 @@ namespace gpgmp
 					{
 						if (in == 0)
 						{
-							MPN_COPY(rp, n2p, rn);
+							perform_MPN_COPY(rp, n2p, rn);
 							ASSERT_ALWAYS(rn == dn);
 							goto foo;
 						}
 						gpmpn_mul(tp, qp, qn, dp, in);
 					}
 					else
+					{
 						gpmpn_mul(tp, dp, in, qp, qn);
+					}
 
 					cy = gpmpn_sub(n2p, n2p, rn, tp + in, qn);
-					MPN_COPY(rp + in, n2p, dn - in);
+					perform_MPN_COPY(rp + in, n2p, dn - in);
 					quotient_too_large |= cy;
 					cy = gpmpn_sub_n(rp, np, tp, in);
 					cy = gpmpn_sub_1(rp + in, rp + in, rn, cy);
 					quotient_too_large |= cy;
-				foo:
-					if (quotient_too_large)
-					{
-						gpmpn_decr_u(qp, (mp_limb_t)1);
-						gpmpn_add_n(rp, rp, dp, dn);
-					}
+					foo:
+						if (quotient_too_large)
+						{
+							gpmpn_decr_u(qp, (mp_limb_t)1);
+							gpmpn_add_n(rp, rp, dp, dn);
+						}
 				}
 				return;
-			}
 			}
 		}
 

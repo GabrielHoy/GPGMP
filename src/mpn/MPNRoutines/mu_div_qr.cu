@@ -98,11 +98,12 @@ namespace gpgmp
     ANYCALLER mp_limb_t gpmpn_mu_div_qr(mp_ptr qp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr scratch)
     {
       mp_size_t qn;
-      mp_limb_t cy, qh;
+      mp_limb_t qh;
 
       qn = nn - dn;
       if (qn + MU_DIV_QR_SKEW_THRESHOLD < dn)
       {
+        mp_limb_t cy;
         /* |______________|_ign_first__|   dividend			  nn
       |_______|_ign_first__|   divisor			  dn
 
@@ -120,14 +121,22 @@ namespace gpgmp
 
         /* Multiply the quotient by the divisor limbs ignored above.  */
         if (dn - (qn + 1) > qn)
+        {
           gpmpn_mul(scratch, dp, dn - (qn + 1), qp, qn); /* prod is dn-1 limbs */
+        }
         else
+        {
           gpmpn_mul(scratch, qp, qn, dp, dn - (qn + 1)); /* prod is dn-1 limbs */
+        }
 
         if (qh)
+        {
           cy = gpmpn_add_n(scratch + qn, scratch + qn, dp, dn - (qn + 1));
+        }
         else
+        {
           cy = 0;
+        }
         scratch[dn - 1] = cy;
 
         cy = gpmpn_sub_n(rp, np, scratch, nn - (2 * qn + 1));
@@ -163,7 +172,6 @@ namespace gpgmp
       in = gpmpn_mu_div_qr_choose_in(qn, dn, 0);
       ASSERT(in <= dn);
 
-#if 1
       /* This alternative inverse computation method gets slightly more accurate
          results.  FIXMEs: (1) Temp allocation needs not analysed (2) itch function
          not adapted (3) gpmpn_invertappr scratch needs not met.  */
@@ -189,29 +197,6 @@ namespace gpgmp
           MPN_COPY_INCR(ip, ip + 1, in);
         }
       }
-#else
-      /* This older inverse computation method gets slightly worse results than the
-         one above.  */
-      ip = scratch;
-      tp = scratch + in;
-
-      /* Compute inverse of D to in+1 limbs, then round to 'in' limbs.  Ideally the
-         inversion function should do this automatically.  */
-      if (dn == in)
-      {
-        tp[in + 1] = 0;
-        MPN_COPY(tp + in + 2, dp, in);
-        gpmpn_invertappr(tp, tp + in + 1, in + 1, NULL);
-      }
-      else
-      {
-        gpmpn_invertappr(tp, dp + dn - (in + 1), in + 1, NULL);
-      }
-      cy = gpmpn_sub_1(tp, tp, in + 1, GMP_NUMB_HIGHBIT);
-      if (UNLIKELY(cy != 0))
-        MPN_ZERO(tp + 1, in);
-      MPN_COPY(ip, tp + 1, in);
-#endif
 
       qh = gpmpn_preinv_mu_div_qr(qp, rp, np, nn, dp, dn, ip, in, scratch + in);
 
@@ -225,9 +210,6 @@ namespace gpgmp
       mp_limb_t r;
       mp_size_t tn, wn;
 
-#define tp scratch
-#define scratch_out (scratch + tn)
-
       qn = nn - dn;
 
       np += qn;
@@ -235,10 +217,13 @@ namespace gpgmp
 
       qh = gpmpn_cmp(np, dp, dn) >= 0;
       if (qh != 0)
+      {
         gpmpn_sub_n(rp, np, dp, dn);
+      }
       else
+      {
         MPN_COPY_INCR(rp, np, dn);
-
+      }
       /* if (qn == 0) */ /* The while below handles this case */
       /*   return qh; */ /* Degenerate use.  Should we allow this? */
 
@@ -254,8 +239,8 @@ namespace gpgmp
 
         /* Compute the next block of quotient limbs by multiplying the inverse I
      by the upper part of the partial remainder R.  */
-        gpmpn_mul_n(tp, rp + dn - in, ip, in);           /* mulhi  */
-        cy = gpmpn_add_n(qp, tp + in, rp + dn - in, in); /* I's msb implicit */
+        gpmpn_mul_n(scratch, rp + dn - in, ip, in);           /* mulhi  */
+        cy = gpmpn_add_n(qp, scratch + in, rp + dn - in, in); /* I's msb implicit */
         ASSERT_ALWAYS(cy == 0);
 
         qn -= in;
@@ -265,35 +250,35 @@ namespace gpgmp
      dividend N.  We only really need the low dn+1 limbs.  */
 
         if (BELOW_THRESHOLD(in, MUL_TO_MULMOD_BNM1_FOR_2NXN_THRESHOLD))
-          gpmpn_mul(tp, dp, dn, qp, in); /* dn+in limbs, high 'in' cancels */
+          gpmpn_mul(scratch, dp, dn, qp, in); /* dn+in limbs, high 'in' cancels */
         else
         {
           tn = gpmpn_mulmod_bnm1_next_size(dn + 1);
-          gpmpn_mulmod_bnm1(tp, tn, dp, dn, qp, in, scratch_out);
+          gpmpn_mulmod_bnm1(scratch, tn, dp, dn, qp, in, (scratch + tn));
           wn = dn + in - tn; /* number of wrapped limbs */
           if (wn > 0)
           {
-            cy = gpmpn_sub_n(tp, tp, rp + dn - wn, wn);
-            cy = gpmpn_sub_1(tp + wn, tp + wn, tn - wn, cy);
-            cx = gpmpn_cmp(rp + dn - in, tp + dn, tn - dn) < 0;
+            cy = gpmpn_sub_n(scratch, scratch, rp + dn - wn, wn);
+            cy = gpmpn_sub_1(scratch + wn, scratch + wn, tn - wn, cy);
+            cx = gpmpn_cmp(rp + dn - in, scratch + dn, tn - dn) < 0;
             ASSERT_ALWAYS(cx >= cy);
-            gpmpn_incr_u(tp, cx - cy);
+            gpmpn_incr_u(scratch, cx - cy);
           }
         }
 
-        r = rp[dn - in] - tp[dn];
+        r = rp[dn - in] - scratch[dn];
 
         /* Subtract the product from the partial remainder combined with new
      limbs from the dividend N, generating a new partial remainder R.  */
         if (dn != in)
         {
-          cy = gpmpn_sub_n(tp, np, tp, in); /* get next 'in' limbs from N */
-          cy = gpmpn_sub_nc(tp + in, rp, tp + in, dn - in, cy);
-          MPN_COPY(rp, tp, dn); /* FIXME: try to avoid this */
+          cy = gpmpn_sub_n(scratch, np, scratch, in); /* get next 'in' limbs from N */
+          cy = gpmpn_sub_nc(scratch + in, rp, scratch + in, dn - in, cy);
+          perform_MPN_COPY(rp, scratch, dn); /* FIXME: try to avoid this */
         }
         else
         {
-          cy = gpmpn_sub_n(rp, np, tp, in); /* get next 'in' limbs from N */
+          cy = gpmpn_sub_n(rp, np, scratch, in); /* get next 'in' limbs from N */
         }
 
         STAT(int i; int err = 0;

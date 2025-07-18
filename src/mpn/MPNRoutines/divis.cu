@@ -160,7 +160,7 @@ namespace gpgmp
 
       if (twos != 0)
       {
-        tp = scratchSpace;//TMP_ALLOC_LIMBS(dn);
+        tp = scratchSpace;
         scratchSpace += (dn);
         ASSERT_NOCARRY(gpmpn_rshift(tp, dp, dn, twos));
         dp = tp;

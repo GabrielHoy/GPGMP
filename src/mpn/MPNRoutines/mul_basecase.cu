@@ -54,10 +54,7 @@ namespace gpgmp
        ones arrive here as this is the base case for Karatsuba's recursive
        algorithm.  */
 
-    ANYCALLER void
-    gpmpn_mul_basecase(mp_ptr rp,
-                     mp_srcptr up, mp_size_t un,
-                     mp_srcptr vp, mp_size_t vn)
+    ANYCALLER void gpmpn_mul_basecase(mp_ptr rp, mp_srcptr up, mp_size_t un, mp_srcptr vp, mp_size_t vn)
     {
       ASSERT(un >= vn);
       ASSERT(vn >= 1);

@@ -51,7 +51,7 @@ namespace gpgmp
   {
 #define USE_DIVAPPR_Q 1
 #define TRACE(x)
-  #ifdef __CUDA_ARCH__
+#ifdef __CUDA_ARCH__
     __device__ static const unsigned char invsqrttab[384] = /* The common 0x100 was removed */
         {
             0xff, 0xfd, 0xfb, 0xf9, 0xf7, 0xf5, 0xf3, 0xf2, /* sqrt(1/80)..sqrt(1/87) */
@@ -103,7 +103,7 @@ namespace gpgmp
             0x04, 0x04, 0x03, 0x03, 0x03, 0x03, 0x02, 0x02, /* sqrt(1/1f0)..sqrt(1/1f7) */
             0x02, 0x02, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00  /* sqrt(1/1f8)..sqrt(1/1ff) */
     };
-    #else
+#else
     static const unsigned char invsqrttab[384] = /* The common 0x100 was removed */
         {
             0xff, 0xfd, 0xfb, 0xf9, 0xf7, 0xf5, 0xf3, 0xf2, /* sqrt(1/80)..sqrt(1/87) */
@@ -155,7 +155,7 @@ namespace gpgmp
             0x04, 0x04, 0x03, 0x03, 0x03, 0x03, 0x02, 0x02, /* sqrt(1/1f0)..sqrt(1/1f7) */
             0x02, 0x02, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00  /* sqrt(1/1f8)..sqrt(1/1ff) */
     };
-    #endif
+#endif
 
     /* Compute s = floor(sqrt(a0)), and *rp = a0 - s^2.  */
 
@@ -228,14 +228,12 @@ namespace gpgmp
    return cc such that {np, 2} = sp[0]^2 + cc*2^GMP_NUMB_BITS + rp[0] */
 #if SQRTREM2_INPLACE
 #define CALL_SQRTREM2_INPLACE(sp, rp) gpmpn_sqrtrem2(sp, rp)
-    ANYCALLER static mp_limb_t
-    gpmpn_sqrtrem2(mp_ptr sp, mp_ptr rp)
+    ANYCALLER static mp_limb_t gpmpn_sqrtrem2(mp_ptr sp, mp_ptr rp)
     {
       mp_srcptr np = rp;
 #else
 #define CALL_SQRTREM2_INPLACE(sp, rp) gpmpn_sqrtrem2(sp, rp, rp)
-    ANYCALLER static mp_limb_t
-    gpmpn_sqrtrem2(mp_ptr sp, mp_ptr rp, mp_srcptr np)
+    ANYCALLER static mp_limb_t gpmpn_sqrtrem2(mp_ptr sp, mp_ptr rp, mp_srcptr np)
     {
 #endif
       mp_limb_t q, u, np0, sp0, rp0, q2;
@@ -302,7 +300,7 @@ namespace gpgmp
 
       TMP_DECL;
       TMP_MARK;
-      mp_limb_t* scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(n, h));
+      mp_limb_t *scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(n, h));
       gpmpn_tdiv_qr(scratch, np + l, 0, np + l, n, sp + l, h, scratchForTDivQR);
       TMP_FREE;
 
@@ -558,7 +556,9 @@ namespace gpgmp
       tn = (nn + 1) / 2; /* 2*tn is the smallest even integer >= nn */
 
       if ((rp == NULL) && (nn > 8))
+      {
         return gpmpn_dc_sqrt(sp, np, tn, c, nn & 1);
+      }
       TMP_MARK;
       if (((nn & 1) | c) != 0)
       {
@@ -567,15 +567,19 @@ namespace gpgmp
         TMP_ALLOC_LIMBS_2(tp, 2 * tn, scratch, tn / 2 + 1);
         tp[0] = 0; /* needed only when 2*tn > nn, but saves a test */
         if (c != 0)
+        {
           gpmpn_lshift(tp + (nn & 1), np, nn, 2 * c);
+        }
         else
+        {
           MPN_COPY(tp + (nn & 1), np, nn);
+        }
         c += (nn & 1) ? GMP_NUMB_BITS / 2 : 0; /* c now represents k */
         mask = (CNST_LIMB(1) << c) - 1;
         rl = gpmpn_dc_sqrtrem(sp, tp, tn, (rp == NULL) ? mask - 1 : 0, scratch);
         /* We have 2^(2k)*N = S^2 + R where k = c + (2tn-nn)*GMP_NUMB_BITS/2,
      thus 2^(2k)*N = (S-s0)^2 + 2*S*s0 - s0^2 + R where s0=S mod 2^k */
-        s0[0] = sp[0] & mask;                      /* S mod 2^k */
+        s0[0] = sp[0] & mask;                        /* S mod 2^k */
         rl += gpmpn_addmul_1(tp, sp, tn, 2 * s0[0]); /* R = R + 2*s0*S */
         cc = gpmpn_submul_1(tp, s0, 1, s0[0]);
         rl -= (tn > 1) ? gpmpn_sub_1(tp + 1, tp + 1, tn - 1, cc) : cc;
@@ -585,16 +589,22 @@ namespace gpgmp
           rp = tp;
         c = c << 1;
         if (c < GMP_NUMB_BITS)
+        {
           tn++;
+        }
         else
         {
           tp++;
           c -= GMP_NUMB_BITS;
         }
         if (c != 0)
+        {
           gpmpn_rshift(rp, tp, tn, c);
+        }
         else
+        {
           MPN_COPY_INCR(rp, tp, tn);
+        }
         rn = tn;
       }
       else
@@ -602,7 +612,9 @@ namespace gpgmp
         if (rp != np)
         {
           if (rp == NULL) /* nn <= 8 */
+          {
             rp = TMP_SALLOC_LIMBS(nn);
+          }
           MPN_COPY(rp, np, nn);
         }
         rn = tn + (rp[tn] = gpmpn_dc_sqrtrem(sp, rp, tn, 0, TMP_ALLOC_LIMBS(tn / 2 + 1)));

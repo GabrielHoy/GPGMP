@@ -1987,11 +1987,11 @@ typedef size_t gmp_intptr_t;
 #define gpmpn_rootrem __GPGMP_MPN(rootrem)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_rootrem(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
 
-#define gpmpn_broot __GPGMP_MPN(broot)
-            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_broot(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_broot(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_broot_itch(mp_size_t);
 
-#define gpmpn_broot_invm1 __GPGMP_MPN(broot_invm1)
-            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_broot_invm1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_broot_invm1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_broot_invm1_itch(mp_size_t);
 
 #define gpmpn_brootinv __GPGMP_MPN(brootinv)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_brootinv(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_ptr);

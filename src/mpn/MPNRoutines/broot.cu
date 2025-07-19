@@ -75,7 +75,12 @@ namespace gpgmp {
       where we still have cancellation of low limbs.
 
     */
-    HOSTONLY void gpmpn_broot_invm1 (mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t k)
+
+    ANYCALLER mp_size_t gpmpn_broot_invm1_itch(mp_size_t n)
+    {
+      return (4 * n) + (2*n + 1);
+    }
+    ANYCALLER void gpmpn_broot_invm1 (mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t k, mp_limb_t* scratchSpace)
     {
       mp_size_t sizes[GMP_LIMB_BITS * 2];
       mp_ptr akm1, tp, rnp, ep;
@@ -83,16 +88,15 @@ namespace gpgmp {
       mp_size_t rn;
       unsigned i;
 
-      TMP_DECL;
 
       ASSERT (n > 0);
       ASSERT (ap[0] & 1);
       ASSERT (k & 1);
       ASSERT (k >= 3);
 
-      TMP_MARK;
 
-      akm1 = TMP_ALLOC_LIMBS (4*n);
+      akm1 = scratchSpace;
+      scratchSpace += (4*n);
       tp = akm1 + n;
 
       km1 = k-1;
@@ -133,7 +137,6 @@ namespace gpgmp {
       rp[0] = r0;
       if (n == 1)
       {
-        TMP_FREE;
         return;
       }
 
@@ -141,12 +144,15 @@ namespace gpgmp {
       kp1h = k/2 + 1;
 
       /* FIXME: Special case for two limb iteration. */
-      rnp = TMP_ALLOC_LIMBS (2*n + 1);
+      rnp = scratchSpace;
+      scratchSpace += (2*n + 1);
       ep = rnp + n;
 
       /* FIXME: Possible to this on the fly with some bit fiddling. */
       for (i = 0; n > 1; n = (n + 1)/2)
+      {
         sizes[i++] = n;
+      }
 
       rn = 1;
 
@@ -167,14 +173,18 @@ namespace gpgmp {
         gpmpn_neg (rp + rn, rp + rn, sizes[i] - rn);
         rn = sizes[i];
       }
-      TMP_FREE;
+    }
+
+    ANYCALLER mp_size_t gpmpn_broot_itch(mp_size_t n)
+    {
+      return n +
+      gpmpn_broot_invm1_itch(n);
     }
 
     /* Computes a^{1/k} (mod B^n). Both a and k must be odd. */
-    HOSTONLY void gpmpn_broot (mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t k)
+    ANYCALLER void gpmpn_broot (mp_ptr rp, mp_srcptr ap, mp_size_t n, mp_limb_t k, mp_limb_t* scratchSpace)
     {
       mp_ptr tp;
-      TMP_DECL;
 
       ASSERT (n > 0);
       ASSERT (ap[0] & 1);
@@ -186,13 +196,11 @@ namespace gpgmp {
         return;
       }
 
-      TMP_MARK;
-      tp = TMP_ALLOC_LIMBS (n);
+      tp = scratchSpace;
+      scratchSpace += (n);
 
-      gpmpn_broot_invm1 (tp, ap, n, k);
+      gpmpn_broot_invm1 (tp, ap, n, k, scratchSpace);
       gpmpn_mullo_n (rp, tp, ap, n);
-
-      TMP_FREE;
     }
 
   }

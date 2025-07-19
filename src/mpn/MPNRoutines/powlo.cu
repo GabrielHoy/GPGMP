@@ -110,7 +110,7 @@ namespace gpgmp
         MPN_COPY(this_pp, bp, n);
 
         /* Store b^2 in tp.  */
-        gpmpn_sqrlo(tp, bp, n);
+        gpmpn_sqrlo(tp, bp, n, TMP_ALLOC_LIMBS(gpmpn_sqrlo_itch(n)));
 
         /* Precompute odd powers of b and put them in the temporary area at pp.  */
         i = (1 << (windowsize - 1)) - 1;
@@ -145,7 +145,7 @@ namespace gpgmp
       {
         while (getbit(ep, ebi) == 0)
         {
-          gpmpn_sqrlo(tp, rp, n);
+          gpmpn_sqrlo(tp, rp, n, TMP_ALLOC_LIMBS(gpmpn_sqrlo_itch(n)));
           MP_PTR_SWAP(rp, tp);
           flipflop = !flipflop;
           if (--ebi == 0)
@@ -165,13 +165,13 @@ namespace gpgmp
 
         while (this_windowsize > 1)
         {
-          gpmpn_sqrlo(tp, rp, n);
-          gpmpn_sqrlo(rp, tp, n);
+          gpmpn_sqrlo(tp, rp, n, TMP_ALLOC_LIMBS(gpmpn_sqrlo_itch(n)));
+          gpmpn_sqrlo(rp, tp, n, TMP_ALLOC_LIMBS(gpmpn_sqrlo_itch(n)));
           this_windowsize -= 2;
         }
 
         if (this_windowsize != 0)
-          gpmpn_sqrlo(tp, rp, n);
+          gpmpn_sqrlo(tp, rp, n, TMP_ALLOC_LIMBS(gpmpn_sqrlo_itch(n)));
         else
         {
           MP_PTR_SWAP(rp, tp);

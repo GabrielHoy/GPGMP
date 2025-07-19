@@ -115,11 +115,7 @@ namespace gpgmp
 
     /* Return non-zero if N = {np,n} is a kth power.
        I = {ip,n} = N^(-1) mod B^n.  */
-    ANYCALLER static int
-    is_kth_power(mp_ptr rp, mp_srcptr np,
-                 mp_limb_t k, mp_srcptr ip,
-                 mp_size_t n, mp_bitcnt_t f,
-                 mp_ptr tp)
+    HOSTONLY static int is_kth_power(mp_ptr rp, mp_srcptr np, mp_limb_t k, mp_srcptr ip, mp_size_t n, mp_bitcnt_t f, mp_ptr tp)
     {
       mp_bitcnt_t b;
       mp_size_t rn, xn;
@@ -132,21 +128,30 @@ namespace gpgmp
       {
         b = (f + 1) >> 1;
         rn = 1 + b / GMP_LIMB_BITS;
-        if (gpmpn_bsqrtinv(rp, ip, b, tp) != 0)
+        TMP_DECL;
+        TMP_MARK;
+        if (gpmpn_bsqrtinv(rp, ip, b, tp, TMP_ALLOC_LIMBS(gpmpn_bsqrtinv_itch(b))) != 0)
         {
           rp[rn - 1] &= (CNST_LIMB(1) << (b % GMP_LIMB_BITS)) - 1;
           xn = rn;
           MPN_NORMALIZE(rp, xn);
           if (pow_equals(np, n, rp, xn, k, f, tp) != 0)
+          {
+            TMP_FREE;
             return 1;
+          }
 
           /* Check if (2^b - r)^2 == n */
           gpmpn_neg(rp, rp, rn);
           rp[rn - 1] &= (CNST_LIMB(1) << (b % GMP_LIMB_BITS)) - 1;
           MPN_NORMALIZE(rp, rn);
           if (pow_equals(np, n, rp, rn, k, f, tp) != 0)
+          {
+            TMP_FREE;
             return 1;
+          }
         }
+        TMP_FREE;
       }
       else
       {
@@ -163,10 +168,7 @@ namespace gpgmp
       return 0;
     }
 
-    ANYCALLER static int
-    perfpow(mp_srcptr np, mp_size_t n,
-            mp_limb_t ub, mp_limb_t g,
-            mp_bitcnt_t f, int neg)
+    ANYCALLER static int perfpow(mp_srcptr np, mp_size_t n, mp_limb_t ub, mp_limb_t g, mp_bitcnt_t f, int neg)
     {
       mp_ptr ip, tp, rp;
       mp_limb_t k;

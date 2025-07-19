@@ -35,7 +35,12 @@ namespace gpgmp {
 
 	namespace mpnRoutines {
 
-		ANYCALLER void gpmpn_bsqrt (mp_ptr rp, mp_srcptr ap, mp_bitcnt_t nb, mp_ptr tp)
+    ANYCALLER mp_size_t gpmpn_bsqrt_itch(mp_size_t numLimbsInN)
+    {
+      return gpmpn_bsqrtinv_itch(static_cast<mp_bitcnt_t>(numLimbsInN * GMP_NUMB_BITS));
+    }
+
+		ANYCALLER void gpmpn_bsqrt (mp_ptr rp, mp_srcptr ap, mp_bitcnt_t nb, mp_ptr tp, mp_limb_t* scratchSpace)
     {
       mp_ptr sp;
       mp_size_t n;
@@ -45,7 +50,7 @@ namespace gpgmp {
       n = nb / GMP_NUMB_BITS;
       sp = tp + n;
 
-      gpgmp::mpnRoutines::gpmpn_bsqrtinv (tp, ap, nb, sp);
+      gpgmp::mpnRoutines::gpmpn_bsqrtinv (tp, ap, nb, sp, scratchSpace);
       gpgmp::mpnRoutines::gpmpn_mullo_n (rp, tp, ap, n);
     }
 

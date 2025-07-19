@@ -128,8 +128,7 @@ namespace gpgmp
         k(a+1/6)=0.929_ but k(a-1/6)=0.865_.
     */
 
-    ANYCALLER static mp_size_t
-    gpmpn_sqrlo_itch(mp_size_t n)
+    ANYCALLER mp_size_t gpmpn_sqrlo_itch(mp_size_t n)
     {
       return 2 * n;
     }
@@ -194,7 +193,7 @@ namespace gpgmp
        accepts a pointer tp, and handle the case tp == rp, do the same here.
     */
 
-    HOSTONLY void gpmpn_sqrlo(mp_ptr rp, mp_srcptr xp, mp_size_t n)
+    ANYCALLER void gpmpn_sqrlo(mp_ptr rp, mp_srcptr xp, mp_size_t n, mp_limb_t* scratchSpace)
     {
       ASSERT(n >= 1);
       ASSERT(!MPN_OVERLAP_P(rp, n, xp, n));
@@ -220,9 +219,7 @@ namespace gpgmp
       else
       {
         mp_ptr tp;
-        TMP_DECL;
-        TMP_MARK;
-        tp = TMP_ALLOC_LIMBS(gpmpn_sqrlo_itch(n));
+        tp = scratchSpace;
         if (BELOW_THRESHOLD(n, SQRLO_SQR_THRESHOLD))
         {
           gpmpn_dc_sqrlo(rp, xp, n, tp);
@@ -238,7 +235,6 @@ namespace gpgmp
 #endif
           MPN_COPY(rp, tp, n);
         }
-        TMP_FREE;
       }
     }
 

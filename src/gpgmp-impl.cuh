@@ -1374,10 +1374,9 @@ typedef size_t gmp_intptr_t;
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqr_basecase(mp_ptr, mp_srcptr, mp_size_t);
 #endif
 
-#define gpmpn_sqrlo __GPGMP_MPN(sqrlo)
-            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqrlo(mp_ptr, mp_srcptr, mp_size_t);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqrlo(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_sqrlo_itch(mp_size_t);
 
-#define gpmpn_sqrlo_basecase __GPGMP_MPN(sqrlo_basecase)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqrlo_basecase(mp_ptr, mp_srcptr, mp_size_t);
 
 #define gpmpn_mulmid_basecase __GPGMP_MPN(mulmid_basecase)
@@ -1993,14 +1992,13 @@ typedef size_t gmp_intptr_t;
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_broot_invm1(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_limb_t*);
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_broot_invm1_itch(mp_size_t);
 
-#define gpmpn_brootinv __GPGMP_MPN(brootinv)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_brootinv(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t, mp_ptr);
 
-#define gpmpn_bsqrt __GPGMP_MPN(bsqrt)
-            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_bsqrt(mp_ptr, mp_srcptr, mp_bitcnt_t, mp_ptr);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_bsqrt(mp_ptr, mp_srcptr, mp_bitcnt_t, mp_ptr, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_bsqrt_itch(mp_size_t);
 
-#define gpmpn_bsqrtinv __GPGMP_MPN(bsqrtinv)
-            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_bsqrtinv(mp_ptr, mp_srcptr, mp_bitcnt_t, mp_ptr);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int gpmpn_bsqrtinv(mp_ptr, mp_srcptr, mp_bitcnt_t, mp_ptr, mp_limb_t*);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_bsqrtinv_itch(mp_bitcnt_t);
             GPGMP_MPN_NAMESPACE_END
 #if defined(_CRAY)
 #define MPN_COPY_INCR(dst, src, n)                                 \

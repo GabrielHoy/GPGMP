@@ -35,6 +35,11 @@ see https://www.gnu.org/licenses/.  */
 namespace gpgmp {
 
   namespace mpnRoutines {
+
+    ANYCALLER mp_size_t gpmpn_bsqrtinv_itch(mp_bitcnt_t bnb)
+    {
+      return gpmpn_sqrlo_itch(static_cast<mp_size_t>(2 * (1 + bnb / GMP_LIMB_BITS)));
+    }
     /* Compute r such that r^2 * y = 1 (mod 2^{b+1}).
       Return non-zero if such an integer r exists.
 
@@ -54,7 +59,7 @@ namespace gpgmp {
 
         (4) Use a small table to get starting value.
     */
-    ANYCALLER int gpmpn_bsqrtinv (mp_ptr rp, mp_srcptr yp, mp_bitcnt_t bnb, mp_ptr tp)
+    HOSTONLY int gpmpn_bsqrtinv (mp_ptr rp, mp_srcptr yp, mp_bitcnt_t bnb, mp_ptr tp, mp_limb_t* scratchSpace)
     {
       mp_ptr tp2;
       mp_size_t bn, order[GMP_LIMB_BITS + 1];
@@ -86,7 +91,8 @@ namespace gpgmp {
           bnb = order[i];
           bn = 1 + bnb / GMP_LIMB_BITS;
 
-          gpmpn_sqrlo (tp, rp, bn);
+          gpmpn_sqrlo (tp, rp, bn, scratchSpace);
+
           gpmpn_mullo_n (tp2, rp, tp, bn); /* tp2 <- rp ^ 3 */
 
           gpmpn_mul_1 (tp, rp, bn, 3);

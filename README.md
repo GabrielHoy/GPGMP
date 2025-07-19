@@ -53,7 +53,6 @@ I will write a more complete README - and docs - if/when I flesh out this librar
   - remove.cu
   - rootrem.cu
   - set_str.cu
-  - sqrlo.cu
   - sqrmod_bnm1.cu
   - strongfibo.cu
   - toom6_sqr.cu

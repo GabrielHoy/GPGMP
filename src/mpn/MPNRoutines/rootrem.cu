@@ -97,7 +97,13 @@ namespace gpgmp
       ASSERT(k > 1);
 
       if (UNLIKELY(k == 2))
-        return gpmpn_sqrtrem(rootp, remp, up, un);
+      {
+        TMP_DECL;
+        TMP_MARK;
+        mp_size_t returnValue = gpmpn_sqrtrem(rootp, remp, up, un, TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_sqrtrem_itch(un)));
+        TMP_FREE;
+        return returnValue;
+      }
       /* (un-1)/k > 2 <=> un > 3k <=> (un + 2)/3 > k */
       if (remp == NULL && (un + 2) / 3 > k)
       /* Pad {up,un} with k zero limbs.  This will produce an approximate root

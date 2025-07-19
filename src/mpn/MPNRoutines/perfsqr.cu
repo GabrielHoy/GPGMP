@@ -289,7 +289,7 @@ namespace gpgmp
         root_ptr = TMP_ALLOC_LIMBS((usize + 1) / 2);
 
         /* Iff gpmpn_sqrtrem returns zero, the square is perfect.  */
-        res = !gpmpn_sqrtrem(root_ptr, NULL, up, usize);
+        res = !gpmpn_sqrtrem(root_ptr, NULL, up, usize, TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_sqrtrem_itch(usize)));
         TMP_FREE;
 
         return res;

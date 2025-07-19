@@ -63,8 +63,7 @@ namespace gpgmp
        The effect is to extend the root beyond the size of the input (for
        instance into fractional limbs if u is an integer).  */
 
-    ANYCALLER void
-    gpgpmpf_sqrt(mpf_ptr r, mpf_srcptr u, mp_limb_t* scratchSpace)
+    ANYCALLER void gpmpf_sqrt(mpf_ptr r, mpf_srcptr u, mp_limb_t* scratchSpace)
     {
       mp_size_t usize;
       mp_ptr up;
@@ -106,7 +105,7 @@ namespace gpgmp
         MPN_COPY(scratchSpace + (tsize - usize), up, usize);
       }
 
-      gpgmp::mpnRoutines::gpmpn_sqrtrem(r->_mp_d, NULL, scratchSpace, tsize);
+      gpgmp::mpnRoutines::gpmpn_sqrtrem(r->_mp_d, NULL, scratchSpace, tsize, scratchSpace + (tsize - usize) + usize);
 
     }
 

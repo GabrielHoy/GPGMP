@@ -99,7 +99,8 @@ namespace gpgmp
       }
 #endif
 
-      gpgmp::mpnRoutines::gpmpn_sqrtrem(PTR(r), NULL, scratchSpace, rsize);
+
+      gpgmp::mpnRoutines::gpmpn_sqrtrem(PTR(r), NULL, scratchSpace, rsize, scratchSpace + zeros);
 
       SIZ(r) = prec;
       EXP(r) = 1;

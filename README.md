@@ -56,7 +56,6 @@ I will write a more complete README - and docs - if/when I flesh out this librar
   - set_str.cu
   - sqrlo.cu
   - sqrmod_bnm1.cu
-  - sqrtem.cu
   - strongfibo.cu
   - toom6_sqr.cu
   - toom6h_mul.cu

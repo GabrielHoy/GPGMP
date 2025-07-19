@@ -1445,7 +1445,7 @@ typedef size_t gmp_intptr_t;
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_bc_mulmod_bnm1(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_ptr);
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mulmod_bnm1(mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define gpmpn_mulmod_bnm1_next_size __GPGMP_MPN(mulmod_bnm1_next_size)
+
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_mulmod_bnm1_next_size(mp_size_t) ATTRIBUTE_CONST;
             ANYCALLER static inline mp_size_t gpmpn_mulmod_bnm1_itch(mp_size_t rn, mp_size_t an, mp_size_t bn)
             {
@@ -1807,7 +1807,7 @@ typedef size_t gmp_intptr_t;
 
 #define gpmpn_mu_divappr_q __GPGMP_MPN(mu_divappr_q)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_mu_divappr_q(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr);
-#define gpmpn_mu_divappr_q_itch __GPGMP_MPN(mu_divappr_q_itch)
+
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_mu_divappr_q_itch(mp_size_t, mp_size_t, int) ATTRIBUTE_CONST;
 
 #define gpmpn_mu_div_q __GPGMP_MPN(mu_div_q)

@@ -66,13 +66,20 @@ namespace gpgmp
 
     ANYCALLER static int gpmpf_sqrt_itch(mp_size_t maxPrecisionLimbCountOfOperands)
     {
-        return maxPrecisionLimbCountOfOperands * 2;
+        return (maxPrecisionLimbCountOfOperands * 2) + gpgmp::mpnRoutines::gpmpn_sqrtrem_itch(maxPrecisionLimbCountOfOperands);
     }
 
 
     ANYCALLER static int gpmpf_sqrt_ui_itch(mp_size_t maxPrecisionLimbCountOfOperands)
     {
-        return (2 * maxPrecisionLimbCountOfOperands - 2) + 1 + (GMP_NUMB_BITS < BITS_PER_ULONG);
+        mp_size_t rsize, zeros;
+        zeros = 2 * maxPrecisionLimbCountOfOperands - 2;
+        rsize = zeros + 1 + (GMP_NUMB_BITS < BITS_PER_ULONG);
+
+        return (2 * maxPrecisionLimbCountOfOperands - 2) +
+        1 +
+        (GMP_NUMB_BITS < BITS_PER_ULONG)
+        + gpgmp::mpnRoutines::gpmpn_sqrtrem_itch(rsize);
     }
 
 

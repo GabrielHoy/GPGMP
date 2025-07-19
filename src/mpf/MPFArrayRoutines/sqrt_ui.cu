@@ -8,8 +8,7 @@ namespace gpgmp
 
 #define U2 (GMP_NUMB_BITS < BITS_PER_ULONG)
 
-    ANYCALLER void
-    gpmpf_sqrt_ui(mpf_array_idx r, unsigned long int u)
+    ANYCALLER void gpmpf_sqrt_ui(mpf_array_idx r, unsigned long int u)
     {
       MPF_ARRAY_ASSERT_OP_AVAILABLE(r.array, OP_SQRT_UI);
       mp_size_t rsize, zeros;
@@ -38,7 +37,8 @@ namespace gpgmp
       }
 #endif
 
-      gpgmp::mpnRoutines::gpmpn_sqrtrem(MPF_ARRAY_DATA_AT_IDX(r.array, r.idx), NULL, scratchSpace, rsize);
+      mp_limb_t* afterScratchSpace = scratchSpace + zeros;
+      gpgmp::mpnRoutines::gpmpn_sqrtrem(MPF_ARRAY_DATA_AT_IDX(r.array, r.idx), NULL, scratchSpace, rsize, afterScratchSpace);
 
       MPF_ARRAY_SIZES(r.array)[r.idx] = prec;
       MPF_ARRAY_EXPONENTS(r.array)[r.idx] = 1;

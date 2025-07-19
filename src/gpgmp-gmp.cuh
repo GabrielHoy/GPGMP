@@ -509,7 +509,8 @@ namespace gpgmp
 
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE size_t gpmpn_sizeinbase(mp_srcptr, mp_size_t, int);
 
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_sqrtrem(mp_ptr, mp_ptr, mp_srcptr, mp_size_t);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_sqrtrem(mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_limb_t*);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_size_t gpmpn_sqrtrem_itch(mp_size_t);
 
 #if __GMP_INLINE_PROTOTYPES || defined(__GMP_FORCE_gpmpn_sub)
 //__GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_sub(mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t);

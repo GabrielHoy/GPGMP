@@ -280,8 +280,7 @@ namespace gpgmp
        (c) qn < dn/3:       in = qn
        In all cases we have in <= dn.
      */
-    ANYCALLER static mp_size_t
-    gpmpn_mu_divappr_q_choose_in(mp_size_t qn, mp_size_t dn, int k)
+    ANYCALLER static mp_size_t gpmpn_mu_divappr_q_choose_in(mp_size_t qn, mp_size_t dn, int k)
     {
       mp_size_t in;
 

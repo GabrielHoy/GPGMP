@@ -273,13 +273,17 @@ namespace gpgmp
       return cc;
     }
 
+    ANYCALLER mp_size_t gpmpn_dc_sqrtrem_itch(mp_size_t n)
+    {
+      return gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(n, (n - (n / 2)));
+    }
     /* writes in {sp, n} the square root (rounded towards zero) of {np, 2n},
        and in {np, n} the low n limbs of the remainder, returns the high
        limb of the remainder (which is 0 or 1).
        Assumes {np, 2n} is normalized, i.e. np[2n-1] >= B/4
        where B=2^GMP_NUMB_BITS.
        Needs a scratch of n/2+1 limbs. */
-    HOSTONLY static mp_limb_t gpmpn_dc_sqrtrem(mp_ptr sp, mp_ptr np, mp_size_t n, mp_limb_t approx, mp_ptr scratch)
+    ANYCALLER static mp_limb_t gpmpn_dc_sqrtrem(mp_ptr sp, mp_ptr np, mp_size_t n, mp_limb_t approx, mp_ptr scratch, mp_limb_t *scratchSpace2)
     {
       mp_limb_t q; /* carry out of {sp, n} */
       int c, b;    /* carry out of remainder */
@@ -291,18 +295,21 @@ namespace gpgmp
       l = n / 2;
       h = n - l;
       if (h == 1)
+      {
         q = CALL_SQRTREM2_INPLACE(sp + l, np + 2 * l);
+      }
       else
-        q = gpmpn_dc_sqrtrem(sp + l, np + 2 * l, h, 0, scratch);
+      {
+        q = gpmpn_dc_sqrtrem(sp + l, np + 2 * l, h, 0, scratch, scratchSpace2);
+      }
       if (q != 0)
+      {
         ASSERT_CARRY(gpmpn_sub_n(np + 2 * l, np + 2 * l, sp + l, h));
+      }
       TRACE(printf("tdiv_qr(,,,,%u,,%u) -> %u\n", (unsigned)n, (unsigned)h, (unsigned)(n - h + 1)));
 
-      TMP_DECL;
-      TMP_MARK;
-      mp_limb_t *scratchForTDivQR = TMP_ALLOC_LIMBS(gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(n, h));
+      mp_limb_t *scratchForTDivQR = scratchSpace2;
       gpmpn_tdiv_qr(scratch, np + l, 0, np + l, n, sp + l, h, scratchForTDivQR);
-      TMP_FREE;
 
       q += scratch[l];
       c = scratch[0] & 1;
@@ -334,7 +341,12 @@ namespace gpgmp
     }
 
 #if USE_DIVAPPR_Q
-    HOSTONLY static void gpmpn_divappr_q(mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr scratch)
+    ANYCALLER mp_size_t gpmpn_divappr_q_itch(mp_size_t nn, mp_size_t dn)
+    {
+      return gpmpn_mu_divappr_q_itch(nn, dn, 0);
+    }
+
+    ANYCALLER static void gpmpn_divappr_q(mp_ptr qp, mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, mp_ptr scratch)
     {
       gmp_pi1_t inv;
       mp_limb_t qh;
@@ -350,16 +362,23 @@ namespace gpgmp
         qh = gpmpn_dcpi1_divappr_q(qp, scratch, nn, dp, dn, &inv);
       else
       {
-        mp_size_t itch = gpmpn_mu_divappr_q_itch(nn, dn, 0);
-        TMP_DECL;
-        TMP_MARK;
+        // no need(?) to point this to scratch after nn since the scratch variable isnt used further in this function....unless the results inside of scratch are used elsewhere for some reason
+        mp_ptr scratchUseForMUDivapprQ = scratch;
         /* Sadly, scratch is too small. */
-        qh = gpmpn_mu_divappr_q(qp, np, nn, dp, dn, TMP_ALLOC_LIMBS(itch));
-        TMP_FREE;
+        qh = gpmpn_mu_divappr_q(qp, np, nn, dp, dn, scratchUseForMUDivapprQ);
       }
       qp[nn - dn] = qh;
     }
 #endif
+
+    // TODO: I think we're over-calculating sqrt itch, do we  need divappr_q_itch if (!USE_DIVAPPR_Q)?
+    ANYCALLER mp_size_t gpmpn_dc_sqrt_itch(mp_size_t n)
+    {
+      return (((n - 1) / 2) + 2 * n + 5 - USE_DIVAPPR_Q) +
+             gpmpn_divappr_q_itch(n + 1, (n - ((n - 1) / 2))) +
+             ((USE_DIVAPPR_Q) ? 0 : gpmpn_div_q_itch_intermediary(n + 1, (n - ((n - 1) / 2)))) +
+             gpmpn_dc_sqrtrem_itch(n);
+    }
 
     /* writes in {sp, n} the square root (rounded towards zero) of {np, 2n-odd},
        returns zero if the operand was a perfect square, one otherwise.
@@ -368,14 +387,12 @@ namespace gpgmp
        THINK: In the odd case, three more (dummy) limbs are taken into account,
        when nsh is maximal, two limbs are discarded from the result of the
        division. Too much? Is a single dummy limb enough? */
-    HOSTONLY static int gpmpn_dc_sqrt(mp_ptr sp, mp_srcptr np, mp_size_t n, unsigned nsh, unsigned odd)
+    ANYCALLER static int gpmpn_dc_sqrt(mp_ptr sp, mp_srcptr np, mp_size_t n, unsigned nsh, unsigned odd, mp_limb_t *scratchSpace)
     {
       mp_limb_t q; /* carry out of {sp, n} */
       int c;       /* carry out of remainder */
       mp_size_t l, h;
       mp_ptr qp, tp, scratch;
-      TMP_DECL;
-      TMP_MARK;
 
       ASSERT(np[2 * n - 1 - odd] != 0);
       ASSERT(n > 4);
@@ -384,8 +401,11 @@ namespace gpgmp
       l = (n - 1) / 2;
       h = n - l;
       ASSERT(n >= l + 2 && l + 2 >= h && h > l && l >= 1 + odd);
-      scratch = TMP_ALLOC_LIMBS(l + 2 * n + 5 - USE_DIVAPPR_Q); /* n + 2-USE_DIVAPPR_Q */
-      tp = scratch + n + 2 - USE_DIVAPPR_Q;                     /* n + h + 1, but tp [-1] is writable */
+      scratch = scratchSpace;
+      scratchSpace += ((l + 2 * n + 5 - USE_DIVAPPR_Q) +
+                       gpmpn_divappr_q_itch(n + 1, h)); /* n + 2-USE_DIVAPPR_Q */
+
+      tp = scratch + n + 2 - USE_DIVAPPR_Q; /* n + h + 1, but tp [-1] is writable */
       if (nsh != 0)
       {
         /* o is used to exactly set the lowest bits of the dividend, is it needed? */
@@ -393,17 +413,22 @@ namespace gpgmp
         ASSERT_NOCARRY(gpmpn_lshift(tp - o, np + l - 1 - o - odd, n + h + 1 + o, 2 * nsh));
       }
       else
+      {
         MPN_COPY(tp, np + l - 1 - odd, n + h + 1);
-      q = gpmpn_dc_sqrtrem(sp + l, tp + l + 1, h, 0, scratch);
+      }
+
+      q = gpmpn_dc_sqrtrem(sp + l, tp + l + 1, h, 0, scratch, scratchSpace);
+
       if (q != 0)
+      {
         ASSERT_CARRY(gpmpn_sub_n(tp + l + 1, tp + l + 1, sp + l, h));
+      }
       qp = tp + n + 1; /* l + 2 */
       TRACE(printf("div(appr)_q(,,%u,,%u) -> %u \n", (unsigned)n + 1, (unsigned)h, (unsigned)(n + 1 - h + 1)));
 #if USE_DIVAPPR_Q
       gpmpn_divappr_q(qp, tp, n + 1, sp + l, h, scratch);
 #else
-      mp_size_t divIntermediaryScratchSizeNeeded = gpmpn_div_q_itch_intermediary(n + 1, h);
-      mp_ptr divIntermediaryScratch = TMP_ALLOC_LIMBS(divIntermediaryScratchSizeNeeded);
+      mp_ptr divIntermediaryScratch = scratchSpace;
       gpmpn_div_q(qp, tp, n + 1, sp + l, h, scratch, divIntermediaryScratch);
 #endif
       q += qp[l + 1];
@@ -476,19 +501,36 @@ namespace gpgmp
           }
         }
       }
-      TMP_FREE;
 
       if ((odd | nsh) != 0)
         gpmpn_rshift(sp, sp, n, nsh + (odd ? GMP_NUMB_BITS / 2 : 0));
       return c;
     }
 
-    ANYCALLER mp_size_t gpmpn_sqrtrem(mp_ptr sp, mp_ptr rp, mp_srcptr np, mp_size_t nn)
+    ANYCALLER mp_size_t gpmpn_sqrtrem_itch(mp_size_t nn)
+    {
+      mp_size_t scratchNeeded = 0;
+      mp_size_t tn = (nn + 1) / 2;
+
+      scratchNeeded += (2 * tn);
+      scratchNeeded += (tn / 2 + 1);
+
+      scratchNeeded += gpmpn_dc_sqrtrem_itch(tn);
+
+
+      if (nn > 8)
+      {
+        scratchNeeded = MAX(scratchNeeded, gpmpn_dc_sqrt_itch(tn));
+      }
+
+      return scratchNeeded;
+    }
+
+    ANYCALLER mp_size_t gpmpn_sqrtrem(mp_ptr sp, mp_ptr rp, mp_srcptr np, mp_size_t nn, mp_limb_t *scratchSpace)
     {
       mp_limb_t cc, high, rl;
       int c;
       mp_size_t rn, tn;
-      TMP_DECL;
 
       ASSERT(nn > 0);
       ASSERT_MPN(np, nn);
@@ -557,14 +599,17 @@ namespace gpgmp
 
       if ((rp == NULL) && (nn > 8))
       {
-        return gpmpn_dc_sqrt(sp, np, tn, c, nn & 1);
+        return gpmpn_dc_sqrt(sp, np, tn, c, nn & 1, scratchSpace);
       }
-      TMP_MARK;
       if (((nn & 1) | c) != 0)
       {
         mp_limb_t s0[1], mask;
         mp_ptr tp, scratch;
-        TMP_ALLOC_LIMBS_2(tp, 2 * tn, scratch, tn / 2 + 1);
+        tp = scratchSpace;
+        scratchSpace += (2 * tn);
+        scratch = scratchSpace;
+        scratchSpace += (tn / 2 + 1);
+
         tp[0] = 0; /* needed only when 2*tn > nn, but saves a test */
         if (c != 0)
         {
@@ -576,9 +621,9 @@ namespace gpgmp
         }
         c += (nn & 1) ? GMP_NUMB_BITS / 2 : 0; /* c now represents k */
         mask = (CNST_LIMB(1) << c) - 1;
-        rl = gpmpn_dc_sqrtrem(sp, tp, tn, (rp == NULL) ? mask - 1 : 0, scratch);
+        rl = gpmpn_dc_sqrtrem(sp, tp, tn, (rp == NULL) ? mask - 1 : 0, scratch, scratchSpace);
         /* We have 2^(2k)*N = S^2 + R where k = c + (2tn-nn)*GMP_NUMB_BITS/2,
-     thus 2^(2k)*N = (S-s0)^2 + 2*S*s0 - s0^2 + R where s0=S mod 2^k */
+        thus 2^(2k)*N = (S-s0)^2 + 2*S*s0 - s0^2 + R where s0=S mod 2^k */
         s0[0] = sp[0] & mask;                        /* S mod 2^k */
         rl += gpmpn_addmul_1(tp, sp, tn, 2 * s0[0]); /* R = R + 2*s0*S */
         cc = gpmpn_submul_1(tp, s0, 1, s0[0]);
@@ -586,7 +631,9 @@ namespace gpgmp
         gpmpn_rshift(sp, sp, tn, c);
         tp[tn] = rl;
         if (rp == NULL)
+        {
           rp = tp;
+        }
         c = c << 1;
         if (c < GMP_NUMB_BITS)
         {
@@ -613,16 +660,20 @@ namespace gpgmp
         {
           if (rp == NULL) /* nn <= 8 */
           {
-            rp = TMP_SALLOC_LIMBS(nn);
+            //No need to account for this case in the gpmpn_sqrtrem_itch function due to the above if branch already allocating 2tn limbs; 2tn being the smallest even integer >= nn
+            //Previously we salloc'ed nn limbs but 2tn >= nn so we're good to just use scratchSpace.
+            rp = scratchSpace;
+            scratchSpace += nn;
           }
           MPN_COPY(rp, np, nn);
         }
-        rn = tn + (rp[tn] = gpmpn_dc_sqrtrem(sp, rp, tn, 0, TMP_ALLOC_LIMBS(tn / 2 + 1)));
+        mp_limb_t* scratchPtrOne = scratchSpace;
+        scratchSpace += (tn / 2 + 1);
+        rn = tn + (rp[tn] = gpmpn_dc_sqrtrem(sp, rp, tn, 0, scratchPtrOne, scratchSpace));
       }
 
       MPN_NORMALIZE(rp, rn);
 
-      TMP_FREE;
       return rn;
     }
 

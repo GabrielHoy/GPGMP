@@ -52,7 +52,7 @@ namespace gpgmp
         MPN_COPY(scratchSpace + (tsize - usize), up, usize);
       }
 
-      gpgmp::mpnRoutines::gpmpn_sqrtrem(MPF_ARRAY_DATA_AT_IDX(r.array, r.idx), NULL, scratchSpace, tsize);
+      gpgmp::mpnRoutines::gpmpn_sqrtrem(MPF_ARRAY_DATA_AT_IDX(r.array, r.idx), NULL, scratchSpace, tsize, scratchSpace + (tsize - usize) + usize);
     }
 
   }

@@ -45,7 +45,6 @@ namespace gpgmp
       mp_size_t ediff;
       mp_limb_t cy;
       int negate;
-      TMP_DECL;
 
       usize = u->_mp_size;
       vsize = v->_mp_size;
@@ -75,7 +74,6 @@ namespace gpgmp
         return;
       }
 
-      TMP_MARK;
 
       /* Signs are now known to be the same.  */
       negate = usize < 0;
@@ -184,7 +182,6 @@ namespace gpgmp
 
       r->_mp_size = negate ? -rsize : rsize;
       r->_mp_exp = uexp;
-      TMP_FREE;
     }
 
   }

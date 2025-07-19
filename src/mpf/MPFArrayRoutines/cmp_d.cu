@@ -11,8 +11,7 @@ namespace gpgmp
   namespace mpfArrayRoutines
   {
 
-    ANYCALLER int
-    gpmpf_cmp_d(mpf_array_idx f, double d)
+    ANYCALLER int gpmpf_cmp_d(mpf_array_idx f, double d)
     {
       mp_limb_t darray[LIMBS_PER_DOUBLE];
       mpf_t df;

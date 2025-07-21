@@ -40,49 +40,73 @@ see https://www.gnu.org/licenses/.  */
 namespace gpgmp {
   namespace mpnRoutines {
 
+    ANYCALLER mp_size_t gpmpn_dcpi1_div_q_itch(mp_size_t nn, mp_size_t dn)
+    {
+      mp_size_t totalScratchNeeded = 0;
+      mp_size_t qn = nn - dn;
 
-    HOSTONLY mp_limb_t gpmpn_dcpi1_div_q (mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, gmp_pi1_t *dinv)
+      totalScratchNeeded += (nn + 1);
+
+      totalScratchNeeded += (qn + 1);
+
+      return totalScratchNeeded;
+    }
+
+    ANYCALLER mp_size_t gpmpn_dcpi1_div_q_itch_maximum(mp_size_t maximumLimbCountBetweenNumeratorAndDenominator)
+    {
+      return gpmpn_dcpi1_div_q_itch(maximumLimbCountBetweenNumeratorAndDenominator, 1);
+    }
+
+    HOSTONLY mp_limb_t gpmpn_dcpi1_div_q(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, gmp_pi1_t *dinv, mp_limb_t* scratchSpace)
     {
       mp_ptr tp, wp;
       mp_limb_t qh;
       mp_size_t qn;
-      TMP_DECL;
-
-      TMP_MARK;
 
       ASSERT (dn >= 6);
       ASSERT (nn - dn >= 3);
       ASSERT (dp[dn-1] & GMP_NUMB_HIGHBIT);
 
-      tp = TMP_ALLOC_LIMBS (nn + 1);
+      tp = scratchSpace;
+      scratchSpace += (nn + 1);
       MPN_COPY (tp + 1, np, nn);
       tp[0] = 0;
 
       qn = nn - dn;
-      wp = TMP_ALLOC_LIMBS (qn + 1);
+      wp = scratchSpace;
+      scratchSpace += (qn + 1);
 
-       qh = gpmpn_dcpi1_divappr_q (wp, tp, nn + 1, dp, dn, dinv);
+      qh = gpmpn_dcpi1_divappr_q (wp, tp, nn + 1, dp, dn, dinv);
 
       if (wp[0] == 0)
       {
         mp_limb_t cy;
 
         if (qn > dn)
+        {
           gpmpn_mul (tp, wp + 1, qn, dp, dn);
+        }
         else
+        {
           gpmpn_mul (tp, dp, dn, wp + 1, qn);
+        }
 
         cy = (qh != 0) ? gpmpn_add_n (tp + qn, tp + qn, dp, dn) : 0;
 
         if (cy || gpmpn_cmp (tp, np, nn) > 0) /* At most is wrong by one, no cycle. */
+        {
           qh -= gpmpn_sub_1 (qp, wp + 1, qn, 1);
+        }
         else /* Same as below */
+        {
           MPN_COPY (qp, wp + 1, qn);
+        }
       }
       else
+      {
         MPN_COPY (qp, wp + 1, qn);
+      }
 
-      TMP_FREE;
       return qh;
     }
 

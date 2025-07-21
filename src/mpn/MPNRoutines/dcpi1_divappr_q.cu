@@ -87,8 +87,7 @@ namespace gpgmp
 			return qh;
 		}
 
-		mp_limb_t gpmpn_dcpi1_divappr_q(mp_ptr qp, mp_ptr np, mp_size_t nn,
-							  mp_srcptr dp, mp_size_t dn, gmp_pi1_t *dinv)
+		mp_limb_t gpmpn_dcpi1_divappr_q(mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, gmp_pi1_t *dinv)
 		{
 			mp_size_t qn;
 			mp_limb_t qh, cy, qsave;

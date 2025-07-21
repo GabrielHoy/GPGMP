@@ -32,10 +32,6 @@ This library is **not** something I would consider "production usable" code quit
 - Actually set this up with build steps etc to be a library instead of compiling to an executable for ease of testing
 - Write some basic documentation for end-users to introduce them to the library and its basic usage
 - Refactor __**many**__ `mpn` routines to use pre-allocated scratch space instead of trying to dynamically allocate on the GPU:
-  - dcpi_bdiv_q.cu
-  - dcpi_bdiv_qr.cu
-  - dcpi1_bdiv_q.cu
-  - dcpi1_div_qr.cu
   - divexact.cu
   - divrem.cu
   - fib2_ui.cu
@@ -70,6 +66,7 @@ This library is **not** something I would consider "production usable" code quit
   - toom53_mul.cu
   - toom62_mul.cu
   - toom63_mul.cu
+- Investigate whether `_alloca` is viable to run on the GPU; possibly refactor more `mpn` functions if not
 - Optimize `gpgmp::mpnRoutines` routines for parallelized processing
 - Optimize `gpgmp::mpfRoutines` routines for parallelized processing
 - Optimize `gpgmp::mpfArrayRoutines` routines for parallelized processing

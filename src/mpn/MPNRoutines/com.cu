@@ -34,16 +34,19 @@ see https://www.gnu.org/licenses/.  */
 #undef gpmpn_com
 #endif
 
-namespace gpgmp {
+namespace gpgmp
+{
 
-	namespace mpnRoutines {
+  namespace mpnRoutines
+  {
 
-		ANYCALLER void gpmpn_com (mp_ptr result_ptr, mp_srcptr operand_ptr, mp_size_t size)
+    ANYCALLER void gpmpn_com(mp_ptr result_ptr, mp_srcptr operand_ptr, mp_size_t size)
     {
       mp_limb_t operand_limb;
-      do {
-          operand_limb = *operand_ptr++;
-          *result_ptr++ = ~operand_limb & GMP_NUMB_MASK;
+      do
+      {
+        operand_limb = *operand_ptr++;
+        *result_ptr++ = ~operand_limb & GMP_NUMB_MASK;
       } while (--size != 0);
     }
 

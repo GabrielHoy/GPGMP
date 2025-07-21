@@ -121,8 +121,6 @@ for the code to be correct.  */
 			mp_size_t shiftedNumeratorLimbNum, quotientNumLimbs;
 			gmp_pi1_t inverseOfDenominator;
 			int leadingZerosInQuotientHighLimb;
-			TMP_DECL;
-			TMP_MARK;
 
 			ASSERT(numeratorNumLimbs >= denominatorNumLimbs);
 			ASSERT(denominatorNumLimbs > 0);
@@ -178,7 +176,9 @@ for the code to be correct.  */
 								 (double)denominatorNumLimbs * numeratorNumLimbs) /* ...condition */
 					{
 						invert_pi1(inverseOfDenominator, new_denominatorPtr[denominatorNumLimbs - 1], new_denominatorPtr[denominatorNumLimbs - 2]);
-						quotientHighLimb = gpmpn_dcpi1_div_q(quotientStoreIn, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, denominatorNumLimbs, &inverseOfDenominator);
+						mp_limb_t* moreScratch = intermediaryScratch;
+						intermediaryScratch += gpmpn_dcpi1_div_q_itch(shiftedNumeratorLimbNum, denominatorNumLimbs);
+						quotientHighLimb = gpmpn_dcpi1_div_q(quotientStoreIn, new_numeratorPtr, shiftedNumeratorLimbNum, new_denominatorPtr, denominatorNumLimbs, &inverseOfDenominator, moreScratch);
 					}
 					else
 					{
@@ -199,7 +199,9 @@ for the code to be correct.  */
 				else /* divisor is already normalised */
 				{
 					if (new_numeratorPtr != numeratorPtr)
+					{
 						MPN_COPY(new_numeratorPtr, numeratorPtr, numeratorNumLimbs);
+					}
 
 					if (denominatorNumLimbs == 2)
 					{
@@ -218,7 +220,9 @@ for the code to be correct.  */
 								 (double)denominatorNumLimbs * numeratorNumLimbs) /* ...condition */
 					{
 						invert_pi1(inverseOfDenominator, highDenominatorLimb, denominatorPtr[denominatorNumLimbs - 2]);
-						quotientHighLimb = gpmpn_dcpi1_div_q(quotientStoreIn, new_numeratorPtr, numeratorNumLimbs, denominatorPtr, denominatorNumLimbs, &inverseOfDenominator);
+						mp_limb_t* moreScratch = intermediaryScratch;
+						intermediaryScratch += gpmpn_dcpi1_div_q_itch(numeratorNumLimbs, denominatorNumLimbs);
+						quotientHighLimb = gpmpn_dcpi1_div_q(quotientStoreIn, new_numeratorPtr, numeratorNumLimbs, denominatorPtr, denominatorNumLimbs, &inverseOfDenominator, moreScratch);
 					}
 					else
 					{

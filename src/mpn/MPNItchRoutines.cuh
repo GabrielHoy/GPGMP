@@ -29,6 +29,9 @@ namespace gpgmp
 
 			totalScratchNeeded += MAX(firstDivBranchPossibility,secondDivBranchPossibility);
 
+			//For the possible call to gpmpn_dcpi1_div_q_itch_maximum
+			totalScratchNeeded += gpmpn_dcpi1_div_q_itch(numeratorNumLimbs, denominatorNumLimbs);
+
 			return totalScratchNeeded;
 		}
 

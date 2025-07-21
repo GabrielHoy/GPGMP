@@ -278,61 +278,18 @@ int main(int argc, char** argv) {
     mp_size_t occuredAtDenom = 0;
     mp_size_t occuredAtNum = 0;
 
-    mp_size_t numeratorNumLimbsMaxValue = 2495;
-    printf("const float numeratorToMaximumItchRatios[] = {");
-    for (mp_size_t numeratorNumLimbs = 0; numeratorNumLimbs <= numeratorNumLimbsMaxValue; numeratorNumLimbs++)
+    for (mp_size_t numeratorNumLimbs = 1; numeratorNumLimbs <= 10000; numeratorNumLimbs++)
     {
-        float maximumIToNThisNumerator = 0.0f;
         for (mp_size_t denominatorNumLimbs = 1; denominatorNumLimbs <= numeratorNumLimbs; denominatorNumLimbs++)
         {
             mp_size_t itch = gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(numeratorNumLimbs, denominatorNumLimbs);
             float ratioIToN = (float)itch / (float)numeratorNumLimbs;
             if (ratioIToN > maximumRatioIToN)
             {
-                //printf("NEW MAXIMUM: %d num, %d denom, %fx itch\n", numeratorNumLimbs, denominatorNumLimbs, ratioIToN);
                 maximumRatioIToN = ratioIToN;
                 occuredAtDenom = denominatorNumLimbs;
                 occuredAtNum = numeratorNumLimbs;
             }
-            if (ratioIToN > maximumIToNThisNumerator)
-            {
-                maximumIToNThisNumerator = ratioIToN;
-            }
-        }
-        printf("%f, ", maximumIToNThisNumerator);
-    }
-    printf("};\n");
-
-    //Derive the maximum itch ratio at the maximum numerator value we're calculating to
-    mp_size_t itchAtMaxValue = 0;
-    float maximumIToNAtMaxNumerator = 0.0f;
-    for (mp_size_t denominatorNumLimbs = 1; denominatorNumLimbs <= numeratorNumLimbsMaxValue; denominatorNumLimbs++)
-    {
-        mp_size_t itch = gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(numeratorNumLimbsMaxValue, denominatorNumLimbs);
-        float ratioIToN = (float)itch / (float)numeratorNumLimbsMaxValue;
-        if (ratioIToN > maximumIToNAtMaxNumerator)
-        {
-            maximumIToNAtMaxNumerator = ratioIToN;
-        }
-    }
-
-    //Then check a lot of extra numerator values past the maximum we calculated to in order to ensure that going higher in numerator values doesnt increase the itch ratio past the maximum we calculated to
-    for (mp_size_t numeratorNumLimbs = numeratorNumLimbsMaxValue*41; numeratorNumLimbs <= numeratorNumLimbsMaxValue*100; numeratorNumLimbs++)
-    {
-        for (mp_size_t denominatorNumLimbs = 1; denominatorNumLimbs <= numeratorNumLimbs; denominatorNumLimbs++)
-        {
-            mp_size_t itch = gpgmp::mpnRoutines::gpmpn_tdiv_qr_itch(numeratorNumLimbs, denominatorNumLimbs);
-            float ratioIToN = (float)itch / (float)numeratorNumLimbs;
-            if (ratioIToN > maximumIToNAtMaxNumerator)
-            {
-                printf("NEW MAXIMUM PAST %d NUMERATOR LIMBS - MAXIMUM ITCH AT CURRENTLY CALCULATED LIMIT: %f, NEW MAXIMUM NUMERATOR LIMBS: %d, NEW MAXIMUM ITCH RATIO: %f\n", numeratorNumLimbsMaxValue, maximumIToNAtMaxNumerator, numeratorNumLimbs, ratioIToN);
-                maximumIToNAtMaxNumerator = ratioIToN;
-                break;
-            }
-        }
-        if (numeratorNumLimbs % 1000 == 0)
-        {
-            printf("Calculated for %d numerator limbs\n", numeratorNumLimbs);
         }
     }
 

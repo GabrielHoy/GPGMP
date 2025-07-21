@@ -122,7 +122,7 @@ namespace gpgmp
 
 #ifdef WANT_FAT_BINARY
 /* For fat builds, we use SQR_TOOM2_THRESHOLD which will expand to a read from
-   __ggpmpn_cpuvec.  Perhaps any possible sqr_basecase.asm allow any size, and we
+   __gpmpn_cpuvec.  Perhaps any possible sqr_basecase.asm allow any size, and we
    limit the use unnecessarily.  We cannot tell, so play it safe.  FIXME.  */
 #define SQR_BASECASE_LIM SQR_TOOM2_THRESHOLD
 #endif

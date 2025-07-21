@@ -73,7 +73,7 @@ namespace gpgmp
     /* THIS CAUSES AN IMMEDIATE HANG INSIDE CUDA KERNELS. . . CURSE YOU STATIC STACK SIZE LIMITS */
     ANYCALLER void gpmpn_toom2_sqr(mp_ptr pp, mp_srcptr ap, mp_size_t an, mp_ptr scratch)
     {
-      const int __ggpmpn_cpuvec_initialized = 1;
+      const int __gpmpn_cpuvec_initialized = 1;
       mp_size_t n, s;
       mp_limb_t cy, cy2;
       mp_ptr asm1;

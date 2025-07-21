@@ -62,7 +62,7 @@ see https://www.gnu.org/licenses/.  */
 
 /* For fat.h and other fat binary stuff.
    No need for __GMP_ATTRIBUTE_PURE or __GMP_NOTHROW, since functions
-   declared this way are only used to set function pointers in __ggpmpn_cpuvec,
+   declared this way are only used to set function pointers in __gpmpn_cpuvec,
    they're not called directly.  */
 #define DECL_add_n(name) \
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t name(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t)
@@ -4177,7 +4177,7 @@ typedef unsigned long int UDItype;
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int __gpgmp_extract_double(mp_ptr, double);
             GPGMP_MPN_NAMESPACE_BEGIN
 
-#define gpmpn_get_d __ggpmpn_get_d
+#define gpmpn_get_d __gpmpn_get_d
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE double gpmpn_get_d(mp_srcptr, mp_size_t, mp_size_t, long) __GMP_ATTRIBUTE_PURE;
             GPGMP_MPN_NAMESPACE_END
             /* DOUBLE_NAN_INF_ACTION executes code a_nan if x is a NaN, or executes
@@ -6046,17 +6046,17 @@ const mp_limb_t
                     mp_size_t sqr_toom3_threshold;
                     mp_size_t bmod_1_to_mod_1_threshold;
             };
-            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE extern struct cpuvec_t __ggpmpn_cpuvec;
-            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE extern int __ggpmpn_cpuvec_initialized;
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE extern struct cpuvec_t __gpmpn_cpuvec;
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE extern int __gpmpn_cpuvec_initialized;
 #endif /* x86 fat binary */
 
-            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __ggpmpn_cpuvec_init(void);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpmpn_cpuvec_init(void);
 
-            /* Get a threshold "field" from __ggpmpn_cpuvec, running __ggpmpn_cpuvec_init()
+            /* Get a threshold "field" from __gpmpn_cpuvec, running __gpmpn_cpuvec_init()
                if that hasn't yet been done (to establish the right values).  */
 #define CPUVEC_THRESHOLD(field)                                                   \
-            ((LIKELY(__ggpmpn_cpuvec_initialized) ? 0 : (__ggpmpn_cpuvec_init(), 0)), \
-             __ggpmpn_cpuvec.field)
+            ((LIKELY(__gpmpn_cpuvec_initialized) ? 0 : (__gpmpn_cpuvec_init(), 0)), \
+             __gpmpn_cpuvec.field)
 
             GPGMP_MPN_NAMESPACE_BEGIN
 #if HAVE_NATIVE_gpmpn_add_nc

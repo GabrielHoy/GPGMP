@@ -83,13 +83,13 @@ void gpmpn_mod_1_1p_cps_2 (mp_limb_t [4], mp_limb_t);
 #define gpmpn_mod_1_1p(ap, n, b, pre)			     \
   (mod_1_1p_method == 1 ? gpmpn_mod_1_1p_1 (ap, n, b, pre)     \
    : (mod_1_1p_method == 2 ? gpmpn_mod_1_1p_2 (ap, n, b, pre)  \
-      : __ggpmpn_mod_1_1p (ap, n, b, pre)))
+      : __gpmpn_mod_1_1p (ap, n, b, pre)))
 
 #undef gpmpn_mod_1_1p_cps
 #define gpmpn_mod_1_1p_cps(pre, b)				\
   (mod_1_1p_method == 1 ? gpmpn_mod_1_1p_cps_1 (pre, b)		\
    : (mod_1_1p_method == 2 ? gpmpn_mod_1_1p_cps_2 (pre, b)	\
-      : __ggpmpn_mod_1_1p_cps (pre, b)))
+      : __gpmpn_mod_1_1p_cps (pre, b)))
 #endif /* TUNE_PROGRAM_BUILD && !HAVE_NATIVE_gpmpn_mod_1_1p */
 
 

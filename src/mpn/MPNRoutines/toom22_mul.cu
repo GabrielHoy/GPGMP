@@ -95,7 +95,7 @@ namespace gpgmp
                    mp_srcptr bp, mp_size_t bn,
                    mp_ptr scratch)
     {
-      const int __ggpmpn_cpuvec_initialized = 1;
+      const int __gpmpn_cpuvec_initialized = 1;
       mp_size_t n, s, t;
       int vm1_neg;
       mp_limb_t cy, cy2;

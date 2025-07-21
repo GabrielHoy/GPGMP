@@ -31,7 +31,7 @@ namespace gpgmp
       valueSetTo = ABS(valueSetTo);
 
       MPF_ARRAY_SIZES(toSet.array)[toSet.idx] = negative ? -LIMBS_PER_DOUBLE : LIMBS_PER_DOUBLE;
-      MPF_ARRAY_EXPONENTS(toSet.array)[toSet.idx] = __gmp_extract_double(MPF_ARRAY_DATA_AT_IDX(toSet.array, toSet.idx), valueSetTo);
+      MPF_ARRAY_EXPONENTS(toSet.array)[toSet.idx] = __gpgmp_extract_double(MPF_ARRAY_DATA_AT_IDX(toSet.array, toSet.idx), valueSetTo);
     }
 
   }

@@ -4174,7 +4174,7 @@ typedef unsigned long int UDItype;
             /* Maximum number of limbs it will take to store any `double'.
                We assume doubles have 53 mantissa bits.  */
 #define LIMBS_PER_DOUBLE ((53 + GMP_NUMB_BITS - 2) / GMP_NUMB_BITS + 1)
-            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int __gmp_extract_double(mp_ptr, double);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE int __gpgmp_extract_double(mp_ptr, double);
             GPGMP_MPN_NAMESPACE_BEGIN
 
 #define gpmpn_get_d __ggpmpn_get_d

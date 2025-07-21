@@ -27,7 +27,7 @@ namespace gpgmp
 
       PTR(df) = darray;
       SIZ(df) = (d >= 0.0 ? LIMBS_PER_DOUBLE : -LIMBS_PER_DOUBLE);
-      EXP(df) = __gmp_extract_double(darray, ABS(d));
+      EXP(df) = __gpgmp_extract_double(darray, ABS(d));
 
       return gpgmp::internal::mpfArrayRoutines::gpmpf_cmp_array_idx_to_mpf_t(f, df);
     }

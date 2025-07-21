@@ -9,7 +9,6 @@
 
 #include "config.cuh"
 
-#include "DeviceCommon.cuh"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -90,7 +89,7 @@ namespace gpgmp
     //Requires scratch space to be provided by the caller if called on the device-side.
     //Requires scratch space NOT to be provided if called on the host-side.
     //Using this routine on the device is HEAVILY RECOMMENDED AGAINST, albeit possible.
-    ANYCALLER int gpmpf_set_str(mpf_array_idx x, const char *str, int base, char* scratchSpaceIfOnDevice)
+    HOSTONLY int gpmpf_set_str(mpf_array_idx x, const char *str, int base, char* scratchSpaceIfOnDevice)
     {
       size_t str_size;
       #ifdef __CUDA_ARCH__
@@ -107,7 +106,7 @@ namespace gpgmp
       const char *expptr;
       int exp_base;
       const char *point = GMP_DECIMAL_POINT;
-      size_t pointlen = gpgmp::internal::cudaStrLen(point);
+      size_t pointlen = strlen(point);
       const unsigned char *digit_value;
       int incr;
       size_t n_zeros_skipped;
@@ -119,7 +118,7 @@ namespace gpgmp
       c = (unsigned char)*str;
 
       /* Skip whitespace.  */
-      while (gpgmp::internal::cudaIsSpace(c))
+      while (isspace(c))
         c = (unsigned char)*++str;
 
       negative = 0;
@@ -165,7 +164,7 @@ namespace gpgmp
       /* Locate exponent part of the input.  Look from the right of the string,
          since the exponent is usually a lot shorter than the mantissa.  */
       expptr = NULL;
-      str_size = gpgmp::internal::cudaStrLen(str);
+      str_size = strlen(str);
       for (i = str_size - 1; i > 0; i--)
       {
         c = (unsigned char)str[i];
@@ -193,7 +192,7 @@ namespace gpgmp
       for (i = 0; i < str_size; i++)
       {
         c = (unsigned char)*str;
-        if (!gpgmp::internal::cudaIsSpace(c))
+        if (!isspace(c))
         {
           int dig;
 

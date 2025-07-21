@@ -60,7 +60,7 @@ namespace gpgmp
       d = ABS(d);
 
       SIZ(r) = negative ? -LIMBS_PER_DOUBLE : LIMBS_PER_DOUBLE;
-      EXP(r) = __gmp_extract_double(PTR(r), d);
+      EXP(r) = __gpgmp_extract_double(PTR(r), d);
     }
 
   }

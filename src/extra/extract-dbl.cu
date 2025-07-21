@@ -1,4 +1,4 @@
-/* __gmp_extract_double -- convert from double to array of mp_limb_t.
+/* __gpgmp_extract_double -- convert from double to array of mp_limb_t.
 
 Copyright 1996, 1999-2002, 2006, 2012 Free Software Foundation, Inc.
 
@@ -40,8 +40,7 @@ see https://www.gnu.org/licenses/.  */
 
 /* Extract a non-negative double in d.  */
 
-ANYCALLER int
-__gmp_extract_double (mp_ptr rp, double d)
+ANYCALLER int __gpgmp_extract_double (mp_ptr rp, double d)
 {
   long exp;
   unsigned sc;

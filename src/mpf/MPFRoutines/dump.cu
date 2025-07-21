@@ -36,7 +36,6 @@ see https://www.gnu.org/licenses/.  */
 #include <stdio.h>
 #include <string.h> /* for strlen */
 #include "gpgmp-impl.cuh"
-#include "DeviceCommon.cuh"
 
 namespace gpgmp
 {
@@ -53,7 +52,7 @@ namespace gpgmp
         printf("-0.%se%ld\n", str + 1, exp);
       else
         printf("0.%se%ld\n", str, exp);
-      (*__gpgmp_free_func)(str, gpgmp::internal::cudaStrLen(str) + 1);
+      (*__gpgmp_free_func)(str, strlen(str) + 1);
     }
 
   }

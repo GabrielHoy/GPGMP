@@ -154,7 +154,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpgmp_assert_header(const char *filen
 __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpgmp_assert_fail (const char *filename, int linenum, const char *expr)
 {
   __gpgmp_assert_header (filename, linenum);
-  printf("GNU MP assertion failed: %s\n", expr);
+  printf("GNU MP [GPGMP] assertion failed: %s\n", expr);
   //abort();
 };
 
@@ -167,7 +167,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpgmp_exception(int error_bit)
     raise (SIGFPE);
     #else
     //__gpgmp_junk = 10 / __gpgmp_0;
-    printf("GMP: EXCEPTION RAISED: NORMALLY WOULD DIVIDE BY 0 INTENTIONALLY HERE. . .\n");
+    printf("GPGMP: EXCEPTION RAISED: NORMALLY WOULD DIVIDE BY 0 INTENTIONALLY HERE. . .\n");
     #endif
     //abort ();
 };
@@ -184,7 +184,7 @@ __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpgmp_overflow_in_mpz(void) {
 __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void __gpgmp_invalid_operation(void) {
     //raise (SIGFPE);
     //abort ();
-    printf("GMP: INVALID OPERATION - NORMALLY WOULD RAISE A SIGFPE AND ABORT HERE. . .\n");
+    printf("GPGMP: INVALID OPERATION - NORMALLY WOULD RAISE A SIGFPE AND ABORT HERE. . .\n");
 };
 
 
@@ -216,13 +216,13 @@ __GPGMP_DECLSPEC void *__gpgmp_free_func(void *blk_ptr, size_t blk_size)
         {
             if (p[-1] != (0xdeadbeef << 31) + 0xdeafdeed)
             {
-                printf("gmp: (free) data clobbered before allocation block\n");
+                printf("gmp [GPGMP]: (free) data clobbered before allocation block\n");
                 // abort();
             }
             if (blk_size % GMP_LIMB_BYTES == 0)
                 if (p[blk_size / GMP_LIMB_BYTES] != ~((0xdeadbeef << 31) + 0xdeafdeed))
                 {
-                    printf("gmp: (free) data clobbered after allocation block\n");
+                    printf("gmp [GPGMP]: (free) data clobbered after allocation block\n");
                     // abort();
                 }
         }
@@ -244,7 +244,7 @@ __GPGMP_DECLSPEC void *__gpgmp_allocate_func(size_t size)
     ret = malloc(size);
     if (ret == 0)
     {
-        printf("GNU MP: Cannot allocate memory (size=%lu)\n", (long)size);
+        printf("GNU MP [GPGMP]: Cannot allocate memory (size=%lu)\n", (long)size);
         // abort();
     }
 
@@ -273,13 +273,13 @@ __GPGMP_DECLSPEC void *__gpgmp_reallocate_func(void *oldptr, size_t old_size, si
         mp_ptr p = oldptr;
         if (p[-1] != (0xdeadbeef << 31) + 0xdeafdeed)
         {
-            printf("gmp: (realloc) data clobbered before allocation block\n");
+            printf("gmp [GPGMP]: (realloc) data clobbered before allocation block\n");
             // abort();
         }
         if (old_size % GMP_LIMB_BYTES == 0)
             if (p[old_size / GMP_LIMB_BYTES] != ~((0xdeadbeef << 31) + 0xdeafdeed))
             {
-                printf("gmp: (realloc) data clobbered after allocation block\n");
+                printf("gmp [GPGMP]: (realloc) data clobbered after allocation block\n");
                 // abort();
             }
         oldptr = p - 1;
@@ -291,7 +291,7 @@ __GPGMP_DECLSPEC void *__gpgmp_reallocate_func(void *oldptr, size_t old_size, si
     ret = realloc(oldptr, new_size);
     if (ret == 0)
     {
-        printf("GNU MP: Cannot reallocate memory (old_size=%lu new_size=%lu)\n", (long)old_size, (long)new_size);
+        printf("GNU MP [GPGMP]: Cannot reallocate memory (old_size=%lu new_size=%lu)\n", (long)old_size, (long)new_size);
         // abort();
     }
 

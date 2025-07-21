@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "gpgmp.cuh"
+#include "GPGMP/gpgmp.cuh"
 
 #define ARRAY_LENGTH 5
 #define PRECISION_BITS 64*5

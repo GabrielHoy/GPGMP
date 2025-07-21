@@ -67,6 +67,11 @@ This library is **not** something I would consider "production usable" code quit
   - toom62_mul.cu
   - toom63_mul.cu
 - Investigate whether `_alloca` is viable to run on the GPU; possibly refactor more `mpn` functions if not
+- Find a way to vastly reduce the pre-allocated scratch space required for running the following routines on the GPU:
+  - SQRT_UI: ~20X Limbs
+  - DIV: ~17X Limbs
+  - UI_DIV: ~16X Limbs
+  - SQRT: ~4.4X Limbs
 - Optimize `gpgmp::mpnRoutines` routines for parallelized processing
 - Optimize `gpgmp::mpfRoutines` routines for parallelized processing
 - Optimize `gpgmp::mpfArrayRoutines` routines for parallelized processing

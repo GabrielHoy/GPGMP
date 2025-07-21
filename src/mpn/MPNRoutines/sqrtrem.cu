@@ -503,7 +503,9 @@ namespace gpgmp
       }
 
       if ((odd | nsh) != 0)
+      {
         gpmpn_rshift(sp, sp, n, nsh + (odd ? GMP_NUMB_BITS / 2 : 0));
+      }
       return c;
     }
 

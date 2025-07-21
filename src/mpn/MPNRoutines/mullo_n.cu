@@ -138,8 +138,7 @@ namespace gpgmp
         gpmpn_dc_mullo_n requires a scratch space of 2*n limbs at tp.
         It accepts tp == rp.
     */
-    ANYCALLER static void
-    gpmpn_dc_mullo_n(mp_ptr rp, mp_srcptr xp, mp_srcptr yp, mp_size_t n, mp_ptr tp)
+    ANYCALLER static void gpmpn_dc_mullo_n(mp_ptr rp, mp_srcptr xp, mp_srcptr yp, mp_size_t n, mp_ptr tp)
     {
       mp_size_t n2, n1;
       ASSERT(n >= 2);

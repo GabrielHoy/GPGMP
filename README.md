@@ -2,9 +2,14 @@
 
 ## This is a library built ontop of the GNU MP library, intended to enable mass-parallelized GPU computation of arbitrary precision numbers.
 
-**IN PROGRESS:** ANYTHING AND EVERYTHING IS SUBJECT TO CHANGE AND CODE MAY NOT BE THUROUGHLY TESTED. Many functions will not currently work; I have currently only confirmed the basic division, multiplication, subtraction and addition functions to be operational as one would expect.
+**IN PROGRESS:** ANYTHING AND EVERYTHING IS SUBJECT TO CHANGE - CODE MAY NOT BE THUROUGHLY TESTED; I have currently only confirmed the following functions to work as expected across the CPU and GPU:
+- Addition
+- Subtraction
+- Multiplication
+- Division
+- Square Roots
 
-I will write a more complete README - and docs - if/when I flesh out this library to a point where I feel comfortable publishing it as "production usable" code...
+This library is **not** something I would consider "production usable" code quite yet, but I am publishing it as-is for anyone who would like to use it regardless or help contribute to the project.
 
 > **CURRENT FUNCTIONALITY:**
 - GPU-Compatible `mpn` routines, under `gpgmp::mpnRoutines::gp<normal_mpn_routine_name>`
@@ -14,8 +19,8 @@ I will write a more complete README - and docs - if/when I flesh out this librar
 - `gpgmp::mpf_device_array` and `gpgmp::mpf_host_array` types which operate similarly to mpf_t[] array's, with the benefit of optimized Memory Coalescence and GPU compatibility.
 
 > **KNOWN ISSUES:**
+- Using GPGMP is not well documented for end-users yet, if you are not well acquainted with GMP and its usage I *heavily* recommend reading up on the base library before using GPGMP; it will save you lots of headache.
 - None of the routines have been *particularly* optimized to avoid Warp Divergence yet. I have primarily focused on porting this massive library to CUDA C and resolving the myriad of implications that running GMP on the GPU introduces; there are many optimizations to be had yet and this library is certainly not as fast as it *could* be.
-- There is scaffolding currently setup for "availableOperations" on `mpf_array`'s, but no actual assertations nor checks are performed to make sure that the user actually declared their 'intent' to use a function - and thereby whether necessary scratch space was pre-allocated - during `mpf_array` routines.
 - availableOperations needs metadata associated with it instead of being a simple bit-field so we can reduce overall scratch space needed for some operations -- for example, mpf_div requires approx. ~12x the limb-count of scratch space in most cases currently, but this number *can* go much lower if the user doesn't plan to divide a numerator by a single-limb number.
 - `mpfArrayRoutines::gpmpf_pow_ui` requires special logic to accomodate ahead-of-time scratch space allocation depending on the maximum exponent the user desires to raise something to the power of.
 - Using `mpf` routines can be clunky and unintuitive at the moment due to some routines requiring dedicated scratch space to be allocated by the user ahead of time. There is no doubt a way to abstract this allocation.
@@ -25,6 +30,7 @@ I will write a more complete README - and docs - if/when I flesh out this librar
 
 > **TODO:**
 - Actually set this up with build steps etc to be a library instead of compiling to an executable for ease of testing
+- Write some basic documentation for end-users to introduce them to the library and its basic usage
 - Refactor __**many**__ `mpn` routines to use pre-allocated scratch space instead of trying to dynamically allocate on the GPU:
   - dcpi_bdiv_q.cu
   - dcpi_bdiv_qr.cu
@@ -67,7 +73,6 @@ I will write a more complete README - and docs - if/when I flesh out this librar
 - Optimize `gpgmp::mpnRoutines` routines for parallelized processing
 - Optimize `gpgmp::mpfRoutines` routines for parallelized processing
 - Optimize `gpgmp::mpfArrayRoutines` routines for parallelized processing
-- Write Usage Documentation
 - Ensure no possible legal issues exist with this library extending off of GMP. *(Until I get to this, if you're with the GMP legal team and have any concerns feel free to reach out at legal@tamperedreality.net!)*
 - Test all randomization functions to ensure they work on the GPU
 - Generally clean the codebase up, standardize used naming conventions, remove zombie code left over from porting, etc.
@@ -82,6 +87,8 @@ I will write a more complete README - and docs - if/when I flesh out this librar
   - MPFR is a big library on its own, and for the sake of simplicity I've chosen to limit my scope for an initial release of this project to purely the GMP library. In the future if I have time and there is interest, I may approach adding an MPFR port to this project in the future as well.
 - This library is out of date with the current version of GMP!
   - At the time of this libraries creation the current GMP latest version is 6.3.0; this is the version that was used during development of GPGMP and I am unsure as to past/future GMP version interoperability with GPGMP. *GPGMP will likely not be kept up-to-date with future GMP versions as they release.*
+- Why run GMP on the GPU in the first place?
+  - I decided to create this project primarily to fill a technical void I noticed where noone else had created an implementation of Arbitrary-Precision Floating Point arithmetic on the GPU yet; the CUMP library does exist for basic floating point operations but I noticed it did not play well with Windows and didn't have some desired functionalities from GMP I needed for my other personal projects.
 
 > FOR CONTRIBUTORS
 
@@ -89,5 +96,5 @@ I will write a more complete README - and docs - if/when I flesh out this librar
   - Rewriting many of the `mpn` routines to take pre-allocated scratch space instead of attempting dynamic allocation mid-routines
   - Writing Unit Tests to ensure all `mpn`, `mpf` and `mpfArray` routines can run inside of GPU Kernels successfully
   - Abstracting away the necessity for users to pre-allocate scratch space when they want to use `mpn` routines -- *possibly implement our own idea of an `mpz_array` which pre-allocates space, similar to the `mpf_array`'s?*
-- Some background on me which may explain oddities in the way I code; believe it or not I am an amateur C++ programmer, even newer than that at CUDA, and self taught! I work in a professional capacity with higher level languages like Luau for game dev, so for me this project is certainly diving into the deep end of low-level programming. You may see the ramnifications of that in the library's code, it may be very non-standard or messy in comparision to modern C++ programming practices or paradigms.
+- This project is one of my first deep-dives into CUDA C and its intricacies; You may see the ramnifications of that in the library's code, if it is non-standard or messy in comparision to "modern" C++/CUDA C paradigms feel free to make an issue and I'll try to correct it!
 - If you're browsing the code and see me committing any 'mortal sins' - or have a suggestion about an optimization - by all means make a fuss with an issue/PR, I'm always trying to learn more and welcome contributions!

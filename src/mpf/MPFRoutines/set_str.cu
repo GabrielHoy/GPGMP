@@ -42,6 +42,7 @@ see https://www.gnu.org/licenses/.  */
 
 #include "config.cuh"
 
+#include "DeviceCommon.cuh"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -67,10 +68,7 @@ namespace gpgmp
     /* Compute base^exp and return the most significant prec limbs in rp[].
        Put the count of omitted low limbs in *ign.
        Return the actual size (which might be less than prec).  */
-    ANYCALLER static mp_size_t
-    mpn_pow_1_highpart(mp_ptr rp, mp_size_t *ignp,
-                       mp_limb_t base, mp_exp_t exp,
-                       mp_size_t prec, mp_ptr tp)
+    ANYCALLER static mp_size_t mpn_pow_1_highpart(mp_ptr rp, mp_size_t *ignp, mp_limb_t base, mp_exp_t exp, mp_size_t prec, mp_ptr tp)
     {
       mp_size_t ign; /* counts number of ignored low limbs in r */
       mp_size_t off; /* keeps track of offset where value starts */
@@ -122,8 +120,7 @@ namespace gpgmp
       return rn;
     }
 
-    ANYCALLER int
-    gpmpf_set_str(mpf_ptr x, const char *str, int base)
+    ANYCALLER int gpmpf_set_str(mpf_ptr x, const char *str, int base)
     {
       size_t str_size;
       char *s, *begs;
@@ -134,7 +131,7 @@ namespace gpgmp
       const char *expptr;
       int exp_base;
       const char *point = GMP_DECIMAL_POINT;
-      size_t pointlen = strlen(point);
+      size_t pointlen = gpgmp::internal::cudaStrLen(point);
       const unsigned char *digit_value;
       int incr;
       size_t n_zeros_skipped;
@@ -144,7 +141,7 @@ namespace gpgmp
       c = (unsigned char)*str;
 
       /* Skip whitespace.  */
-      while (isspace(c))
+      while (gpgmp::internal::cudaIsSpace(c))
         c = (unsigned char)*++str;
 
       negative = 0;
@@ -190,7 +187,7 @@ namespace gpgmp
       /* Locate exponent part of the input.  Look from the right of the string,
          since the exponent is usually a lot shorter than the mantissa.  */
       expptr = NULL;
-      str_size = strlen(str);
+      str_size = gpgmp::internal::cudaStrLen(str);
       for (i = str_size - 1; i > 0; i--)
       {
         c = (unsigned char)str[i];
@@ -213,7 +210,7 @@ namespace gpgmp
       for (i = 0; i < str_size; i++)
       {
         c = (unsigned char)*str;
-        if (!isspace(c))
+        if (!gpgmp::internal::cudaIsSpace(c))
         {
           int dig;
 

@@ -5,8 +5,7 @@ namespace gpgmp
   namespace mpfArrayRoutines
   {
 
-    ANYCALLER void
-    gpmpf_random2(mpf_array_idx x, mp_size_t xs, mp_exp_t exp)
+    ANYCALLER void gpmpf_random2(mpf_array_idx x, mp_size_t xs, mp_exp_t exp)
     {
       mp_size_t xn;
       mp_size_t prec;

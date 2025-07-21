@@ -38,8 +38,7 @@ namespace gpgmp
   namespace mpfRoutines
   {
 
-    ANYCALLER size_t
-    gpmpf_inp_str(mpf_ptr rop, FILE *stream, int base)
+    HOSTONLY size_t gpmpf_inp_str(mpf_ptr rop, FILE *stream, int base)
     {
       char *str;
       size_t alloc_size, str_size;

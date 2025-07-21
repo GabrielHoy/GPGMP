@@ -7,6 +7,7 @@ namespace gpgmp
 
     ANYCALLER void gpmpf_add(mpf_array_idx r, mpf_array_idx u, mpf_array_idx v)
     {
+      MPF_ARRAY_ASSERT_OP_AVAILABLE(r.array, OP_ADD);
       mp_srcptr up, vp;
       mp_ptr rp;
       mp_size_t usize, vsize, rsize;

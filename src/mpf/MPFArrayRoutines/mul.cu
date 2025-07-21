@@ -7,6 +7,7 @@ namespace gpgmp
 
     ANYCALLER void gpmpf_mul(mpf_array_idx r, mpf_array_idx u, mpf_array_idx v)
     {
+      MPF_ARRAY_ASSERT_OP_AVAILABLE(r.array, OP_MUL);
       mp_size_t sign_product;
       mp_size_t prec = r.array->userSpecifiedPrecisionLimbCount;
       mp_size_t rsize;

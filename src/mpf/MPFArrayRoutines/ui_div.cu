@@ -9,6 +9,7 @@ namespace gpgmp
 
     ANYCALLER void gpmpf_ui_div(mpf_array_idx r, unsigned long int u, mpf_array_idx v)
     {
+      MPF_ARRAY_ASSERT_OP_AVAILABLE(r.array, OP_UI_DIV);
       mp_srcptr vp;
       mp_ptr rp, tp, remp, new_vp;
       mp_size_t vsize;
@@ -62,7 +63,6 @@ namespace gpgmp
       else
       {
         /* one alloc with calculated size, for efficiency */
-        mp_size_t size = vsize + tsize + (rp == vp ? vsize : 0);
         remp = scratchSpace;
         scratchSpace += vsize;
         tp = scratchSpace;

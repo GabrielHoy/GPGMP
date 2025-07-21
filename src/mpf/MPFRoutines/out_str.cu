@@ -53,8 +53,7 @@ namespace gpgmp
   namespace mpfRoutines
   {
 
-    ANYCALLER size_t
-    gpmpf_out_str(FILE *stream, int base, size_t n_digits, mpf_srcptr op)
+    HOSTONLY size_t gpmpf_out_str(FILE *stream, int base, size_t n_digits, mpf_srcptr op)
     {
       char *str;
       mp_exp_t exp;

@@ -7,7 +7,6 @@ namespace gpgmp
 
     ANYCALLER void gpmpf_swap(mpf_array_idx toSwap, mpf_array_idx swapWith) __GMP_NOTHROW
     {
-      mp_ptr tptr;
       mp_size_t tprec;
       mp_size_t tsiz;
       mp_exp_t texp;

@@ -7,8 +7,7 @@ namespace gpgmp
   namespace mpfArrayRoutines
   {
 
-    ANYCALLER void
-    gpmpf_set_ui(mpf_array_idx toSet, unsigned long val)
+    ANYCALLER void gpmpf_set_ui(mpf_array_idx toSet, unsigned long val)
     {
       mp_size_t size;
 

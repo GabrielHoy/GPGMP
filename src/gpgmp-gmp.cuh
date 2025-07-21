@@ -326,7 +326,7 @@ namespace gpgmp
 
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_d(mpf_array_idx, double);
 
-        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_q(mpf_array_idx, mpq_srcptr);
+        __GPGMP_DECLSPEC HOSTONLY void gpmpf_set_q(mpf_array_idx, mpq_srcptr);
 
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpf_set_si(mpf_array_idx, signed long int);
 

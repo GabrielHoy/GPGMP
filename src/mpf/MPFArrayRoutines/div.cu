@@ -29,6 +29,7 @@ namespace gpgmp
 
     ANYCALLER void gpmpf_div(mpf_array_idx r, mpf_array_idx u, mpf_array_idx v)
     {
+      MPF_ARRAY_ASSERT_OP_AVAILABLE(r.array, OP_DIV);
       mp_srcptr up, vp;
       mp_ptr rp, new_vp;
       mp_size_t usize, vsize, rsize, prospective_rsize, tsize, zeros;

@@ -9,8 +9,7 @@ namespace gpgmp
        the dividend.  It calls mpn_div_q to produce a quotient of rprec+1 limbs.
        So rprec+1 == dsize - xsize + 1, hence dprec = rprec+xsize.  */
 
-    ANYCALLER void
-    gpmpf_reldiff(mpf_array_idx rdiff, mpf_array_idx x, mpf_array_idx y)
+    ANYCALLER void gpmpf_reldiff(mpf_array_idx rdiff, mpf_array_idx x, mpf_array_idx y)
     {
       if (UNLIKELY(MPF_ARRAY_SIZES(x.array)[x.idx] == 0))
       {
@@ -18,6 +17,7 @@ namespace gpgmp
       }
       else
       {
+        MPF_ARRAY_ASSERT_OP_AVAILABLE(rdiff.array, OP_RELDIFF);
         mp_limb_t* scratchSpace = MPF_ARRAY_SCRATCH_SPACE_FOR_IDX(rdiff.array, rdiff.idx);
         mp_size_t dprec;
         mpf_t d;

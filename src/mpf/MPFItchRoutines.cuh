@@ -85,18 +85,14 @@ namespace gpgmp
 
     ANYCALLER static int gpmpf_set_q_itch(mp_size_t r_mp_prec, mpq_t q)
     {
-      mp_size_t prec, nsize, dsize, qsize, prospective_qsize, tsize, zeros;
-      mp_size_t sign_quotient;
-      mp_exp_t exp;
+      mp_size_t nsize, dsize, qsize, prospective_qsize, tsize, zeros;
 
       nsize = SIZ(&q->_mp_num);
       dsize = SIZ(&q->_mp_den);
 
-      sign_quotient = nsize;
       nsize = ABS(nsize);
 
       prospective_qsize = nsize - dsize + 1;
-      exp = prospective_qsize;
       qsize = r_mp_prec + 1;
 
       zeros = qsize - prospective_qsize;
@@ -106,18 +102,14 @@ namespace gpgmp
     }
     ANYCALLER static int gpmpf_set_q_itch(mp_size_t r_mp_prec, mp_size_t q_mp_num_mp_size, mp_size_t q_mp_den_mp_size)
     {
-      mp_size_t prec, nsize, dsize, qsize, prospective_qsize, tsize, zeros;
-      mp_size_t sign_quotient;
-      mp_exp_t exp;
+      mp_size_t nsize, dsize, qsize, prospective_qsize, tsize, zeros;
 
       nsize = q_mp_num_mp_size;
       dsize = q_mp_den_mp_size;
 
-      sign_quotient = nsize;
       nsize = ABS(nsize);
 
       prospective_qsize = nsize - dsize + 1;
-      exp = prospective_qsize;
       qsize = r_mp_prec + 1;
 
       zeros = qsize - prospective_qsize;

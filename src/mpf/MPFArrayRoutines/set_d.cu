@@ -13,8 +13,7 @@ namespace gpgmp
   namespace mpfArrayRoutines
   {
 
-    ANYCALLER void
-    gpmpf_set_d(mpf_array_idx toSet, double valueSetTo)
+    ANYCALLER void gpmpf_set_d(mpf_array_idx toSet, double valueSetTo)
     {
       int negative;
 

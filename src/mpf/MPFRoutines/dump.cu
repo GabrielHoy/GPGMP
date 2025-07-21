@@ -36,14 +36,14 @@ see https://www.gnu.org/licenses/.  */
 #include <stdio.h>
 #include <string.h> /* for strlen */
 #include "gpgmp-impl.cuh"
+#include "DeviceCommon.cuh"
 
 namespace gpgmp
 {
   namespace mpfRoutines
   {
 
-    ANYCALLER void
-    gpmpf_dump(mpf_srcptr u)
+    HOSTONLY void gpmpf_dump(mpf_srcptr u)
     {
       mp_exp_t exp;
       char *str;
@@ -53,7 +53,7 @@ namespace gpgmp
         printf("-0.%se%ld\n", str + 1, exp);
       else
         printf("0.%se%ld\n", str, exp);
-      (*__gpgmp_free_func)(str, strlen(str) + 1);
+      (*__gpgmp_free_func)(str, gpgmp::internal::cudaStrLen(str) + 1);
     }
 
   }

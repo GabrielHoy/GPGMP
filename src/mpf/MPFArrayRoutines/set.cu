@@ -5,8 +5,7 @@ namespace gpgmp
   namespace mpfArrayRoutines
   {
 
-    ANYCALLER void
-    gpmpf_set(mpf_array_idx set, mpf_array_idx copy)
+    ANYCALLER void gpmpf_set(mpf_array_idx set, mpf_array_idx copy)
     {
       mp_ptr rp, up;
       mp_size_t size, asize;

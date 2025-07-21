@@ -8,6 +8,7 @@ namespace gpgmp
 
     ANYCALLER void gpmpf_div_ui(mpf_array_idx r, mpf_array_idx u, unsigned long int v)
     {
+      MPF_ARRAY_ASSERT_OP_AVAILABLE(r.array, OP_DIV_UI);
       mp_srcptr up;
       mp_ptr rp, rtp;
       mp_size_t usize;

@@ -35,10 +35,7 @@ namespace gpgmp
     /* Compute base^exp and return the most significant prec limbs in rp[].
        Put the count of omitted low limbs in *ign.
        Return the actual size (which might be less than prec).  */
-    ANYCALLER static mp_size_t
-    mpn_pow_1_highpart(mp_ptr rp, mp_size_t *ignp,
-                       mp_limb_t base, mp_exp_t exp,
-                       mp_size_t prec, mp_ptr tp)
+    ANYCALLER static mp_size_t mpn_pow_1_highpart(mp_ptr rp, mp_size_t *ignp, mp_limb_t base, mp_exp_t exp, mp_size_t prec, mp_ptr tp)
     {
       mp_size_t ign; /* counts number of ignored low limbs in r */
       mp_size_t off; /* keeps track of offset where value starts */
@@ -93,8 +90,7 @@ namespace gpgmp
     //Requires scratch space to be provided by the caller if called on the device-side.
     //Requires scratch space NOT to be provided if called on the host-side.
     //Using this routine on the device is HEAVILY RECOMMENDED AGAINST, albeit possible.
-    ANYCALLER int
-    gpmpf_set_str(mpf_array_idx x, const char *str, int base, char* scratchSpaceIfOnDevice)
+    ANYCALLER int gpmpf_set_str(mpf_array_idx x, const char *str, int base, char* scratchSpaceIfOnDevice)
     {
       size_t str_size;
       #ifdef __CUDA_ARCH__

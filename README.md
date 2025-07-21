@@ -20,6 +20,7 @@ I will write a more complete README - and docs - if/when I flesh out this librar
 - `mpfArrayRoutines::gpmpf_pow_ui` requires special logic to accomodate ahead-of-time scratch space allocation depending on the maximum exponent the user desires to raise something to the power of.
 - Using `mpf` routines can be clunky and unintuitive at the moment due to some routines requiring dedicated scratch space to be allocated by the user ahead of time. There is no doubt a way to abstract this allocation.
 - A few `mpn` routines don't currently play well with the GPU and can cause kernels to hang. Need to properly test mpn functions in the future to find all occurances of this and refactor.
+- Multiplication routines currently use basecase multiplication instead in all cases instead of attempting to branch off into Toom or FFT multiplication methods - this may significantly slow down or speed up GPU multiplication due to warp divergence, need to investigate and profile both cases
 - Unit Tests have not been written yet.
 
 > **TODO:**
@@ -68,6 +69,7 @@ I will write a more complete README - and docs - if/when I flesh out this librar
 - Optimize `gpgmp::mpfArrayRoutines` routines for parallelized processing
 - Write Usage Documentation
 - Ensure no possible legal issues exist with this library extending off of GMP. *(Until I get to this, if you're with the GMP legal team and have any concerns feel free to reach out at legal@tamperedreality.net!)*
+- Test all randomization functions to ensure they work on the GPU
 - Generally clean the codebase up, standardize used naming conventions, remove zombie code left over from porting, etc.
 
 

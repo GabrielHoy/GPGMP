@@ -7,6 +7,7 @@ namespace gpgmp
 		ANYCALLER void
 		gpmpf_sub(mpf_array_idx r, mpf_array_idx u, mpf_array_idx v)
 		{
+			MPF_ARRAY_ASSERT_OP_AVAILABLE(r.array, OP_SUB);
 			mp_srcptr up, vp;
 			mp_ptr rp;
 			mp_size_t usize, vsize, rsize;
@@ -378,6 +379,7 @@ namespace gpgmp
 			ANYCALLER void
 			gpmpf_sub_mpf_t_from_array_idx(mpf_array_idx r, mpf_array_idx u, mpf_srcptr v)
 			{
+				MPF_ARRAY_ASSERT_OP_AVAILABLE(r.array, OP_SUB);
 				mp_srcptr up, vp;
 				mp_ptr rp;
 				mp_size_t usize, vsize, rsize;

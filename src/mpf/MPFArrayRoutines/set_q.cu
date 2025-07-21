@@ -25,7 +25,7 @@ namespace gpgmp
        to save one limb in the division.  */
 
     //TODO: Refactor to avoid dynamic allocation.
-    ANYCALLER void gpmpf_set_q(mpf_array_idx r, mpq_srcptr q)
+    HOSTONLY void gpmpf_set_q(mpf_array_idx r, mpq_srcptr q)
     {
       mp_srcptr np, dp;
       mp_size_t prec, nsize, dsize, qsize, prospective_qsize, tsize, zeros;

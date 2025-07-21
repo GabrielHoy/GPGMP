@@ -53,20 +53,6 @@ namespace gpgmp { //Shared functions callable between both host and device are p
 
 namespace gpgmp {
   /*
-
-    Original GMP mpz_t struct for reference:
-    typedef struct
-    {
-      int _mp_alloc;		Number of *limbs* allocated and pointed
-              to by the _mp_d field.
-      int _mp_size;			abs(_mp_size) is the number of limbs the
-              last field points to.  If _mp_size is
-              negative this is a negative number.
-      mp_limb_t *_mp_d;		Pointer to the limbs.
-    } __mpz_struct;
-  */
-
-  /*
     Struct used to store an array of mpz_t's in a manner that allows for better GPU memory coalescence.
     This struct is NOT designed to be created directly, instead use mpn_array_allocate_X() to retrieve one!
     Every time this struct is allocated, space for its arrays is also allocated directly after the struct.
@@ -101,34 +87,6 @@ namespace gpgmp {
   typedef mpn_array* mpn_device_array;
   //This is a direct alias for an mpn_array pointer; it is used to facilitate better type clarity within user code so that confusion does not arise between whether an mpn_array is on the host or the device.
   typedef mpn_array* mpn_host_array;
-
-
-  /*
-
-  Original GMP mpf struct for reference:
-  typedef struct
-  {
-    int _mp_prec;			// Max precision, in number of `mp_limb_t's.
-            Set by mpf_init and modified by
-            mpf_set_prec.  The area pointed to by the
-            _mp_d field contains `prec' + 1 limbs.
-    int _mp_size;			// abs(_mp_size) is the number of limbs the
-            last field points to.  If _mp_size is
-            negative this is a negative number.
-    mp_exp_t _mp_exp;		// Exponent, in the base of `mp_limb_t'.
-    mp_limb_t *_mp_d;		// Pointer to the limbs.
-  } __mpf_struct;
-  */
-
-  //Flags for specifying which operations a user wants to be available for use on a given floating-point number.
-  //These flags specify the amount of scratch space required for a floating-point number, used to pre-allocate this space when allocating a gpmpf_t/mpf_array.
-  //The amount of scratch space doesn't stack between operations - the total allocated extra space is determined by the maximum requirement among the given operation flags.
-  //extern enum UsedOperationFlags;
-
-  //A struct that stores an array of gpmpf_t's in a manner that allows for better GPU memory coalescence.
-  //extern struct mpf_array;
-  //extern struct mpf_array_idx;
-
 
 }
 

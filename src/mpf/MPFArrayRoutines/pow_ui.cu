@@ -20,9 +20,13 @@ namespace gpgmp
       if (e <= 1)
       {
         if (e == 0)
+        {
           gpmpf_set_ui(r, 1);
+        }
         else
+        {
           gpmpf_set(r, b);
+        }
         return;
       }
 

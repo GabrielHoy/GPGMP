@@ -137,8 +137,8 @@ __global__ void performDivision(gpgmp::mpf_device_array testArray)
 
     double valueBeforeOp = gpgmp::mpfArrayRoutines::gpmpf_get_d({testArray, threadIdentifier});
     //gpgmp::mpfArrayRoutines::gpmpf_div_ui({testArray, threadIdentifier}, {testArray, threadIdentifier}, 2);
-    //gpgmp::mpfArrayRoutines::gpmpf_div({testArray, threadIdentifier}, {testArray, threadIdentifier}, {testArray, ARRAY_LENGTH-1});
-    gpgmp::mpfArrayRoutines::gpmpf_ui_div({testArray, threadIdentifier}, 2, {testArray, threadIdentifier});
+    gpgmp::mpfArrayRoutines::gpmpf_div({testArray, threadIdentifier}, {testArray, threadIdentifier}, {testArray, ARRAY_LENGTH-1});
+    //gpgmp::mpfArrayRoutines::gpmpf_ui_div({testArray, threadIdentifier}, 2, {testArray, threadIdentifier});
     printf("[GPU]: Array[%d] Division Result: %f -> %f!\n", threadIdentifier, valueBeforeOp, gpgmp::mpfArrayRoutines::gpmpf_get_d({testArray, threadIdentifier}));
 }
 

@@ -544,7 +544,9 @@ namespace gpgmp
 
       high = np[nn - 1];
       if (high & (GMP_NUMB_HIGHBIT | (GMP_NUMB_HIGHBIT / 2)))
+      {
         c = 0;
+      }
       else
       {
         count_leading_zeros(c, high);

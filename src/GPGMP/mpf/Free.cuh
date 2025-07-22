@@ -10,11 +10,11 @@ namespace gpgmp {
         }
 
         //Frees an mpf_device_array struct from GPU memory, asynchronously if a stream is provided.
-        HOSTONLY void mpf_array_free_device(mpf_device_array array, cudaStream_t stream = 0) {
+        HOSTONLY cudaError_t mpf_array_free_device(mpf_device_array array, cudaStream_t stream = 0) {
             if (stream) {
-                cudaFreeAsync(array, stream);
+                return cudaFreeAsync(array, stream);
             } else {
-                cudaFree(array);
+                return cudaFree(array);
             }
         }
     }

@@ -7,7 +7,7 @@ namespace gpgmp {
 
         //Initializes a new mpf_array struct, this is used after a struct has been allocated in order to zero its memory out.
         //?Optimization potential: come back and just use one memset with the entire memory block since it's contiguous, not as pretty or easy to debug though
-        HOSTONLY void mpf_array_init(const mpf_host_array array) {
+        HOSTONLY static inline void mpf_array_init(const mpf_host_array array) {
             //Go through each size in the array and set it to 0, since every number in the array starts out utilizing 0 limbs.
             memset(MPF_ARRAY_SIZES(array), 0, array->numFloatsInArray * sizeof(int));
             //Go through each exponent in the array and set it to 0, since every number in the array starts out with an exponent of 0.
@@ -17,7 +17,7 @@ namespace gpgmp {
         }
 
         //Initializes a single integer inside of an mpf_array struct to zero.
-        HOSTONLY void mpf_array_init_idx(const mpf_host_array array, const int idx) {
+        HOSTONLY static inline void mpf_array_init_idx(const mpf_host_array array, const int idx) {
             //Exponent goes to 0 since we're initializing to 0...
             MPF_ARRAY_EXPONENTS(array)[idx] = 0;
             //Then set the size of this float to 0, since we're initializing to 0...
@@ -28,7 +28,7 @@ namespace gpgmp {
 
         //Initializes an mpf_array struct by copying the values of a default gmp mpf_t array into it.
         //This is common when you're working with "normal" GMP mpf_t[n]'s and you want to convert them over to mpf_array's for GPU use
-        HOSTONLY void mpf_array_init_from_gmp_array_of_mpf(const mpf_host_array array, const mpf_t* gmpMpfArray, const int gmpMpfArraySize) {
+        HOSTONLY static inline void mpf_array_init_from_gmp_array_of_mpf(const mpf_host_array array, const mpf_t* gmpMpfArray, const int gmpMpfArraySize) {
             int* sizesArray = MPF_ARRAY_SIZES(array);
             mp_exp_t* exponentsArray = MPF_ARRAY_EXPONENTS(array);
             mp_limb_t* dataArray = MPF_ARRAY_DATA(array);
@@ -51,7 +51,7 @@ namespace gpgmp {
         //Returns a cudaError_t error code associated with the memset operation.
         //
         // **NOTE: From experimentation, it seems like this may not be required for device arrays if you simply want to initialize them to 0 -- CUDA allocations seem to zero out memory automatically. Still writing this function for robustness regardless...
-        HOSTONLY cudaError_t mpf_array_init_on_device_from_host(const mpf_device_array deviceArrayPtr, const int numElementsInArray, const mp_bitcnt_t precisionPerFloat, cudaStream_t stream = 0) {
+        HOSTONLY static inline cudaError_t mpf_array_init_on_device_from_host(const mpf_device_array deviceArrayPtr, const int numElementsInArray, const mp_bitcnt_t precisionPerFloat, cudaStream_t stream = 0) {
             if (stream) {
                 //Zero out all of the data in the 'sizes array', 'exponents array', and 'data array' memory following the deviceArrayPtr's struct.
                 //These are in one contiguous memory block, so we only need a single memset call to achieve what we want, yay!
@@ -80,7 +80,7 @@ namespace gpgmp {
         //Requires parameters to be passed describing the device array size as well as the bits used for precision, this is due to the deviceArrayPtr's data being inaccessible from the host.
         //Returns a cudaError_t error code associated with ANY memcpy operation that may fail when copying over said values.
         // **OPTIMIZATION FOR LATER** - I should 1,000% be using cudaMemcpyBatchAsync and cudaMemcpyBatch. I am not for now for the sake of simplicity and getting a working product. I realize that this is not a good excuse, and that this is a significant source of performance loss.
-        HOSTONLY cudaError_t mpf_array_init_on_device_from_gmp_array_of_mpf(mpf_device_array deviceArrayPtr, const mpf_t* gmpMpfArray, const int numElementsInDeviceArray, const mp_bitcnt_t precisionPerFloat, const int numElementsInGmpMpfArray, cudaStream_t stream = 0) {
+        HOSTONLY static inline cudaError_t mpf_array_init_on_device_from_gmp_array_of_mpf(mpf_device_array deviceArrayPtr, const mpf_t* gmpMpfArray, const int numElementsInDeviceArray, const mp_bitcnt_t precisionPerFloat, const int numElementsInGmpMpfArray, cudaStream_t stream = 0) {
             int* deviceSizesArrayPtr = MPF_ARRAY_SIZES_NO_PTR_INDEXING(deviceArrayPtr);
             size_t limbsPerFloat = LIMB_COUNT_FROM_PRECISION_BITS(precisionPerFloat)+1;
             mp_exp_t* deviceExponentsArrayPtr = MPF_ARRAY_EXPONENTS_NO_PTR_INDEXING(deviceArrayPtr, numElementsInDeviceArray);
@@ -183,7 +183,7 @@ namespace gpgmp {
     namespace device {
 
         //Initializes a single integer inside of an mpf_array struct to zero.
-        GPUONLY void mpf_array_init_idx(const mpf_device_array array, const int idx) {
+        GPUONLY static inline void mpf_array_init_idx(const mpf_device_array array, const int idx) {
             //Set the size & exponent of this float to 0 limbs since its value is now 0.
             MPF_ARRAY_SIZES(array)[idx] = 0;
             MPF_ARRAY_EXPONENTS(array)[idx] = 0;
@@ -197,7 +197,7 @@ namespace gpgmp {
         //Initializes a new mpf_array struct on the current CUDA device, this is used after a struct has been allocated in order to zero its memory out.
         //This is VERY SLOW due to the fact that it has to zero out every limb in the array, and if I remember correctly memset on CUDA kernels forces serial execution.
         //It is heavily recommended to do this kind of initialization on the host side instead of inside a kernel.
-        GPUONLY void mpf_array_init_SLOW(const mpf_device_array array) {
+        GPUONLY static inline void mpf_array_init_SLOW(const mpf_device_array array) {
             //Go through each size in the array and set it to 0, since every number in the array is now 0 limbs long.
             memset(MPF_ARRAY_SIZES(array), 0, array->numFloatsInArray * sizeof(int));
             //...Go through each exponent in the array and set it to 0...since every number in the array is now 0 limbs long...

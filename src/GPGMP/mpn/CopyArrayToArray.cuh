@@ -10,7 +10,7 @@ namespace gpgmp {
         //hostArray may be equal to arrayFrom or arrayTo! hostArray does not need to be a separate array but it must contain the same metadata as the arrays it is copying from/to.
         //This function is useful for copying an mpn_array struct from the host to the device or vice versa - or for simply copying the contents of an mpn_array.
         //Returns a cudaError_t error code associated with the memcpy operation.
-        HOSTONLY inline cudaError_t mpn_array_cudaMemcpy(mpn_array*& arrayTo, mpn_array*& arrayFrom, mpn_array*& hostArray, const cudaMemcpyKind memcpyKind) {
+        HOSTONLY static inline cudaError_t mpn_array_cudaMemcpy(mpn_array*& arrayTo, mpn_array*& arrayFrom, mpn_array*& hostArray, const cudaMemcpyKind memcpyKind) {
             return cudaMemcpy(
                 arrayTo,
                 arrayFrom,
@@ -27,7 +27,7 @@ namespace gpgmp {
         //Assumes that arrayTo and arrayFrom have the EXACT SAME PROPERTIES(precision, count) as hostArray.
         //Do not use this function to copy an mpn_array into a new, unallocated mpn_array. Both arrays must already be allocated, lest you face undefined behavior and segfaults.
         //Returns a cudaError_t error code associated with the memcpy operation.
-        HOSTONLY cudaError_t mpn_array_cudaMemcpy_dataOnly(mpn_array*& arrayTo, mpn_array*& arrayFrom, mpn_array*& hostArray, const cudaMemcpyKind memcpyKind) {
+        HOSTONLY static inline cudaError_t mpn_array_cudaMemcpy_dataOnly(mpn_array*& arrayTo, mpn_array*& arrayFrom, mpn_array*& hostArray, const cudaMemcpyKind memcpyKind) {
             const unsigned long long bytesFromArrayPtrToDataArrayPtr = ALIGN_TO_128_BYTE_MULTIPLE(sizeof(gpgmp::mpn_array));
             const unsigned long long bytesFromArrayPtrToSizesArrayPtr = bytesFromArrayPtrToDataArrayPtr + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(mp_limb_t) * hostArray->numLimbsPerInteger * hostArray->numIntegersInArray);
 
@@ -77,7 +77,7 @@ namespace gpgmp {
         //Assumes that arrayTo and arrayFrom have the EXACT SAME PROPERTIES(precision, count) as hostArray.
         //Do not use this function to copy an mpn_array into a new, unallocated mpn_array. Both arrays must already be allocated, lest you face undefined behavior and segfaults.
         //NO ATTEMPT AT ERROR CHECKING IS DONE FOR THE SAKE OF SPEED; THERE IS NO WAY TO VALIDATE WHETHER ALL MEMCPY OPERATIONS PERFORMED BY THIS FUNCTION WERE SUCCESSFUL OR NOT.
-        HOSTONLY void mpn_array_cudaMemcpy_dataOnly_unsafe(mpn_array*& arrayTo, mpn_array*& arrayFrom, mpn_array*& hostArray, const cudaMemcpyKind memcpyKind) {
+        HOSTONLY static inline void mpn_array_cudaMemcpy_dataOnly_unsafe(mpn_array*& arrayTo, mpn_array*& arrayFrom, mpn_array*& hostArray, const cudaMemcpyKind memcpyKind) {
             const unsigned long long bytesFromArrayPtrToDataArrayPtr = ALIGN_TO_128_BYTE_MULTIPLE(sizeof(gpgmp::mpn_array));
             const unsigned long long bytesFromArrayPtrToSizesArrayPtr = bytesFromArrayPtrToDataArrayPtr + ALIGN_TO_128_BYTE_MULTIPLE(sizeof(mp_limb_t) * hostArray->numLimbsPerInteger * hostArray->numIntegersInArray);
 

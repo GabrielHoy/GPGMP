@@ -5,7 +5,7 @@ namespace gpgmp {
 
     namespace host {
         //Initializes a new mpn_array struct, this is used after a struct has been allocated in order to zero its memory out.
-        HOSTONLY void mpn_array_init(const mpn_host_array array) {
+        HOSTONLY static inline void mpn_array_init(const mpn_host_array array) {
             //Go through each limb in the array and set it to 0.
             memset(MPN_ARRAY_DATA(array), 0, array->numIntegersInArray * array->numLimbsPerInteger * sizeof(mp_limb_t));
             //Go through each size in the array and set it to 0, since every number in the array is now 0 limbs long.
@@ -13,7 +13,7 @@ namespace gpgmp {
         }
 
         //Initializes a single integer inside of an mpn_array struct to zero.
-        HOSTONLY void mpn_array_init_idx(const mpn_host_array array, const int idx) {
+        HOSTONLY static inline void mpn_array_init_idx(const mpn_host_array array, const int idx) {
             //Go through each limb that this integer occupies and set its value to 0.
             memset(MPN_ARRAY_DATA(array) + (idx * array->numLimbsPerInteger), 0, array->numLimbsPerInteger * sizeof(mp_limb_t));
 
@@ -22,7 +22,7 @@ namespace gpgmp {
         }
 
         //Initializes an mpn_array struct by copying the values of an mpz_t array into it.
-        HOSTONLY void mpn_array_init_from_mpz_array(const mpn_host_array array, const mpz_t* mpzArray, const int mpzArraySize) {
+        HOSTONLY static inline void mpn_array_init_from_mpz_array(const mpn_host_array array, const mpz_t* mpzArray, const int mpzArraySize) {
             mp_limb_t* dataArray = MPN_ARRAY_DATA(array);
             int* sizesArray = MPN_ARRAY_SIZES(array);
 
@@ -41,7 +41,7 @@ namespace gpgmp {
         //Returns a cudaError_t error code associated with the memset operation.
         //
         // **NOTE: From experimentation, it seems like this may not be required for device arrays if you simply want to initialize them to 0 -- CUDA allocations seem to zero out memory automatically. (All cards on the table, I don't know how true this is. I am a beginner CUDA developer.)
-        HOSTONLY cudaError_t mpn_array_init_on_device_from_host(const mpn_device_array deviceArrayPtr, const int arraySize, const mp_bitcnt_t precision, cudaStream_t stream = 0) {
+        HOSTONLY static inline cudaError_t mpn_array_init_on_device_from_host(const mpn_device_array deviceArrayPtr, const int arraySize, const mp_bitcnt_t precision, cudaStream_t stream = 0) {
             if (stream) {
                 //Zero out all of the data in the 'data array' and 'sizes array' memory following the deviceArrayPtr's struct.
                 //These are in one contiguous memory block, so we only need a single memset call to achieve what we want, yay!
@@ -68,7 +68,7 @@ namespace gpgmp {
         //Requires parameters to be passed describing the device array size as well as the bits used for precision, this is due to the deviceArrayPtr's data being inaccessible from the host.
         //Returns a cudaError_t error code associated with ANY memcpy operation that may fail when copying over said values.
         // **OPTIMIZATION FOR LATER** - I should 1,000% be using cudaMemcpyBatchAsync and cudaMemcpyBatch. I am not for now for the sake of simplicity and getting a working product. I realize that this is not a good excuse, and that this is a significant source of performance loss.
-        HOSTONLY cudaError_t mpn_array_init_on_device_from_mpz_array(mpn_device_array deviceArrayPtr, const mpz_t* mpzArray, const int arraySize, const mp_bitcnt_t precision, const int mpzArraySize, cudaStream_t stream = 0) {
+        HOSTONLY static inline cudaError_t mpn_array_init_on_device_from_mpz_array(mpn_device_array deviceArrayPtr, const mpz_t* mpzArray, const int arraySize, const mp_bitcnt_t precision, const int mpzArraySize, cudaStream_t stream = 0) {
             mp_limb_t* deviceDataArrayPtr = MPN_ARRAY_DATA_NO_PTR_INDEXING(deviceArrayPtr);
             size_t limbsPerInteger = LIMB_COUNT_FROM_PRECISION_BITS(precision); //equivalent to deviceArrayPtr->numLimbsPerInteger...
             int* deviceSizesArrayPtr = MPN_ARRAY_SIZES_NO_PTR_INDEXING(deviceArrayPtr, arraySize, precision);
@@ -143,21 +143,21 @@ namespace gpgmp {
     //Can be called from either the host or device.
     //Initializes a single integer inside of an mpn_array struct by copying the value of a limb into it.
     //DOES NOT PRESERVE NEGATIVITY.
-    ANYCALLER void mpn_array_init_idx_set_limb(mpn_array* array, const int idx, const mp_limb_t value) {
+    ANYCALLER static inline void mpn_array_init_idx_set_limb(mpn_array* array, const int idx, const mp_limb_t value) {
         MPN_ARRAY_DATA(array)[idx * array->numLimbsPerInteger] = value;
         MPN_ARRAY_SIZES(array)[idx] = (value != 0);
     }
     //Can be called from either the host or device.
     //Initializes a single integer inside of an mpn_array struct by copying the value of a signed long long into it.
     //Preserves negativity.
-    ANYCALLER void mpn_array_init_idx_set_sll(mpn_array* array, const int idx, const long long value) {
+    ANYCALLER static inline void mpn_array_init_idx_set_sll(mpn_array* array, const int idx, const long long value) {
         MPN_ARRAY_DATA(array)[idx * array->numLimbsPerInteger] = value;
         MPN_ARRAY_SIZES(array)[idx] = SGN(value);
     }
     //Can be called from either the host or device.
     //Initializes a single integer inside of an mpn_array struct by copying the value of a signed integer into it.
     //Preserves negativity.
-    ANYCALLER void mpn_array_init_idx_set_si(mpn_array* array, const int idx, const int value) {
+    ANYCALLER static inline void mpn_array_init_idx_set_si(mpn_array* array, const int idx, const int value) {
         MPN_ARRAY_DATA(array)[idx * array->numLimbsPerInteger] = value;
         MPN_ARRAY_SIZES(array)[idx] = SGN(value);
     }
@@ -166,7 +166,7 @@ namespace gpgmp {
     namespace device {
 
         //Initializes a single integer inside of an mpn_array struct to zero.
-        GPUONLY void mpn_array_init_idx(const mpn_device_array array, const int idx) {
+        GPUONLY static inline void mpn_array_init_idx(const mpn_device_array array, const int idx) {
             //Go through each limb that this integer occupies and set its value to 0.
             mp_limb_t* dataArray = MPN_ARRAY_DATA(array);
             for (int i = idx * array->numLimbsPerInteger; i < (idx + 1) * array->numLimbsPerInteger; i++) {
@@ -179,7 +179,7 @@ namespace gpgmp {
         //Initializes a new mpn_array struct on the current CUDA device, this is used after a struct has been allocated in order to zero its memory out.
         //This is VERY SLOW due to the fact that it has to zero out every limb in the array, and if I remember correctly memset on CUDA kernels forces serial execution.
         //It is heavily recommended to do this kind of initialization on the host side instead of inside a kernel.
-        GPUONLY void mpn_array_init_SLOW(const mpn_device_array array) {
+        GPUONLY static inline void mpn_array_init_SLOW(const mpn_device_array array) {
             //Go through each limb in the array and set it to 0.
             memset(MPN_ARRAY_DATA(array), 0, array->numIntegersInArray * array->numLimbsPerInteger * sizeof(mp_limb_t));
             //Go through each size in the array and set it to 0, since every number in the array is now 0 limbs long.

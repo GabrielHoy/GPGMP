@@ -9,7 +9,7 @@ namespace gpgmp {
         //This is useful to transpose between gpgmp's mpf_array type and an array of mpf_t* used by GMP.
         //Assumes that the given mpf_t array has enough array indices to store all floats from the given mpf_array.
         //Assumes that the given mpf_t array has enough precision to store all floats from the given mpf_array.
-        HOSTONLY void mpf_array_copy_to_gmp_mpf_array(mpf_t* arrayCopyInto, mpf_host_array& arrayCopyFrom) {
+        HOSTONLY static inline void mpf_array_copy_to_gmp_mpf_array(mpf_t* arrayCopyInto, mpf_host_array& arrayCopyFrom) {
             int* sizesArray = MPF_ARRAY_SIZES(arrayCopyFrom);
             mp_exp_t* exponentsArray = MPF_ARRAY_EXPONENTS(arrayCopyFrom);
             mp_limb_t* limbDataArrays = MPF_ARRAY_DATA(arrayCopyFrom);
@@ -34,7 +34,7 @@ namespace gpgmp {
         //Initializes each mpf_t in the given mpf_t array with available precision equivalent to the mpf_array's.
         //This is useful to transpose between gpgmp's mpf_array type and an array of mpf_t* used by GMP.
         //Assumes that the given mpf_t array has enough array indices to store all floats from the given mpf_array.
-        HOSTONLY void mpf_array_copy_to_gmp_mpf_array_with_mpf_init(mpf_t* arrayCopyInto, mpf_host_array& arrayCopyFrom) {
+        HOSTONLY static inline void mpf_array_copy_to_gmp_mpf_array_with_mpf_init(mpf_t* arrayCopyInto, mpf_host_array& arrayCopyFrom) {
             int* sizesArray = MPF_ARRAY_SIZES(arrayCopyFrom);
             mp_exp_t* exponentsArray = MPF_ARRAY_EXPONENTS(arrayCopyFrom);
             mp_limb_t* limbDataArrays = MPF_ARRAY_DATA(arrayCopyFrom);

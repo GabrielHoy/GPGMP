@@ -10,7 +10,7 @@ namespace gpgmp {
         //hostArray may be equal to arrayFrom or arrayTo! hostArray does not need to be a separate array but it must contain the same metadata as the arrays it is copying from/to.
         //This function is useful for copying an mpf_array struct from the host to the device or vice versa - or for simply copying the contents of an mpf_array.
         //Returns a cudaError_t error code associated with the memcpy operation.
-        HOSTONLY inline cudaError_t mpf_array_cudaMemcpy(mpf_array*& arrayTo, mpf_array*& arrayFrom, mpf_array*& hostArray, const cudaMemcpyKind memcpyKind) {
+        HOSTONLY static inline cudaError_t mpf_array_cudaMemcpy(mpf_array*& arrayTo, mpf_array*& arrayFrom, mpf_array*& hostArray, const cudaMemcpyKind memcpyKind) {
             return cudaMemcpy(
                 arrayTo,
                 arrayFrom,

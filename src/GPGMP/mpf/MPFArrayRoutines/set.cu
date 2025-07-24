@@ -8,10 +8,10 @@ namespace gpgmp
     ANYCALLER void gpmpf_set(mpf_array_idx set, mpf_array_idx copy)
     {
       mp_ptr rp, up;
-      mp_size_t size, asize;
-      mp_size_t prec;
+      signed long int size, asize;
+      signed long int prec;
 
-      prec = set.array->userSpecifiedPrecisionLimbCount+1; /* lie not to lose precision in assignment */
+      prec = set.array->userSpecifiedPrecisionLimbCount + 1; /* lie not to lose precision in assignment */
       size = MPF_ARRAY_SIZES(copy.array)[copy.idx];
       asize = ABS(size);
       rp = MPF_ARRAY_DATA_AT_IDX(set.array, set.idx);

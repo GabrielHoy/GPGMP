@@ -29,7 +29,9 @@ namespace gpgmp
 			if (vsize == 0)
 			{
 				if ((r.idx != u.idx) || (r.array != u.array))
+				{
 					gpmpf_set(r, u);
+				}
 				return;
 			}
 
@@ -50,7 +52,8 @@ namespace gpgmp
 			/* Make U be the operand with the largest exponent.  */
 			if (MPF_ARRAY_EXPONENTS(u.array)[u.idx] < MPF_ARRAY_EXPONENTS(v.array)[v.idx])
 			{
-				mpf_array_idx t = u;
+				mpf_array_idx t;
+				t = u;
 				u = v;
 				v = t;
 				negate ^= 1;
@@ -117,7 +120,7 @@ namespace gpgmp
 					   were non-equal, this if-statement catches all cases where U
 					   is smaller than V.  */
 
-						MPN_SRCPTR_SWAP(up, usize, vp, vsize);
+					   MPN_SRCPTR_SWAP(up, usize, vp, vsize);
 						negate ^= 1;
 						/* negating ediff not necessary since it is 0.  */
 					}
@@ -237,7 +240,9 @@ namespace gpgmp
 			{
 				/* V completely cancelled.  */
 				if (rp != up)
+				{
 					MPN_COPY(rp, up, usize);
+				}
 				rsize = usize;
 			}
 			else
@@ -419,32 +424,26 @@ namespace gpgmp
 				/* Signs are now known to be the same.  */
 				negate = usize < 0;
 
-				bool utilizeEffectiveUV = false;
-				mpf_srcptr effectiveU;
-				mpf_t effectiveV;
+				bool didSwap = false;
 
 				/* Make U be the operand with the largest exponent.  */
 				if (MPF_ARRAY_EXPONENTS(u.array)[u.idx] < EXP(v))
 				{
-					utilizeEffectiveUV = true;
-					effectiveU = v;
-					effectiveV->_mp_exp = MPF_ARRAY_EXPONENTS(u.array)[u.idx];
-					effectiveV->_mp_size = MPF_ARRAY_SIZES(u.array)[u.idx];
-					effectiveV->_mp_prec = u.array->userSpecifiedPrecisionLimbCount;
-					effectiveV->_mp_d = MPF_ARRAY_DATA_AT_IDX(u.array, u.idx);
+					didSwap = true;
 
-					usize = effectiveU->_mp_size;
-					vsize = effectiveV->_mp_size;
+					negate ^= 1;
+					usize = v->_mp_size;
+					vsize = MPF_ARRAY_SIZES(u.array)[u.idx];
 				}
 
 				usize = ABS(usize);
 				vsize = ABS(vsize);
-				up = utilizeEffectiveUV ? PTR(effectiveU) : MPF_ARRAY_DATA_AT_IDX(u.array, u.idx);
-				vp = PTR(utilizeEffectiveUV ? effectiveV : v);
+				up = didSwap ? PTR(v) : MPF_ARRAY_DATA_AT_IDX(u.array, u.idx);
+				vp = didSwap ? MPF_ARRAY_DATA_AT_IDX(u.array, u.idx) : PTR(v);
 				rp = MPF_ARRAY_DATA_AT_IDX(r.array, r.idx);
 				prec = r.array->userSpecifiedPrecisionLimbCount + 1;
-				exp = utilizeEffectiveUV ? effectiveU->_mp_exp : MPF_ARRAY_EXPONENTS(u.array)[u.idx];
-				ediff = exp - EXP(utilizeEffectiveUV ? effectiveV : v);
+				exp = didSwap ? EXP(v) : MPF_ARRAY_EXPONENTS(u.array)[u.idx];
+				ediff = exp - (didSwap ? MPF_ARRAY_EXPONENTS(u.array)[u.idx] : EXP(v));
 
 				/* If ediff is 0 or 1, we might have a situation where the operands are
 				   extremely close.  We need to scan the operands from the most significant
@@ -779,7 +778,6 @@ namespace gpgmp
 					//Normally in GMP we'd create an __mpf_struct to serve as a negated form of V;
 					//but we can do things a bit more efficiently I think here; let's call mpf_neg on V instead, use V for our addition directly, then mpf_neg it again after we're done with our addition to ensure v remains unchanged altogether.
 					//mpf_neg in this case should literally just be flipping mp_size when called with (v,v).
-
 					gpgmp::mpfArrayRoutines::gpmpf_neg(v, v);
 					gpgmp::internal::mpfRoutines::gpmpf_add_mpf_array_idx_to_mpf_array_idx(r, u, v, scratchSpace);
 					gpgmp::mpfArrayRoutines::gpmpf_neg(v, v);

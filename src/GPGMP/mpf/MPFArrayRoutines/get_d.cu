@@ -1,5 +1,3 @@
-
-
 #include "GPGMP/gpgmp-impl.cuh"
 
 namespace gpgmp
@@ -7,8 +5,7 @@ namespace gpgmp
   namespace mpfArrayRoutines
   {
 
-    ANYCALLER double
-    gpmpf_get_d(mpf_array_idx src)
+    ANYCALLER double gpmpf_get_d(mpf_array_idx src)
     {
       mp_size_t size, abs_size;
       long exp;

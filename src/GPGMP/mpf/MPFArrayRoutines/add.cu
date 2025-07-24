@@ -16,7 +16,7 @@ namespace gpgmp
       mp_size_t ediff;
       mp_limb_t cy;
       int negate;
-      mp_limb_t* scratchSpace = MPF_ARRAY_SCRATCH_SPACE_FOR_IDX(r.array, r.idx);
+      mp_limb_t *scratchSpace = MPF_ARRAY_SCRATCH_SPACE_FOR_IDX(r.array, r.idx);
 
       usize = MPF_ARRAY_SIZES(u.array)[u.idx];
       vsize = MPF_ARRAY_SIZES(v.array)[v.idx];
@@ -86,12 +86,16 @@ namespace gpgmp
 
       /* Allocate temp space for the result.  Allocate
          just vsize + ediff later???  */
+      mp_limb_t *tp = scratchSpace;
+      scratchSpace += prec;
 
       if (ediff >= prec)
       {
         /* V completely cancelled.  */
         if (rp != up)
+        {
           MPN_COPY_INCR(rp, up, usize);
+        }
         rsize = usize;
       }
       else
@@ -108,8 +112,8 @@ namespace gpgmp
             /*   v      */
             mp_size_t size;
             size = usize - ediff - vsize;
-            MPN_COPY(scratchSpace, up, size);
-            cy = gpgmp::mpnRoutines::gpmpn_add(scratchSpace + size, up + size, usize - size, vp, vsize);
+            MPN_COPY(tp, up, size);
+            cy = gpgmp::mpnRoutines::gpmpn_add(tp + size, up + size, usize - size, vp, vsize);
             rsize = usize;
           }
           else
@@ -118,8 +122,8 @@ namespace gpgmp
             /*   vvvvv  */
             mp_size_t size;
             size = vsize + ediff - usize;
-            MPN_COPY(scratchSpace, vp, size);
-            cy = gpgmp::mpnRoutines::gpmpn_add(scratchSpace + size, up, usize, vp + size, usize - ediff);
+            MPN_COPY(tp, vp, size);
+            cy = gpgmp::mpnRoutines::gpmpn_add(tp + size, up, usize, vp + size, usize - ediff);
             rsize = vsize + ediff;
           }
         }
@@ -129,26 +133,26 @@ namespace gpgmp
           /*      vv  */
           mp_size_t size;
           size = vsize + ediff - usize;
-          MPN_COPY(scratchSpace, vp, vsize);
-          MPN_ZERO(scratchSpace + vsize, ediff - usize);
-          MPN_COPY(scratchSpace + size, up, usize);
+          MPN_COPY(tp, vp, vsize);
+          MPN_ZERO(tp + vsize, ediff - usize);
+          MPN_COPY(tp + size, up, usize);
           cy = 0;
           rsize = size + usize;
         }
 
-        MPN_COPY(rp, scratchSpace, rsize);
+        MPN_COPY(rp, tp, rsize);
         rp[rsize] = cy;
         rsize += cy;
         uexp += cy;
       }
-
       MPF_ARRAY_SIZES(r.array)[r.idx] = negate ? -rsize : rsize;
       MPF_ARRAY_EXPONENTS(r.array)[r.idx] = uexp;
     }
 
   }
 
-  namespace internal {
+  namespace internal
+  {
     namespace mpfArrayRoutines
     {
       ANYCALLER void gpmpf_add_mpf_t_to_array_idx(mpf_array_idx r, mpf_array_idx u, mpf_srcptr v)
@@ -161,7 +165,7 @@ namespace gpgmp
         mp_size_t ediff;
         mp_limb_t cy;
         int negate;
-        mp_limb_t* scratchSpace = MPF_ARRAY_SCRATCH_SPACE_FOR_IDX(r.array, r.idx);
+        mp_limb_t *scratchSpace = MPF_ARRAY_SCRATCH_SPACE_FOR_IDX(r.array, r.idx);
 
         usize = MPF_ARRAY_SIZES(u.array)[u.idx];
         vsize = v->_mp_size;
@@ -174,7 +178,8 @@ namespace gpgmp
         }
         if (vsize == 0)
         {
-          if ((r.array != u.array) || (r.idx != u.idx)) {
+          if ((r.array != u.array) || (r.idx != u.idx))
+          {
             gpgmp::mpfArrayRoutines::gpmpf_set(r, u);
           }
           return;
@@ -195,30 +200,25 @@ namespace gpgmp
         /* Signs are now known to be the same.  */
         negate = usize < 0;
 
-        mpf_srcptr effectiveU;
-        mpf_t effectiveV;
+        bool didSwap = false;
 
         /* Make U be the operand with the largest exponent.  */
-        if (MPF_ARRAY_EXPONENTS(u.array)[u.idx] < v->_mp_exp)
+        if (MPF_ARRAY_EXPONENTS(u.array)[u.idx] < EXP(v))
         {
-          effectiveU = v;
-          effectiveV->_mp_exp = MPF_ARRAY_EXPONENTS(u.array)[u.idx];
-          effectiveV->_mp_size = MPF_ARRAY_SIZES(u.array)[u.idx];
-          effectiveV->_mp_prec = u.array->userSpecifiedPrecisionLimbCount;
-          effectiveV->_mp_d = MPF_ARRAY_DATA_AT_IDX(u.array, u.idx);
+          didSwap = true;
 
-          usize = effectiveU->_mp_size;
-          vsize = effectiveV->_mp_size;
+          usize = SIZ(v);
+          vsize = MPF_ARRAY_SIZES(u.array)[u.idx];
         }
 
         usize = ABS(usize);
         vsize = ABS(vsize);
-        up = effectiveU ? PTR(effectiveU) : MPF_ARRAY_DATA_AT_IDX(u.array, u.idx);
-        vp = PTR(effectiveV ? effectiveV : v);
+        up = didSwap ? PTR(v) : MPF_ARRAY_DATA_AT_IDX(u.array, u.idx);
+        vp = didSwap ? MPF_ARRAY_DATA_AT_IDX(u.array, u.idx) : PTR(v);
         rp = MPF_ARRAY_DATA_AT_IDX(r.array, r.idx);
         prec = r.array->userSpecifiedPrecisionLimbCount;
-        uexp = effectiveU ? effectiveU->_mp_exp : MPF_ARRAY_EXPONENTS(u.array)[u.idx];
-        ediff = (effectiveU ? effectiveU->_mp_exp : MPF_ARRAY_EXPONENTS(u.array)[u.idx]) - EXP(effectiveV ? effectiveV : v);
+        uexp = didSwap ? EXP(v) : MPF_ARRAY_EXPONENTS(u.array)[u.idx];
+        ediff = uexp - (didSwap ? MPF_ARRAY_EXPONENTS(u.array)[u.idx] : EXP(v));
 
         /* If U extends beyond PREC, ignore the part that does.  */
         if (usize > prec)
@@ -237,6 +237,8 @@ namespace gpgmp
 
         /* Allocate temp space for the result.  Allocate
            just vsize + ediff later???  */
+        mp_limb_t* tp = scratchSpace;
+        scratchSpace += prec;
 
         if (ediff >= prec)
         {
@@ -259,8 +261,8 @@ namespace gpgmp
               /*   v      */
               mp_size_t size;
               size = usize - ediff - vsize;
-              MPN_COPY(scratchSpace, up, size);
-              cy = gpgmp::mpnRoutines::gpmpn_add(scratchSpace + size, up + size, usize - size, vp, vsize);
+              MPN_COPY(tp, up, size);
+              cy = gpgmp::mpnRoutines::gpmpn_add(tp + size, up + size, usize - size, vp, vsize);
               rsize = usize;
             }
             else
@@ -269,8 +271,8 @@ namespace gpgmp
               /*   vvvvv  */
               mp_size_t size;
               size = vsize + ediff - usize;
-              MPN_COPY(scratchSpace, vp, size);
-              cy = gpgmp::mpnRoutines::gpmpn_add(scratchSpace + size, up, usize, vp + size, usize - ediff);
+              MPN_COPY(tp, vp, size);
+              cy = gpgmp::mpnRoutines::gpmpn_add(tp + size, up, usize, vp + size, usize - ediff);
               rsize = vsize + ediff;
             }
           }
@@ -280,14 +282,14 @@ namespace gpgmp
             /*      vv  */
             mp_size_t size;
             size = vsize + ediff - usize;
-            MPN_COPY(scratchSpace, vp, vsize);
-            MPN_ZERO(scratchSpace + vsize, ediff - usize);
-            MPN_COPY(scratchSpace + size, up, usize);
+            MPN_COPY(tp, vp, vsize);
+            MPN_ZERO(tp + vsize, ediff - usize);
+            MPN_COPY(tp + size, up, usize);
             cy = 0;
             rsize = size + usize;
           }
 
-          MPN_COPY(rp, scratchSpace, rsize);
+          MPN_COPY(rp, tp, rsize);
           rp[rsize] = cy;
           rsize += cy;
           uexp += cy;
@@ -300,7 +302,7 @@ namespace gpgmp
 
     namespace mpfRoutines
     {
-      ANYCALLER void gpmpf_add_mpf_array_idx_to_mpf_array_idx(mpf_ptr r, mpf_array_idx u, mpf_array_idx v, mp_limb_t* scratchSpace)
+      ANYCALLER void gpmpf_add_mpf_array_idx_to_mpf_array_idx(mpf_ptr r, mpf_array_idx u, mpf_array_idx v, mp_limb_t *scratchSpace)
       {
         mp_srcptr up, vp;
         mp_ptr rp;
@@ -330,8 +332,9 @@ namespace gpgmp
         /* If signs of U and V are different, perform subtraction.  */
         if ((usize ^ vsize) < 0)
         {
+          printf("hit neg case?? shot in the dark\n");
           gpgmp::mpfArrayRoutines::gpmpf_neg(v, v);
-          //v is now negated, so we can use it directly in our subtraction.
+          // v is now negated, so we can use it directly in our subtraction.
           gpgmp::internal::mpfRoutines::gpmpf_sub_mpf_array_idx_from_mpf_array_idx(r, u, v, scratchSpace);
           //...now that the subtraction is done, we need to negate v again to ensure it remains unchanged overall.
           gpgmp::mpfArrayRoutines::gpmpf_neg(v, v);

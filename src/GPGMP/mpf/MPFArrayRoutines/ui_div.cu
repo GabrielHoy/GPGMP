@@ -45,7 +45,6 @@ namespace gpgmp
 
       zeros = rsize - prospective_rsize; /* padding u to give rsize */
       tsize = 1 + zeros;                 /* u with zeros */
-
       if (WANT_TMP_DEBUG)
       {
         /* separate alloc blocks, for malloc debugging */

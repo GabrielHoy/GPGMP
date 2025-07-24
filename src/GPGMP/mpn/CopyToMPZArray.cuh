@@ -9,7 +9,7 @@ namespace gpgmp {
         //Assumes that the given mpz_t array has enough array indices to store all integers from the given mpn_array.
         //Allocates new memory for integer limbs inside of the mpz_t array if necessary depending on the precision of the given mpn_array.
         //The mpz_t array given to this function MUST be initialized!.
-        HOSTONLY void mpn_array_copy_to_mpz_array(mpz_t* arrayCopyInto, mpn_host_array& arrayCopyFrom) {
+        HOSTONLY static inline void mpn_array_copy_to_mpz_array(mpz_t* arrayCopyInto, mpn_host_array& arrayCopyFrom) {
             mp_limb_t* limbDataArray = MPN_ARRAY_DATA(arrayCopyFrom);
             int* sizesArray = MPN_ARRAY_SIZES(arrayCopyFrom);
 
@@ -25,7 +25,7 @@ namespace gpgmp {
 
         //Copies the contents of an mpn_array to an mpz_t array, initializing each mpz_t in the given array with exactly enough precision to hold the data copied from the given mpn_array.
         //Assumes that the given mpz_t array has enough array indices to store all integers from the given mpn_array.
-        HOSTONLY void mpn_array_copy_to_mpz_array_with_mpz_init(mpz_t* arrayCopyInto, mpn_host_array& arrayCopyFrom) {
+        HOSTONLY static inline void mpn_array_copy_to_mpz_array_with_mpz_init(mpz_t* arrayCopyInto, mpn_host_array& arrayCopyFrom) {
             mp_limb_t* limbDataArray = MPN_ARRAY_DATA(arrayCopyFrom);
             int* sizesArray = MPN_ARRAY_SIZES(arrayCopyFrom);
 
@@ -45,7 +45,7 @@ namespace gpgmp {
         //Requires manually giving the precision and count of integers in the given mpn_array; this is due to the inability to query these values from the device pointer on the host.
         //Performs (arraySize * 2) cudaMemcpy operations for both the limb data and limbs used by the integers in the given mpn_array.
         //Returns a cudaError_t value indicating the success or failure of the copy operation(s).
-        HOSTONLY cudaError_t mpn_array_copy_to_mpz_array_from_device(mpz_t* arrayCopyInto, mpn_device_array& arrayCopyFrom, const int arraySize, const mp_bitcnt_t precision) {
+        HOSTONLY static inline cudaError_t mpn_array_copy_to_mpz_array_from_device(mpz_t* arrayCopyInto, mpn_device_array& arrayCopyFrom, const int arraySize, const mp_bitcnt_t precision) {
             mp_limb_t* limbDataArray = MPN_ARRAY_DATA_NO_PTR_INDEXING(arrayCopyFrom);
             int* sizesArray = MPN_ARRAY_SIZES_NO_PTR_INDEXING(arrayCopyFrom, arraySize, precision);
             int numLimbsPerInteger = LIMB_COUNT_FROM_PRECISION_BITS(precision);
@@ -92,7 +92,7 @@ namespace gpgmp {
         //Requires manually giving the precision and count of integers in the given mpn_array; this is due to the inability to query these values from the device pointer on the host.
         //Performs (arraySize * 2) cudaMemcpy operations for both the limb data and limbs used by the integers in the given mpn_array.
         //Returns a cudaError_t value indicating the success or failure of the copy operation(s).
-        HOSTONLY cudaError_t mpn_array_copy_to_mpz_array_from_device_with_mpz_init(mpz_t* arrayCopyInto, mpn_device_array& arrayCopyFrom, const int arraySize, const mp_bitcnt_t precision) {
+        HOSTONLY static inline cudaError_t mpn_array_copy_to_mpz_array_from_device_with_mpz_init(mpz_t* arrayCopyInto, mpn_device_array& arrayCopyFrom, const int arraySize, const mp_bitcnt_t precision) {
             mp_limb_t* limbDataArray = MPN_ARRAY_DATA_NO_PTR_INDEXING(arrayCopyFrom);
             int* sizesArray = MPN_ARRAY_SIZES_NO_PTR_INDEXING(arrayCopyFrom, arraySize, precision);
             int numLimbsPerInteger = LIMB_COUNT_FROM_PRECISION_BITS(precision);

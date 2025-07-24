@@ -30,7 +30,7 @@ namespace gpgmp
 
         MPN_COPY(rp, up, asize);
         MPF_ARRAY_EXPONENTS(r.array)[r.idx] = MPF_ARRAY_EXPONENTS(u.array)[u.idx];
-        size = ABS(size);
+        size = size >= 0 ? asize : -asize;
       }
       MPF_ARRAY_SIZES(r.array)[r.idx] = size;
     }

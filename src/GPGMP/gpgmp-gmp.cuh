@@ -476,6 +476,7 @@ namespace gpgmp
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_mul_n(mp_ptr, mp_srcptr, mp_srcptr, mp_size_t);
 
         __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqr(mp_ptr, mp_srcptr, mp_size_t);
+        __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqr_with_preallocated_tarr(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t*);
 
 #if __GMP_INLINE_PROTOTYPES || defined(__GMP_FORCE_gpmpn_neg)
 //__GPGMP_DECLSPEC __GPGMP_CALLERTYPE mp_limb_t gpmpn_neg(mp_ptr, mp_srcptr, mp_size_t);

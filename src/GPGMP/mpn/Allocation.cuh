@@ -7,7 +7,7 @@ namespace gpgmp {
 
         //Allocates a new mpn_array struct on the host and assigns a provided pointer to it.
         //Returns true if the allocation was successful, false otherwise.
-        HOSTONLY bool mpn_array_allocate_on_host(mpn_host_array& arrayPtr, const int arraySize, const mp_bitcnt_t precision) {
+        HOSTONLY static inline bool mpn_array_allocate_on_host(mpn_host_array& arrayPtr, const int arraySize, const mp_bitcnt_t precision) {
             const size_t sizeToAllocateForStruct = gpgmp::internal::mpn_array_get_struct_allocation_size(arraySize, precision);
 
             void* allocatedMemory = malloc(sizeToAllocateForStruct);
@@ -25,14 +25,14 @@ namespace gpgmp {
 
         //Allocates enough space on the host inside of arrayPtr to store a direct copy of a given mpn_array matchSizeOf.
         //Returns true if the allocation was successful, false otherwise.
-        HOSTONLY bool mpn_array_allocate_on_host(mpn_host_array& arrayPtr, mpn_host_array& matchSizeOf) {
+        HOSTONLY static inline bool mpn_array_allocate_on_host(mpn_host_array& arrayPtr, mpn_host_array& matchSizeOf) {
             return mpn_array_allocate_on_host(arrayPtr, matchSizeOf->numIntegersInArray, PRECISION_BITS_FROM_LIMB_COUNT(matchSizeOf->numLimbsPerInteger));
         }
 
 
         //Allocates a new mpn_array struct on the current CUDA device and assigns a provided pointer to it.
         //Returns the CUDA error code associated with the allocation attempt.
-        HOSTONLY cudaError_t mpn_array_allocate_on_device(mpn_device_array& deviceArrayPtr, const int arraySize, const mp_bitcnt_t precision) {
+        HOSTONLY static inline cudaError_t mpn_array_allocate_on_device(mpn_device_array& deviceArrayPtr, const int arraySize, const mp_bitcnt_t precision) {
             const size_t sizeToAllocateForStruct = gpgmp::internal::mpn_array_get_struct_allocation_size(arraySize, precision);
 
             cudaError_t err = cudaMalloc(&deviceArrayPtr, sizeToAllocateForStruct);
@@ -60,7 +60,7 @@ namespace gpgmp {
         //Allocates enough space on the device inside of arrayPtr to store a direct copy of a given mpn_array matchSizeOf.
         //matchSizeOf MUST be on the host.
         //Returns the CUDA error code associated with the allocation attempt.
-        HOSTONLY cudaError_t mpn_array_allocate_on_device(mpn_device_array& arrayPtr, mpn_host_array& matchSizeOf) {
+        HOSTONLY static inline cudaError_t mpn_array_allocate_on_device(mpn_device_array& arrayPtr, mpn_host_array& matchSizeOf) {
             return mpn_array_allocate_on_device(arrayPtr, matchSizeOf->numIntegersInArray, PRECISION_BITS_FROM_LIMB_COUNT(matchSizeOf->numLimbsPerInteger));
         }
 

@@ -1372,6 +1372,7 @@ typedef size_t gmp_intptr_t;
 #ifndef gpmpn_sqr_basecase /* if not done with cpuvec in a fat binary */
 #define gpmpn_sqr_basecase __GPGMP_MPN(sqr_basecase)
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqr_basecase(mp_ptr, mp_srcptr, mp_size_t);
+            __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqr_basecase_with_preallocated_tarr(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t*);
 #endif
 
             __GPGMP_DECLSPEC __GPGMP_CALLERTYPE void gpmpn_sqrlo(mp_ptr, mp_srcptr, mp_size_t, mp_limb_t*);

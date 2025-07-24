@@ -66,5 +66,32 @@ namespace gpgmp
       } */
     }
 
+    ANYCALLER void gpmpn_sqr_with_preallocated_tarr(mp_ptr p, mp_srcptr a, mp_size_t n, mp_limb_t* tarr)
+    {
+      ASSERT(n >= 1);
+      ASSERT(!MPN_OVERLAP_P(p, 2 * n, a, n));
+
+      //Realistically this check introduces possible warp divergence and for the GPU I feel is less than necessary -- gpmpn_fft_mul furthers that divergence as well.
+      //Let's just use the basecase.
+      gpmpn_sqr_basecase_with_preallocated_tarr(p, a, n, tarr);
+
+      //If anyone is taking a look at this code; this is what I had previously after removing TOOM paths - will preserve for reference
+      /* if (BELOW_THRESHOLD(n, SQR_BASECASE_THRESHOLD))
+      { // mul_basecase is faster than sqr_basecase on small sizes sometimes
+        gpmpn_mul_basecase(p, a, n, a, n);
+      }
+      else if (BELOW_THRESHOLD(n, SQR_FFT_THRESHOLD))
+      {
+        gpmpn_sqr_basecase(p, a, n);
+      }
+      else
+      {
+        //havent tested this path so i sure hope it works :^)
+        // The current FFT code allocates its own space.  That should probably
+        // change.
+         gpmpn_fft_mul(p, a, n, a, n);
+      } */
+    }
+
   }
 }

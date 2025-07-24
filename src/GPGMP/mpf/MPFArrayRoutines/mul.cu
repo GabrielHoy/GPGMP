@@ -12,11 +12,12 @@ namespace gpgmp
       mp_size_t prec = r.array->userSpecifiedPrecisionLimbCount;
       mp_size_t rsize;
       mp_limb_t cy_limb;
-      mp_ptr rp;
+      mp_ptr rp, tp;
       mp_size_t adj;
       mp_limb_t* scratchSpace = MPF_ARRAY_SCRATCH_SPACE_FOR_IDX(r.array, r.idx);
 
-      if ((u.array == v.array) && (u.idx == v.idx))
+      //TODO: Fix up gpmpn_sqr to work with the GPU without 100 limbs of extra scratch...
+      if (false)//((u.array == v.array) && (u.idx == v.idx))
       {
         mp_srcptr up;
         mp_size_t usize;
@@ -42,7 +43,7 @@ namespace gpgmp
         {
           rsize = 2 * usize;
 
-          gpgmp::mpnRoutines::gpmpn_sqr(scratchSpace, up, usize);
+          gpgmp::mpnRoutines::gpmpn_sqr_with_preallocated_tarr(scratchSpace, up, usize, scratchSpace + rsize);
           cy_limb = scratchSpace[rsize - 1];
         }
       }
@@ -80,9 +81,11 @@ namespace gpgmp
         else
         {
           rsize = usize + vsize;
+          tp = scratchSpace;
+          scratchSpace += rsize;
           cy_limb = (usize >= vsize
-                         ? gpgmp::mpnRoutines::gpmpn_mul(scratchSpace, up, usize, vp, vsize)
-                         : gpgmp::mpnRoutines::gpmpn_mul(scratchSpace, vp, vsize, up, usize));
+                         ? gpgmp::mpnRoutines::gpmpn_mul(tp, up, usize, vp, vsize)
+                         : gpgmp::mpnRoutines::gpmpn_mul(tp, vp, vsize, up, usize));
         }
       }
 
@@ -91,11 +94,11 @@ namespace gpgmp
       prec++;
       if (rsize > prec)
       {
-        scratchSpace += rsize - prec;
+        tp += rsize - prec;
         rsize = prec;
       }
       rp = MPF_ARRAY_DATA_AT_IDX(r.array, r.idx);
-      MPN_COPY(rp, scratchSpace, rsize);
+      MPN_COPY(rp, tp, rsize);
       MPF_ARRAY_EXPONENTS(r.array)[r.idx] = MPF_ARRAY_EXPONENTS(u.array)[u.idx] + MPF_ARRAY_EXPONENTS(v.array)[v.idx] - adj;
       MPF_ARRAY_SIZES(r.array)[r.idx] = sign_product >= 0 ? rsize : -rsize;
     }
